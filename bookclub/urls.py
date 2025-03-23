@@ -15,4 +15,9 @@ urlpatterns = [
     ),
     path("register/", views.register, name="register"),
     path("profile/settings/", views.profile_settings, name="profile_settings"),
+    path(
+        "api/books/<str:hardcover_id>/progress/",
+        views.get_hardcover_progress,
+        name="get_hardcover_progress",
+    ),
 ]

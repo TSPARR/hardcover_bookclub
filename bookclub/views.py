@@ -1,9 +1,11 @@
+import json
 import logging
 
 import requests
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ApiKeyForm, BookSearchForm, CommentForm, UserRegistrationForm
@@ -50,7 +52,43 @@ def group_detail(request, group_id):
 @login_required
 def book_detail(request, book_id):
     book = get_object_or_404(Book, id=book_id)
-    comments = book.comments.all().order_by("-created_at")
+
+    # Get sorting option from request
+    sort_by = request.GET.get("sort", "date_desc")
+
+    # Get all comments for this book
+    comments = book.comments.all()
+
+    # Sort the comments based on the selected option
+    if sort_by == "date_asc":
+        comments = comments.order_by("created_at")
+    elif sort_by == "date_desc":
+        comments = comments.order_by("-created_at")
+    elif sort_by == "progress_asc":
+        # For progress sorting, we need custom logic
+        # First, try to sort by Hardcover percent if available
+        if comments.filter(hardcover_percent__isnull=False).exists():
+            comments = comments.order_by("hardcover_percent", "-created_at")
+        else:
+            # Fallback to sorting by progress_type and value
+            # This is more complex since progress_value can be different formats
+            # We'll get all comments and sort in Python
+            comments = list(comments.all())
+            comments.sort(
+                key=lambda c: _get_progress_value_for_sorting(c), reverse=False
+            )
+    elif sort_by == "progress_desc":
+        # Similar to progress_asc but in reverse
+        if comments.filter(hardcover_percent__isnull=False).exists():
+            comments = comments.order_by("-hardcover_percent", "-created_at")
+        else:
+            comments = list(comments.all())
+            comments.sort(
+                key=lambda c: _get_progress_value_for_sorting(c), reverse=True
+            )
+    else:
+        # Default to date descending
+        comments = comments.order_by("-created_at")
 
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -58,6 +96,40 @@ def book_detail(request, book_id):
             comment = form.save(commit=False)
             comment.user = request.user
             comment.book = book
+
+            # Get Hardcover progress data from hidden fields if available
+            if request.POST.get("hardcover_data"):
+                try:
+                    hardcover_data = json.loads(request.POST.get("hardcover_data"))
+
+                    # Save Hardcover data to the comment
+                    comment.hardcover_started_at = hardcover_data.get("started_at")
+                    comment.hardcover_finished_at = hardcover_data.get("finished_at")
+                    comment.hardcover_percent = hardcover_data.get("progress")
+                    comment.hardcover_current_page = hardcover_data.get("current_page")
+                    comment.hardcover_current_position = hardcover_data.get(
+                        "current_position"
+                    )
+                    comment.hardcover_reading_format = hardcover_data.get(
+                        "reading_format"
+                    )
+                    comment.hardcover_edition_id = hardcover_data.get("edition_id")
+
+                    # Update book metadata if available and not already saved
+                    if hardcover_data.get("edition_pages") and not book.pages:
+                        book.pages = hardcover_data.get("edition_pages")
+                        book.save(update_fields=["pages"])
+
+                    if (
+                        hardcover_data.get("edition_audio_seconds")
+                        and not book.audio_seconds
+                    ):
+                        book.audio_seconds = hardcover_data.get("edition_audio_seconds")
+                        book.save(update_fields=["audio_seconds"])
+
+                except json.JSONDecodeError as e:
+                    logging.error(f"Error parsing Hardcover data: {e}")
+
             comment.save()
             return redirect("book_detail", book_id=book.id)
     else:
@@ -66,8 +138,50 @@ def book_detail(request, book_id):
     return render(
         request,
         "bookclub/book_detail.html",
-        {"book": book, "comments": comments, "form": form},
+        {"book": book, "comments": comments, "form": form, "current_sort": sort_by},
     )
+
+
+def _get_progress_value_for_sorting(comment):
+    """
+    Helper function to convert different progress types to comparable values
+    Returns a value between 0 and 100 representing the reading progress
+    """
+    if comment.hardcover_percent is not None:
+        return comment.hardcover_percent
+
+    if comment.progress_type == "percent":
+        try:
+            # Extract numeric part from percentage string (e.g., "75%" -> 75)
+            return float(comment.progress_value.replace("%", ""))
+        except (ValueError, AttributeError):
+            return 0
+
+    elif comment.progress_type == "page":
+        # If we have book pages and current page, calculate percentage
+        if comment.book.pages and comment.hardcover_current_page:
+            return (comment.hardcover_current_page / comment.book.pages) * 100
+
+        # Try to parse progress_value as a page number
+        try:
+            page = int(comment.progress_value)
+            if comment.book.pages:
+                return (page / comment.book.pages) * 100
+            return page  # If no total pages, just use the page number
+        except (ValueError, AttributeError):
+            return 0
+
+    elif comment.progress_type == "audio":
+        # For audio, convert to a percentage if we have total audio duration
+        if comment.hardcover_current_position and comment.book.audio_seconds:
+            return (
+                comment.hardcover_current_position / comment.book.audio_seconds
+            ) * 100
+
+        # Otherwise, just use a default value since audio times are hard to compare
+        return 50  # Middle value
+
+    return 0  # Default case
 
 
 @login_required
@@ -193,3 +307,16 @@ def profile_settings(request):
         form = ApiKeyForm(instance=request.user.profile)
 
     return render(request, "bookclub/profile_settings.html", {"form": form})
+
+
+@login_required
+def get_hardcover_progress(request, hardcover_id):
+    """API endpoint to get a user's reading progress from Hardcover"""
+    try:
+        progress_data = HardcoverAPI.get_reading_progress(
+            hardcover_id, user=request.user
+        )
+        return JsonResponse(progress_data)
+    except Exception as e:
+        logger.exception(f"Error fetching Hardcover progress: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)

@@ -191,3 +191,128 @@ class HardcoverAPI:
             if result and "errors" in result:
                 logger.error(f"GraphQL errors: {result['errors']}")
             return None
+
+    @staticmethod
+    def get_reading_progress(book_id, user=None):
+        """Get user's reading progress for a specific book from the Hardcover API"""
+        logger.info(f"Getting reading progress for book ID: {book_id}")
+
+        if (
+            not user
+            or not hasattr(user, "profile")
+            or not user.profile.hardcover_api_key
+        ):
+            logger.warning("No user or API key available for progress request")
+            return {
+                "error": "You need to add your Hardcover API key in Profile Settings to use this feature."
+            }
+
+        # First, get the user_id from Hardcover
+        user_id_query = """
+        query ValidateAuth {
+        me {
+            id
+            username
+        }
+        }
+        """
+
+        user_result = HardcoverAPI.execute_query(user_id_query, {}, user)
+
+        if (
+            not user_result
+            or "data" not in user_result
+            or "me" not in user_result["data"]
+        ):
+            logger.error("Failed to fetch user ID from Hardcover")
+            return {"error": "Could not authenticate with Hardcover."}
+
+        user_id = user_result["data"]["me"][0]["id"]
+
+        # Now fetch reading progress using the user_id and book_id
+        progress_query = """
+        query GetReadingProgress($user_id: Int!, $book_id: Int!) {
+        user_book_reads(
+            order_by: {started_at: desc_nulls_last}
+            where: {user_book: {user_id: {_eq: $user_id}, book_id: {_eq: $book_id}}}
+        ) {
+            progress
+            progress_pages
+            progress_seconds
+            started_at
+            finished_at
+            edition {
+            reading_format_id
+            id
+            title
+            pages
+            audio_seconds
+            }
+        }
+        }
+        """
+
+        variables = {"user_id": int(user_id), "book_id": int(book_id)}
+
+        result = HardcoverAPI.execute_query(progress_query, variables, user)
+
+        if not result or "data" not in result:
+            logger.error("Failed to fetch reading progress")
+            return {"error": "Could not retrieve reading progress from Hardcover."}
+
+        # Process the reading progress data
+        progress_data = []
+        try:
+            reads = result["data"]["user_book_reads"]
+
+            if not reads or len(reads) == 0:
+                return {"progress": []}
+
+            for read in reads:
+                reading_format_id = read["edition"]["reading_format_id"]
+
+                # Determine reading format
+                reading_format = "book"
+                if reading_format_id == 2:
+                    reading_format = "audio"
+
+                # Set current page/position based on reading format and completion status
+                current_page = read["progress_pages"]
+                current_position = read["progress_seconds"]
+                progress_value = read["progress"] or 0
+
+                # If the book is finished, set progress to total values
+                if read["finished_at"]:
+                    progress_value = 100
+
+                    # For physical books or ebooks (format 1 or 2), use total pages
+                    if reading_format_id in [1, 4] and read["edition"].get("pages"):
+                        current_page = read["edition"]["pages"]
+
+                    # For audiobooks (format 2), use total seconds
+                    elif reading_format_id == 2 and read["edition"].get(
+                        "audio_seconds"
+                    ):
+                        current_position = read["edition"]["audio_seconds"]
+
+                progress_item = {
+                    "started_at": read["started_at"],
+                    "finished_at": read["finished_at"],
+                    "current_page": current_page,
+                    "current_position": current_position,
+                    "progress": progress_value,
+                    "reading_format": reading_format,
+                    "reading_format_id": reading_format_id,
+                    "edition": {
+                        "id": read["edition"]["id"],
+                        "title": read["edition"].get("title", "Unknown Edition"),
+                        "pages": read["edition"].get("pages", 0),
+                        "audio_seconds": read["edition"].get("audio_seconds", 0),
+                    },
+                }
+                progress_data.append(progress_item)
+        except Exception as e:
+            logger.exception(f"Error processing reading progress data: {str(e)}")
+            return {"error": f"Error processing data: {str(e)}"}
+
+        return {"progress": progress_data}

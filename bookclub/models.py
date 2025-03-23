@@ -24,6 +24,10 @@ class Book(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="books")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Book metadata from Hardcover
+    pages = models.IntegerField(null=True, blank=True)
+    audio_seconds = models.IntegerField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.title} by {self.author}"
 
@@ -45,6 +49,17 @@ class Comment(models.Model):
         max_length=20
     )  # Can be a page number, timestamp (HH:MM:SS), or percentage
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # Hardcover reading progress data
+    hardcover_started_at = models.DateTimeField(null=True, blank=True)
+    hardcover_finished_at = models.DateTimeField(null=True, blank=True)
+    hardcover_percent = models.FloatField(null=True, blank=True)
+    hardcover_current_page = models.IntegerField(null=True, blank=True)
+    hardcover_current_position = models.IntegerField(
+        null=True, blank=True
+    )  # Audio position in seconds
+    hardcover_reading_format = models.CharField(max_length=10, null=True, blank=True)
+    hardcover_edition_id = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.book.title}"

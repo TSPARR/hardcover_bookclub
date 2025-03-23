@@ -6,14 +6,17 @@
 <div class="row mb-4">
     <div class="col-md-3">
         {% if book.cover_image_url %}
-        <img src="{{ book.cover_image_url }}" class="img-fluid" alt="{{ book.title }}">
+        <img src="{{ book.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
         {% endif %}
     </div>
     <div class="col-md-9">
         <h1>{{ book.title }}</h1>
         <h4 class="text-muted">{{ book.author }}</h4>
         <p>{{ book.description }}</p>
-        <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>
+            <a href="#" class="btn btn-info" id="syncHardcoverProgress">Sync Hardcover Progress</a>
+        </div>
     </div>
 </div>
 
@@ -25,34 +28,64 @@
         <form method="post">
             {% csrf_token %}
 
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.progress_type.label_tag }}
+                    {{ form.progress_type }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.progress_value.label_tag }}
+                    {{ form.progress_value }}
+                </div>
+            </div>
+
             <div class="mb-3">
                 {{ form.text.label_tag }}
                 {{ form.text }}
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    {{ form.progress_type.label_tag }}
-                    {{ form.progress_type }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    {{ form.progress_value.label_tag }}
-                    {{ form.progress_value }}
-                </div>
-            </div>
+            <!-- Hidden field for Hardcover progress data -->
+            <input type="hidden" name="hardcover_data" id="hardcover_data" value="">
 
             <button type="submit" class="btn btn-primary">Post Comment</button>
         </form>
     </div>
 </div>
 
-<h2 class="mb-4">Discussion</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Discussion</h2>
+
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            Sort by:
+            {% if current_sort == 'date_desc' %}Newest First
+            {% elif current_sort == 'date_asc' %}Oldest First
+            {% elif current_sort == 'progress_desc' %}Most Progress First
+            {% elif current_sort == 'progress_asc' %}Least Progress First
+            {% endif %}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+            <li><a class="dropdown-item {% if current_sort == 'date_desc' %}active{% endif %}"
+                    href="?sort=date_desc">Newest First</a></li>
+            <li><a class="dropdown-item {% if current_sort == 'date_asc' %}active{% endif %}"
+                    href="?sort=date_asc">Oldest First</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item {% if current_sort == 'progress_desc' %}active{% endif %}"
+                    href="?sort=progress_desc">Most Progress First</a></li>
+            <li><a class="dropdown-item {% if current_sort == 'progress_asc' %}active{% endif %}"
+                    href="?sort=progress_asc">Least Progress First</a></li>
+        </ul>
+    </div>
+</div>
 
 {% for comment in comments %}
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between">
-        <span>{{ comment.user.username }}</span>
-        <span>{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
+        <span class="comment-user">{{ comment.user.username }}</span>
+        <span class="comment-date">{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
     </div>
     <div class="card-body">
         <p class="comment-progress">
@@ -63,6 +96,16 @@
             {% else %}
             {{ comment.progress_value }}% complete
             {% endif %}
+
+            {% if comment.hardcover_finished_at %}
+            <span class="badge bg-success ms-2">Finished</span>
+            {% elif comment.hardcover_started_at %}
+            <span class="badge bg-primary ms-2">In Progress</span>
+            {% endif %}
+
+            {% if comment.hardcover_percent %}
+            <span class="text-muted ms-2">({{ comment.hardcover_percent|floatformat:1 }}%)</span>
+            {% endif %}
         </p>
         <p class="card-text">{{ comment.text }}</p>
     </div>
@@ -70,4 +113,207 @@
 {% empty %}
 <p>No comments yet. Be the first to start the discussion!</p>
 {% endfor %}
+
+<!-- Hardcover Sync Modal -->
+<div class="modal fade" id="hardcoverSyncModal" tabindex="-1" aria-labelledby="hardcoverSyncModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hardcoverSyncModalLabel">Sync Progress from Hardcover</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="hardcoverSyncModalBody">
+                <p>Fetching your reading progress from Hardcover...</p>
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyProgressBtn" disabled>Apply Progress</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const syncButton = document.getElementById('syncHardcoverProgress');
+        const applyButton = document.getElementById('applyProgressBtn');
+        const modalBody = document.getElementById('hardcoverSyncModalBody');
+        const hardcoverDataField = document.getElementById('hardcover_data');
+        let hardcoverModal;
+        let selectedProgress = null;
+
+        syncButton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            // Initialize the modal if not already done
+            if (!hardcoverModal) {
+                hardcoverModal = new bootstrap.Modal(document.getElementById('hardcoverSyncModal'));
+            }
+
+            // Show the modal with loading state
+            hardcoverModal.show();
+
+            // Reset the apply button
+            applyButton.disabled = true;
+            modalBody.innerHTML = `
+                <p>Fetching your reading progress from Hardcover...</p>
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+
+            // Fetch reading progress from Hardcover
+            fetch("{% url 'get_hardcover_progress' book.hardcover_id %}")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch progress data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        modalBody.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+
+                    if (!data.progress || data.progress.length === 0) {
+                        modalBody.innerHTML = `<div class="alert alert-info">No reading progress found for this book on Hardcover.</div>`;
+                        return;
+                    }
+
+                    // Display the progress options
+                    let html = '<p>Select progress to import:</p><div class="list-group">';
+
+                    data.progress.forEach((item, index) => {
+                        const status = item.finished_at ? 'Finished' : (item.started_at ? 'In Progress' : 'Not started');
+                        const format = item.reading_format === 'audio' ? 'Audiobook' : 'Book';
+                        const progress = item.progress || 0;
+
+                        let details = '';
+                        if (item.reading_format === 'audio' && item.current_position) {
+                            const hours = Math.floor(item.current_position / 3600);
+                            const minutes = Math.floor((item.current_position % 3600) / 60);
+                            details = `${hours}h ${minutes}m`;
+
+                            if (item.finished_at && item.edition.audio_seconds) {
+                                const totalHours = Math.floor(item.edition.audio_seconds / 3600);
+                                const totalMinutes = Math.floor((item.edition.audio_seconds % 3600) / 60);
+                                details = `${totalHours}h ${totalMinutes}m (Complete)`;
+                            }
+                        } else if (item.current_page) {
+                            details = `Page ${item.current_page}`;
+
+                            if (item.finished_at && item.edition.pages) {
+                                details = `Page ${item.edition.pages} (Complete)`;
+                            }
+                        }
+
+                        html += `
+                            <button type="button" class="list-group-item list-group-item-action" data-index="${index}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${format}</strong>
+                                        ${details ? `<small class="d-block text-muted">${details}</small>` : ''}
+                                    </div>
+                                    <span class="badge ${item.finished_at ? 'bg-success' : 'bg-primary'}">${status}</span>
+                                </div>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width: ${progress}%;" 
+                                         aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
+                                        ${progress}%
+                                    </div>
+                                </div>
+                            </button>
+                        `;
+                    });
+
+                    html += '</div>';
+                    modalBody.innerHTML = html;
+
+                    // Store the progress data for later use
+                    window.hardcoverProgressData = data.progress;
+
+                    // Add event listeners to the progress options
+                    document.querySelectorAll('.list-group-item').forEach(item => {
+                        item.addEventListener('click', function () {
+                            document.querySelectorAll('.list-group-item').forEach(el => {
+                                el.classList.remove('active');
+                            });
+                            this.classList.add('active');
+                            selectedProgress = window.hardcoverProgressData[parseInt(this.dataset.index)];
+                            applyButton.disabled = false;
+                        });
+                    });
+                })
+                .catch(error => {
+                    modalBody.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                });
+        });
+
+        // Handle apply progress button
+        applyButton.addEventListener('click', function () {
+            if (!selectedProgress) return;
+
+            const progressTypeSelect = document.getElementById('{{ form.progress_type.id_for_label }}');
+            const progressValueInput = document.getElementById('{{ form.progress_value.id_for_label }}');
+
+            // Set form values based on selected progress
+            if (selectedProgress.reading_format === 'audio') {
+                // For audiobooks
+                progressTypeSelect.value = 'audio';
+                if (selectedProgress.current_position) {
+                    const hours = Math.floor(selectedProgress.current_position / 3600);
+                    const minutes = Math.floor((selectedProgress.current_position % 3600) / 60);
+                    progressValueInput.value = `${hours}h ${minutes}m`;
+                } else {
+                    progressValueInput.value = selectedProgress.progress + '%';
+                }
+            } else {
+                // For books
+                if (selectedProgress.finished_at && selectedProgress.edition.pages) {
+                    // For finished books, use the total page count
+                    progressTypeSelect.value = 'page';
+                    progressValueInput.value = selectedProgress.edition.pages;
+                } else if (selectedProgress.current_page) {
+                    // For in-progress books with a page number
+                    progressTypeSelect.value = 'page';
+                    progressValueInput.value = selectedProgress.current_page;
+                } else {
+                    // Default to percentage
+                    progressTypeSelect.value = 'percent';
+                    progressValueInput.value = selectedProgress.progress;
+                }
+            }
+
+            // Create a simplified object with the Hardcover data for saving
+            const hardcoverData = {
+                started_at: selectedProgress.started_at,
+                finished_at: selectedProgress.finished_at,
+                progress: selectedProgress.progress,
+                current_page: selectedProgress.current_page,
+                current_position: selectedProgress.current_position,
+                reading_format: selectedProgress.reading_format,
+                edition_id: selectedProgress.edition.id,
+                edition_pages: selectedProgress.edition.pages,
+                edition_audio_seconds: selectedProgress.edition.audio_seconds
+            };
+
+            // Set the hidden field value with the Hardcover data
+            hardcoverDataField.value = JSON.stringify(hardcoverData);
+
+            // Close the modal
+            hardcoverModal.hide();
+        });
+    });
+</script>
 {% endblock %}
