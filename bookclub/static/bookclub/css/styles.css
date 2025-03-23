@@ -1,0 +1,244 @@
+/* Main Styles for Book Club Application */
+
+/* ===== Base Styles ===== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.container {
+    padding-bottom: 2rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* ===== Navigation ===== */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* ===== Cards ===== */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 500;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+    margin-top: -0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+/* ===== Book Cards ===== */
+.book-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img-top-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    height: 250px;
+    overflow: hidden;
+}
+
+.book-cover {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-height: 300px;
+}
+
+.book-card .book-cover {
+    height: 250px;
+    object-fit: contain;
+    object-position: center;
+}
+
+.card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-text {
+    flex-grow: 1;
+}
+
+/* Book details page */
+.book-detail-image {
+    max-width: 100%;
+    border-radius: 0.25rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Forms ===== */
+.form-control {
+    border-radius: 0.25rem;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Form validation */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* ===== Comments ===== */
+.comment-progress {
+    font-weight: bold;
+    color: #6c757d;
+    margin-bottom: 0.75rem;
+}
+
+.comment-user {
+    font-weight: 600;
+}
+
+.comment-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    border-radius: 0.25rem;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+/* ===== Alerts ===== */
+.alert {
+    border-radius: 0.25rem;
+    border: 1px solid transparent;
+}
+
+.alert-info {
+    color: #055160;
+    background-color: #cff4fc;
+    border-color: #b6effb;
+}
+
+.alert-warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+}
+
+.alert-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+/* ===== Landing Page ===== */
+.jumbotron {
+    padding: 4rem 2rem;
+    margin-bottom: 2rem;
+    background-color: #e9ecef;
+    border-radius: 0.3rem;
+}
+
+.display-4 {
+    font-size: 3.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+/* ===== Utilities ===== */
+.mr-2 {
+    margin-right: 0.5rem;
+}
+
+/* ===== Responsive adjustments ===== */
+@media (max-width: 767.98px) {
+    .book-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}
