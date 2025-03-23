@@ -1,4 +1,3 @@
-# bookclub/hardcover_api.py
 import requests
 
 

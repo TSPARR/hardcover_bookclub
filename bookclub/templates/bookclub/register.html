@@ -1,4 +1,3 @@
-<!-- bookclub/templates/bookclub/register.html -->
 {% extends 'bookclub/base.html' %}
 
 {% block title %}Register{% endblock %}
@@ -13,40 +12,40 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
                         {{ form.username }}
                         {% if form.username.errors %}
-                            <div class="text-danger">{{ form.username.errors }}</div>
+                        <div class="text-danger">{{ form.username.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
                         {{ form.email }}
                         {% if form.email.errors %}
-                            <div class="text-danger">{{ form.email.errors }}</div>
+                        <div class="text-danger">{{ form.email.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
                         {{ form.password1 }}
                         {% if form.password1.errors %}
-                            <div class="text-danger">{{ form.password1.errors }}</div>
+                        <div class="text-danger">{{ form.password1.errors }}</div>
                         {% endif %}
                         <div class="form-text">{{ form.password1.help_text }}</div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
                         {{ form.password2 }}
                         {% if form.password2.errors %}
-                            <div class="text-danger">{{ form.password2.errors }}</div>
+                        <div class="text-danger">{{ form.password2.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary">Register</button>
                 </form>
             </div>

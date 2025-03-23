@@ -1,36 +1,35 @@
-<!-- bookclub/templates/bookclub/group_detail.html -->
 {% extends 'bookclub/base.html' %}
 
 {% block title %}{{ group.name }}{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">{{ group.name }}</h1>
-    <p>{{ group.description }}</p>
-    
-    <div class="d-flex justify-content-between mb-4">
-        <h2>Books</h2>
-        <a href="{% url 'search_books' group.id %}" class="btn btn-success">Add Book</a>
-    </div>
-    
-    <div class="row">
-        {% for book in books %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    {% if book.cover_image_url %}
-                        <img src="{{ book.cover_image_url }}" class="book-cover card-img-top" alt="{{ book.title }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ book.title }}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
-                        <p class="card-text">{{ book.description|truncatechars:100 }}</p>
-                        <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">View Discussions</a>
-                    </div>
-                </div>
+<h1 class="mb-4">{{ group.name }}</h1>
+<p>{{ group.description }}</p>
+
+<div class="d-flex justify-content-between mb-4">
+    <h2>Books</h2>
+    <a href="{% url 'search_books' group.id %}" class="btn btn-success">Add Book</a>
+</div>
+
+<div class="row">
+    {% for book in books %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            {% if book.cover_image_url %}
+            <img src="{{ book.cover_image_url }}" class="book-cover card-img-top" alt="{{ book.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ book.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+                <p class="card-text">{{ book.description|truncatechars:100 }}</p>
+                <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">View Discussions</a>
             </div>
-        {% empty %}
-            <div class="col-12">
-                <p>No books have been added to this group yet.</p>
-            </div>
-        {% endfor %}
+        </div>
     </div>
+    {% empty %}
+    <div class="col-12">
+        <p>No books have been added to this group yet.</p>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

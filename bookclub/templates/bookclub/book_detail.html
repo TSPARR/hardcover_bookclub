@@ -1,74 +1,73 @@
-<!-- bookclub/templates/bookclub/book_detail.html -->
 {% extends 'bookclub/base.html' %}
 
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block content %}
-    <div class="row mb-4">
-        <div class="col-md-3">
-            {% if book.cover_image_url %}
-                <img src="{{ book.cover_image_url }}" class="img-fluid" alt="{{ book.title }}">
+<div class="row mb-4">
+    <div class="col-md-3">
+        {% if book.cover_image_url %}
+        <img src="{{ book.cover_image_url }}" class="img-fluid" alt="{{ book.title }}">
+        {% endif %}
+    </div>
+    <div class="col-md-9">
+        <h1>{{ book.title }}</h1>
+        <h4 class="text-muted">{{ book.author }}</h4>
+        <p>{{ book.description }}</p>
+        <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Add Comment</h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                {{ form.text.label_tag }}
+                {{ form.text }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.progress_type.label_tag }}
+                    {{ form.progress_type }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.progress_value.label_tag }}
+                    {{ form.progress_value }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    </div>
+</div>
+
+<h2 class="mb-4">Discussion</h2>
+
+{% for comment in comments %}
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between">
+        <span>{{ comment.user.username }}</span>
+        <span>{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
+    </div>
+    <div class="card-body">
+        <p class="comment-progress">
+            {% if comment.progress_type == 'page' %}
+            Page {{ comment.progress_value }}
+            {% elif comment.progress_type == 'audio' %}
+            Audio: {{ comment.progress_value }}
+            {% else %}
+            {{ comment.progress_value }}% complete
             {% endif %}
-        </div>
-        <div class="col-md-9">
-            <h1>{{ book.title }}</h1>
-            <h4 class="text-muted">{{ book.author }}</h4>
-            <p>{{ book.description }}</p>
-            <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>
-        </div>
+        </p>
+        <p class="card-text">{{ comment.text }}</p>
     </div>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3>Add Comment</h3>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    {{ form.text.label_tag }}
-                    {{ form.text }}
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        {{ form.progress_type.label_tag }}
-                        {{ form.progress_type }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        {{ form.progress_value.label_tag }}
-                        {{ form.progress_value }}
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Post Comment</button>
-            </form>
-        </div>
-    </div>
-    
-    <h2 class="mb-4">Discussion</h2>
-    
-    {% for comment in comments %}
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between">
-                <span>{{ comment.user.username }}</span>
-                <span>{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
-            </div>
-            <div class="card-body">
-                <p class="comment-progress">
-                    {% if comment.progress_type == 'page' %}
-                        Page {{ comment.progress_value }}
-                    {% elif comment.progress_type == 'audio' %}
-                        Audio: {{ comment.progress_value }}
-                    {% else %}
-                        {{ comment.progress_value }}% complete
-                    {% endif %}
-                </p>
-                <p class="card-text">{{ comment.text }}</p>
-            </div>
-        </div>
-    {% empty %}
-        <p>No comments yet. Be the first to start the discussion!</p>
-    {% endfor %}
+</div>
+{% empty %}
+<p>No comments yet. Be the first to start the discussion!</p>
+{% endfor %}
 {% endblock %}

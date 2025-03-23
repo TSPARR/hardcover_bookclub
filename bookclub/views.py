@@ -1,11 +1,10 @@
-# bookclub/views.py
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
-from django.shortcuts import render, redirect
-from .models import Group, Book, Comment
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import BookSearchForm, CommentForm, UserRegistrationForm
 from .hardcover_api import HardcoverAPI
-from .forms import CommentForm, BookSearchForm, UserRegistrationForm
+from .models import Book, Comment, Group
 
 
 def home(request):

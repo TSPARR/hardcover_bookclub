@@ -1,6 +1,6 @@
-# bookclub/admin.py
 from django.contrib import admin
-from .models import Group, Book, Comment
+
+from .models import Book, Comment, Group
 
 admin.site.register(Group)
 admin.site.register(Book)
