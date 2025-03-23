@@ -1,0 +1,16 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Welcome to Book Club{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Book Club!</h1>
+    <p class="lead">Join your friends in discussions about your favorite books.</p>
+    <hr class="my-4">
+    <p>Please login or register to join the community.</p>
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg mr-2" href="{% url 'login' %}" role="button">Login</a>
+        <a class="btn btn-secondary btn-lg" href="{% url 'register' %}" role="button">Register</a>
+    </div>
+</div>
+{% endblock %}

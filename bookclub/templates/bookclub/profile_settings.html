@@ -1,0 +1,40 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Profile Settings{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h2>Profile Settings</h2>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.hardcover_api_key.id_for_label }}" class="form-label">Hardcover API
+                            Key</label>
+                        {{ form.hardcover_api_key }}
+                        {% if form.hardcover_api_key.errors %}
+                        <div class="text-danger">{{ form.hardcover_api_key.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">{{ form.hardcover_api_key.help_text }}</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
