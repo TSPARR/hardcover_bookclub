@@ -1,0 +1,42 @@
+<!-- bookclub/templates/bookclub/search_books.html -->
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Search Books{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Search Books</h1>
+    
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="input-group">
+            {{ form.query }}
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+    
+    <div class="row">
+        {% for book in results %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    {% if book.cover_url %}
+                        <img src="{{ book.cover_url }}" class="book-cover card-img-top" alt="{{ book.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+                        <p class="card-text">{{ book.description|truncatechars:100 }}</p>
+                        <a href="{% url 'add_book_to_group' group.id book.id %}" class="btn btn-success">Add to Group</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            {% if request.method == 'POST' %}
+                <div class="col-12">
+                    <p>No books found matching your search.</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
+{% endblock %}

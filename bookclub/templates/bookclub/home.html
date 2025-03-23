@@ -1,0 +1,26 @@
+<!-- bookclub/templates/bookclub/home.html -->
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Book Club - Home{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Book Club Groups</h1>
+    
+    <div class="row">
+        {% for group in groups %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ group.name }}</h5>
+                        <p class="card-text">{{ group.description|truncatechars:100 }}</p>
+                        <a href="{% url 'group_detail' group.id %}" class="btn btn-primary">View Group</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p>No book club groups have been created yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
