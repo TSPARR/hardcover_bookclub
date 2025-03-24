@@ -14,19 +14,19 @@
                 <div class="col-12">
                     <h2 class="mb-3">Currently Reading</h2>
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        {% for book in active_books %}
+                        {% for book_data in active_books %}
                         <div class="col">
                             <div class="card h-100 border-primary">
                                 <div class="card-header bg-primary text-white">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">{{ book.group.name }}</h5>
+                                        <h5 class="mb-0">{{ book_data.book.group.name }}</h5>
                                     </div>
                                 </div>
                                 <div class="row g-0">
                                     <div class="col-4">
-                                        {% if book.cover_image_url %}
-                                        <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
-                                            style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
+                                        {% if book_data.book.cover_image_url %}
+                                        <img src="{{ book_data.book.cover_image_url }}" class="img-fluid rounded-start" 
+                                            style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book_data.book.title }}">
                                         {% else %}
                                         <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
                                             style="min-height: 150px;">
@@ -36,31 +36,33 @@
                                     </div>
                                     <div class="col-8">
                                         <div class="card-body">
-                                            <h5 class="card-title">{{ book.title }}</h5>
-                                            <p class="card-text small">{{ book.author }}</p>
+                                            <h5 class="card-title">{{ book_data.book.title }}</h5>
+                                            <p class="card-text small">{{ book_data.book.author }}</p>
                                             
-                                            <!-- Progress bar -->
-                                            <div class="progress mb-2" style="height: 10px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: {{ book.user_progress.normalized_progress }}%;"
-                                                    aria-valuenow="{{ book.user_progress.normalized_progress }}" 
-                                                    aria-valuemin="0" aria-valuemax="100">
+                                            {% if book_data.progress %}
+                                                <!-- Progress bar -->
+                                                <div class="progress mb-2" style="height: 10px;">
+                                                    <div class="progress-bar" role="progressbar"
+                                                        style="width: {{ book_data.progress.normalized_progress }}%;"
+                                                        aria-valuenow="{{ book_data.progress.normalized_progress }}" 
+                                                        aria-valuemin="0" aria-valuemax="100">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="mb-2 d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">
-                                                    {% if book.user_progress.progress_type == 'page' %}
-                                                    Page {{ book.user_progress.progress_value }}
-                                                    {% elif book.user_progress.progress_type == 'audio' %}
-                                                    Audio: {{ book.user_progress.progress_value }}
-                                                    {% else %}
-                                                    {{ book.user_progress.progress_value }}% complete
-                                                    {% endif %}
-                                                </small>
-                                                <small class="text-muted">{{ book.user_progress.normalized_progress|floatformat:1 }}%</small>
-                                            </div>
+                                                <div class="mb-2 d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        {% if book_data.progress.progress_type == 'page' %}
+                                                        Page {{ book_data.progress.progress_value }}
+                                                        {% elif book_data.progress.progress_type == 'audio' %}
+                                                        Audio: {{ book_data.progress.progress_value }}
+                                                        {% else %}
+                                                        {{ book_data.progress.progress_value }}% complete
+                                                        {% endif %}
+                                                    </small>
+                                                    <small class="text-muted">{{ book_data.progress.normalized_progress|floatformat:1 }}%</small>
+                                                </div>
+                                            {% endif %}
                                             
-                                            <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary mt-2">Continue Reading</a>
+                                            <a href="{% url 'book_detail' book_data.book.id %}" class="btn btn-sm btn-primary mt-2">Continue Reading</a>
                                         </div>
                                     </div>
                                 </div>
@@ -89,7 +91,7 @@
                             <p class="card-text">{{ group.description|truncatechars:100 }}</p>
                             
                             {% if group.active_book %}
-                            <div class="alert alert-primary py-2">
+                            <div class="alert alert-primary alert-permanent py-2">
                                 <small><strong>Currently reading:</strong> {{ group.active_book.title }}</small>
                             </div>
                             {% endif %}
@@ -104,7 +106,7 @@
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
             </div>
             {% else %}
             <div class="alert alert-info">

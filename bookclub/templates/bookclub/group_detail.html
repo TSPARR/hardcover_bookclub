@@ -40,63 +40,65 @@
             </div>
 
             {% if books %}
-            <div class="col">
-                <div class="card h-100 {% if book.is_active %}border-primary{% endif %}">
-                    {% if book.is_active %}
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <span>Currently Reading</span>
-                        {% if is_admin %}
-                        <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="m-0">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-light">
-                                Deactivate
-                            </button>
-                        </form>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    <div class="row g-0">
-                        <div class="col-4">
-                            {% if book.cover_image_url %}
-                            <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
-                                style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
-                            {% else %}
-                            <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
-                                style="min-height: 150px;">
-                                <span class="text-muted">No cover</span>
-                            </div>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for book in books %}
+                <div class="col">
+                    <div class="card h-100 {% if book.is_active %}border-primary{% endif %}">
+                        {% if book.is_active %}
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <span>Currently Reading</span>
+                            {% if is_admin %}
+                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-light">
+                                    Deactivate
+                                </button>
+                            </form>
                             {% endif %}
                         </div>
-                        <div class="col-8">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ book.title }}</h5>
-                                <p class="card-text small">{{ book.author }}</p>
-                                <div class="mt-2">
-                                    <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View</a>
-                                    
-                                    {% if is_admin %}
-                                        {% if not book.is_active %}
-                                        <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                Set Active
-                                            </button>
-                                        </form>
+                        {% endif %}
+                        <div class="row g-0">
+                            <div class="col-4">
+                                {% if book.cover_image_url %}
+                                <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
+                                    style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
+                                {% else %}
+                                <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
+                                    style="min-height: 150px;">
+                                    <span class="text-muted">No cover</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ book.title }}</h5>
+                                    <p class="card-text small">{{ book.author }}</p>
+                                    <div class="mt-2">
+                                        <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View</a>
+                                        
+                                        {% if is_admin %}
+                                            {% if not book.is_active %}
+                                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                    Set Active
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                            <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Are you sure you want to remove this book?')">
+                                                    Remove
+                                                </button>
+                                            </form>
                                         {% endif %}
-                                        <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Are you sure you want to remove this book?')">
-                                                Remove
-                                            </button>
-                                        </form>
-                                    {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
                 {% endfor %}
             </div>
             {% else %}
