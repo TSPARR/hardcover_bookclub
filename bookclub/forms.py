@@ -10,7 +10,7 @@ from django.forms import (
     TextInput,
 )
 
-from .models import Comment, UserProfile
+from .models import BookGroup, Comment, UserProfile
 
 
 class CommentForm(forms.ModelForm):
@@ -82,3 +82,14 @@ class ApiKeyForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ["hardcover_api_key"]
+
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = BookGroup
+        fields = ["name", "description", "is_public"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "is_public": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }

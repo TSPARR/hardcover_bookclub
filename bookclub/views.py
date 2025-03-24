@@ -8,9 +8,15 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import ApiKeyForm, BookSearchForm, CommentForm, UserRegistrationForm
+from .forms import (
+    ApiKeyForm,
+    BookSearchForm,
+    CommentForm,
+    GroupForm,
+    UserRegistrationForm,
+)
 from .hardcover_api import HardcoverAPI
-from .models import Book, Comment, Group, UserBookProgress
+from .models import Book, BookGroup, Comment, User, UserBookProgress, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -36,16 +42,43 @@ def register(request):
 
 @login_required
 def home(request):
-    groups = Group.objects.all()
-    return render(request, "bookclub/home.html", {"groups": groups})
+    # Only show groups where the user is a member
+    user_groups = request.user.book_groups.all()
+
+    # Check if the user can create groups
+    can_create_groups = request.user.profile.can_create_groups
+
+    return render(
+        request,
+        "bookclub/home.html",
+        {"groups": user_groups, "can_create_groups": can_create_groups},
+    )
 
 
 @login_required
 def group_detail(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is a member of this group
+    if not group.is_member(request.user):
+        messages.error(request, "You are not a member of this group.")
+        return redirect("home")
+
     books = group.books.all()
+    members = group.members.all()
+    admins = group.admins.all()
+    is_admin = group.is_admin(request.user)
+
     return render(
-        request, "bookclub/group_detail.html", {"group": group, "books": books}
+        request,
+        "bookclub/group_detail.html",
+        {
+            "group": group,
+            "books": books,
+            "members": members,
+            "admins": admins,
+            "is_admin": is_admin,
+        },
     )
 
 
@@ -307,7 +340,7 @@ def _get_progress_value_for_sorting(comment):
 
 @login_required
 def search_books(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
+    group = get_object_or_404(BookGroup, id=group_id)
     search_results = []
 
     if request.method == "POST":
@@ -340,7 +373,7 @@ def search_books(request, group_id):
 
 @login_required
 def add_book_to_group(request, group_id, hardcover_id):
-    group = get_object_or_404(Group, id=group_id)
+    group = get_object_or_404(BookGroup, id=group_id)
 
     # Get book details from Hardcover API
     book_data = HardcoverAPI.get_book_details(hardcover_id, user=request.user)
@@ -441,3 +474,166 @@ def get_hardcover_progress(request, hardcover_id):
     except Exception as e:
         logger.exception(f"Error fetching Hardcover progress: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def create_group(request):
+    # Check if user has permission to create groups
+    if not request.user.profile.can_create_groups:
+        messages.error(request, "You don't have permission to create groups.")
+        return redirect("home")
+
+    if request.method == "POST":
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            group = form.save()
+
+            # Add creator as both member and admin
+            group.members.add(request.user)
+            group.admins.add(request.user)
+
+            messages.success(request, f"Group '{group.name}' has been created.")
+            return redirect("group_detail", group_id=group.id)
+    else:
+        form = GroupForm()
+
+    return render(request, "bookclub/create_group.html", {"form": form})
+
+
+@login_required
+def group_detail(request, group_id):
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is a member of this group
+    if not group.is_member(request.user):
+        messages.error(request, "You are not a member of this group.")
+        return redirect("home")
+
+    books = group.books.all()
+    members = group.members.all()
+    admins = group.admins.all()
+    is_admin = group.is_admin(request.user)
+
+    return render(
+        request,
+        "bookclub/group_detail.html",
+        {
+            "group": group,
+            "books": books,
+            "members": members,
+            "admins": admins,
+            "is_admin": is_admin,
+        },
+    )
+
+
+@login_required
+def manage_group_members(request, group_id):
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is an admin of this group
+    if not group.is_admin(request.user):
+        messages.error(request, "You don't have permission to manage this group.")
+        return redirect("group_detail", group_id=group.id)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        user_id = request.POST.get("user_id")
+        user_to_modify = get_object_or_404(User, id=user_id)
+
+        if action == "remove":
+            # Remove user from group
+            group.members.remove(user_to_modify)
+            # Also remove from admins if they were an admin
+            if group.is_admin(user_to_modify):
+                group.admins.remove(user_to_modify)
+            messages.success(
+                request, f"{user_to_modify.username} has been removed from the group."
+            )
+
+        elif action == "make_admin":
+            # Make user an admin (must already be a member)
+            if group.is_member(user_to_modify):
+                group.admins.add(user_to_modify)
+                messages.success(
+                    request, f"{user_to_modify.username} is now an admin of this group."
+                )
+            else:
+                messages.error(
+                    request,
+                    f"{user_to_modify.username} must be a member of the group first.",
+                )
+
+        elif action == "remove_admin":
+            # Remove admin privileges
+            group.admins.remove(user_to_modify)
+            messages.success(
+                request,
+                f"{user_to_modify.username} is no longer an admin of this group.",
+            )
+
+        return redirect("manage_group_members", group_id=group.id)
+
+    # Get all users for adding new members
+    all_users = User.objects.all().exclude(
+        id__in=group.members.all().values_list("id", flat=True)
+    )
+
+    return render(
+        request,
+        "bookclub/manage_group_members.html",
+        {
+            "group": group,
+            "members": group.members.all(),
+            "admins": group.admins.all(),
+            "available_users": all_users,
+        },
+    )
+
+
+@login_required
+def add_group_member(request, group_id):
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is an admin of this group
+    if not group.is_admin(request.user):
+        messages.error(request, "You don't have permission to manage this group.")
+        return redirect("group_detail", group_id=group.id)
+
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        user_to_add = get_object_or_404(User, id=user_id)
+
+        # Add user to the group
+        group.members.add(user_to_add)
+        messages.success(
+            request, f"{user_to_add.username} has been added to the group."
+        )
+
+        return redirect("manage_group_members", group_id=group.id)
+
+    return redirect("manage_group_members", group_id=group.id)
+
+
+@login_required
+def remove_book(request, group_id, book_id):
+    group = get_object_or_404(BookGroup, id=group_id)
+    book = get_object_or_404(Book, id=book_id)
+
+    # Check if user is an admin of this group
+    if not group.is_admin(request.user):
+        messages.error(
+            request, "You don't have permission to remove books from this group."
+        )
+        return redirect("group_detail", group_id=group.id)
+
+    # Check if the book belongs to this group
+    if book.group.id != group.id:
+        messages.error(request, "This book does not belong to this group.")
+        return redirect("group_detail", group_id=group.id)
+
+    # Remove the book
+    book.delete()
+    messages.success(request, f"'{book.title}' has been removed from the group.")
+
+    return redirect("group_detail", group_id=group.id)

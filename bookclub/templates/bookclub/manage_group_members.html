@@ -1,0 +1,131 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Manage {{ group.name }} Members{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Manage Members: {{ group.name }}</h1>
+            <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Current Members</h3>
+                    <span class="badge bg-primary">{{ members.count }} members</span>
+                </div>
+                <div class="card-body">
+                    {% if members %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr>
+                                <td>{{ member.username }}</td>
+                                <td>
+                                    {% if member in admins %}
+                                    <span class="badge bg-success">Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Member</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        {% if member != user %}
+                                        <form method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user_id" value="{{ member.id }}">
+
+                                            {% if member in admins %}
+                                            <button type="submit" name="action" value="remove_admin"
+                                                class="btn btn-sm btn-outline-warning">
+                                                Remove Admin Role
+                                            </button>
+                                            {% else %}
+                                            <button type="submit" name="action" value="make_admin"
+                                                class="btn btn-sm btn-outline-success">
+                                                Make Admin
+                                            </button>
+                                            {% endif %}
+
+                                            <button type="submit" name="action" value="remove"
+                                                class="btn btn-sm btn-outline-danger ms-1">
+                                                Remove
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-muted">You</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No members in this group yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Add Members</h3>
+                </div>
+                <div class="card-body">
+                    {% if available_users %}
+                    <form method="post" action="{% url 'add_group_member' group.id %}">
+                        {% csrf_token %}
+                        <div class="input-group mb-3">
+                            <select name="user_id" class="form-select">
+                                <option selected disabled>Choose a user to add...</option>
+                                {% for user in available_users %}
+                                <option value="{{ user.id }}">{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-primary" type="submit">Add Member</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <p>No more users available to add.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Group Roles</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Admins Can:</h5>
+                    <ul>
+                        <li>Add and remove members</li>
+                        <li>Promote members to admins</li>
+                        <li>Add or remove books</li>
+                        <li>Edit group settings</li>
+                    </ul>
+
+                    <h5>Members Can:</h5>
+                    <ul>
+                        <li>View group books</li>
+                        <li>Post comments</li>
+                        <li>Track their reading progress</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

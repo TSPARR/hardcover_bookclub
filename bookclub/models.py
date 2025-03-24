@@ -5,14 +5,24 @@ from django.dispatch import receiver
 from django_cryptography.fields import encrypt
 
 
-class Group(models.Model):
+class BookGroup(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     members = models.ManyToManyField(User, related_name="book_groups")
+    admins = models.ManyToManyField(User, related_name="administered_groups")
+    is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    def is_admin(self, user):
+        """Check if a user is an admin of this group."""
+        return self.admins.filter(id=user.id).exists()
+
+    def is_member(self, user):
+        """Check if a user is a member of this group."""
+        return self.members.filter(id=user.id).exists()
 
 
 class Book(models.Model):
@@ -21,7 +31,7 @@ class Book(models.Model):
     hardcover_id = models.CharField(max_length=50, unique=True)  # ID from Hardcover API
     cover_image_url = models.URLField(blank=True)
     description = models.TextField(blank=True)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="books")
+    group = models.ForeignKey(BookGroup, on_delete=models.CASCADE, related_name="books")
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Book metadata from Hardcover
@@ -162,6 +172,7 @@ class UserBookProgress(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     hardcover_api_key = encrypt(models.TextField(blank=True, null=True))
+    can_create_groups = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}'s profile"

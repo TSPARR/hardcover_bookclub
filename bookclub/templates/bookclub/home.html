@@ -1,25 +1,56 @@
 {% extends 'bookclub/base.html' %}
+{% load bookclub_extras %}
 
-{% block title %}Book Club - Home{% endblock %}
+{% block title %}Book Groups{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Book Club Groups</h1>
-
-<div class="row">
-    {% for group in groups %}
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">{{ group.name }}</h5>
-                <p class="card-text">{{ group.description|truncatechars:100 }}</p>
-                <a href="{% url 'group_detail' group.id %}" class="btn btn-primary">View Group</a>
-            </div>
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col d-flex justify-content-between align-items-center">
+            <h1>Your Book Groups</h1>
+            {% if can_create_groups %}
+            <a href="{% url 'create_group' %}" class="btn btn-primary">Create New Group</a>
+            {% endif %}
         </div>
     </div>
-    {% empty %}
-    <div class="col-12">
-        <p>No book club groups have been created yet.</p>
+
+    <div class="row">
+        {% if groups %}
+        {% for group in groups %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h2 class="card-title h5 mb-0">{{ group.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ group.description|truncatewords:30 }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-primary">{{ group.books.count }} Books</span>
+                            <span class="badge bg-secondary">{{ group.members.count }} Members</span>
+                            {% if group|is_admin:user %}
+                            <span class="badge bg-success">Admin</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'group_detail' group.id %}" class="btn btn-primary">View Group</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col">
+            <div class="alert alert-info">
+                <p class="mb-0">You're not a member of any book groups yet.</p>
+                {% if can_create_groups %}
+                <p class="mb-0">Create your first group to get started!</p>
+                {% else %}
+                <p class="mb-0">Ask an admin to add you to a group.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% endfor %}
 </div>
 {% endblock %}
