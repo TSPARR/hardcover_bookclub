@@ -209,3 +209,14 @@ LOGGING = {
 
 # Ensure the logs directory exists
 os.makedirs(os.path.join(BASE_DIR, "logs"), exist_ok=True)
+
+# Get CSRF trusted origins from environment variable
+# The format should be comma-separated URLs, e.g.: 'https://example.com,https://sub.example.com'
+CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+
+# Filter out empty strings (in case the env var is empty or has trailing commas)
+CSRF_TRUSTED_ORIGINS = [origin for origin in CSRF_TRUSTED_ORIGINS if origin]
+
+# If no origins are provided, use a default
+if not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
