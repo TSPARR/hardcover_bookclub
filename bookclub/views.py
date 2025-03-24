@@ -7,6 +7,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from .forms import (
     ApiKeyForm,
@@ -16,7 +17,15 @@ from .forms import (
     UserRegistrationForm,
 )
 from .hardcover_api import HardcoverAPI
-from .models import Book, BookGroup, Comment, User, UserBookProgress, UserProfile
+from .models import (
+    Book,
+    BookGroup,
+    Comment,
+    User,
+    UserBookProgress,
+    UserProfile,
+    BookEdition,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +51,32 @@ def register(request):
 
 @login_required
 def home(request):
-    # Only show groups where the user is a member
+    # Get groups where the user is a member
     user_groups = request.user.book_groups.all()
+
+    # Get active books from these groups
+    active_books = Book.objects.filter(
+        group__in=user_groups, is_active=True
+    ).select_related("group")
+
+    # Get the user's progress for these active books
+    for book in active_books:
+        book.user_progress, created = UserBookProgress.objects.get_or_create(
+            user=request.user,
+            book=book,
+            defaults={
+                "progress_type": "percent",
+                "progress_value": "0",
+                "normalized_progress": 0,
+            },
+        )
+
+    # Add active book to each group for easy access in the template
+    # Create a dictionary to quickly look up active books by group_id
+    active_book_by_group = {book.group_id: book for book in active_books}
+
+    for group in user_groups:
+        group.active_book = active_book_by_group.get(group.id)
 
     # Check if the user can create groups
     can_create_groups = request.user.profile.can_create_groups
@@ -51,7 +84,11 @@ def home(request):
     return render(
         request,
         "bookclub/home.html",
-        {"groups": user_groups, "can_create_groups": can_create_groups},
+        {
+            "groups": user_groups,
+            "active_books": active_books,
+            "can_create_groups": can_create_groups,
+        },
     )
 
 
@@ -150,9 +187,25 @@ def book_detail(request, book_id):
                 try:
                     hardcover_data = json.loads(request.POST.get("hardcover_data"))
 
-                    # Save Hardcover data to the comment
-                    comment.hardcover_started_at = hardcover_data.get("started_at")
-                    comment.hardcover_finished_at = hardcover_data.get("finished_at")
+                    # Save Hardcover data to the comment with timezone-aware dates
+                    started_at = hardcover_data.get("started_at")
+                    finished_at = hardcover_data.get("finished_at")
+
+                    # Make them timezone aware if they exist
+                    if started_at:
+                        comment.hardcover_started_at = timezone.make_aware(
+                            timezone.datetime.strptime(started_at, "%Y-%m-%d")
+                        )
+                    else:
+                        comment.hardcover_started_at = None
+
+                    if finished_at:
+                        comment.hardcover_finished_at = timezone.make_aware(
+                            timezone.datetime.strptime(finished_at, "%Y-%m-%d")
+                        )
+                    else:
+                        comment.hardcover_finished_at = None
+
                     comment.hardcover_percent = hardcover_data.get("progress")
                     comment.hardcover_current_page = hardcover_data.get("current_page")
                     comment.hardcover_current_position = hardcover_data.get(
@@ -191,10 +244,95 @@ def book_detail(request, book_id):
                         comment.hardcover_reading_format
                     )
                     user_progress.hardcover_edition_id = comment.hardcover_edition_id
+
+                    # If there's an edition_id, try to link to the corresponding BookEdition
+                    if comment.hardcover_edition_id:
+                        try:
+                            # Check if we already have this edition
+                            edition = BookEdition.objects.get(
+                                hardcover_edition_id=comment.hardcover_edition_id
+                            )
+                            user_progress.edition = edition
+                            logger.info(
+                                f"Linked progress to existing edition ID: {comment.hardcover_edition_id}"
+                            )
+                        except BookEdition.DoesNotExist:
+                            # Try to fetch and create the edition
+                            try:
+                                editions = HardcoverAPI.get_book_editions(
+                                    book.hardcover_id, user=request.user
+                                )
+                                if editions:
+                                    for edition_data in editions:
+                                        if str(edition_data["id"]) == str(
+                                            comment.hardcover_edition_id
+                                        ):
+                                            # Found the matching edition, create it
+                                            edition = BookEdition.objects.create(
+                                                book=book,
+                                                hardcover_edition_id=comment.hardcover_edition_id,
+                                                title=edition_data.get(
+                                                    "title", book.title
+                                                ),
+                                                isbn=edition_data.get("isbn_10", ""),
+                                                isbn13=edition_data.get("isbn_13", ""),
+                                                cover_image_url=edition_data.get(
+                                                    "cover_image_url", ""
+                                                ),
+                                                publisher=(
+                                                    edition_data.get(
+                                                        "publisher", {}
+                                                    ).get("name", "")
+                                                    if edition_data.get("publisher")
+                                                    else ""
+                                                ),
+                                                pages=edition_data.get("pages"),
+                                                audio_seconds=edition_data.get(
+                                                    "audio_seconds"
+                                                ),
+                                                reading_format=edition_data.get(
+                                                    "reading_format", ""
+                                                ),
+                                                reading_format_id=edition_data.get(
+                                                    "reading_format_id"
+                                                ),
+                                            )
+
+                                            # Set publication date if available
+                                            if edition_data.get("release_date"):
+                                                try:
+                                                    from datetime import datetime
+
+                                                    edition.publication_date = (
+                                                        datetime.strptime(
+                                                            edition_data[
+                                                                "release_date"
+                                                            ],
+                                                            "%Y-%m-%d",
+                                                        ).date()
+                                                    )
+                                                    edition.save(
+                                                        update_fields=[
+                                                            "publication_date"
+                                                        ]
+                                                    )
+                                                except (ValueError, TypeError):
+                                                    pass
+
+                                            user_progress.edition = edition
+                                            logger.info(
+                                                f"Created and linked to new edition ID: {comment.hardcover_edition_id}"
+                                            )
+                                            break
+                            except Exception as e:
+                                logger.exception(
+                                    f"Error fetching edition data: {str(e)}"
+                                )
+
                     user_progress.save()
 
                 except json.JSONDecodeError as e:
-                    logging.error(f"Error parsing Hardcover data: {e}")
+                    logger.error(f"Error parsing Hardcover data: {e}")
             else:
                 # Update user progress based on the comment's progress
                 user_progress.progress_type = comment.progress_type
@@ -217,6 +355,33 @@ def book_detail(request, book_id):
             "user_progress": user_progress,
         },
     )
+
+
+def extract_publisher_name(publisher_data):
+    """Extract publisher name from different data formats"""
+    if not publisher_data:
+        return ""
+
+    # If it's already a string, return it
+    if isinstance(publisher_data, str):
+        # If it looks like a dictionary string, try to parse it
+        if publisher_data.startswith("{") and "name" in publisher_data:
+            try:
+                import ast
+
+                publisher_dict = ast.literal_eval(publisher_data)
+                if isinstance(publisher_dict, dict) and "name" in publisher_dict:
+                    return publisher_dict["name"]
+            except:
+                pass
+        return publisher_data
+
+    # If it's a dict with 'name' key
+    if isinstance(publisher_data, dict) and "name" in publisher_data:
+        return publisher_data["name"]
+
+    # Return as string as fallback
+    return str(publisher_data)
 
 
 @login_required
@@ -251,8 +416,26 @@ def update_book_progress(request, book_id):
         # Process Hardcover data if available
         if "hardcover_data" in data:
             hardcover_data = data["hardcover_data"]
-            user_progress.hardcover_started_at = hardcover_data.get("started_at")
-            user_progress.hardcover_finished_at = hardcover_data.get("finished_at")
+
+            # Process timestamps to make them timezone-aware
+            started_at = hardcover_data.get("started_at")
+            finished_at = hardcover_data.get("finished_at")
+
+            # Make them timezone aware if they exist
+            if started_at:
+                user_progress.hardcover_started_at = timezone.make_aware(
+                    timezone.datetime.strptime(started_at, "%Y-%m-%d")
+                )
+            else:
+                user_progress.hardcover_started_at = None
+
+            if finished_at:
+                user_progress.hardcover_finished_at = timezone.make_aware(
+                    timezone.datetime.strptime(finished_at, "%Y-%m-%d")
+                )
+            else:
+                user_progress.hardcover_finished_at = None
+
             user_progress.hardcover_percent = hardcover_data.get("progress")
             user_progress.hardcover_current_page = hardcover_data.get("current_page")
             user_progress.hardcover_current_position = hardcover_data.get(
@@ -272,6 +455,76 @@ def update_book_progress(request, book_id):
                 book.audio_seconds = hardcover_data.get("edition_audio_seconds")
                 book.save(update_fields=["audio_seconds"])
 
+            # Link to BookEdition if edition_id is available
+            hardcover_edition_id = hardcover_data.get("edition_id")
+            if hardcover_edition_id:
+                # Check if we already have this edition in our system
+                try:
+                    edition = BookEdition.objects.get(
+                        hardcover_edition_id=str(hardcover_edition_id)
+                    )
+                    user_progress.edition = edition
+                    logger.info(
+                        f"Linked progress to existing edition ID: {hardcover_edition_id}"
+                    )
+                except BookEdition.DoesNotExist:
+                    # Edition doesn't exist yet, let's fetch it from Hardcover
+                    try:
+                        # We'll use the get_book_editions method to get all editions, then find the matching one
+                        editions = HardcoverAPI.get_book_editions(
+                            book.hardcover_id, user=request.user
+                        )
+                        if editions:
+                            for edition_data in editions:
+                                if str(edition_data["id"]) == str(hardcover_edition_id):
+                                    # Found the matching edition, create it in our database
+                                    edition = BookEdition.objects.create(
+                                        book=book,
+                                        hardcover_edition_id=str(hardcover_edition_id),
+                                        title=edition_data.get("title", book.title),
+                                        isbn=edition_data.get("isbn_10", ""),
+                                        isbn13=edition_data.get("isbn_13", ""),
+                                        cover_image_url=edition_data.get(
+                                            "cover_image_url", ""
+                                        ),
+                                        publisher=extract_publisher_name(
+                                            edition_data.get("publisher", "")
+                                        ),
+                                        pages=edition_data.get("pages"),
+                                        audio_seconds=edition_data.get("audio_seconds"),
+                                        reading_format=edition_data.get(
+                                            "reading_format", ""
+                                        ),
+                                        reading_format_id=edition_data.get(
+                                            "reading_format_id"
+                                        ),
+                                    )
+
+                                    # Set publication date if available
+                                    if edition_data.get("release_date"):
+                                        try:
+                                            from datetime import datetime
+
+                                            edition.publication_date = (
+                                                datetime.strptime(
+                                                    edition_data["release_date"],
+                                                    "%Y-%m-%d",
+                                                ).date()
+                                            )
+                                            edition.save(
+                                                update_fields=["publication_date"]
+                                            )
+                                        except (ValueError, TypeError):
+                                            pass
+
+                                    user_progress.edition = edition
+                                    logger.info(
+                                        f"Created and linked to new edition ID: {hardcover_edition_id}"
+                                    )
+                                    break
+                    except Exception as e:
+                        logger.exception(f"Error fetching edition data: {str(e)}")
+
         # Save the updated progress
         user_progress.save()
 
@@ -282,9 +535,7 @@ def update_book_progress(request, book_id):
                     "progress_type": user_progress.progress_type,
                     "progress_value": user_progress.progress_value,
                     "normalized_progress": user_progress.normalized_progress,
-                    "last_updated": user_progress.last_updated.strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
+                    "last_updated": user_progress.last_updated.strftime("%Y-%m-%d"),
                 },
             }
         )
@@ -635,5 +886,195 @@ def remove_book(request, group_id, book_id):
     # Remove the book
     book.delete()
     messages.success(request, f"'{book.title}' has been removed from the group.")
+
+    return redirect("group_detail", group_id=group.id)
+
+
+@login_required
+def get_book_editions(request, hardcover_id):
+    """API endpoint to get all editions of a book from Hardcover"""
+    try:
+        editions = HardcoverAPI.get_book_editions(hardcover_id, user=request.user)
+        return JsonResponse({"editions": editions})
+    except Exception as e:
+        logger.exception(f"Error fetching Hardcover editions: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def select_edition(request, book_id):
+    """Allow users to select a specific edition for a book"""
+    book = get_object_or_404(Book, id=book_id)
+
+    # Get current user progress for this book
+    user_progress, created = UserBookProgress.objects.get_or_create(
+        user=request.user,
+        book=book,
+        defaults={
+            "progress_type": "percent",
+            "progress_value": "0",
+            "normalized_progress": 0,
+        },
+    )
+
+    # Try to get editions from Hardcover
+    editions = HardcoverAPI.get_book_editions(book.hardcover_id, user=request.user)
+
+    if request.method == "POST":
+        edition_id = request.POST.get("edition_id")
+
+        if edition_id == "none":
+            # User wants to clear edition selection
+            user_progress.edition = None
+            user_progress.save()
+            messages.success(request, "Edition selection cleared.")
+            return redirect("book_detail", book_id=book.id)
+
+        # Find or create the edition in our database
+        for edition_data in editions:
+            if str(edition_data["id"]) == edition_id:
+                # Create or update the edition in our database
+                edition, created = BookEdition.objects.update_or_create(
+                    hardcover_edition_id=edition_id,
+                    defaults={
+                        "book": book,
+                        "title": edition_data.get("title", book.title),
+                        "isbn": edition_data.get("isbn_10", ""),
+                        "isbn13": edition_data.get("isbn_13", ""),
+                        "cover_image_url": (
+                            edition_data.get("cached_image", {}).get("url", "")
+                            if edition_data.get("cached_image")
+                            else ""
+                        ),
+                        "publisher": (
+                            edition_data.get("publisher", {}).get("name", "")
+                            if edition_data.get("publisher")
+                            else ""
+                        ),
+                        "pages": edition_data.get("pages"),
+                        "audio_seconds": edition_data.get("audio_seconds"),
+                        "reading_format": edition_data.get("reading_format", ""),
+                        "reading_format_id": edition_data.get("reading_format_id"),
+                    },
+                )
+
+            # Update publication date if available
+            if edition_data.get("release_date"):
+                try:
+                    from datetime import datetime
+
+                    edition.publication_date = datetime.strptime(
+                        edition_data["release_date"], "%Y-%m-%d"
+                    ).date()
+                    edition.save()
+                except (ValueError, TypeError):
+                    pass
+
+                # Update user progress to use this edition
+                user_progress.edition = edition
+                user_progress.save()
+
+                messages.success(request, f"Selected edition: {edition.title}")
+                return redirect("book_detail", book_id=book.id)
+
+        messages.error(request, "Selected edition not found.")
+
+    # Determine current selected edition
+    current_edition = user_progress.edition
+
+    return render(
+        request,
+        "bookclub/select_edition.html",
+        {
+            "book": book,
+            "editions": editions,
+            "current_edition": current_edition,
+        },
+    )
+
+
+@login_required
+def set_manual_progress(request, book_id):
+    """Set manual progress for a book edition"""
+    book = get_object_or_404(Book, id=book_id)
+
+    # Get current user progress for this book
+    user_progress, created = UserBookProgress.objects.get_or_create(
+        user=request.user,
+        book=book,
+        defaults={
+            "progress_type": "percent",
+            "progress_value": "0",
+            "normalized_progress": 0,
+        },
+    )
+
+    if request.method == "POST":
+        progress_type = request.POST.get("progress_type")
+        progress_value = request.POST.get("progress_value")
+        started_reading = request.POST.get("started_reading") == "on"
+        finished_reading = request.POST.get("finished_reading") == "on"
+
+        # Update progress type and value
+        user_progress.progress_type = progress_type
+        user_progress.progress_value = progress_value
+
+        if started_reading and not user_progress.hardcover_started_at:
+            user_progress.hardcover_started_at = timezone.now()
+
+        if finished_reading and not user_progress.hardcover_finished_at:
+            user_progress.hardcover_finished_at = timezone.now()
+            # If book is finished, set progress to 100%
+            if progress_type == "percent":
+                user_progress.progress_value = "100"
+            elif (
+                progress_type == "page"
+                and user_progress.edition
+                and user_progress.edition.pages
+            ):
+                user_progress.progress_value = str(user_progress.edition.pages)
+            elif progress_type == "page" and book.pages:
+                user_progress.progress_value = str(book.pages)
+
+        # Update normalized progress
+        user_progress.save()
+
+        messages.success(request, "Reading progress updated successfully.")
+        return redirect("book_detail", book_id=book.id)
+
+    return render(
+        request,
+        "bookclub/set_manual_progress.html",
+        {
+            "book": book,
+            "user_progress": user_progress,
+        },
+    )
+
+
+@login_required
+def toggle_book_active(request, group_id, book_id):
+    """Toggle the active status of a book in a group"""
+    group = get_object_or_404(BookGroup, id=group_id)
+    book = get_object_or_404(Book, id=book_id, group=group)
+
+    # Check if user is a member of this group
+    if not group.is_member(request.user):
+        messages.error(request, "You are not a member of this group.")
+        return redirect("home")
+
+    # Check if this is a POST request (for security)
+    if request.method != "POST":
+        return redirect("group_detail", group_id=group.id)
+
+    # If the book is already active, we're deactivating it
+    if book.is_active:
+        book.is_active = False
+        book.save(update_fields=["is_active"])
+        messages.success(request, f"'{book.title}' is no longer the active book.")
+    else:
+        # Use the method we defined to set as active (deactivates others)
+        book.set_active()
+        messages.success(request, f"'{book.title}' is now set as the active book.")
 
     return redirect("group_detail", group_id=group.id)

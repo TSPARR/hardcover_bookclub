@@ -1,56 +1,120 @@
 {% extends 'bookclub/base.html' %}
-{% load bookclub_extras %}
+{% load static %}
 
-{% block title %}Book Groups{% endblock %}
+{% block title %}Book Club - Home{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row mb-4">
-        <div class="col d-flex justify-content-between align-items-center">
-            <h1>Your Book Groups</h1>
-            {% if can_create_groups %}
-            <a href="{% url 'create_group' %}" class="btn btn-primary">Create New Group</a>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="row">
-        {% if groups %}
-        {% for group in groups %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h2 class="card-title h5 mb-0">{{ group.name }}</h2>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">{{ group.description|truncatewords:30 }}</p>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-primary">{{ group.books.count }} Books</span>
-                            <span class="badge bg-secondary">{{ group.members.count }} Members</span>
-                            {% if group|is_admin:user %}
-                            <span class="badge bg-success">Admin</span>
-                            {% endif %}
+        <div class="col">
+            <h1 class="mb-4">Welcome to Book Club</h1>
+            
+            {% if active_books %}
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h2 class="mb-3">Currently Reading</h2>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for book in active_books %}
+                        <div class="col">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">{{ book.group.name }}</h5>
+                                    </div>
+                                </div>
+                                <div class="row g-0">
+                                    <div class="col-4">
+                                        {% if book.cover_image_url %}
+                                        <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
+                                            style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
+                                        {% else %}
+                                        <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
+                                            style="min-height: 150px;">
+                                            <span class="text-muted">No cover</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ book.title }}</h5>
+                                            <p class="card-text small">{{ book.author }}</p>
+                                            
+                                            <!-- Progress bar -->
+                                            <div class="progress mb-2" style="height: 10px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: {{ book.user_progress.normalized_progress }}%;"
+                                                    aria-valuenow="{{ book.user_progress.normalized_progress }}" 
+                                                    aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    {% if book.user_progress.progress_type == 'page' %}
+                                                    Page {{ book.user_progress.progress_value }}
+                                                    {% elif book.user_progress.progress_type == 'audio' %}
+                                                    Audio: {{ book.user_progress.progress_value }}
+                                                    {% else %}
+                                                    {{ book.user_progress.progress_value }}% complete
+                                                    {% endif %}
+                                                </small>
+                                                <small class="text-muted">{{ book.user_progress.normalized_progress|floatformat:1 }}%</small>
+                                            </div>
+                                            
+                                            <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary mt-2">Continue Reading</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <a href="{% url 'group_detail' group.id %}" class="btn btn-primary">View Group</a>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="col">
-            <div class="alert alert-info">
-                <p class="mb-0">You're not a member of any book groups yet.</p>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Your Groups</h2>
                 {% if can_create_groups %}
-                <p class="mb-0">Create your first group to get started!</p>
-                {% else %}
-                <p class="mb-0">Ask an admin to add you to a group.</p>
+                <a href="{% url 'create_group' %}" class="btn btn-primary">Create Group</a>
                 {% endif %}
             </div>
+            
+            {% if groups %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for group in groups %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ group.name }}</h5>
+                            <p class="card-text">{{ group.description|truncatechars:100 }}</p>
+                            
+                            {% if group.active_book %}
+                            <div class="alert alert-primary py-2">
+                                <small><strong>Currently reading:</strong> {{ group.active_book.title }}</small>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="d-flex justify-content-between">
+                                <span class="badge bg-secondary">{{ group.members.count }} Members</span>
+                                <span class="badge bg-primary">{{ group.books.count }} Books</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'group_detail' group.id %}" class="btn btn-primary">View Group</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>You're not a member of any groups yet.</p>
+                {% if can_create_groups %}
+                <a href="{% url 'create_group' %}" class="btn btn-primary">Create Your First Group</a>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

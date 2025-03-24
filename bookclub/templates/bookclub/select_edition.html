@@ -1,0 +1,127 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+
+{% block title %}Select Edition - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Select Edition for "{{ book.title }}"</h1>
+            <p class="text-muted">By {{ book.author }}</p>
+
+            {% if current_edition %}
+            <div class="alert alert-info">
+                <p class="mb-0">Currently tracking: <strong>{{ current_edition }}</strong></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if editions %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Available Editions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for edition in editions %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                {% if edition.cover_image_url %}
+                                <img src="{{ edition.cover_image_url }}" class="card-img-top" alt="{{ edition.title }}"
+                                    style="max-height: 200px; object-fit: contain; padding: 1rem;">
+                                {% else %}
+                                <div class="card-img-top text-center py-5 bg-light">No Cover Available</div>
+                                {% endif %}
+
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ edition.title }}</h5>
+
+                                    <ul class="list-unstyled">
+                                        {% if edition.reading_format %}
+                                        <li><strong>Format:</strong> {{ edition.reading_format|title }}</li>
+                                        {% endif %}
+
+                                        {% if edition.pages %}
+                                        <li><strong>Pages:</strong> {{ edition.pages }}</li>
+                                        {% endif %}
+
+                                        {% if edition.audio_duration_formatted %}
+                                        <li><strong>Duration:</strong> {{ edition.audio_duration_formatted }}</li>
+                                        {% endif %}
+
+                                        {% if edition.publisher %}
+                                        <li><strong>Publisher:</strong> {{ edition.publisher.name }}</li>
+                                        {% endif %}
+
+                                        {% if edition.release_date_formatted %}
+                                        <li><strong>Published:</strong> {{ edition.release_date_formatted }}</li>
+                                        {% endif %}
+
+                                        {% if edition.isbn %}
+                                        <li><strong>ISBN:</strong> {{ edition.isbn }}</li>
+                                        {% endif %}
+
+                                        {% if edition.isbn13 %}
+                                        <li><strong>ISBN-13:</strong> {{ edition.isbn13 }}</li>
+                                        {% endif %}
+                                    </ul>
+
+                                    <form method="post" action="{% url 'select_edition' book.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="edition_id" value="{{ edition.id }}">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            Select This Edition
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if current_edition %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="post" action="{% url 'select_edition' book.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="edition_id" value="none">
+                <button type="submit" class="btn btn-warning">
+                    Clear Edition Selection
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-warning">
+                <p>No editions found for this book. This could be because:</p>
+                <ul>
+                    <li>The book doesn't have any editions registered in Hardcover</li>
+                    <li>Your Hardcover API key is not set or is invalid</li>
+                    <li>There was an error communicating with the Hardcover API</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">
+                Back to Book
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

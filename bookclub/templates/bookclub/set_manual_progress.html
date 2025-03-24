@@ -1,0 +1,164 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+
+{% block title %}Update Progress - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Update Reading Progress</h1>
+            <h3>{{ book.title }}</h3>
+            <p class="text-muted">By {{ book.author }}</p>
+            
+            {% if user_progress.edition %}
+            <div class="alert alert-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1">Tracking edition: <strong>{{ user_progress.edition }}</strong></p>
+                        
+                        {% if user_progress.edition.pages %}
+                        <p class="mb-1">Pages: {{ user_progress.edition.pages }}</p>
+                        {% endif %}
+                        
+                        {% if user_progress.edition.audio_seconds %}
+                        <p class="mb-0">Duration: {{ user_progress.edition.audio_duration_formatted }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <a href="{% url 'select_edition' book.id %}" class="btn btn-sm btn-light">
+                        Change Edition
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1">No specific edition selected. Using general book information.</p>
+                        
+                        {% if book.pages %}
+                        <p class="mb-1">Pages: {{ book.pages }}</p>
+                        {% endif %}
+                        
+                        {% if book.audio_seconds %}
+                        <p class="mb-0">Audio Duration: {{ book.audio_seconds }} seconds</p>
+                        {% endif %}
+                    </div>
+                    
+                    <a href="{% url 'select_edition' book.id %}" class="btn btn-sm btn-light">
+                        Select an Edition
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if user_progress.hardcover_started_at %}
+            <p><strong>Started reading:</strong> {{ user_progress.hardcover_started_at|date:"F j, Y" }}</p>
+            {% endif %}
+            
+            {% if user_progress.hardcover_finished_at %}
+            <p><strong>Finished reading:</strong> {{ user_progress.hardcover_finished_at|date:"F j, Y" }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Update Progress</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'set_manual_progress' book.id %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="progress_type">Progress Type:</label>
+                            <select class="form-select" id="progress_type" name="progress_type">
+                                <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+                                <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+                                <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="progress_value">Progress Value:</label>
+                            <input type="text" class="form-control" id="progress_value" name="progress_value" 
+                                   value="{{ user_progress.progress_value }}" required>
+                            <small class="form-text text-muted progress-help" id="percent-help">
+                                Enter a percentage (e.g., "75" for 75%)
+                            </small>
+                            <small class="form-text text-muted progress-help" id="page-help" style="display: none;">
+                                Enter a page number (e.g., "150")
+                            </small>
+                            <small class="form-text text-muted progress-help" id="audio-help" style="display: none;">
+                                Enter time in format: "2h 30m" or "45m"
+                            </small>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="started_reading" name="started_reading"
+                                   {% if user_progress.hardcover_started_at %}checked disabled{% endif %}>
+                            <label class="form-check-label" for="started_reading">
+                                {% if user_progress.hardcover_started_at %}
+                                Started reading on {{ user_progress.hardcover_started_at|date:"F j, Y" }}
+                                {% else %}
+                                Mark as started reading today
+                                {% endif %}
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="finished_reading" name="finished_reading"
+                                   {% if user_progress.hardcover_finished_at %}checked disabled{% endif %}>
+                            <label class="form-check-label" for="finished_reading">
+                                {% if user_progress.hardcover_finished_at %}
+                                Finished reading on {{ user_progress.hardcover_finished_at|date:"F j, Y" }}
+                                {% else %}
+                                Mark as finished reading today
+                                {% endif %}
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            Update Progress
+                        </button>
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary ms-2">
+                            Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide the appropriate help text based on selected progress type
+        function updateHelpText() {
+            document.querySelectorAll('.progress-help').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            const progressType = document.getElementById('progress_type').value;
+            if (progressType === 'percent') {
+                document.getElementById('percent-help').style.display = 'block';
+            } else if (progressType === 'page') {
+                document.getElementById('page-help').style.display = 'block';
+            } else if (progressType === 'audio') {
+                document.getElementById('audio-help').style.display = 'block';
+            }
+        }
+        
+        // Initialize
+        updateHelpText();
+        
+        // Update when changed
+        document.getElementById('progress_type').addEventListener('change', updateHelpText);
+    });
+</script>
+{% endblock extra_js %}

@@ -46,4 +46,24 @@ urlpatterns = [
         views.remove_book,
         name="remove_book",
     ),
+    path(
+        "books/<int:book_id>/select-edition/",
+        views.select_edition,
+        name="select_edition",
+    ),
+    path(
+        "books/<int:book_id>/set-manual-progress/",
+        views.set_manual_progress,
+        name="set_manual_progress",
+    ),
+    path(
+        "get-book-editions/<int:hardcover_id>/",
+        views.get_book_editions,
+        name="get_book_editions",
+    ),
+    path(
+        "groups/<int:group_id>/books/<int:book_id>/toggle-active/",
+        views.toggle_book_active,
+        name="toggle_book_active",
+    ),
 ]

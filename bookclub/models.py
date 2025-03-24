@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_cryptography.fields import encrypt
@@ -33,6 +33,7 @@ class Book(models.Model):
     description = models.TextField(blank=True)
     group = models.ForeignKey(BookGroup, on_delete=models.CASCADE, related_name="books")
     created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=False)  # New field for active status
 
     # Book metadata from Hardcover
     pages = models.IntegerField(null=True, blank=True)
@@ -40,6 +41,47 @@ class Book(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.author}"
+
+    def set_active(self):
+        """Set this book as the active book for its group and deactivate others"""
+        # Start a transaction to ensure consistency
+        with transaction.atomic():
+            # First, deactivate all books in this group
+            self.group.books.all().update(is_active=False)
+            # Then activate this book
+            self.is_active = True
+            self.save(update_fields=["is_active"])
+
+
+class BookEdition(models.Model):
+    """Stores information about a specific edition of a book"""
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="editions")
+    hardcover_edition_id = models.CharField(max_length=50, unique=True)
+    title = models.CharField(max_length=300)
+    isbn = models.CharField(max_length=20, blank=True, null=True)
+    isbn13 = models.CharField(max_length=20, blank=True, null=True)
+    cover_image_url = models.URLField(blank=True)
+    publisher = models.CharField(max_length=200, blank=True)
+    publication_date = models.DateField(blank=True, null=True)
+    pages = models.IntegerField(null=True, blank=True)
+    audio_seconds = models.IntegerField(null=True, blank=True)
+    reading_format = models.CharField(max_length=20, blank=True)
+    reading_format_id = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        format_str = f" ({self.reading_format})" if self.reading_format else ""
+        return f"{self.title}{format_str}"
+
+    @property
+    def audio_duration_formatted(self):
+        """Return a human-readable audio duration"""
+        if not self.audio_seconds:
+            return None
+        hours = self.audio_seconds // 3600
+        minutes = (self.audio_seconds % 3600) // 60
+        return f"{hours}h {minutes}m"
 
 
 class Comment(models.Model):
@@ -90,6 +132,14 @@ class UserBookProgress(models.Model):
     book = models.ForeignKey(
         Book, on_delete=models.CASCADE, related_name="user_progress"
     )
+    # Add this field to reference the specific edition
+    edition = models.ForeignKey(
+        BookEdition,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="user_progress",
+    )
     progress_type = models.CharField(max_length=10, choices=PROGRESS_TYPE_CHOICES)
     progress_value = models.CharField(
         max_length=20
@@ -117,7 +167,8 @@ class UserBookProgress(models.Model):
         )  # Each user can have only one progress entry per book
 
     def __str__(self):
-        return f"{self.user.username}'s progress on {self.book.title}"
+        edition_str = f" ({self.edition})" if self.edition else ""
+        return f"{self.user.username}'s progress on {self.book.title}{edition_str}"
 
     def save(self, *args, **kwargs):
         # Calculate normalized progress before saving
@@ -140,7 +191,11 @@ class UserBookProgress(models.Model):
             # If we have book pages and current page, calculate percentage
             try:
                 page = int(self.progress_value)
-                if self.book.pages:
+                # First check if we have edition pages
+                if self.edition and self.edition.pages:
+                    return (page / self.edition.pages) * 100
+                # Fall back to book pages
+                elif self.book.pages:
                     return (page / self.book.pages) * 100
                 return 0  # Can't normalize without total pages
             except (ValueError, AttributeError):
@@ -148,8 +203,17 @@ class UserBookProgress(models.Model):
 
         elif self.progress_type == "audio":
             # For audio, convert to a percentage if we have total audio duration
-            if self.hardcover_current_position and self.book.audio_seconds:
-                return (self.hardcover_current_position / self.book.audio_seconds) * 100
+            if self.hardcover_current_position:
+                # First check if we have edition audio duration
+                if self.edition and self.edition.audio_seconds:
+                    return (
+                        self.hardcover_current_position / self.edition.audio_seconds
+                    ) * 100
+                # Fall back to book audio duration
+                elif self.book.audio_seconds:
+                    return (
+                        self.hardcover_current_position / self.book.audio_seconds
+                    ) * 100
 
             # Try to parse timestamps like "2h 45m"
             try:
@@ -159,7 +223,11 @@ class UserBookProgress(models.Model):
                     minutes = int(parts[1].replace("m", ""))
                     total_seconds = (hours * 3600) + (minutes * 60)
 
-                    if self.book.audio_seconds:
+                    # First check if we have edition audio duration
+                    if self.edition and self.edition.audio_seconds:
+                        return (total_seconds / self.edition.audio_seconds) * 100
+                    # Fall back to book audio duration
+                    elif self.book.audio_seconds:
                         return (total_seconds / self.book.audio_seconds) * 100
             except (ValueError, IndexError):
                 pass

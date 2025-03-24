@@ -1,6 +1,7 @@
 import requests
 import json
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -316,3 +317,83 @@ class HardcoverAPI:
             return {"error": f"Error processing data: {str(e)}"}
 
         return {"progress": progress_data}
+
+    @staticmethod
+    def get_book_editions(hardcover_id, user=None):
+        """Get all available editions for a book from the Hardcover API"""
+        logger.info(f"Getting editions for book ID: {hardcover_id}")
+
+        if not hardcover_id:
+            logger.error("No hardcover_id provided")
+            return None
+
+        graphql_query = """
+        query GetBookEditions($id: Int!) {
+        editions(where: {book_id: {_eq: $id}}) {
+            id
+            title
+            cached_image
+            pages
+            audio_seconds
+            reading_format_id
+            isbn_10
+            isbn_13
+            publisher {
+                name
+            }
+            release_date
+        }
+        }
+        """
+
+        variables = {"id": int(hardcover_id)}
+
+        result = HardcoverAPI.execute_query(graphql_query, variables, user)
+
+        if result and "data" in result and "editions" in result["data"]:
+            editions = result["data"]["editions"]
+            logger.info(
+                f"Successfully retrieved {len(editions)} editions for book ID: {hardcover_id}"
+            )
+
+            # Process editions to add reading format name
+            for edition in editions:
+                # Add cover image URL
+                if edition.get("cached_image") and edition["cached_image"].get("url"):
+                    edition["cover_image_url"] = edition["cached_image"]["url"]
+
+                # Map reading_format_id to human-readable name
+                format_id = edition.get("reading_format_id")
+                if format_id == 1:
+                    edition["reading_format"] = "physical"
+                elif format_id == 2:
+                    edition["reading_format"] = "audio"
+                elif format_id == 4:
+                    edition["reading_format"] = "ebook"
+                else:
+                    edition["reading_format"] = "unknown"
+
+                # Format publication date if present
+                if edition.get("release_date"):
+                    try:
+                        pub_date = datetime.strptime(
+                            edition["release_date"], "%Y-%m-%d"
+                        )
+                        edition["release_date_formatted"] = pub_date.strftime(
+                            "%B %d, %Y"
+                        )
+                    except (ValueError, TypeError):
+                        edition["release_date_formatted"] = edition["release_date"]
+
+                # Format audio duration if present
+                if edition.get("audio_seconds"):
+                    hours = edition["audio_seconds"] // 3600
+                    minutes = (edition["audio_seconds"] % 3600) // 60
+                    edition["audio_duration_formatted"] = f"{hours}h {minutes}m"
+
+            return editions
+        else:
+            logger.error(f"Failed to retrieve editions for book ID: {hardcover_id}")
+            if result and "errors" in result:
+                logger.error(f"GraphQL errors: {result['errors']}")
+            return []

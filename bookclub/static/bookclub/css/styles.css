@@ -107,6 +107,10 @@ h6 {
     max-width: 100%;
     border-radius: 0.25rem;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 4px;
 }
 
 /* ===== Forms ===== */
@@ -130,15 +134,19 @@ h6 {
     font-weight: bold;
     color: #6c757d;
     margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: #495057;
 }
 
 .comment-user {
     font-weight: 600;
+    font-weight: bold;
 }
 
 .comment-date {
     font-size: 0.875rem;
     color: #6c757d;
+    font-size: 0.85rem;
 }
 
 /* ===== Buttons ===== */
@@ -302,4 +310,117 @@ h6 {
     line-height: 1.5rem;
     font-weight: bold;
     transition: width 0.6s ease;
+}
+
+/* Badge styles - from book-details.css */
+.badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Add these styles to your styles.css file */
+
+/* Book cover image styles */
+.book-detail-image {
+    max-width: 100%;
+    border-radius: 0.25rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-height: 400px;
+    display: block;
+    margin: 0 auto;
+}
+
+.book-cover-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+}
+
+/* Edition info section */
+.edition-info {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.edition-info h6 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.edition-cover {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.edition-cover img {
+    max-height: 150px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+/* Add to your styles.css file */
+
+/* Active book styles */
+.active-book-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    z-index: 1;
+}
+
+.active-book-indicator {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 0.25rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+/* Card with active book */
+.card.active-book {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.currently-reading-section {
+    margin-bottom: 2rem;
+}
+
+.currently-reading-header {
+    border-bottom: 2px solid #0d6efd;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.progress-indicator {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.progress-indicator .progress {
+    height: 8px;
+    margin-bottom: 0.25rem;
+}
+
+.progress-indicator .info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #6c757d;
 }
