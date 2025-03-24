@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ApiKeyForm, BookSearchForm, CommentForm, UserRegistrationForm
 from .hardcover_api import HardcoverAPI
-from .models import Book, Comment, Group
+from .models import Book, Comment, Group, UserBookProgress
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,17 @@ def group_detail(request, group_id):
 def book_detail(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 
+    # Get or create user progress for this book
+    user_progress, created = UserBookProgress.objects.get_or_create(
+        user=request.user,
+        book=book,
+        defaults={
+            "progress_type": "percent",
+            "progress_value": "0",
+            "normalized_progress": 0,
+        },
+    )
+
     # Get sorting option from request
     sort_by = request.GET.get("sort", "date_desc")
 
@@ -89,6 +100,10 @@ def book_detail(request, book_id):
     else:
         # Default to date descending
         comments = comments.order_by("-created_at")
+
+    # Add normalized progress value to each comment for spoiler detection
+    for comment in comments:
+        comment.normalized_progress = _get_progress_value_for_sorting(comment)
 
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -127,8 +142,31 @@ def book_detail(request, book_id):
                         book.audio_seconds = hardcover_data.get("edition_audio_seconds")
                         book.save(update_fields=["audio_seconds"])
 
+                    # Update the user's book progress with the same data
+                    user_progress.progress_type = comment.progress_type
+                    user_progress.progress_value = comment.progress_value
+                    user_progress.hardcover_started_at = comment.hardcover_started_at
+                    user_progress.hardcover_finished_at = comment.hardcover_finished_at
+                    user_progress.hardcover_percent = comment.hardcover_percent
+                    user_progress.hardcover_current_page = (
+                        comment.hardcover_current_page
+                    )
+                    user_progress.hardcover_current_position = (
+                        comment.hardcover_current_position
+                    )
+                    user_progress.hardcover_reading_format = (
+                        comment.hardcover_reading_format
+                    )
+                    user_progress.hardcover_edition_id = comment.hardcover_edition_id
+                    user_progress.save()
+
                 except json.JSONDecodeError as e:
                     logging.error(f"Error parsing Hardcover data: {e}")
+            else:
+                # Update user progress based on the comment's progress
+                user_progress.progress_type = comment.progress_type
+                user_progress.progress_value = comment.progress_value
+                user_progress.save()
 
             comment.save()
             return redirect("book_detail", book_id=book.id)
@@ -138,8 +176,91 @@ def book_detail(request, book_id):
     return render(
         request,
         "bookclub/book_detail.html",
-        {"book": book, "comments": comments, "form": form, "current_sort": sort_by},
+        {
+            "book": book,
+            "comments": comments,
+            "form": form,
+            "current_sort": sort_by,
+            "user_progress": user_progress,
+        },
     )
+
+
+@login_required
+def update_book_progress(request, book_id):
+    """API endpoint to update a user's reading progress for a book"""
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    book = get_object_or_404(Book, id=book_id)
+
+    try:
+        # Get or create user progress for this book
+        user_progress, created = UserBookProgress.objects.get_or_create(
+            user=request.user,
+            book=book,
+            defaults={
+                "progress_type": "percent",
+                "progress_value": "0",
+                "normalized_progress": 0,
+            },
+        )
+
+        data = json.loads(request.body)
+
+        # Update progress fields
+        if "progress_type" in data:
+            user_progress.progress_type = data["progress_type"]
+
+        if "progress_value" in data:
+            user_progress.progress_value = data["progress_value"]
+
+        # Process Hardcover data if available
+        if "hardcover_data" in data:
+            hardcover_data = data["hardcover_data"]
+            user_progress.hardcover_started_at = hardcover_data.get("started_at")
+            user_progress.hardcover_finished_at = hardcover_data.get("finished_at")
+            user_progress.hardcover_percent = hardcover_data.get("progress")
+            user_progress.hardcover_current_page = hardcover_data.get("current_page")
+            user_progress.hardcover_current_position = hardcover_data.get(
+                "current_position"
+            )
+            user_progress.hardcover_reading_format = hardcover_data.get(
+                "reading_format"
+            )
+            user_progress.hardcover_edition_id = hardcover_data.get("edition_id")
+
+            # Update book metadata if available and not already saved
+            if hardcover_data.get("edition_pages") and not book.pages:
+                book.pages = hardcover_data.get("edition_pages")
+                book.save(update_fields=["pages"])
+
+            if hardcover_data.get("edition_audio_seconds") and not book.audio_seconds:
+                book.audio_seconds = hardcover_data.get("edition_audio_seconds")
+                book.save(update_fields=["audio_seconds"])
+
+        # Save the updated progress
+        user_progress.save()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "progress": {
+                    "progress_type": user_progress.progress_type,
+                    "progress_value": user_progress.progress_value,
+                    "normalized_progress": user_progress.normalized_progress,
+                    "last_updated": user_progress.last_updated.strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                },
+            }
+        )
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        logger.exception(f"Error updating book progress: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 def _get_progress_value_for_sorting(comment):

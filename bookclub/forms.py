@@ -18,7 +18,9 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ["text", "progress_type", "progress_value"]
         widgets = {
-            "text": forms.Textarea(attrs={"rows": 4}),
+            "text": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "progress_type": forms.HiddenInput(),
+            "progress_value": forms.HiddenInput(),
         }
 
 

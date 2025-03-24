@@ -7,6 +7,16 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("groups/<int:group_id>/", views.group_detail, name="group_detail"),
     path("books/<int:book_id>/", views.book_detail, name="book_detail"),
+    path(
+        "books/<int:book_id>/update-progress/",
+        views.update_book_progress,
+        name="update_book_progress",
+    ),
+    path(
+        "get-hardcover-progress/<str:hardcover_id>/",
+        views.get_hardcover_progress,
+        name="get_hardcover_progress",
+    ),
     path("groups/<int:group_id>/search/", views.search_books, name="search_books"),
     path(
         "groups/<int:group_id>/add_book/<str:hardcover_id>/",
