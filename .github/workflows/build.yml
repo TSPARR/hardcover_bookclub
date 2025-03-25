@@ -21,4 +21,5 @@ jobs:
       - name: Push image to GHCR
         run: |
           export VERSION=$(cat VERSION)
+          docker tag ${{ github.repository }}:$VERSION ghcr.io/tsparr/hardcover_bookclub:$VERSION
           docker push ghcr.io/tsparr/hardcover_bookclub:$VERSION
