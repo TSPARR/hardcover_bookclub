@@ -1,7 +1,5 @@
 // edition-selection.js
 // This code will handle the edition selection functionality
-// It's optional - your app will work without it, but it adds a nice feature
-// where users can preview edition info without selecting it
 
 document.addEventListener('DOMContentLoaded', function () {
     // Get all edition cards
@@ -94,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 progressValue.value = '100';
                             } else if (progressType === 'page') {
                                 // If we know the total pages, use that
-                                const editionPages = document.querySelector('.alert-info strong + p, .alert-warning strong + p');
+                                const editionPages = document.querySelector('.alert-info strong:contains("Pages:") + p, .alert-warning strong:contains("Pages:") + p');
                                 if (editionPages) {
                                     const pagesText = editionPages.textContent;
                                     const pagesMatch = pagesText.match(/Pages: (\d+)/);
