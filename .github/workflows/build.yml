@@ -1,0 +1,21 @@
+name: Build Docker image
+on:
+  push:
+    branches:
+      - docker
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        run: |
+          export VERSION=$(cat VERSION)
+          echo "Version: $VERSION"    
+
+      - name: Build and tag image
+        run: docker build -t ${{ github.repository }}:$VERSION -f path/to/Dockerfile .
