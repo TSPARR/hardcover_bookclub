@@ -8,9 +8,11 @@
     <p class="lead">Join your friends in discussions about your favorite books.</p>
     <hr class="my-4">
     <p>Please login or register to join the community.</p>
-    <div class="mt-4">
-        <a class="btn btn-primary btn-lg mr-2" href="{% url 'login' %}" role="button">Login</a>
-        <a class="btn btn-secondary btn-lg" href="{% url 'register' %}" role="button">Register</a>
+    <div class="btn-group">
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Login</a>
+        <div class="ms-2 d-flex align-items-center">
+            <span class="text-muted">New users need an invitation to join.</span>
+        </div>
     </div>
 </div>
 {% endblock %}

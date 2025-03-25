@@ -1,0 +1,93 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Manage Invitations - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Manage Invitations for {{ group.name }}</h1>
+        <a href="{% url 'create_invitation' group.id %}" class="btn btn-primary">Create New Invitation</a>
+    </div>
+
+    <div class="mb-4">
+        <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
+            &laquo; Back to Group
+        </a>
+    </div>
+
+    {% if invitations %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Created</th>
+                        <th>Expires</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invitation in invitations %}
+                    <tr{% if invitation.is_revoked or invitation.is_used or invitation.expires_at < now %} class="text-muted"{% endif %}>
+                        <td>{{ invitation.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            {{ invitation.expires_at|date:"M d, Y" }}
+                            {% if invitation.is_valid %}
+                                <span class="badge bg-success">{{ invitation.days_until_expiry }} days left</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if invitation.is_revoked %}
+                                <span class="badge bg-danger">Revoked</span>
+                            {% elif invitation.is_used %}
+                                <span class="badge bg-secondary">Used</span>
+                            {% elif invitation.expires_at < now %}
+                                <span class="badge bg-warning text-dark">Expired</span>
+                            {% else %}
+                                <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ invitation.created_by.username }}</td>
+                        <td>{{ invitation.email|default:"-" }}</td>
+                        <td>
+                            {% if invitation.is_valid %}
+                                <div class="d-flex">
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-2" 
+                                           onclick="copyInviteLink('{{ request.scheme }}://{{ request.get_host }}{% url "register_with_invite" invitation.code %}')">
+                                        Copy Link
+                                    </button>
+                                    
+                                    <form method="post" action="{% url 'revoke_invitation' group.id invitation.id %}" 
+                                          onsubmit="return confirm('Are you sure you want to revoke this invitation?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Revoke</button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No invitations have been created yet. Click the "Create New Invitation" button to invite someone to join this group.
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function copyInviteLink(link) {
+        navigator.clipboard.writeText(link).then(function() {
+            alert('Invitation link copied to clipboard!');
+        }, function() {
+            alert('Failed to copy invitation link.');
+        });
+    }
+</script>
+{% endblock %}
