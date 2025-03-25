@@ -184,7 +184,7 @@ def book_detail(request, book_id):
                                 hardcover_edition_id=comment.hardcover_edition_id
                             )
                             user_progress.edition = edition
-                            logger.info(
+                            logger.debug(
                                 f"Linked progress to existing edition ID: {comment.hardcover_edition_id}"
                             )
                         except BookEdition.DoesNotExist:
@@ -249,7 +249,7 @@ def book_detail(request, book_id):
                                                     pass
 
                                             user_progress.edition = edition
-                                            logger.info(
+                                            logger.debug(
                                                 f"Created and linked to new edition ID: {comment.hardcover_edition_id}"
                                             )
                                             break
@@ -382,7 +382,7 @@ def update_book_progress(request, book_id):
                         hardcover_edition_id=str(hardcover_edition_id)
                     )
                     user_progress.edition = edition
-                    logger.info(
+                    logger.debug(
                         f"Linked progress to existing edition ID: {hardcover_edition_id}"
                     )
                 except BookEdition.DoesNotExist:
@@ -433,7 +433,7 @@ def update_book_progress(request, book_id):
                                             pass
 
                                     user_progress.edition = edition
-                                    logger.info(
+                                    logger.debug(
                                         f"Created and linked to new edition ID: {hardcover_edition_id}"
                                     )
                                     # Set flag to reload page if this is a new edition
@@ -475,13 +475,13 @@ def search_books(request, group_id):
         form = BookSearchForm(request.POST)
         if form.is_valid():
             query = form.cleaned_data["query"]
-            logger.info(f"Processing search request for query: '{query}'")
+            logger.debug(f"Processing search request for query: '{query}'")
 
             # Try the search
             try:
                 search_results = HardcoverAPI.search_books(query, user=request.user)
                 if not search_results:
-                    logger.info("Search returned no results")
+                    logger.debug("Search returned no results")
             except Exception as e:
                 logger.exception(f"Error during book search: {str(e)}")
                 messages.error(request, "An error occurred while searching for books.")
@@ -871,33 +871,33 @@ def toggle_reaction(request, comment_id):
 
 @login_required
 def reply_to_comment(request, comment_id):
-    logger.info(f"=== REPLY TO COMMENT VIEW STARTED for comment_id={comment_id} ===")
-    logger.info(f"User: {request.user.username}, Method: {request.method}")
+    logger.debug(f"=== REPLY TO COMMENT VIEW STARTED for comment_id={comment_id} ===")
+    logger.debug(f"User: {request.user.username}, Method: {request.method}")
 
     try:
         parent_comment = get_object_or_404(Comment, id=comment_id)
-        logger.info(
+        logger.debug(
             f"Parent comment found: id={parent_comment.id}, text={parent_comment.text[:30]}..."
         )
 
         book = parent_comment.book
-        logger.info(f"Book: id={book.id}, title={book.title}")
+        logger.debug(f"Book: id={book.id}, title={book.title}")
 
         if request.method == "POST":
-            logger.info(f"POST data received: {dict(request.POST)}")
+            logger.debug(f"POST data received: {dict(request.POST)}")
 
             form = CommentForm(request.POST)
-            logger.info(f"Form initialized with POST data")
+            logger.debug(f"Form initialized with POST data")
 
             if form.is_valid():
-                logger.info("Form is valid, creating reply")
+                logger.debug("Form is valid, creating reply")
 
                 # Log form cleaned data
-                logger.info(f"Form cleaned data: {form.cleaned_data}")
+                logger.debug(f"Form cleaned data: {form.cleaned_data}")
 
                 try:
                     reply = form.save(commit=False)
-                    logger.info("Form saved with commit=False")
+                    logger.debug("Form saved with commit=False")
 
                     reply.user = request.user
                     reply.book = book
@@ -907,15 +907,15 @@ def reply_to_comment(request, comment_id):
                     reply.progress_type = parent_comment.progress_type
                     reply.progress_value = parent_comment.progress_value
 
-                    logger.info(
+                    logger.debug(
                         f"About to save reply with: user={reply.user.id}, book={reply.book.id}, parent={reply.parent.id}"
                     )
                     reply.save()
-                    logger.info(f"Reply saved successfully with ID: {reply.id}")
+                    logger.debug(f"Reply saved successfully with ID: {reply.id}")
 
                     messages.success(request, "Your reply has been posted.")
                     redirect_url = f"{reverse('book_detail', args=[book.id])}#comment-{parent_comment.id}"
-                    logger.info(f"Redirecting to: {redirect_url}")
+                    logger.debug(f"Redirecting to: {redirect_url}")
                     return redirect(redirect_url)
                 except Exception as e:
                     logger.error(f"Error saving reply: {str(e)}", exc_info=True)
@@ -924,10 +924,10 @@ def reply_to_comment(request, comment_id):
                 logger.warning(f"Form validation failed. Errors: {form.errors}")
                 messages.error(request, "Please correct the errors in your form.")
         else:
-            logger.info("GET request, initializing empty form")
+            logger.debug("GET request, initializing empty form")
             form = CommentForm()
 
-        logger.info("Rendering reply_to_comment.html template")
+        logger.debug("Rendering reply_to_comment.html template")
         return render(
             request,
             "bookclub/reply_to_comment.html",
