@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def home(request):
     # Get groups where the user is a member
     user_groups = list(request.user.book_groups.all())
-    logger.info(f"User {request.user.username} has {len(user_groups)} groups")
+    logger.debug(f"User {request.user.username} has {len(user_groups)} groups")
 
     # Get active books from these groups
     active_books = list(
@@ -26,9 +26,9 @@ def home(request):
         )
     )
 
-    logger.info(f"Found {len(active_books)} active books")
+    logger.debug(f"Found {len(active_books)} active books")
     for book in active_books:
-        logger.info(
+        logger.debug(
             f"Active book: {book.title} in group: {book.group.name} (group_id: {book.group_id})"
         )
 
@@ -43,7 +43,9 @@ def home(request):
     # Ensure user progress exists for each active book
     for book in active_books:
         if book.id not in progress_dict:
-            logger.info(f"Creating new progress for book: {book.title} (id: {book.id})")
+            logger.debug(
+                f"Creating new progress for book: {book.title} (id: {book.id})"
+            )
             progress = UserBookProgress.objects.create(
                 user=request.user,
                 book=book,
@@ -64,9 +66,9 @@ def home(request):
     for book in active_books:
         active_book_dict[book.group_id] = book
 
-    logger.info(f"Active book dictionary has {len(active_book_dict)} entries")
+    logger.debug(f"Active book dictionary has {len(active_book_dict)} entries")
     for group_id, book in active_book_dict.items():
-        logger.info(f"Group ID {group_id} has active book: {book.title}")
+        logger.debug(f"Group ID {group_id} has active book: {book.title}")
 
     # Instead of creating dictionaries for groups, we'll simply attach the active_book to each group
     # This direct approach might be more reliable than we thought initially
@@ -74,28 +76,28 @@ def home(request):
         if group.id in active_book_dict:
             # Directly set the active_book attribute on the group instance
             group.active_book = active_book_dict[group.id]
-            logger.info(
+            logger.debug(
                 f"Set active_book for group '{group.name}' to '{group.active_book.title}'"
             )
         else:
             group.active_book = None
-            logger.info(f"No active book found for group '{group.name}'")
+            logger.debug(f"No active book found for group '{group.name}'")
 
     # Check if the user can create groups
     can_create_groups = request.user.profile.can_create_groups
 
     # Add debugging for the render context
-    logger.info(f"Rendering with {len(books_with_progress)} active books")
-    logger.info(f"Rendering with {len(user_groups)} groups")
+    logger.debug(f"Rendering with {len(books_with_progress)} active books")
+    logger.debug(f"Rendering with {len(user_groups)} groups")
 
     # Force evaluate the queryset and log each group's active book
     for group in user_groups:
         if hasattr(group, "active_book") and group.active_book:
-            logger.info(
+            logger.debug(
                 f"Before render: Group '{group.name}' has active book '{group.active_book.title}'"
             )
         else:
-            logger.info(f"Before render: Group '{group.name}' has no active book")
+            logger.debug(f"Before render: Group '{group.name}' has no active book")
 
     return render(
         request,

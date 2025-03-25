@@ -18,7 +18,6 @@ class HardcoverAPI:
 
         if user and hasattr(user, "profile") and user.profile.hardcover_api_key:
             headers["Authorization"] = f"Bearer {user.profile.hardcover_api_key}"
-            # logger.debug(f"Using API key for user: {user.username}")
         else:
             logger.warning("No API key available for request")
 
@@ -31,20 +30,13 @@ class HardcoverAPI:
 
         headers = HardcoverAPI.get_headers(user)
 
-        # logger.debug(f"GraphQL Query: {query}")
-        # logger.debug(f"Variables: {variables}")
-
         try:
-            # logger.debug(f"Sending request to {HardcoverAPI.BASE_URL}")
             response = requests.post(
                 HardcoverAPI.BASE_URL, headers=headers, json=payload
             )
 
-            # logger.debug(f"Response status code: {response.status_code}")
-
             if response.status_code == 200:
                 data = response.json()
-                # logger.debug(f"Response data: {data}")
 
                 # Check for GraphQL errors
                 if "errors" in data:
@@ -82,17 +74,14 @@ class HardcoverAPI:
         variables = {"query": query, "page": page, "perPage": per_page}
 
         result = HardcoverAPI.execute_query(graphql_query, variables, user)
-        # logger.debug(f"Raw search result: {result}")
 
         if result and "data" in result:
             if "search" in result["data"]:
                 search_data = result["data"]["search"]
-                # logger.debug(f"Search data: {search_data}")
 
                 if "results" in search_data:
                     # First, check if results is a string (JSON)
                     results = search_data["results"]
-                    # logger.debug(f"Results type: {type(results)}")
 
                     if isinstance(results, str):
                         # If it's a string, try to parse it as JSON
@@ -120,7 +109,6 @@ class HardcoverAPI:
                             return books
                         else:
                             logger.warning("Result dict doesn't contain 'hits' array")
-                            # logger.debug(f"Result structure: {results.keys()}")
                             return []
                     else:
                         logger.error(f"Unexpected result type: {type(results)}")
