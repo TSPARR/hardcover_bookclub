@@ -1,0 +1,60 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+
+{% block title %}Reply - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Reply to Comment</h2>
+                    <p class="text-muted mb-0">Book: {{ book.title }}</p>
+                </div>
+                <div class="card-body">
+                    <!-- Original comment -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ parent_comment.user.username }}</span>
+                                <span class="text-muted">{{ parent_comment.created_at|date:"F j, Y, g:i a" }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">
+                                {% if parent_comment.progress_type == 'page' %}
+                                Page {{ parent_comment.progress_value }}
+                                {% elif parent_comment.progress_type == 'audio' %}
+                                Audio: {{ parent_comment.progress_value }}
+                                {% else %}
+                                {{ parent_comment.progress_value }}% complete
+                                {% endif %}
+                            </p>
+                            <p>{{ parent_comment.text }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Reply form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.text.label_tag }}
+                            {{ form.text }}
+                        </div>
+                        
+                        <!-- Add this hidden field to track the parent comment -->
+                        <input type="hidden" name="parent_id" value="{{ parent_comment.id }}">
+                        
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary">Post Reply</button>
+                            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

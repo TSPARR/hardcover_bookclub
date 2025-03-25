@@ -424,3 +424,51 @@ h6 {
     font-size: 0.75rem;
     color: #6c757d;
 }
+
+/* Comprehensive z-index fixes for dropdown menus */
+
+/* Increase the stacking context for all dropdowns */
+.dropdown {
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+/* Make the dropdown menu appear above everything else */
+.dropdown-menu {
+    position: absolute !important;
+    z-index: 9999 !important;
+    /* Very high z-index */
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Ensure card elements don't hide dropdowns */
+.card,
+.comment-card,
+.reply-card {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Fix for comment reactions container */
+.comment-reactions {
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Give each card a different z-index to stack properly */
+.comment-card {
+    z-index: auto !important;
+}
+
+/* Fix for reply cards container */
+.replies {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* Bootstrap's dropdown backdrop fix */
+.dropdown-backdrop {
+    z-index: 990 !important;
+}

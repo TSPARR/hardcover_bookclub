@@ -40,6 +40,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Handle comment progress type selection
+    const commentProgressType = document.getElementById('comment_progress_type');
+    if (commentProgressType) {
+        commentProgressType.addEventListener('change', function() {
+            const helpText = document.getElementById('commentProgressHelp');
+            const selectedType = this.value;
+
+            if (selectedType === 'page') {
+                helpText.textContent = 'Enter the page number you\'re commenting about.';
+            } else if (selectedType === 'audio') {
+                helpText.textContent = 'Enter the timestamp (e.g., "2h 30m").';
+            } else {
+                helpText.textContent = 'Enter a percentage (e.g., "75").';
+            }
+        });
+    }
+
     // Save progress button
     if (saveProgressBtn) {
         saveProgressBtn.addEventListener('click', function () {
@@ -128,6 +145,64 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Handle reaction clicks
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('reaction-btn') || 
+            e.target.closest('.reaction-btn') ||
+            e.target.classList.contains('reaction-option')) {
+            
+            const button = e.target.classList.contains('reaction-btn') ? 
+                          e.target : 
+                          (e.target.closest('.reaction-btn') || e.target);
+            
+            const commentId = button.dataset.commentId;
+            const reaction = button.dataset.reaction;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/comments/${commentId}/reaction/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    reaction: reaction
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    updateReactionsUI(commentId, data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+    
+    function updateReactionsUI(commentId, data) {
+        const reactionsContainer = document.querySelector(`[data-comment-id="${commentId}"] .existing-reactions`);
+        if (!reactionsContainer) return;
+        
+        // Clear existing reactions
+        reactionsContainer.innerHTML = '';
+        
+        // Add updated reactions
+        for (const [reaction, count] of Object.entries(data.counts)) {
+            const button = document.createElement('button');
+            button.className = 'btn btn-sm btn-outline-secondary reaction-btn me-1';
+            if (data.action === 'added' && data.reaction === reaction) {
+                button.classList.add('active');
+            }
+            button.dataset.commentId = commentId;
+            button.dataset.reaction = reaction;
+            button.innerHTML = `${reaction} <span class="reaction-count">${count}</span>`;
+            reactionsContainer.appendChild(button);
+        }
+    }
+
     // Function to check and update spoilers
     function checkSpoilers() {
         const userProgress = parseFloat(document.querySelector('.progress-bar').getAttribute('aria-valuenow'));
@@ -159,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Move the comment text into the spoiler content
                     spoilerContent.appendChild(commentText.cloneNode(true));
                     commentText.remove();
-
                     // Add the elements to the card
                     cardBody.appendChild(spoilerWarning);
                     cardBody.appendChild(spoilerContent);
@@ -221,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const hardcoverId = document.getElementById('hardcover-id').value;
 
             // Fetch reading progress from Hardcover
-            fetch(`/get-hardcover-progress/${hardcoverId}/`)
+            fetch(`/api/hardcover-progress/${hardcoverId}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch progress data');

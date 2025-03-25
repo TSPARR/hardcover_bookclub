@@ -1,9 +1,10 @@
-from django.urls import path
-
+from bookclub.views.api_views import get_hardcover_progress
 from bookclub.views.auth_views import landing_page, register
 from bookclub.views.book_views import (
     add_book_to_group,
     book_detail,
+    delete_comment,
+    edit_comment,
     get_book_editions,
     remove_book,
     search_books,
@@ -11,6 +12,8 @@ from bookclub.views.book_views import (
     set_manual_progress,
     toggle_book_active,
     update_book_progress,
+    toggle_reaction,
+    reply_to_comment,
 )
 from bookclub.views.group_views import (
     add_group_member,
@@ -19,14 +22,20 @@ from bookclub.views.group_views import (
     home,
     manage_group_members,
 )
-from bookclub.views.api_views import get_hardcover_progress
 from bookclub.views.profile_views import profile_settings
+from django.contrib.auth import views as auth_views
+from django.urls import path
 
 urlpatterns = [
     path("", landing_page, name="landing_page"),
     path("home/", home, name="home"),
     path("register/", register, name="register"),
     path("profile/settings/", profile_settings, name="profile_settings"),
+    path(
+        "accounts/logout/",
+        auth_views.LogoutView.as_view(next_page="landing_page"),
+        name="logout",
+    ),
     # Group related URLs
     path("groups/create/", create_group, name="create_group"),
     path("groups/<int:group_id>/", group_detail, name="group_detail"),
@@ -72,6 +81,12 @@ urlpatterns = [
         toggle_book_active,
         name="toggle_book_active",
     ),
+    path("comments/<int:comment_id>/edit/", edit_comment, name="edit_comment"),
+    path("comments/<int:comment_id>/delete/", delete_comment, name="delete_comment"),
+    path(
+        "comments/<int:comment_id>/reaction/", toggle_reaction, name="toggle_reaction"
+    ),
+    path("comments/<int:comment_id>/reply/", reply_to_comment, name="reply_to_comment"),
     # API endpoints
     path(
         "api/hardcover-progress/<str:hardcover_id>/",

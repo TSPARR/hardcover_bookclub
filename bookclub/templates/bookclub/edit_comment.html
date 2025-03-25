@@ -1,0 +1,83 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+
+{% block title %}Edit Comment - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Edit Comment</h2>
+                    <p class="text-muted mb-0">Book: {{ book.title }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.text.label_tag }}
+                            {{ form.text }}
+                        </div>
+                        
+                        <!-- Progress fields -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="progress_type" class="form-label">Progress Type</label>
+                                <select class="form-select" id="comment_progress_type" name="progress_type">
+                                    <option value="page" {% if comment.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+                                    <option value="audio" {% if comment.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+                                    <option value="percent" {% if comment.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="progress_value" class="form-label">Progress Value</label>
+                                <input type="text" class="form-control" id="comment_progress_value" name="progress_value" 
+                                    value="{{ comment.progress_value }}">
+                                <div class="form-text" id="commentProgressHelp">
+                                    {% if comment.progress_type == 'page' %}
+                                    Enter the page number you're commenting about.
+                                    {% elif comment.progress_type == 'audio' %}
+                                    Enter the timestamp (e.g., "2h 30m").
+                                    {% else %}
+                                    Enter a percentage (e.g., "75").
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle progress type selection
+    const commentProgressType = document.getElementById('comment_progress_type');
+    if (commentProgressType) {
+        commentProgressType.addEventListener('change', function() {
+            const helpText = document.getElementById('commentProgressHelp');
+            const selectedType = this.value;
+
+            if (selectedType === 'page') {
+                helpText.textContent = 'Enter the page number you\'re commenting about.';
+            } else if (selectedType === 'audio') {
+                helpText.textContent = 'Enter the timestamp (e.g., "2h 30m").';
+            } else {
+                helpText.textContent = 'Enter a percentage (e.g., "75").';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models, transaction
+from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_cryptography.fields import encrypt
@@ -101,6 +102,9 @@ class Comment(models.Model):
         max_length=20
     )  # Can be a page number, timestamp (HH:MM:SS), or percentage
     created_at = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+    )
 
     # Hardcover reading progress data
     hardcover_started_at = models.DateTimeField(null=True, blank=True)
@@ -115,6 +119,55 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.book.title}"
+
+    # Method to check if this is a top-level comment
+    def is_parent(self):
+        return self.parent is None
+
+    def get_replies(self):
+        if not hasattr(self, "replies"):
+            # Field might not exist if model was recently updated
+            return Comment.objects.none()
+        return self.replies.all().order_by("created_at")
+
+    def get_reactions_summary(self):
+        """Get a summary of reactions for this comment"""
+        reactions = self.reactions.values("reaction").annotate(count=Count("id"))
+        return {r["reaction"]: r["count"] for r in reactions}
+
+    def get_users_for_reaction(self):
+        """Get users who reacted with each reaction type"""
+        reaction_types = self.reactions.values_list("reaction", flat=True).distinct()
+        result = {}
+        for reaction in reaction_types:
+            result[reaction] = self.reactions.filter(reaction=reaction).values_list(
+                "user", flat=True
+            )
+        return result
+
+
+class CommentReaction(models.Model):
+    REACTION_CHOICES = [
+        ("👍", "Thumbs Up"),
+        ("❤️", "Heart"),
+        ("😂", "Laugh"),
+        ("😮", "Wow"),
+        ("😢", "Sad"),
+        ("🎉", "Celebrate"),
+        ("💡", "Idea"),
+        ("📚", "Book"),
+    ]
+
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name="reactions"
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reaction = models.CharField(max_length=10, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ensure a user can only have one reaction type per comment
+        unique_together = ("comment", "user", "reaction")
 
 
 class UserBookProgress(models.Model):

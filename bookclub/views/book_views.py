@@ -8,13 +8,22 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from ..forms import BookSearchForm, CommentForm
 from ..hardcover_api import HardcoverAPI
-from ..models import Book, BookEdition, BookGroup, UserBookProgress
+from ..models import (
+    Book,
+    BookEdition,
+    BookGroup,
+    Comment,
+    CommentReaction,
+    UserBookProgress,
+)
 from .utils import _get_progress_value_for_sorting, extract_publisher_name
 
 logger = logging.getLogger(__name__)
@@ -38,8 +47,8 @@ def book_detail(request, book_id):
     # Get sorting option from request
     sort_by = request.GET.get("sort", "date_desc")
 
-    # Get all comments for this book
-    comments = book.comments.all()
+    # Get all comments for this book - but only top-level comments (not replies)
+    comments = book.comments.filter(parent=None)
 
     # Sort the comments based on the selected option
     if sort_by == "date_asc":
@@ -75,6 +84,9 @@ def book_detail(request, book_id):
     # Add normalized progress value to each comment for spoiler detection
     for comment in comments:
         comment.normalized_progress = _get_progress_value_for_sorting(comment)
+        # For each comment, get its replies and add normalized progress to them too
+        for reply in comment.get_replies():
+            reply.normalized_progress = _get_progress_value_for_sorting(reply)
 
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -82,6 +94,24 @@ def book_detail(request, book_id):
             comment = form.save(commit=False)
             comment.user = request.user
             comment.book = book
+
+            # Handle reply
+            parent_id = request.POST.get("parent_id")
+            if parent_id:
+                parent_comment = get_object_or_404(Comment, id=parent_id)
+                comment.parent = parent_comment
+
+                # Optionally inherit progress from parent comment
+                if not request.POST.get("progress_type") or not request.POST.get(
+                    "progress_value"
+                ):
+                    comment.progress_type = parent_comment.progress_type
+                    comment.progress_value = parent_comment.progress_value
+
+            # Get progress data from form
+            if request.POST.get("progress_type") and request.POST.get("progress_value"):
+                comment.progress_type = request.POST.get("progress_type")
+                comment.progress_value = request.POST.get("progress_value")
 
             # Get Hardcover progress data from hidden fields if available
             if request.POST.get("hardcover_data"):
@@ -239,9 +269,18 @@ def book_detail(request, book_id):
                 user_progress.save()
 
             comment.save()
+
+            # If this is a reply, redirect to the parent comment
+            if comment.parent:
+                return redirect(
+                    f"{reverse('book_detail', args=[book.id])}#comment-{comment.parent.id}"
+                )
             return redirect("book_detail", book_id=book.id)
     else:
         form = CommentForm()
+
+    # Add reaction choices to the context
+    reaction_choices = CommentReaction.REACTION_CHOICES
 
     return render(
         request,
@@ -252,6 +291,7 @@ def book_detail(request, book_id):
             "form": form,
             "current_sort": sort_by,
             "user_progress": user_progress,
+            "reaction_choices": reaction_choices,
         },
     )
 
@@ -279,10 +319,15 @@ def update_book_progress(request, book_id):
         data = json.loads(request.body)
 
         # Update progress fields
-        if "progress_type" in data:
-            user_progress.progress_type = data["progress_type"]
+        if "progress_type" in data and "progress_value" in data:
+            # This is a manual update without Hardcover data
+            if "hardcover_data" not in data:
+                # Clear any existing Hardcover data to ensure manual entry takes precedence
+                user_progress.hardcover_percent = None
+                user_progress.hardcover_current_page = None
+                user_progress.hardcover_current_position = None
 
-        if "progress_value" in data:
+            user_progress.progress_type = data["progress_type"]
             user_progress.progress_value = data["progress_value"]
 
         # Process Hardcover data if available
@@ -695,3 +740,197 @@ def toggle_book_active(request, group_id, book_id):
         messages.success(request, f"'{book.title}' is now set as the active book.")
 
     return redirect("group_detail", group_id=group.id)
+
+
+@login_required
+def edit_comment(request, comment_id):
+    """Edit an existing comment"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    book = comment.book
+
+    # Ensure user can only edit their own comments
+    if comment.user != request.user:
+        messages.error(request, "You can only edit your own comments.")
+        return redirect("book_detail", book_id=book.id)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            # Update comment text
+            comment = form.save(commit=False)
+
+            # Update progress if provided
+            if request.POST.get("progress_type") and request.POST.get("progress_value"):
+                comment.progress_type = request.POST.get("progress_type")
+                comment.progress_value = request.POST.get("progress_value")
+
+            comment.save()
+            messages.success(request, "Your comment has been updated.")
+            return redirect("book_detail", book_id=book.id)
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(
+        request,
+        "bookclub/edit_comment.html",
+        {
+            "form": form,
+            "comment": comment,
+            "book": book,
+        },
+    )
+
+
+@login_required
+def delete_comment(request, comment_id):
+    """Delete a comment"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    book = comment.book
+
+    # Ensure user can only delete their own comments
+    if comment.user != request.user:
+        messages.error(request, "You can only delete your own comments.")
+        return redirect("book_detail", book_id=book.id)
+
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, "Your comment has been deleted.")
+        return redirect("book_detail", book_id=book.id)
+
+    return render(
+        request,
+        "bookclub/delete_comment.html",
+        {
+            "comment": comment,
+            "book": book,
+        },
+    )
+
+
+@login_required
+def toggle_reaction(request, comment_id):
+    """Toggle a reaction on a comment"""
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        reaction_type = data.get("reaction")
+
+        if not reaction_type:
+            return JsonResponse({"error": "Reaction type is required"}, status=400)
+
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        # Check if the user already has this reaction on the comment
+        existing_reaction = CommentReaction.objects.filter(
+            comment=comment, user=request.user, reaction=reaction_type
+        ).first()
+
+        if existing_reaction:
+            # Remove the reaction if it exists
+            existing_reaction.delete()
+            action = "removed"
+        else:
+            # Add the reaction
+            CommentReaction.objects.create(
+                comment=comment, user=request.user, reaction=reaction_type
+            )
+            action = "added"
+
+        # Get updated reaction counts
+        reaction_counts = (
+            CommentReaction.objects.filter(comment=comment)
+            .values("reaction")
+            .annotate(count=Count("id"))
+        )
+        counts_dict = {item["reaction"]: item["count"] for item in reaction_counts}
+
+        return JsonResponse(
+            {
+                "success": True,
+                "action": action,
+                "reaction": reaction_type,
+                "counts": counts_dict,
+            }
+        )
+
+    except Exception as e:
+        logger.exception(f"Error toggling reaction: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def reply_to_comment(request, comment_id):
+    logger.info(f"=== REPLY TO COMMENT VIEW STARTED for comment_id={comment_id} ===")
+    logger.info(f"User: {request.user.username}, Method: {request.method}")
+
+    try:
+        parent_comment = get_object_or_404(Comment, id=comment_id)
+        logger.info(
+            f"Parent comment found: id={parent_comment.id}, text={parent_comment.text[:30]}..."
+        )
+
+        book = parent_comment.book
+        logger.info(f"Book: id={book.id}, title={book.title}")
+
+        if request.method == "POST":
+            logger.info(f"POST data received: {dict(request.POST)}")
+
+            form = CommentForm(request.POST)
+            logger.info(f"Form initialized with POST data")
+
+            if form.is_valid():
+                logger.info("Form is valid, creating reply")
+
+                # Log form cleaned data
+                logger.info(f"Form cleaned data: {form.cleaned_data}")
+
+                try:
+                    reply = form.save(commit=False)
+                    logger.info("Form saved with commit=False")
+
+                    reply.user = request.user
+                    reply.book = book
+                    reply.parent = parent_comment
+
+                    # Copy progress fields from parent comment
+                    reply.progress_type = parent_comment.progress_type
+                    reply.progress_value = parent_comment.progress_value
+
+                    logger.info(
+                        f"About to save reply with: user={reply.user.id}, book={reply.book.id}, parent={reply.parent.id}"
+                    )
+                    reply.save()
+                    logger.info(f"Reply saved successfully with ID: {reply.id}")
+
+                    messages.success(request, "Your reply has been posted.")
+                    redirect_url = f"{reverse('book_detail', args=[book.id])}#comment-{parent_comment.id}"
+                    logger.info(f"Redirecting to: {redirect_url}")
+                    return redirect(redirect_url)
+                except Exception as e:
+                    logger.error(f"Error saving reply: {str(e)}", exc_info=True)
+                    messages.error(request, f"Error saving your reply: {str(e)}")
+            else:
+                logger.warning(f"Form validation failed. Errors: {form.errors}")
+                messages.error(request, "Please correct the errors in your form.")
+        else:
+            logger.info("GET request, initializing empty form")
+            form = CommentForm()
+
+        logger.info("Rendering reply_to_comment.html template")
+        return render(
+            request,
+            "bookclub/reply_to_comment.html",
+            {
+                "form": form,
+                "parent_comment": parent_comment,
+                "book": book,
+            },
+        )
+    except Exception as e:
+        logger.error(
+            f"Unexpected error in reply_to_comment view: {str(e)}", exc_info=True
+        )
+        messages.error(request, f"An unexpected error occurred: {str(e)}")
+        return redirect("home")

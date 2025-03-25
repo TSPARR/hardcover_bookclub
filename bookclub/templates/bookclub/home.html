@@ -109,7 +109,7 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="alert alert-info">
+            <div class="alert alert-info alert-permanent">
                 <p>You're not a member of any groups yet.</p>
                 {% if can_create_groups %}
                 <a href="{% url 'create_group' %}" class="btn btn-primary">Create Your First Group</a>

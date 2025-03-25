@@ -13,3 +13,9 @@ def is_admin(group, user):
 def is_member(group, user):
     """Check if a user is a member of a group"""
     return group.is_member(user)
+
+
+@register.filter
+def get_item(dictionary, key):
+    """Get an item from a dictionary using template variables"""
+    return dictionary.get(key, [])

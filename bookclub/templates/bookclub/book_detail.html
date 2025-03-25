@@ -68,12 +68,6 @@
             <div class="card-body">
                 <h6 class="mb-3">{{ user_progress.edition.title }}</h6>
                 
-                <!-- {% if user_progress.edition.cover_image_url and user_progress.edition.cover_image_url != book.cover_image_url %}
-                <div class="edition-cover">
-                    <img src="{{ user_progress.edition.cover_image_url }}" alt="{{ user_progress.edition.title }}">
-                </div>
-                {% endif %} -->
-                
                 <div class="edition-details">
                     {% if user_progress.edition.reading_format %}
                     <p class="mb-1"><strong>Format:</strong> {{ user_progress.edition.reading_format|title }}</p>
@@ -134,11 +128,30 @@
                 {{ form.text }}
             </div>
 
-            <!-- Progress is automatically attached from user's progress data -->
-            <input type="hidden" name="progress_type" id="comment_progress_type"
-                value="{{ user_progress.progress_type }}">
-            <input type="hidden" name="progress_value" id="comment_progress_value"
-                value="{{ user_progress.progress_value }}">
+            <!-- Progress fields -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="comment_progress_type" class="form-label">Progress Type</label>
+                    <select class="form-select" id="comment_progress_type" name="progress_type">
+                        <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+                        <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+                        <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="comment_progress_value" class="form-label">Progress Value</label>
+                    <input type="text" class="form-control" id="comment_progress_value" name="progress_value" value="{{ user_progress.progress_value }}">
+                    <div class="form-text" id="commentProgressHelp">
+                        {% if user_progress.progress_type == 'page' %}
+                        Enter the page number you're commenting about.
+                        {% elif user_progress.progress_type == 'audio' %}
+                        Enter the timestamp (e.g., "2h 30m").
+                        {% else %}
+                        Enter a percentage (e.g., "75").
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
             <button type="submit" class="btn btn-primary">Post Comment</button>
         </form>
@@ -182,9 +195,22 @@
 {% for comment in comments %}
 {% with comment_progress_value=comment.normalized_progress|default:0 %}
 <div class="card mb-3 comment-card {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}spoiler-comment{% endif %}"
-    data-progress="{{ comment_progress_value }}">
+    data-progress="{{ comment_progress_value }}" data-comment-id="{{ comment.id }}" id="comment-{{ comment.id }}">
     <div class="card-header d-flex justify-content-between">
-        <span class="comment-user">{{ comment.user.username }}</span>
+        <div class="d-flex align-items-center">
+            <span class="comment-user">{{ comment.user.username }}</span>
+            {% if comment.user == user %}
+            <div class="dropdown ms-2">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'edit_comment' comment.id %}">Edit</a></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'delete_comment' comment.id %}">Delete</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
         <span class="comment-date">{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
     </div>
     <div class="card-body">
@@ -223,7 +249,99 @@
         {% else %}
         <p class="card-text">{{ comment.text }}</p>
         {% endif %}
+
+        <!-- Comment reactions -->
+        <div class="comment-reactions mt-3">
+            <!-- Existing reactions -->
+            <div class="existing-reactions mb-2">
+                {% for reaction_type, count in comment.get_reactions_summary.items %}
+                <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
+                    data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
+                    {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                </button>
+                {% endfor %}
+            </div>
+            
+            <!-- Add reaction button -->
+            <div class="add-reaction">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Add Reaction
+                    </button>
+                    <div class="dropdown-menu reaction-picker">
+                        {% for reaction_code, reaction_name in reaction_choices %}
+                        <button class="dropdown-item reaction-option" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                            {{ reaction_code }} {{ reaction_name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{% url 'reply_to_comment' comment.id %}" class="btn btn-sm btn-outline-primary">Reply</a>
+    </div>
+    
+    <!-- Replies -->
+    {% if comment.get_replies %}
+    <div class="replies ms-4 mt-2 mb-2">
+        {% for reply in comment.get_replies %}
+        <div class="card mb-2 reply-card" id="comment-{{ reply.id }}">
+            <div class="card-header d-flex justify-content-between">
+                <div class="d-flex align-items-center">
+                    <span class="reply-user">{{ reply.user.username }}</span>
+                    {% if reply.user == user %}
+                    <div class="dropdown ms-2">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'edit_comment' reply.id %}">Edit</a></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'delete_comment' reply.id %}">Delete</a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                <span class="reply-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ reply.text }}</p>
+                
+                <!-- Reply reactions -->
+                <div class="comment-reactions mt-3">
+                    <!-- Existing reactions -->
+                    <div class="existing-reactions mb-2">
+                        {% for reaction_type, count in reply.get_reactions_summary.items %}
+                        <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
+                            data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
+                            {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Add reaction button -->
+                    <div class="add-reaction">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Add Reaction
+                            </button>
+                            <div class="dropdown-menu reaction-picker">
+                                {% for reaction_code, reaction_name in reaction_choices %}
+                                <button class="dropdown-item reaction-option" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                    {{ reaction_code }} {{ reaction_name }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
 {% endwith %}
 {% empty %}
