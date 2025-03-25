@@ -18,4 +18,4 @@ jobs:
           echo "Version: $VERSION"    
 
       - name: Build and tag image
-        run: docker build -t ${{ github.repository }}:$VERSION -f path/to/Dockerfile .
+        run: docker build -t ${{ github.repository }}:$VERSION -f Dockerfile .
