@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const spoilerBtns = document.querySelectorAll('.show-spoiler-btn');
     const autoSyncToggle = document.getElementById('autoSyncToggle');
     const lastSyncTime = document.getElementById('lastSyncTime');
+    const clearSyncButton = document.getElementById('clearSyncButton');
 
     let hardcoverModal;
     let progressModal;
@@ -38,6 +39,45 @@ document.addEventListener('DOMContentLoaded', function () {
         if (autoSyncEnabled) {
             checkIfSyncNeeded();
         }
+    }
+
+    // Clear sync button functionality
+    if (clearSyncButton) {
+        clearSyncButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const bookId = document.getElementById('book-id')?.value;
+            if (!bookId) return;
+            
+            // Clear the last sync timestamp
+            localStorage.removeItem(`${STORAGE_PREFIX}last_sync_${bookId}`);
+            
+            // Update the UI
+            if (lastSyncTime) {
+                lastSyncTime.textContent = 'Never';
+            }
+            
+            // If auto-sync is enabled, trigger a sync immediately
+            if (autoSyncToggle && autoSyncToggle.checked) {
+                setTimeout(() => {
+                    fetchAndApplyProgress();
+                }, 500);
+            }
+            
+            // Show a confirmation message
+            const syncInfo = document.querySelector('.sync-info');
+            if (syncInfo) {
+                const message = document.createElement('div');
+                message.className = 'mt-1 text-success';
+                message.innerHTML = '<small>Sync cleared! ✓</small>';
+                syncInfo.appendChild(message);
+                
+                // Remove the message after 3 seconds
+                setTimeout(() => {
+                    message.remove();
+                }, 3000);
+            }
+        });
     }
     
     // Function to check if sync is needed based on last sync time
