@@ -17,3 +17,8 @@ jobs:
           export VERSION=$(cat VERSION)
           echo "Version: $VERSION" 
           docker build -t ${{ github.repository }}:$VERSION -f Dockerfile .
+
+      - name: Push image to GHCR
+        run: |
+          export VERSION=$(cat VERSION)
+          docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:$VERSION
