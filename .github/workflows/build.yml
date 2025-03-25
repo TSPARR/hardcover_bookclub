@@ -26,3 +26,4 @@ jobs:
           export VERSION=$(cat VERSION)
           docker tag ${{ github.repository }}:$VERSION ghcr.io/tsparr/hardcover_bookclub:$VERSION
           docker push ghcr.io/tsparr/hardcover_bookclub:$VERSION
+          docker push ghcr.io/tsparr/hardcover_bookclub:latest
