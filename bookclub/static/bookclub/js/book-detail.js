@@ -129,22 +129,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 const minutes = Math.floor((progress.current_position % 3600) / 60);
                 progressValue = `${hours}h ${minutes}m`;
             } else {
-                progressValue = progress.progress + '%';
+                // Use percentage with cap at 100%
+                const cappedProgress = Math.min(progress.progress || 0, 100);
+                progressValue = cappedProgress + '%';
             }
         } else {
-            // For books
-            if (progress.finished_at && progress.edition.pages) {
-                // For finished books, use the total page count
-                progressType = 'page';
-                progressValue = progress.edition.pages;
-            } else if (progress.current_page) {
-                // For in-progress books with a page number
+            // For physical books
+            if (progress.current_page && (progress.edition?.pages || 0) > 0) {
+                // If we have both current page and total pages, use page numbers
                 progressType = 'page';
                 progressValue = progress.current_page;
-            } else {
-                // Default to percentage
+            } else if (progress.current_page) {
+                // If we only have current page but no total, still use page number
+                progressType = 'page';
+                progressValue = progress.current_page;
+            } else if (progress.finished_at) {
+                // For finished books with no page info, use 100%
                 progressType = 'percent';
-                progressValue = progress.progress;
+                progressValue = "100";
+            } else {
+                // Default to percentage with cap at 100%
+                progressType = 'percent';
+                const cappedProgress = Math.min(progress.progress || 0, 100);
+                progressValue = cappedProgress.toString();
             }
         }
 
@@ -152,14 +159,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const hardcoverData = {
             started_at: progress.started_at,
             finished_at: progress.finished_at,
-            progress: progress.progress,
+            progress: Math.min(progress.progress || 0, 100), // Ensure progress percentage is capped at 100%
             current_page: progress.current_page,
             current_position: progress.current_position,
             reading_format: progress.reading_format,
-            edition_id: progress.edition.id,
-            edition_pages: progress.edition.pages,
-            edition_audio_seconds: progress.edition.audio_seconds,
-            edition_title: progress.edition.title,
+            edition_id: progress.edition?.id,
+            edition_pages: progress.edition?.pages,
+            edition_audio_seconds: progress.edition?.audio_seconds,
+            edition_title: progress.edition?.title,
             edition_format: progress.reading_format_id
         };
 
@@ -167,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Auto-sync: Applying progress', {
             type: progressType,
             value: progressValue,
-            normalized: progress.progress
+            normalized: Math.min(progress.progress || 0, 100)
         });
 
         // Update progress via API
@@ -190,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log('Auto-sync: Progress updated successfully');
                     
                     // If the page needs to reload (new edition selected)
-                    if (progress.edition && progress.edition.id && data.reload) {
+                    if (progress.edition?.id && data.reload) {
                         window.location.reload();
                         return;
                     }

@@ -232,12 +232,15 @@ class UserBookProgress(models.Model):
     def _calculate_normalized_progress(self):
         """Convert different progress types to a value between 0 and 100."""
         if self.hardcover_percent is not None:
-            return self.hardcover_percent
+            # Ensure hardcover_percent is capped at 100
+            return min(float(self.hardcover_percent), 100.0)
 
         if self.progress_type == "percent":
             try:
                 # Extract numeric part from percentage string (e.g., "75%" -> 75)
-                return float(self.progress_value.replace("%", ""))
+                percent_value = float(self.progress_value.replace("%", ""))
+                # Cap at 100%
+                return min(percent_value, 100.0)
             except (ValueError, AttributeError):
                 return 0
 
@@ -246,28 +249,36 @@ class UserBookProgress(models.Model):
             try:
                 page = int(self.progress_value)
                 # First check if we have edition pages
-                if self.edition and self.edition.pages:
-                    return (page / self.edition.pages) * 100
+                if self.edition and self.edition.pages and self.edition.pages > 0:
+                    return min((page / self.edition.pages) * 100, 100.0)
                 # Fall back to book pages
-                elif self.book.pages:
-                    return (page / self.book.pages) * 100
+                elif self.book.pages and self.book.pages > 0:
+                    return min((page / self.book.pages) * 100, 100.0)
                 return 0  # Can't normalize without total pages
-            except (ValueError, AttributeError):
+            except (ValueError, AttributeError, ZeroDivisionError):
                 return 0
 
         elif self.progress_type == "audio":
             # For audio, convert to a percentage if we have total audio duration
             if self.hardcover_current_position:
                 # First check if we have edition audio duration
-                if self.edition and self.edition.audio_seconds:
-                    return (
-                        self.hardcover_current_position / self.edition.audio_seconds
-                    ) * 100
+                if (
+                    self.edition
+                    and self.edition.audio_seconds
+                    and self.edition.audio_seconds > 0
+                ):
+                    return min(
+                        (self.hardcover_current_position / self.edition.audio_seconds)
+                        * 100,
+                        100.0,
+                    )
                 # Fall back to book audio duration
-                elif self.book.audio_seconds:
-                    return (
-                        self.hardcover_current_position / self.book.audio_seconds
-                    ) * 100
+                elif self.book.audio_seconds and self.book.audio_seconds > 0:
+                    return min(
+                        (self.hardcover_current_position / self.book.audio_seconds)
+                        * 100,
+                        100.0,
+                    )
 
             # Try to parse timestamps like "2h 45m"
             try:
@@ -278,12 +289,20 @@ class UserBookProgress(models.Model):
                     total_seconds = (hours * 3600) + (minutes * 60)
 
                     # First check if we have edition audio duration
-                    if self.edition and self.edition.audio_seconds:
-                        return (total_seconds / self.edition.audio_seconds) * 100
+                    if (
+                        self.edition
+                        and self.edition.audio_seconds
+                        and self.edition.audio_seconds > 0
+                    ):
+                        return min(
+                            (total_seconds / self.edition.audio_seconds) * 100, 100.0
+                        )
                     # Fall back to book audio duration
-                    elif self.book.audio_seconds:
-                        return (total_seconds / self.book.audio_seconds) * 100
-            except (ValueError, IndexError):
+                    elif self.book.audio_seconds and self.book.audio_seconds > 0:
+                        return min(
+                            (total_seconds / self.book.audio_seconds) * 100, 100.0
+                        )
+            except (ValueError, IndexError, ZeroDivisionError):
                 pass
 
             return 0  # Default for audio if we can't calculate
