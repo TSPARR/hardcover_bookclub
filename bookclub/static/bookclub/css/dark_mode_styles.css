@@ -129,9 +129,18 @@ h6 {
     border-radius: 0.25rem;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
     width: 100%;
-    max-height: 300px;
+    max-height: 400px;
     object-fit: contain;
-    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+}
+
+.book-cover-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    background-color: #252525;
+    border-radius: 0.25rem;
+    padding: 1rem;
 }
 
 /* ===== Forms ===== */
@@ -161,6 +170,36 @@ h6 {
     color: #ff6b6b;
 }
 
+/* Form Controls */
+.form-control:focus,
+.form-select:focus,
+.btn:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
+    border-color: #0d6efd;
+}
+
+/* Form elements need darker backgrounds */
+.form-select {
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+    color: #e1e1e1;
+}
+
+.form-check-input {
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+}
+
+.form-check-label {
+    color: #e1e1e1;
+}
+
+/* Fix form text help */
+.form-text {
+    color: #9e9e9e;
+}
+
 /* ===== Comments ===== */
 .comment-progress {
     font-weight: bold;
@@ -170,15 +209,34 @@ h6 {
 }
 
 .comment-user {
-    font-weight: 600;
     font-weight: bold;
     color: #ffffff;
 }
 
 .comment-date {
-    font-size: 0.875rem;
     font-size: 0.85rem;
     color: #9e9e9e;
+}
+
+/* Ensure proper spacing and borders for replies */
+.replies {
+    border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Fix reaction buttons in dark mode */
+.reaction-btn {
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+}
+
+.reaction-btn:hover {
+    background-color: #3a3a3a;
+}
+
+.reaction-btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
 }
 
 /* ===== Buttons ===== */
@@ -290,6 +348,8 @@ h6 {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.05);
     background-color: #2c2c2c;
+    position: absolute !important;
+    z-index: 9999 !important;
 }
 
 .dropdown-item {
@@ -305,6 +365,10 @@ h6 {
 .dropdown-item:hover {
     background-color: rgba(13, 110, 253, 0.2);
     color: #ffffff;
+}
+
+.dropdown-divider {
+    border-top-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Progress percentage display */
@@ -327,8 +391,9 @@ h6 {
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
     border-radius: 0.25rem;
-    background-color: #2c2c2c;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #553c01;
+    color: #fff3cd;
+    border-color: #664d03;
 }
 
 .spoiler-warning i {
@@ -336,7 +401,18 @@ h6 {
 }
 
 .show-spoiler-btn:hover {
-    background-color: #3a3a3a;
+    background-color: #664d03;
+    color: #fff3cd;
+}
+
+.spoiler-content {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Show spoiler button */
+.show-spoiler-btn {
+    border-color: #fff3cd;
+    color: #fff3cd;
 }
 
 /* Progress indicator styles */
@@ -355,7 +431,7 @@ h6 {
     transition: width 0.6s ease;
 }
 
-/* Badge styles - from book-details.css */
+/* Badge styles */
 .badge.bg-success {
     background-color: #198754 !important;
 }
@@ -367,27 +443,6 @@ h6 {
 .badge.bg-warning {
     background-color: #ffc107 !important;
     color: #000 !important;
-}
-
-/* Book cover image styles */
-.book-detail-image {
-    max-width: 100%;
-    border-radius: 0.25rem;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    max-height: 400px;
-    display: block;
-    margin: 0 auto;
-}
-
-.book-cover-container {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    background-color: #252525;
-    border-radius: 0.25rem;
-    padding: 1rem;
 }
 
 /* Edition info section */
@@ -510,6 +565,7 @@ table {
 /* Modal styles */
 .modal-content {
     background-color: #2c2c2c;
+    color: #e1e1e1;
     border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -527,19 +583,12 @@ table {
     color: #ffffff;
 }
 
+/* Fix close button appearance */
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
 /* Pagination */
-.pagination .page-link {
-    background-color: #1e1e1e;
-    border-color: #3a3a3a;
-    color: #e1e1e1;
-}
-
-.pagination .page-link:hover {
-    background-color: #2c2c2c;
-    border-color: #3a3a3a;
-    color: #ffffff;
-}
-
 .pagination .page-item.active .page-link {
     background-color: #0d6efd;
     border-color: #0d6efd;
@@ -558,20 +607,9 @@ table {
 }
 
 /* Comprehensive z-index fixes for dropdown menus */
-
-/* Increase the stacking context for all dropdowns */
 .dropdown {
     position: relative !important;
     z-index: 5 !important;
-}
-
-/* Make the dropdown menu appear above everything else */
-.dropdown-menu {
-    position: absolute !important;
-    z-index: 9999 !important;
-    /* Very high z-index */
-    border: 1px solid rgba(0, 0, 0, 0.15) !important;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Ensure card elements don't hide dropdowns */
@@ -603,4 +641,291 @@ table {
 /* Bootstrap's dropdown backdrop fix */
 .dropdown-backdrop {
     z-index: 990 !important;
+}
+
+.page-link {
+    background-color: #1e1e1e;
+    border-color: #3a3a3a;
+    color: #e1e1e1;
+}
+
+.pagination .page-link:hover {
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+    color: #ffffff;
+}
+
+/* Dark Mode Book Detail Page Extensions */
+
+/* Fix card headers with bg-light class in dark mode */
+.card-header.bg-light {
+    background-color: #2c2c2c !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Improve form-check-input and labels in dark mode */
+.form-check-input {
+    background-color: #3a3a3a;
+    border-color: #6c757d;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Ensure text in form labels is visible */
+.form-check-label {
+    color: #e1e1e1;
+}
+
+/* Fix form-text helper text */
+#commentProgressHelp,
+#progressHelp {
+    color: #9e9e9e;
+}
+
+/* Improve visibility of badges in progress area */
+.progress-indicator .badge {
+    font-weight: 600;
+}
+
+/* Improve visibility of progress info text */
+.progress-indicator .d-flex {
+    color: #e1e1e1;
+}
+
+/* Make sure sync info is visible */
+.sync-info {
+    color: #9e9e9e !important;
+}
+
+/* Fix dropdown menus in dark mode */
+#progressType,
+#progressValue,
+#comment_progress_type,
+#comment_progress_value {
+    background-color: #2c2c2c;
+    color: #e1e1e1;
+    border-color: #3a3a3a;
+}
+
+/* Improve dropdown hover states */
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #ffffff;
+}
+
+/* Improve modals in dark mode */
+#progressUpdateModal .modal-content,
+#hardcoverSyncModal .modal-content {
+    background-color: #2c2c2c;
+    color: #e1e1e1;
+}
+
+#progressUpdateModal .modal-header,
+#hardcoverSyncModal .modal-header,
+#progressUpdateModal .modal-footer,
+#hardcoverSyncModal .modal-footer {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Better styling for the hardcover sync modal */
+#hardcoverSyncModalBody {
+    color: #e1e1e1;
+}
+
+#hardcoverSyncModalBody .spinner-border {
+    color: #0d6efd !important;
+}
+
+/* Style for fetched progress options */
+.hardcover-progress-option,
+#hardcoverSyncModalBody .progress-option {
+    background-color: #2c2c2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e1e1e1 !important;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hardcover-progress-option:hover,
+#hardcoverSyncModalBody .progress-option:hover {
+    background-color: #3a3a3a !important;
+    border-color: rgba(13, 110, 253, 0.5) !important;
+    box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
+}
+
+.hardcover-progress-option.selected,
+#hardcoverSyncModalBody .progress-option.selected {
+    background-color: rgba(13, 110, 253, 0.25) !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 1px #0d6efd;
+}
+
+/* Improve progress details within options */
+.progress-details,
+#hardcoverSyncModalBody .progress-details {
+    margin-top: 6px;
+    color: #b0b0b0 !important;
+}
+
+.progress-percentage,
+#hardcoverSyncModalBody .progress-percentage {
+    font-weight: bold;
+    color: #5c9bff !important;
+}
+
+/* Fix for the white background on progress card */
+.hardcover-progress-container .card,
+#hardcoverSyncModal .card {
+    background-color: #2c2c2c !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Style for book title and progress info */
+.hardcover-progress-container h3,
+#hardcoverSyncModal h3,
+.hardcover-progress-container .book-title,
+#hardcoverSyncModal .book-title {
+    color: #ffffff !important;
+}
+
+.hardcover-progress-container .page-info,
+#hardcoverSyncModal .page-info {
+    color: #b0b0b0 !important;
+}
+
+/* Ensure the progress bar has dark mode styling */
+.hardcover-progress-container .progress,
+#hardcoverSyncModal .progress {
+    background-color: #3a3a3a !important;
+}
+
+/* Style for the finished badge */
+.hardcover-progress-container .badge-success,
+#hardcoverSyncModal .badge-success,
+.finished-badge {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+/* Fix edition details text */
+.edition-details p {
+    color: #e1e1e1;
+}
+
+/* Ensure dropdown menus are properly visible */
+.dropdown-menu {
+    background-color: #2c2c2c !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dropdown-item {
+    color: #e1e1e1 !important;
+}
+
+.dropdown-item:hover {
+    background-color: #3a3a3a !important;
+    color: #ffffff !important;
+}
+
+/* Modal style improvements */
+.modal-content {
+    background-color: #212529 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-title {
+    color: #ffffff !important;
+}
+
+/* Improve visibility of buttons in modal footer */
+.modal-footer .btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.modal-footer .btn-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+/* Fix button for "Show Anyway" in spoiler content */
+.show-spoiler-btn {
+    color: #212529;
+}
+
+.show-spoiler-btn:hover {
+    background-color: #212529;
+    color: #fff3cd;
+}
+
+/* Form controls improvements for dark mode */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+textarea,
+.form-control {
+    background-color: #2c2c2c !important;
+    border-color: #3a3a3a !important;
+    color: #e1e1e1 !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+.form-control:focus {
+    background-color: #333333 !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    color: #ffffff !important;
+}
+
+/* Fix for form help text */
+.form-text {
+    color: #9e9e9e !important;
+}
+
+/* Improve form label visibility */
+.form-label {
+    color: #e1e1e1 !important;
+}
+
+/* Style for API key fields specifically */
+#id_hardcover_api_key,
+input[name="hardcover_api_key"] {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+}
+
+/* Fix card styles for settings pages */
+.card {
+    background-color: #1e1e1e !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.card-header {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.card-header h2 {
+    color: #ffffff !important;
+    margin-bottom: 0;
 }

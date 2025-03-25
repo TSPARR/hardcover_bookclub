@@ -62,6 +62,16 @@ h6 {
     margin-bottom: 0.75rem;
 }
 
+.card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-text {
+    flex-grow: 1;
+}
+
 /* ===== Book Cards ===== */
 .book-card {
     height: 100%;
@@ -92,25 +102,25 @@ h6 {
     object-position: center;
 }
 
-.card-body {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.card-text {
-    flex-grow: 1;
-}
-
 /* Book details page */
 .book-detail-image {
     max-width: 100%;
     border-radius: 0.25rem;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-height: 300px;
+    height: auto;
     object-fit: contain;
-    border-radius: 4px;
+    max-height: 400px;
+    display: block;
+    margin: 0 auto;
+}
+
+.book-cover-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
 }
 
 /* ===== Forms ===== */
@@ -129,10 +139,18 @@ h6 {
     margin-top: 0.25rem;
 }
 
+/* Form Controls */
+.form-control:focus,
+.form-select:focus,
+.btn:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
+
 /* ===== Comments ===== */
 .comment-progress {
     font-weight: bold;
-    color: #6c757d;
     margin-bottom: 0.75rem;
     font-size: 0.9rem;
     color: #495057;
@@ -147,6 +165,26 @@ h6 {
     font-size: 0.875rem;
     color: #6c757d;
     font-size: 0.85rem;
+}
+
+/* Comment Section Fixes */
+.replies {
+    padding-left: 1rem;
+    margin-left: 1rem;
+    border-left: 3px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Fix comment reaction buttons */
+.reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    transition: all 0.2s;
+}
+
+.reaction-count {
+    margin-left: 0.25rem;
+    font-weight: bold;
 }
 
 /* ===== Buttons ===== */
@@ -255,6 +293,8 @@ h6 {
 .dropdown-menu {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(0, 0, 0, 0.1);
+    position: absolute !important;
+    z-index: 9999 !important;
 }
 
 .dropdown-item.active,
@@ -296,6 +336,12 @@ h6 {
     background-color: #f8f9fa;
 }
 
+.spoiler-content {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.025);
+}
+
 /* Progress indicator styles */
 .progress {
     background-color: #e9ecef;
@@ -312,7 +358,7 @@ h6 {
     transition: width 0.6s ease;
 }
 
-/* Badge styles - from book-details.css */
+/* Badge styles */
 .badge.bg-success {
     background-color: #198754 !important;
 }
@@ -324,29 +370,6 @@ h6 {
 .badge.bg-warning {
     background-color: #ffc107 !important;
     color: #000 !important;
-}
-
-/* Add these styles to your styles.css file */
-
-/* Book cover image styles */
-.book-detail-image {
-    max-width: 100%;
-    border-radius: 0.25rem;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    max-height: 400px;
-    display: block;
-    margin: 0 auto;
-}
-
-.book-cover-container {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    background-color: #f8f9fa;
-    border-radius: 0.25rem;
-    padding: 1rem;
 }
 
 /* Edition info section */
@@ -371,8 +394,6 @@ h6 {
     max-width: 100%;
     object-fit: contain;
 }
-
-/* Add to your styles.css file */
 
 /* Active book styles */
 .active-book-badge {
@@ -426,20 +447,9 @@ h6 {
 }
 
 /* Comprehensive z-index fixes for dropdown menus */
-
-/* Increase the stacking context for all dropdowns */
 .dropdown {
     position: relative !important;
     z-index: 5 !important;
-}
-
-/* Make the dropdown menu appear above everything else */
-.dropdown-menu {
-    position: absolute !important;
-    z-index: 9999 !important;
-    /* Very high z-index */
-    border: 1px solid rgba(0, 0, 0, 0.15) !important;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Ensure card elements don't hide dropdowns */
@@ -471,4 +481,21 @@ h6 {
 /* Bootstrap's dropdown backdrop fix */
 .dropdown-backdrop {
     z-index: 990 !important;
+}
+
+/* Z-Index Fixes */
+.modal {
+    z-index: 1050;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
 }
