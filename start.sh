@@ -4,14 +4,6 @@ set -e  # Exit immediately if a command exits with a non-zero status
 cd /app
 echo "Current directory: $(pwd)"
 
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r requirements.txt
-
-# Ensure directories exist
-echo "Creating directories..."
-mkdir -p /app/logs /app/staticfiles /app/media /app/static
-
 # Run migrations
 echo "Running migrations..."
 python manage.py migrate
@@ -50,4 +42,4 @@ python manage.py collectstatic --noinput
 
 # Start gunicorn server
 echo "Starting gunicorn server..."
-/usr/local/bin/gunicorn hardcover_bookclub.wsgi:application --bind 0.0.0.0:8000 --timeout 120 --workers 2
+python -m gunicorn hardcover_bookclub.wsgi:application --bind 0.0.0.0:8000 --timeout 120 --workers 2
