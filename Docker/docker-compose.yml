@@ -1,0 +1,14 @@
+---
+
+services:
+  bookclub:
+    container_name: bookclub
+    image: ghcr.io/tpsarr/hardcover_bookclub:latest
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    # environment:
+    #   - TKTK:TKTK
+    # volumes:
+    #   - "app-config:/config"
+    #   - "temp-storage:/data"

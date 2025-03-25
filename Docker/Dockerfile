@@ -1,6 +1,9 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.11-slim
 
+# attach to github repo
+LABEL org.opencontainers.image.source https://github.com/TSPARR/hardcover_bookclub
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
