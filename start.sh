@@ -7,7 +7,6 @@ echo "Current directory: $(pwd)"
 # Install dependencies
 echo "Installing dependencies..."
 pip install -r requirements.txt
-pip install gunicorn==22.0.0
 
 # Ensure directories exist
 echo "Creating directories..."
