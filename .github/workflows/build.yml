@@ -12,10 +12,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get version
+      - name: Build and tag image
         run: |
           export VERSION=$(cat VERSION)
-          echo "Version: $VERSION"    
-
-      - name: Build and tag image
-        run: docker build -t ${{ github.repository }}:$VERSION -f Dockerfile .
+          echo "Version: $VERSION" 
+          docker build -t ${{ github.repository }}:$VERSION -f Dockerfile .
