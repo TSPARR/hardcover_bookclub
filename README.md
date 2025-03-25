@@ -40,7 +40,6 @@ services:
       # optionally enable debug mode
       - DJANGO_DEBUG=False
     volumes:
-      - "./data:/app/data"
       - "./db.sqlite3:/app/db.sqlite3:rw"
 
 ```
