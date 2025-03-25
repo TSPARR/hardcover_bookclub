@@ -7,8 +7,13 @@ services:
     restart: unless-stopped
     ports:
       - 8000:8000
-    # environment:
-    #   - TKTK:TKTK
+    environment:
+      - "DJANGO_ALLOWED_HOSTS=bookclub.zmthree.xyz,localhost,127.0.0.1"
+      - DJANGO_SETTINGS_MODULE=hardcover_bookclub.settings
+      - DJANGO_ADMIN_USERNAME=admin
+      - DJANGO_ADMIN_EMAIL=admin@email.com
+      - DJANGO_ADMIN_PASSWORD=admin
+      - DJANGO_CSRF_TRUSTED_ORIGINS=https://bookclub.zmthree.xyz
     # volumes:
     #   - "app-config:/config"
     #   - "temp-storage:/data"
