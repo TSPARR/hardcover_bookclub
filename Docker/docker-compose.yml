@@ -3,7 +3,7 @@
 services:
   bookclub:
     container_name: bookclub
-    image: ghcr.io/tpsarr/hardcover_bookclub:latest
+    image: ghcr.io/tsparr/hardcover_bookclub:latest
     restart: unless-stopped
     ports:
       - 8000:8000
