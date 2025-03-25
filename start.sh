@@ -4,14 +4,6 @@ set -e  # Exit immediately if a command exits with a non-zero status
 cd /app
 echo "Current directory: $(pwd)"
 
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r requirements.txt
-
-# Ensure directories exist
-echo "Creating directories..."
-mkdir -p /app/logs /app/staticfiles /app/media /app/static
-
 # Run migrations
 echo "Running migrations..."
 python manage.py migrate
