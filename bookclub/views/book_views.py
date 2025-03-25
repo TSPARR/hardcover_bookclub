@@ -317,6 +317,8 @@ def update_book_progress(request, book_id):
         )
 
         data = json.loads(request.body)
+        auto_sync = data.get("auto_sync", False)
+        reload_page = False
 
         # Update progress fields
         if "progress_type" in data and "progress_value" in data:
@@ -434,6 +436,8 @@ def update_book_progress(request, book_id):
                                     logger.info(
                                         f"Created and linked to new edition ID: {hardcover_edition_id}"
                                     )
+                                    # Set flag to reload page if this is a new edition
+                                    reload_page = True
                                     break
                     except Exception as e:
                         logger.exception(f"Error fetching edition data: {str(e)}")
@@ -450,6 +454,8 @@ def update_book_progress(request, book_id):
                     "normalized_progress": user_progress.normalized_progress,
                     "last_updated": user_progress.last_updated.strftime("%Y-%m-%d"),
                 },
+                # Include reload flag for auto-sync to know when to refresh page
+                "reload": reload_page,
             }
         )
 

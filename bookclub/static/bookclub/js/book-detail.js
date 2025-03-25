@@ -8,10 +8,258 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalBody = document.getElementById('hardcoverSyncModalBody');
     const showSpoilersToggle = document.getElementById('showSpoilersToggle');
     const spoilerBtns = document.querySelectorAll('.show-spoiler-btn');
+    const autoSyncToggle = document.getElementById('autoSyncToggle');
+    const lastSyncTime = document.getElementById('lastSyncTime');
 
     let hardcoverModal;
     let progressModal;
     let selectedProgress = null;
+    const AUTO_SYNC_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const STORAGE_PREFIX = 'bookclub_';
+    const bookId = document.getElementById('book-id')?.value;
+    
+    // Initialize auto-sync feature if toggle exists
+    if (autoSyncToggle) {
+        const autoSyncKey = `${STORAGE_PREFIX}auto_sync_${bookId}`;
+        const autoSyncEnabled = localStorage.getItem(autoSyncKey) === 'true';
+        
+        // Set initial state of toggle
+        autoSyncToggle.checked = autoSyncEnabled;
+        
+        // Handle toggle change
+        autoSyncToggle.addEventListener('change', function() {
+            localStorage.setItem(autoSyncKey, this.checked);
+            if (this.checked) {
+                checkIfSyncNeeded();
+            }
+        });
+        
+        // Check if we should run auto-sync on page load
+        if (autoSyncEnabled) {
+            checkIfSyncNeeded();
+        }
+    }
+    
+    // Function to check if sync is needed based on last sync time
+    function checkIfSyncNeeded() {
+        if (!bookId) return;
+        
+        const lastSyncKey = `${STORAGE_PREFIX}last_sync_${bookId}`;
+        const lastSync = localStorage.getItem(lastSyncKey);
+        
+        // Update the UI to show last sync time if available
+        if (lastSyncTime && lastSync) {
+            const syncDate = new Date(parseInt(lastSync));
+            lastSyncTime.textContent = syncDate.toLocaleString();
+        }
+        
+        // Check if we need to sync (first time or interval passed)
+        if (!lastSync || (Date.now() - parseInt(lastSync) > AUTO_SYNC_INTERVAL)) {
+            console.log('Auto-sync: Time to sync progress');
+            fetchAndApplyProgress();
+        } else {
+            console.log('Auto-sync: Recent sync exists, skipping');
+        }
+    }
+    
+    // Function to fetch and automatically apply progress
+    function fetchAndApplyProgress() {
+        const hardcoverId = document.getElementById('hardcover-id')?.value;
+        if (!hardcoverId || !bookId) return;
+        
+        console.log('Auto-sync: Fetching progress from Hardcover');
+        
+        // Fetch reading progress from Hardcover
+        fetch(`/api/hardcover-progress/${hardcoverId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch progress data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Auto-sync error:', data.error);
+                    return;
+                }
+
+                if (!data.progress || data.progress.length === 0) {
+                    console.log('Auto-sync: No progress found');
+                    return;
+                }
+
+                // Auto-select the most recent progress
+                let mostRecentProgress = data.progress[0];
+                
+                // If multiple progress entries exist, find the one with highest progress
+                if (data.progress.length > 1) {
+                    // Sort by progress percentage (highest first)
+                    data.progress.sort((a, b) => (b.progress || 0) - (a.progress || 0));
+                    mostRecentProgress = data.progress[0];
+                }
+
+                // Apply the progress automatically
+                applyProgressToBook(mostRecentProgress);
+                
+                // Update last sync time
+                localStorage.setItem(`${STORAGE_PREFIX}last_sync_${bookId}`, Date.now().toString());
+                if (lastSyncTime) {
+                    lastSyncTime.textContent = new Date().toLocaleString();
+                }
+            })
+            .catch(error => {
+                console.error('Auto-sync error:', error);
+            });
+    }
+    
+    // Function to apply progress to the book
+    function applyProgressToBook(progress) {
+        if (!progress || !bookId) return;
+        
+        // Prepare the data
+        let progressType, progressValue;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Set form values based on selected progress
+        if (progress.reading_format === 'audio') {
+            // For audiobooks
+            progressType = 'audio';
+            if (progress.current_position) {
+                const hours = Math.floor(progress.current_position / 3600);
+                const minutes = Math.floor((progress.current_position % 3600) / 60);
+                progressValue = `${hours}h ${minutes}m`;
+            } else {
+                progressValue = progress.progress + '%';
+            }
+        } else {
+            // For books
+            if (progress.finished_at && progress.edition.pages) {
+                // For finished books, use the total page count
+                progressType = 'page';
+                progressValue = progress.edition.pages;
+            } else if (progress.current_page) {
+                // For in-progress books with a page number
+                progressType = 'page';
+                progressValue = progress.current_page;
+            } else {
+                // Default to percentage
+                progressType = 'percent';
+                progressValue = progress.progress;
+            }
+        }
+
+        // Create a simplified object with the Hardcover data for saving
+        const hardcoverData = {
+            started_at: progress.started_at,
+            finished_at: progress.finished_at,
+            progress: progress.progress,
+            current_page: progress.current_page,
+            current_position: progress.current_position,
+            reading_format: progress.reading_format,
+            edition_id: progress.edition.id,
+            edition_pages: progress.edition.pages,
+            edition_audio_seconds: progress.edition.audio_seconds,
+            edition_title: progress.edition.title,
+            edition_format: progress.reading_format_id
+        };
+
+        // Log what we're updating
+        console.log('Auto-sync: Applying progress', {
+            type: progressType,
+            value: progressValue,
+            normalized: progress.progress
+        });
+
+        // Update progress via API
+        fetch(`/books/${bookId}/update-progress/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                progress_type: progressType,
+                progress_value: progressValue,
+                hardcover_data: hardcoverData,
+                auto_sync: true // Flag to indicate this is an auto-sync
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Auto-sync: Progress updated successfully');
+                    
+                    // If the page needs to reload (new edition selected)
+                    if (progress.edition && progress.edition.id && data.reload) {
+                        window.location.reload();
+                        return;
+                    }
+                    
+                    // Update the UI without reloading
+                    updateProgressUI(progressType, progressValue, data.progress, progress);
+                } else {
+                    console.error('Auto-sync: Error updating progress', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Auto-sync: Error updating progress', error);
+            });
+    }
+    
+    // Function to update the UI with new progress
+    function updateProgressUI(progressType, progressValue, progressData, hardcoverProgress) {
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = progressData.normalized_progress + '%';
+            progressBar.textContent = parseFloat(progressData.normalized_progress).toFixed(1) + '%';
+            progressBar.setAttribute('aria-valuenow', progressData.normalized_progress);
+        }
+
+        // Update the progress text
+        const progressText = document.querySelector('.card-body .d-flex div');
+        if (progressText) {
+            if (progressType === 'page') {
+                progressText.textContent = 'Page ' + progressValue;
+            } else if (progressType === 'audio') {
+                progressText.textContent = 'Audio: ' + progressValue;
+            } else {
+                progressText.textContent = progressValue + '% complete';
+            }
+        }
+
+        // Update the hidden fields for comments if they exist
+        const commentProgressType = document.getElementById('comment_progress_type');
+        const commentProgressValue = document.getElementById('comment_progress_value');
+        if (commentProgressType && commentProgressValue) {
+            commentProgressType.value = progressType;
+            commentProgressValue.value = progressValue;
+        }
+
+        // Add status badge if needed
+        const cardBody = document.querySelector('.progress-indicator .card-body');
+        if (cardBody) {
+            if (hardcoverProgress.finished_at && !cardBody.querySelector('.badge.bg-success')) {
+                // Remove in progress badge if it exists
+                const inProgressBadge = cardBody.querySelector('.badge.bg-primary');
+                if (inProgressBadge) inProgressBadge.remove();
+
+                // Add finished badge
+                const finishedBadge = document.createElement('div');
+                finishedBadge.className = 'badge bg-success w-100 p-2 mt-2';
+                finishedBadge.textContent = 'Finished';
+                cardBody.appendChild(finishedBadge);
+            } else if (hardcoverProgress.started_at && !cardBody.querySelector('.badge.bg-primary') && !cardBody.querySelector('.badge.bg-success')) {
+                // Add in progress badge
+                const inProgressBadge = document.createElement('div');
+                inProgressBadge.className = 'badge bg-primary w-100 p-2 mt-2';
+                inProgressBadge.textContent = 'In Progress';
+                cardBody.appendChild(inProgressBadge);
+            }
+        }
+
+        // Refresh spoilers
+        checkSpoilers();
+    }
 
     // Progress update modal
     if (updateProgressBtn) {
@@ -376,6 +624,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             applyButton.disabled = false;
                         });
                     });
+                    
+                    // Update last sync time in localStorage
+                    localStorage.setItem(`${STORAGE_PREFIX}last_sync_${bookId}`, Date.now().toString());
+                    if (lastSyncTime) {
+                        lastSyncTime.textContent = new Date().toLocaleString();
+                    }
                 })
                 .catch(error => {
                     modalBody.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
@@ -460,50 +714,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             }, 500);
                         } else {
                             // Update the UI without reloading
-                            document.querySelector('.progress-bar').style.width = data.progress.normalized_progress + '%';
-                            document.querySelector('.progress-bar').textContent = parseFloat(data.progress.normalized_progress).toFixed(1) + '%';
-                            document.querySelector('.progress-bar').setAttribute('aria-valuenow', data.progress.normalized_progress);
-
-                            // Update the progress text
-                            let progressText = '';
-                            if (progressType === 'page') {
-                                progressText = 'Page ' + progressValue;
-                            } else if (progressType === 'audio') {
-                                progressText = 'Audio: ' + progressValue;
-                            } else {
-                                progressText = progressValue + '% complete';
-                            }
-                            document.querySelector('.card-body .d-flex div').textContent = progressText;
-
-                            // Update the hidden fields for comments
-                            document.getElementById('comment_progress_type').value = progressType;
-                            document.getElementById('comment_progress_value').value = progressValue;
-
-                            // Add status badge if needed
-                            const cardBody = document.querySelector('.card-body');
-                            if (selectedProgress.finished_at && !cardBody.querySelector('.badge.bg-success')) {
-                                // Remove in progress badge if it exists
-                                const inProgressBadge = cardBody.querySelector('.badge.bg-primary');
-                                if (inProgressBadge) inProgressBadge.remove();
-
-                                // Add finished badge
-                                const finishedBadge = document.createElement('div');
-                                finishedBadge.className = 'badge bg-success w-100 p-2 mt-2';
-                                finishedBadge.textContent = 'Finished';
-                                cardBody.appendChild(finishedBadge);
-                            } else if (selectedProgress.started_at && !cardBody.querySelector('.badge.bg-primary') && !cardBody.querySelector('.badge.bg-success')) {
-                                // Add in progress badge
-                                const inProgressBadge = document.createElement('div');
-                                inProgressBadge.className = 'badge bg-primary w-100 p-2 mt-2';
-                                inProgressBadge.textContent = 'In Progress';
-                                cardBody.appendChild(inProgressBadge);
-                            }
-
+                            updateProgressUI(progressType, progressValue, data.progress, selectedProgress);
                             // Close the modal
                             hardcoverModal.hide();
-
-                            // Refresh spoilers
-                            checkSpoilers();
                         }
                     } else {
                         alert('Error updating progress: ' + (data.error || 'Unknown error'));
