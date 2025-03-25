@@ -12,9 +12,15 @@
                 <div>
                     <a href="{% url 'home' %}" class="btn btn-secondary">Back to Groups</a>
                     {% if is_admin %}
-                    <a href="{% url 'manage_group_members' group.id %}" class="btn btn-outline-primary ms-2">
-                        Manage Members
-                    </a>
+                    <div class="mb-3">
+                        <a href="{% url 'manage_group_members' group.id %}" class="btn btn-outline-primary me-2">
+                            <i class="bi bi-people"></i> Manage Members
+                        </a>
+                        
+                        <a href="{% url 'manage_invitations' group.id %}" class="btn btn-outline-success">
+                            <i class="bi bi-envelope"></i> Manage Invitations
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
