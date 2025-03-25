@@ -108,6 +108,15 @@
     <div class="col-md-9">
         <h1>{{ book.title }}</h1>
         <h4 class="text-muted">{{ book.author }}</h4>
+
+        {% if book.url %}
+        <div class="mb-3">
+            <a href="{{ book.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
+            </a>
+        </div>
+        {% endif %}
+
         <p>{{ book.description }}</p>
         <div class="d-flex gap-2">
             <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>

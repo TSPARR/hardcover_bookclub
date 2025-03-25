@@ -31,6 +31,7 @@ class Book(models.Model):
     author = models.CharField(max_length=200)
     hardcover_id = models.CharField(max_length=50, unique=True)  # ID from Hardcover API
     cover_image_url = models.URLField(blank=True)
+    url = models.URLField(blank=True)
     description = models.TextField(blank=True)
     group = models.ForeignKey(BookGroup, on_delete=models.CASCADE, related_name="books")
     created_at = models.DateTimeField(auto_now_add=True)

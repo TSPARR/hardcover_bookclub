@@ -512,6 +512,7 @@ def add_book_to_group(request, group_id, hardcover_id):
                     else "Unknown Author"
                 ),
                 "cover_image_url": book_data.get("cover_image_url", ""),
+                "url": book_data.get("url", ""),
                 "description": book_data.get("description", ""),
                 "group": group,
             },
@@ -520,6 +521,8 @@ def add_book_to_group(request, group_id, hardcover_id):
         if not created:
             # If book already exists, associate it with this group
             book.group = group
+            if not book.url and book_data.get("url"):
+                book.url = book_data.get("url")
             book.save()
 
         messages.success(request, f"'{book.title}' has been added to the group.")
