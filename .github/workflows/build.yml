@@ -2,7 +2,7 @@ name: Build Docker image
 on:
   push:
     branches:
-      - docker
+      - main
 
 jobs:
   build:
