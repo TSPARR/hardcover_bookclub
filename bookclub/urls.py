@@ -1,5 +1,5 @@
 from bookclub.views.api_views import get_hardcover_progress
-from bookclub.views.auth_views import landing_page, register
+from bookclub.views.auth_views import landing_page, register, register_with_invite
 from bookclub.views.book_views import (
     add_book_to_group,
     book_detail,
@@ -7,13 +7,13 @@ from bookclub.views.book_views import (
     edit_comment,
     get_book_editions,
     remove_book,
+    reply_to_comment,
     search_books,
     select_edition,
     set_manual_progress,
     toggle_book_active,
-    update_book_progress,
     toggle_reaction,
-    reply_to_comment,
+    update_book_progress,
 )
 from bookclub.views.group_views import (
     add_group_member,
@@ -21,6 +21,11 @@ from bookclub.views.group_views import (
     group_detail,
     home,
     manage_group_members,
+)
+from bookclub.views.invitation_views import (
+    create_invitation,
+    manage_invitations,
+    revoke_invitation,
 )
 from bookclub.views.profile_views import profile_settings
 from django.contrib.auth import views as auth_views
@@ -35,6 +40,26 @@ urlpatterns = [
         "accounts/logout/",
         auth_views.LogoutView.as_view(next_page="landing_page"),
         name="logout",
+    ),
+    path(
+        "register/<uuid:invite_code>/",
+        register_with_invite,
+        name="register_with_invite",
+    ),
+    path(
+        "groups/<int:group_id>/invitations/",
+        manage_invitations,
+        name="manage_invitations",
+    ),
+    path(
+        "groups/<int:group_id>/invitations/create/",
+        create_invitation,
+        name="create_invitation",
+    ),
+    path(
+        "groups/<int:group_id>/invitations/<int:invitation_id>/revoke/",
+        revoke_invitation,
+        name="revoke_invitation",
     ),
     # Group related URLs
     path("groups/create/", create_group, name="create_group"),

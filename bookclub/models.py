@@ -1,8 +1,12 @@
+import uuid
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django_cryptography.fields import encrypt
 
 
@@ -308,6 +312,69 @@ class UserBookProgress(models.Model):
             return 0  # Default for audio if we can't calculate
 
         return 0  # Default fallback
+
+
+class GroupInvitation(models.Model):
+    """Model for storing group invitations"""
+
+    # The group this invitation is for
+    group = models.ForeignKey(
+        BookGroup, on_delete=models.CASCADE, related_name="invitations"
+    )
+
+    # The admin who created the invitation
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="created_invitations"
+    )
+
+    # Unique code for the invitation
+    code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+    # When the invitation was created
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # When the invitation expires (default: 7 days after creation)
+    expires_at = models.DateTimeField()
+
+    # If the invitation has been used
+    is_used = models.BooleanField(default=False)
+
+    # If the invitation has been revoked by an admin
+    is_revoked = models.BooleanField(default=False)
+
+    # Optional email address this invitation was sent to
+    email = models.EmailField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Invitation to {self.group.name} by {self.created_by.username}"
+
+    def save(self, *args, **kwargs):
+        # Set expiration date if not already set
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=7)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_valid(self):
+        """Check if the invitation is still valid"""
+        now = timezone.now()
+        return not self.is_used and not self.is_revoked and now < self.expires_at
+
+    @property
+    def days_until_expiry(self):
+        """Return the number of days until this invitation expires"""
+        if self.is_used or self.is_revoked:
+            return 0
+
+        now = timezone.now()
+        if now > self.expires_at:
+            return 0
+
+        delta = self.expires_at - now
+        return delta.days
 
 
 class UserProfile(models.Model):

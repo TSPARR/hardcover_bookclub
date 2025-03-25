@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import BookGroup, Book, Comment, UserProfile, UserBookProgress
+
+from .models import (
+    Book,
+    BookGroup,
+    Comment,
+    GroupInvitation,
+    UserBookProgress,
+    UserProfile,
+)
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -42,8 +50,24 @@ class BookGroupAdmin(admin.ModelAdmin):
     book_count.short_description = "Books"
 
 
+class GroupInvitationAdmin(admin.ModelAdmin):
+    list_display = (
+        "group",
+        "created_by",
+        "created_at",
+        "expires_at",
+        "is_used",
+        "is_revoked",
+        "email",
+    )
+    list_filter = ("is_used", "is_revoked", "created_at", "expires_at")
+    search_fields = ("group__name", "created_by__username", "email")
+    readonly_fields = ("code",)
+
+
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(BookGroup, BookGroupAdmin)
 admin.site.register(Book)
 admin.site.register(Comment)
 admin.site.register(UserBookProgress)
+admin.site.register(GroupInvitation, GroupInvitationAdmin)

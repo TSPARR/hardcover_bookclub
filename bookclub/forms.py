@@ -1,16 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.forms import (
-    EmailInput,
-    ModelForm,
-    PasswordInput,
-    Select,
-    Textarea,
-    TextInput,
-)
+from django.core.exceptions import ValidationError
 
-from .models import BookGroup, Comment, UserProfile
+from .models import BookGroup, Comment, GroupInvitation, UserProfile
 
 
 class CommentForm(forms.ModelForm):
@@ -27,7 +20,26 @@ class BookSearchForm(forms.Form):
 
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    """Form for user registration with invitation code"""
+
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    email = forms.EmailField(
+        required=True, widget=forms.EmailInput(attrs={"class": "form-control"})
+    )
+    invitation_code = forms.UUIDField(
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        help_text="Enter the invitation code you received",
+    )
 
     class Meta:
         model = User
@@ -38,36 +50,50 @@ class UserRegistrationForm(UserCreationForm):
             "email",
             "password1",
             "password2",
-        ]
-
-
-class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
-    class Meta:
-        model = User
-        fields = [
-            "first_name",
-            "last_name",
-            "username",
-            "email",
-            "password1",
-            "password2",
+            "invitation_code",
         ]
         widgets = {
-            "first_name": TextInput(attrs={"class": "form-control"}),
-            "last_name": TextInput(attrs={"class": "form-control"}),
-            "username": TextInput(attrs={"class": "form-control"}),
-            "email": EmailInput(attrs={"class": "form-control"}),
-            "password1": PasswordInput(attrs={"class": "form-control"}),
-            "password2": PasswordInput(attrs={"class": "form-control"}),
+            "username": forms.TextInput(attrs={"class": "form-control"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super(UserRegistrationForm, self).__init__(*args, **kwargs)
-        # Add Bootstrap classes to the auto-generated fields
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({"class": "form-control"})
+    def clean_invitation_code(self):
+        """Validate the invitation code"""
+        code = self.cleaned_data.get("invitation_code")
+
+        try:
+            invitation = GroupInvitation.objects.get(code=code)
+
+            # Check if invitation is valid
+            if not invitation.is_valid:
+                if invitation.is_used:
+                    raise ValidationError("This invitation has already been used.")
+                elif invitation.is_revoked:
+                    raise ValidationError("This invitation has been revoked.")
+                else:
+                    raise ValidationError("This invitation has expired.")
+
+            # Store the invitation object for later use
+            self.invitation = invitation
+            return code
+
+        except GroupInvitation.DoesNotExist:
+            raise ValidationError("Invalid invitation code.")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+
+        if commit:
+            user.save()
+
+            # Mark invitation as used
+            self.invitation.is_used = True
+            self.invitation.save()
+
+            # Add user to the group
+            self.invitation.group.members.add(user)
+
+        return user
 
 
 class ApiKeyForm(forms.ModelForm):
