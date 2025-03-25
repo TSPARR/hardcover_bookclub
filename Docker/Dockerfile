@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # attach to github repo
-LABEL org.opencontainers.image.source https://github.com/TSPARR/hardcover_bookclub
+LABEL org.opencontainers.image.source=https://github.com/TSPARR/hardcover_bookclub
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -21,6 +21,9 @@ COPY . /app/
 
 # Ensure directories exist
 RUN mkdir -p /app/logs /app/staticfiles /app/media /app/static
+
+# make start command executable
+RUN chmod +x /app/start.sh
 
 # Expose the port the app runs on
 EXPOSE 8000
