@@ -217,6 +217,7 @@ class UserBookProgress(models.Model):
     )  # Audio position in seconds
     hardcover_reading_format = models.CharField(max_length=10, null=True, blank=True)
     hardcover_edition_id = models.CharField(max_length=50, null=True, blank=True)
+    hardcover_read_id = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         unique_together = (
