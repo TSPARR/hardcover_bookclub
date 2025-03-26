@@ -392,110 +392,120 @@ class HardcoverAPI:
 
     @staticmethod
     def update_reading_progress(
-        user_book_read_id,
-        progress=None,
-        edition_id=None,
+        read_id,
         started_at=None,
         finished_at=None,
+        edition_id=None,
+        pages=None,
+        seconds=None,
         user=None,
     ):
-        """Update a user's reading progress on Hardcover via GraphQL mutation
+        """Update a reading record with all necessary data using the correct mutation format
 
         Args:
-            user_book_read_id (int): The ID of the user_book_read record to update
-            progress (int, optional): Progress value (percentage or seconds, depending on format)
-            edition_id (int, optional): The ID of the edition being read
-            started_at (date, optional): Date when the user started reading
-            finished_at (date, optional): Date when the user finished reading
+            read_id (int): The ID of the reading record to update
+            started_at (date, optional): Date when reading started
+            finished_at (date, optional): Date when reading finished (if completed)
+            edition_id (int, optional): The edition ID being read
+            pages (int, optional): Current page number for physical/ebook formats
+            seconds (int, optional): Current position in seconds for audiobooks
             user (User, optional): The User object to retrieve API key from
 
         Returns:
-            dict: Response data from the Hardcover API, or None if error occurred
+            dict: Success or error info
         """
-        logger.info(
-            f"Updating Hardcover progress for user_book_read ID: {user_book_read_id}"
-        )
+        logger.info(f"Updating reading record {read_id} with complete data")
 
         if (
             not user
             or not hasattr(user, "profile")
             or not user.profile.hardcover_api_key
         ):
-            logger.warning("No user or API key available for update request")
-            return {
-                "error": "You need to add your Hardcover API key in Profile Settings to use this feature."
+            logger.warning("No API key available for update request")
+            return {"error": "Missing API key"}
+
+        # Use the exact mutation format from the example
+        update_mutation = """
+        mutation UpdateUserBookReadMutation($id: Int!, $object: DatesReadInput!) {
+        updateResult: update_user_book_read(id: $id, object: $object) {
+            error
+            userBookRead: user_book_read {
+            id
+            userBookId: user_book_id
+            startedAt: started_at
+            finishedAt: finished_at
+            editionId: edition_id
+            progress
+            progressPages: progress_pages
+            progressSeconds: progress_seconds
             }
-
-        # Build mutation variables
-        update_obj = {}
-        if progress is not None:
-            update_obj["progress"] = progress
-        if edition_id is not None:
-            update_obj["edition_id"] = edition_id
-        if started_at is not None:
-            # Format date as YYYY-MM-DD string if it's a datetime
-            if hasattr(started_at, "strftime"):
-                update_obj["started_at"] = started_at.strftime("%Y-%m-%d")
-            else:
-                update_obj["started_at"] = started_at
-        if finished_at is not None:
-            # Format date as YYYY-MM-DD string if it's a datetime
-            if hasattr(finished_at, "strftime"):
-                update_obj["finished_at"] = finished_at.strftime("%Y-%m-%d")
-            else:
-                update_obj["finished_at"] = finished_at
-
-        # If edition is audiobook format, use progress_seconds, otherwise use progress_pages
-        if progress is not None:
-            reading_format_id = None
-
-            # Check if we have edition info to determine format
-            if "reading_format_id" in update_obj:
-                reading_format_id = update_obj["reading_format_id"]
-
-            # If audio format (reading_format_id = 2), convert percentage to seconds
-            if reading_format_id == 2 and "edition" in update_obj:
-                if update_obj["edition"].get("audio_seconds"):
-                    total_seconds = update_obj["edition"]["audio_seconds"]
-                    progress_seconds = int((progress / 100) * total_seconds)
-                    update_obj["progress_seconds"] = progress_seconds
-                    # Remove generic progress value as we're using a specific field
-                    if "progress" in update_obj:
-                        del update_obj["progress"]
-            # For physical books or ebooks (reading_format_id 1 or 4), convert to pages
-            elif reading_format_id in [1, 4] and "edition" in update_obj:
-                if update_obj["edition"].get("pages"):
-                    total_pages = update_obj["edition"]["pages"]
-                    progress_pages = int((progress / 100) * total_pages)
-                    update_obj["progress_pages"] = progress_pages
-                    # Remove generic progress value as we're using a specific field
-                    if "progress" in update_obj:
-                        del update_obj["progress"]
-
-        graphql_mutation = """
-        mutation UpdateProgress($id: Int!, $object: user_book_reads_set_input!) {
-            update_user_book_read(id: $id, _set: $object) {
-                id
-            }
+        }
         }
         """
 
-        variables = {"id": int(user_book_read_id), "object": update_obj}
+        # Create the complete update object with all fields
+        update_object = {}
 
-        result = HardcoverAPI.execute_query(graphql_mutation, variables, user)
-
-        if result and "data" in result and "update_user_book_read" in result["data"]:
-            logger.info(
-                f"Successfully updated reading progress on Hardcover for ID: {user_book_read_id}"
-            )
-            return result["data"]["update_user_book_read"]
+        # Add started_at (required)
+        if started_at is not None:
+            if hasattr(started_at, "strftime"):
+                update_object["started_at"] = started_at.strftime("%Y-%m-%d")
+            else:
+                update_object["started_at"] = started_at
         else:
-            logger.error(
-                f"Failed to update reading progress on Hardcover for ID: {user_book_read_id}"
-            )
+            # Default to today
+            update_object["started_at"] = datetime.now().strftime("%Y-%m-%d")
+
+        # Add finished_at (null if not provided)
+        update_object["finished_at"] = None
+        if finished_at is not None:
+            if hasattr(finished_at, "strftime"):
+                update_object["finished_at"] = finished_at.strftime("%Y-%m-%d")
+            else:
+                update_object["finished_at"] = finished_at
+
+        # Add edition_id if provided
+        if edition_id is not None:
+            update_object["edition_id"] = edition_id
+
+        # Add progress_pages and progress_seconds (default to 0 if not provided)
+        update_object["progress_pages"] = pages if pages is not None else 0
+        update_object["progress_seconds"] = seconds if seconds is not None else 0
+
+        # Build the variables
+        variables = {"id": int(read_id), "object": update_object}
+
+        logger.debug(f"Complete update for reading record: {variables}")
+
+        # Execute the mutation
+        result = HardcoverAPI.execute_query(update_mutation, variables, user)
+
+        if (
+            result
+            and "data" in result
+            and "updateResult" in result["data"]
+            and result["data"]["updateResult"]
+        ):
+            if (
+                "error" in result["data"]["updateResult"]
+                and result["data"]["updateResult"]["error"]
+            ):
+                logger.error(
+                    f"API returned error: {result['data']['updateResult']['error']}"
+                )
+                return {"error": result["data"]["updateResult"]["error"]}
+
+            logger.info(f"Successfully updated reading record with complete data")
+            return {
+                "success": True,
+                "read_id": read_id,
+                "update_result": result["data"]["updateResult"],
+            }
+        else:
+            logger.error("Failed to update reading record")
             if result and "errors" in result:
                 logger.error(f"GraphQL errors: {result['errors']}")
-            return None
+            return {"error": "Failed to update reading record"}
 
     @staticmethod
     def start_reading_progress(
@@ -528,8 +538,18 @@ class HardcoverAPI:
                 "error": "You need to add your Hardcover API key in Profile Settings to use this feature."
             }
 
+        # Ensure we have a started_at date (default to today if not provided)
+        if started_at is None:
+            started_at = datetime.now()
+
+        # Format the started_at date to YYYY-MM-DD string if it's a datetime
+        formatted_started_at = None
+        if hasattr(started_at, "strftime"):
+            formatted_started_at = started_at.strftime("%Y-%m-%d")
+        else:
+            formatted_started_at = started_at
+
         # First, we need to get the current user's ID from Hardcover
-        # We need this to properly filter user_books by both book_id and user_id
         user_id_query = """
         query ValidateAuth {
             me {
@@ -564,6 +584,7 @@ class HardcoverAPI:
                     id
                     startedAt: started_at
                     finishedAt: finished_at
+                    editionId: edition_id
                 }
             }
         }
@@ -601,6 +622,7 @@ class HardcoverAPI:
                             id
                             startedAt: started_at
                             finishedAt: finished_at
+                            editionId: edition_id
                         }
                     }
                 }
@@ -670,6 +692,7 @@ class HardcoverAPI:
                             id
                             startedAt: started_at
                             finishedAt: finished_at
+                            editionId: edition_id
                         }
                     }
                 }
@@ -731,18 +754,10 @@ class HardcoverAPI:
             }
             """
 
-            read_input = {}
+            read_input = {"started_at": formatted_started_at}
 
             if edition_id is not None:
                 read_input["edition_id"] = edition_id
-
-            if started_at is not None:
-                if hasattr(started_at, "strftime"):
-                    read_input["started_at"] = started_at.strftime("%Y-%m-%d")
-                else:
-                    read_input["started_at"] = started_at
-            else:
-                read_input["started_at"] = datetime.now().strftime("%Y-%m-%d")
 
             create_read_variables = {
                 "user_book_id": int(user_book_id),
@@ -772,44 +787,28 @@ class HardcoverAPI:
                     "user_book_id": user_book_id,
                 }
 
-        # Now update the reading record with progress if needed
-        if read_id and (pages is not None or seconds is not None):
-            logger.info(f"Updating reading record {read_id} with progress information")
-
-            update_progress_mutation = """
-            mutation UpdateReadingProgress($id: Int!, $object: DatesReadInput!) {
-                update_user_book_read(id: $id, object: $object) {
-                    id
-                }
-            }
-            """
-
-            progress_object = {}
-
-            if pages is not None:
-                progress_object["progress_pages"] = pages
-
-            if seconds is not None:
-                progress_object["progress_seconds"] = seconds
-
-            update_progress_variables = {"id": int(read_id), "object": progress_object}
-
-            logger.debug(f"Updating progress: {update_progress_variables}")
-            progress_result = HardcoverAPI.execute_query(
-                update_progress_mutation, update_progress_variables, user
+        # Now update the reading record with ALL necessary data
+        if read_id:
+            # Use the specialized update method that matches the exact mutation format
+            update_result = HardcoverAPI.update_reading_progress(
+                read_id=read_id,
+                started_at=started_at,
+                finished_at=None,
+                edition_id=edition_id,
+                pages=pages,
+                seconds=seconds,
+                user=user,
             )
 
-            if (
-                not progress_result
-                or "errors" in progress_result
-                or "data" not in progress_result
-            ):
+            if not update_result or "error" in update_result:
                 logger.warning(
-                    f"Failed to update progress for reading record {read_id}"
+                    f"Failed to update reading record with complete data: {update_result.get('error', 'Unknown error')}"
                 )
-                if progress_result and "errors" in progress_result:
-                    logger.error(f"GraphQL errors: {progress_result['errors']}")
-                # Consider it a success anyway since the reading record exists
+                # Continue anyway, we've at least created the reading record
+            else:
+                logger.info(
+                    "Successfully updated reading record with all required data"
+                )
 
         if read_id:
             return {"success": True, "read_id": read_id, "user_book_id": user_book_id}

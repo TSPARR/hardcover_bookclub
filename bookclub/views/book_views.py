@@ -675,7 +675,7 @@ def set_manual_progress(request, book_id):
             ):
                 # Found progress on Hardcover, save the read ID for future updates
                 hardcover_progress = progress_data["progress"][0]
-                hardcover_read_id = hardcover_progress.get("hardcover_read_id")
+                hardcover_read_id = hardcover_progress.get("read_id")
                 if hardcover_read_id:
                     user_progress.hardcover_read_id = hardcover_read_id
                     user_progress.save(update_fields=["hardcover_read_id"])
@@ -719,13 +719,9 @@ def set_manual_progress(request, book_id):
             # Only sync if we have a hardcover_read_id or can determine it
             if hardcover_read_id:
                 try:
-                    # Determine progress value and type to send to Hardcover
-                    progress_percent = int(user_progress.normalized_progress)
-
                     # Get edition info if available
                     edition_id = None
                     reading_format_id = None
-                    edition_data = None
 
                     if user_progress.edition:
                         if user_progress.edition.hardcover_edition_id:
@@ -734,40 +730,22 @@ def set_manual_progress(request, book_id):
                         if user_progress.edition.reading_format_id:
                             reading_format_id = user_progress.edition.reading_format_id
 
-                        # Create edition data object for accurate progress conversion
-                        edition_data = {
-                            "pages": user_progress.edition.pages,
-                            "audio_seconds": user_progress.edition.audio_seconds,
-                        }
-
-                    # Determine progress value based on progress type
-                    progress_value = None
+                    # Calculate pages or seconds based on progress type
+                    pages = None
+                    seconds = None
 
                     if (
                         user_progress.progress_type == "page"
                         and user_progress.progress_value
                     ):
                         try:
-                            # Send raw page number for page-based formats
-                            progress_value = int(user_progress.progress_value)
-                            # If we have total pages, use percentage instead
-                            if user_progress.edition and user_progress.edition.pages:
-                                progress_percent = min(
-                                    100,
-                                    int(
-                                        (progress_value / user_progress.edition.pages)
-                                        * 100
-                                    ),
-                                )
+                            pages = int(user_progress.progress_value)
                         except (ValueError, TypeError):
-                            # Fall back to calculated normalized progress
-                            progress_value = None
-
+                            pass
                     elif (
                         user_progress.progress_type == "audio"
                         and user_progress.progress_value
                     ):
-                        # Parse audio timestamp (e.g., "2h 30m" or "45m")
                         try:
                             seconds = 0
                             if "h" in user_progress.progress_value:
@@ -786,45 +764,49 @@ def set_manual_progress(request, book_id):
                                     int(user_progress.progress_value.replace("m", ""))
                                     * 60
                                 )
-
-                            if seconds > 0:
-                                progress_value = seconds
-                                # If we have total audio_seconds, calculate percentage
-                                if (
-                                    user_progress.edition
-                                    and user_progress.edition.audio_seconds
-                                ):
-                                    progress_percent = min(
-                                        100,
-                                        int(
-                                            (
-                                                seconds
-                                                / user_progress.edition.audio_seconds
-                                            )
-                                            * 100
-                                        ),
-                                    )
                         except (ValueError, TypeError):
-                            # Fall back to calculated normalized progress
-                            progress_value = None
+                            pass
+                    elif (
+                        user_progress.progress_type == "percent"
+                        and user_progress.normalized_progress
+                    ):
+                        # For percentage, convert to pages or seconds based on edition format
+                        progress_percent = user_progress.normalized_progress
+                        if user_progress.edition:
+                            if (
+                                user_progress.edition.reading_format_id == 2
+                                and user_progress.edition.audio_seconds
+                            ):
+                                # Audio format
+                                seconds = int(
+                                    (progress_percent / 100)
+                                    * user_progress.edition.audio_seconds
+                                )
+                            elif (
+                                user_progress.edition.reading_format_id in [1, 4]
+                                and user_progress.edition.pages
+                            ):
+                                # Physical book or ebook
+                                pages = int(
+                                    (progress_percent / 100)
+                                    * user_progress.edition.pages
+                                )
 
-                    # If we couldn't determine a specific progress value, use percentage
-                    if progress_value is None:
-                        progress_value = progress_percent
-
+                    # Call the update method with the correct parameters
                     hardcover_sync_result = HardcoverAPI.update_reading_progress(
-                        user_book_read_id=hardcover_read_id,
-                        progress=progress_value,
-                        edition_id=edition_id,
-                        reading_format_id=reading_format_id,
-                        edition=edition_data if edition_data else None,
+                        read_id=hardcover_read_id,
                         started_at=user_progress.hardcover_started_at,
                         finished_at=user_progress.hardcover_finished_at,
+                        edition_id=edition_id,
+                        pages=pages,
+                        seconds=seconds,
                         user=request.user,
                     )
 
-                    if hardcover_sync_result and not isinstance(
-                        hardcover_sync_result, dict
+                    if (
+                        hardcover_sync_result
+                        and isinstance(hardcover_sync_result, dict)
+                        and "error" not in hardcover_sync_result
                     ):
                         messages.success(
                             request, "Progress was updated and synced to Hardcover."
