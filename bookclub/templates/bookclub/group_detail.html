@@ -17,7 +17,7 @@
                             <i class="bi bi-people"></i> Manage Members
                         </a>
                         
-                        <a href="{% url 'manage_invitations' group.id %}" class="btn btn-outline-success">
+                        <a href="{% url 'manage_invitations' group.id %}" class="btn btn-outline-success me-2">
                             <i class="bi bi-envelope"></i> Manage Invitations
                         </a>
                     </div>
@@ -41,72 +41,159 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Books</h2>
                 {% if is_admin %}
-                <a href="{% url 'search_books' group.id %}" class="btn btn-primary">Add Book</a>
+                <div>
+                    <a href="{% url 'search_books' group.id %}" class="btn btn-primary">Add Book</a>
+                </div>
                 {% endif %}
             </div>
 
             {% if books %}
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                {% for book in books %}
-                <div class="col">
-                    <div class="card h-100 {% if book.is_active %}border-primary{% endif %}">
-                        {% if book.is_active %}
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <span>Currently Reading</span>
-                            {% if is_admin %}
-                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="m-0">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-light">
-                                    Deactivate
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                        <div class="row g-0">
-                            <div class="col-4">
-                                {% if book.cover_image_url %}
-                                <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
-                                    style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
-                                {% else %}
-                                <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
-                                    style="min-height: 150px;">
-                                    <span class="text-muted">No cover</span>
-                                </div>
+                {% with active_books=books|dictsortreversed:"is_active" %}
+                
+                <!-- Currently Reading Section -->
+                {% for book in active_books %}
+                    {% if book.is_active %}
+                    <div class="mb-4">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <span>Currently Reading</span>
+                                {% if is_admin %}
+                                <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-light">
+                                        Deactivate
+                                    </button>
+                                </form>
                                 {% endif %}
                             </div>
-                            <div class="col-8">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ book.title }}</h5>
-                                    <p class="card-text small">{{ book.author }}</p>
-                                    <div class="mt-2">
-                                        <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View</a>
+                            <div class="row g-0">
+                                <div class="col-md-3">
+                                    {% if book.cover_image_url %}
+                                    <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
+                                        style="width: 100%; height: 200px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
+                                    {% else %}
+                                    <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
+                                        style="min-height: 200px;">
+                                        <span class="text-muted">No cover</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <h4 class="card-title">{{ book.title }}</h4>
+                                        <p class="card-text">{{ book.author }}</p>
                                         
-                                        {% if is_admin %}
-                                            {% if not book.is_active %}
-                                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                    Set Active
-                                                </button>
-                                            </form>
+                                        <!-- Book Attribution Information -->
+                                        <div class="mb-3">
+                                            {% if book.is_collective_pick %}
+                                            <span class="badge bg-info">Group Pick</span>
+                                            {% elif book.picked_by %}
+                                            <span class="badge bg-secondary">Picked by: {{ book.picked_by.username }}</span>
                                             {% endif %}
-                                            <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to remove this book?')">
-                                                    Remove
-                                                </button>
-                                            </form>
-                                        {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">View</a>
+                                            
+                                            {% if is_admin %}
+                                                <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-danger"
+                                                        onclick="return confirm('Are you sure you want to remove this book?')">
+                                                        Remove
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                    {% endif %}
                 {% endfor %}
-            </div>
+                
+                <!-- Previous Books Section -->
+                {% with previous_books=books|rejectattr:"is_active" %}
+                    {% if previous_books %}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Previous Books</h3>
+                            {% if is_admin %}
+                            <a href="{% url 'manage_group_books' group.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-sort-numeric-down"></i> Manage Books
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <button class="btn btn-outline-secondary mb-3" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#previousBooksCollapse" aria-expanded="false" aria-controls="previousBooksCollapse">
+                            <i class="bi bi-chevron-down"></i> Show Previous Books ({{ previous_books|length }})
+                        </button>
+                        
+                        <div class="collapse" id="previousBooksCollapse">
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                {% for book in previous_books %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="row g-0">
+                                            <div class="col-4">
+                                                {% if book.cover_image_url %}
+                                                <img src="{{ book.cover_image_url }}" class="img-fluid rounded-start" 
+                                                    style="width: 100%; height: 150px; object-fit: contain; padding: 8px;" alt="{{ book.title }}">
+                                                {% else %}
+                                                <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded-start" 
+                                                    style="min-height: 150px;">
+                                                    <span class="text-muted">No cover</span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ book.title }}</h5>
+                                                    <p class="card-text small">{{ book.author }}</p>
+                                                    
+                                                    <!-- Book Attribution Information -->
+                                                    <div class="mb-2">
+                                                        {% if book.is_collective_pick %}
+                                                        <span class="badge bg-info">Group Pick</span>
+                                                        {% elif book.picked_by %}
+                                                        <span class="badge bg-secondary">Picked by: {{ book.picked_by.username }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    <div class="mt-2">
+                                                        <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View</a>
+                                                        
+                                                        {% if is_admin %}
+                                                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                                    Set Active
+                                                                </button>
+                                                            </form>
+                                                            <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                    onclick="return confirm('Are you sure you want to remove this book?')">
+                                                                    Remove
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endwith %}
+                
+                {% endwith %}
             {% else %}
             <div class="alert alert-info">
                 No books in this group yet.

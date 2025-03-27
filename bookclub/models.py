@@ -40,10 +40,22 @@ class Book(models.Model):
     group = models.ForeignKey(BookGroup, on_delete=models.CASCADE, related_name="books")
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=False)  # New field for active status
+    display_order = models.PositiveIntegerField(default=0)
+    picked_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="book_picks",
+    )
+    is_collective_pick = models.BooleanField(default=False)
 
     # Book metadata from Hardcover
     pages = models.IntegerField(null=True, blank=True)
     audio_seconds = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["display_order", "id"]
 
     def __str__(self):
         return f"{self.title} by {self.author}"

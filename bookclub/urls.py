@@ -21,6 +21,7 @@ from bookclub.views.group_views import (
     group_detail,
     home,
     manage_group_members,
+    manage_group_books,
 )
 from bookclub.views.invitation_views import (
     create_invitation,
@@ -71,6 +72,11 @@ urlpatterns = [
     ),
     path(
         "groups/<int:group_id>/members/add/", add_group_member, name="add_group_member"
+    ),
+    path(
+        "groups/<int:group_id>/books/manage/",
+        manage_group_books,
+        name="manage_group_books",
     ),
     # Book related URLs
     path("books/<int:book_id>/", book_detail, name="book_detail"),

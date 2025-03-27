@@ -247,3 +247,62 @@ def add_group_member(request, group_id):
         return redirect("manage_group_members", group_id=group.id)
 
     return redirect("manage_group_members", group_id=group.id)
+
+
+@login_required
+def manage_group_books(request, group_id):
+    """View for managing book order and attribution in a group"""
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is an admin of this group
+    if not group.is_admin(request.user):
+        messages.error(
+            request, "You don't have permission to manage books in this group."
+        )
+        return redirect("group_detail", group_id=group.id)
+
+    books = group.books.all().order_by("display_order", "created_at")
+    members = group.members.all()
+
+    if request.method == "POST":
+        # Handle book reordering
+        if "book_order" in request.POST:
+            order_data = request.POST.getlist("book_order")
+            for i, book_id in enumerate(order_data):
+                Book.objects.filter(id=book_id, group=group).update(display_order=i)
+            messages.success(request, "Book order has been updated.")
+
+        # Handle book attribution
+        if "attribution" in request.POST:
+            book_id = request.POST.get("book_id")
+            picked_by_id = request.POST.get("picked_by")
+            is_collective = request.POST.get("is_collective_pick") == "on"
+
+            book = get_object_or_404(Book, id=book_id, group=group)
+
+            if picked_by_id and not is_collective:
+                book.picked_by = get_object_or_404(User, id=picked_by_id)
+                book.is_collective_pick = False
+            elif is_collective:
+                book.picked_by = None
+                book.is_collective_pick = True
+            else:
+                book.picked_by = None
+                book.is_collective_pick = False
+
+            book.save()
+            messages.success(
+                request, f"Attribution for '{book.title}' has been updated."
+            )
+
+        return redirect("manage_group_books", group_id=group.id)
+
+    return render(
+        request,
+        "bookclub/manage_group_books.html",
+        {
+            "group": group,
+            "books": books,
+            "members": members,
+        },
+    )
