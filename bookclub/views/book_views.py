@@ -22,6 +22,7 @@ from ..models import (
     BookGroup,
     Comment,
     CommentReaction,
+    User,
     UserBookProgress,
 )
 from .utils import _get_progress_value_for_sorting, extract_publisher_name
