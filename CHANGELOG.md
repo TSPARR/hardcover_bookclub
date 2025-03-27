@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.0.5
+- Removed legacy registration links
+
 ## Release 0.0.4
 
 - Added the ability to push progress from Bookclub to Hardcover
