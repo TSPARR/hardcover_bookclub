@@ -2,11 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.0.8
+- Added functionality to sync ratings from Hardcover and display stars on book detail and group view
+
 ## Release 0.0.7
 - Added reading status indicator to all previous books
 
 ## Release 0.0.6
-- Added the ability to attribute the book to a specific member or the group collectively as well as manage the list of books for the group so far.
+- Added the ability to attribute the book to a specific member or the group collectively as well as manage the list of books for the group so far
 
 ## Release 0.0.5
 - Removed legacy registration links
