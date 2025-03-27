@@ -5,7 +5,7 @@
     {% for i in "12345" %}
         {% if forloop.counter <= rating|floor %}
             <i class="bi bi-star-fill text-warning{% if small %} small{% endif %}"></i>
-        {% elif forloop.counter <= rating|add:0.5|floor %}
+        {% elif forloop.counter == rating|floor|add:1 and rating|floatformat:1|slice:"-1:" == "5" %}
             <i class="bi bi-star-half text-warning{% if small %} small{% endif %}"></i>
         {% else %}
             <i class="bi bi-star text-warning{% if small %} small{% endif %}"></i>
