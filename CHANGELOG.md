@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.0.9
+- Refactor of main javascript and python files into more discrete functions
+
 ## Release 0.0.8
 - Added functionality to sync ratings from Hardcover and display stars on book detail and group view
 

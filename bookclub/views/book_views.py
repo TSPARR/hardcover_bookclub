@@ -4,11 +4,9 @@ Book-related views for managing books, reading progress, etc.
 
 import json
 import logging
-from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -25,7 +23,22 @@ from ..models import (
     User,
     UserBookProgress,
 )
-from .utils import _get_progress_value_for_sorting, extract_publisher_name
+from .book_utils import (
+    convert_progress_to_pages,
+    convert_progress_to_seconds,
+    create_or_update_book_edition,
+    link_progress_to_edition,
+    parse_audio_progress,
+    process_hardcover_edition_data,
+    process_progress_from_request,
+    sync_progress_to_hardcover,
+)
+from .comment_utils import (
+    add_normalized_progress_to_comments,
+    handle_comment_reaction,
+    handle_reply_to_comment,
+    sort_comments,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -52,42 +65,10 @@ def book_detail(request, book_id):
     comments = book.comments.filter(parent=None)
 
     # Sort the comments based on the selected option
-    if sort_by == "date_asc":
-        comments = comments.order_by("created_at")
-    elif sort_by == "date_desc":
-        comments = comments.order_by("-created_at")
-    elif sort_by == "progress_asc":
-        # For progress sorting, we need custom logic
-        # First, try to sort by Hardcover percent if available
-        if comments.filter(hardcover_percent__isnull=False).exists():
-            comments = comments.order_by("hardcover_percent", "-created_at")
-        else:
-            # Fallback to sorting by progress_type and value
-            # This is more complex since progress_value can be different formats
-            # We'll get all comments and sort in Python
-            comments = list(comments.all())
-            comments.sort(
-                key=lambda c: _get_progress_value_for_sorting(c), reverse=False
-            )
-    elif sort_by == "progress_desc":
-        # Similar to progress_asc but in reverse
-        if comments.filter(hardcover_percent__isnull=False).exists():
-            comments = comments.order_by("-hardcover_percent", "-created_at")
-        else:
-            comments = list(comments.all())
-            comments.sort(
-                key=lambda c: _get_progress_value_for_sorting(c), reverse=True
-            )
-    else:
-        # Default to date descending
-        comments = comments.order_by("-created_at")
+    comments = sort_comments(comments, sort_by)
 
-    # Add normalized progress value to each comment for spoiler detection
-    for comment in comments:
-        comment.normalized_progress = _get_progress_value_for_sorting(comment)
-        # For each comment, get its replies and add normalized progress to them too
-        for reply in comment.get_replies():
-            reply.normalized_progress = _get_progress_value_for_sorting(reply)
+    # Add normalized progress for spoiler detection
+    comments = add_normalized_progress_to_comments(comments)
 
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -118,153 +99,9 @@ def book_detail(request, book_id):
             if request.POST.get("hardcover_data"):
                 try:
                     hardcover_data = json.loads(request.POST.get("hardcover_data"))
-
-                    # Save Hardcover data to the comment with timezone-aware dates
-                    started_at = hardcover_data.get("started_at")
-                    finished_at = hardcover_data.get("finished_at")
-
-                    # Make them timezone aware if they exist
-                    if started_at:
-                        comment.hardcover_started_at = timezone.make_aware(
-                            timezone.datetime.strptime(started_at, "%Y-%m-%d")
-                        )
-                    else:
-                        comment.hardcover_started_at = None
-
-                    if finished_at:
-                        comment.hardcover_finished_at = timezone.make_aware(
-                            timezone.datetime.strptime(finished_at, "%Y-%m-%d")
-                        )
-                    else:
-                        comment.hardcover_finished_at = None
-
-                    comment.hardcover_percent = hardcover_data.get("progress")
-                    comment.hardcover_current_page = hardcover_data.get("current_page")
-                    comment.hardcover_current_position = hardcover_data.get(
-                        "current_position"
+                    process_hardcover_edition_data(
+                        book, comment, hardcover_data, user_progress, request.user
                     )
-                    comment.hardcover_reading_format = hardcover_data.get(
-                        "reading_format"
-                    )
-                    comment.hardcover_edition_id = hardcover_data.get("edition_id")
-
-                    if hardcover_data.get("rating") is not None:
-                        comment.hardcover_rating = hardcover_data.get("rating")
-                        user_progress.hardcover_rating = hardcover_data.get("rating")
-
-                    # Update book metadata if available and not already saved
-                    if hardcover_data.get("edition_pages") and not book.pages:
-                        book.pages = hardcover_data.get("edition_pages")
-                        book.save(update_fields=["pages"])
-
-                    if (
-                        hardcover_data.get("edition_audio_seconds")
-                        and not book.audio_seconds
-                    ):
-                        book.audio_seconds = hardcover_data.get("edition_audio_seconds")
-                        book.save(update_fields=["audio_seconds"])
-
-                    # Update the user's book progress with the same data
-                    user_progress.progress_type = comment.progress_type
-                    user_progress.progress_value = comment.progress_value
-                    user_progress.hardcover_started_at = comment.hardcover_started_at
-                    user_progress.hardcover_finished_at = comment.hardcover_finished_at
-                    user_progress.hardcover_percent = comment.hardcover_percent
-                    user_progress.hardcover_current_page = (
-                        comment.hardcover_current_page
-                    )
-                    user_progress.hardcover_current_position = (
-                        comment.hardcover_current_position
-                    )
-                    user_progress.hardcover_reading_format = (
-                        comment.hardcover_reading_format
-                    )
-                    user_progress.hardcover_edition_id = comment.hardcover_edition_id
-
-                    # If there's an edition_id, try to link to the corresponding BookEdition
-                    if comment.hardcover_edition_id:
-                        try:
-                            # Check if we already have this edition
-                            edition = BookEdition.objects.get(
-                                hardcover_edition_id=comment.hardcover_edition_id
-                            )
-                            user_progress.edition = edition
-                            logger.debug(
-                                f"Linked progress to existing edition ID: {comment.hardcover_edition_id}"
-                            )
-                        except BookEdition.DoesNotExist:
-                            # Try to fetch and create the edition
-                            try:
-                                editions = HardcoverAPI.get_book_editions(
-                                    book.hardcover_id, user=request.user
-                                )
-                                if editions:
-                                    for edition_data in editions:
-                                        if str(edition_data["id"]) == str(
-                                            comment.hardcover_edition_id
-                                        ):
-                                            # Found the matching edition, create it
-                                            edition = BookEdition.objects.create(
-                                                book=book,
-                                                hardcover_edition_id=comment.hardcover_edition_id,
-                                                title=edition_data.get(
-                                                    "title", book.title
-                                                ),
-                                                isbn=edition_data.get("isbn_10", ""),
-                                                isbn13=edition_data.get("isbn_13", ""),
-                                                cover_image_url=edition_data.get(
-                                                    "cover_image_url", ""
-                                                ),
-                                                publisher=(
-                                                    edition_data.get(
-                                                        "publisher", {}
-                                                    ).get("name", "")
-                                                    if edition_data.get("publisher")
-                                                    else ""
-                                                ),
-                                                pages=edition_data.get("pages"),
-                                                audio_seconds=edition_data.get(
-                                                    "audio_seconds"
-                                                ),
-                                                reading_format=edition_data.get(
-                                                    "reading_format", ""
-                                                ),
-                                                reading_format_id=edition_data.get(
-                                                    "reading_format_id"
-                                                ),
-                                            )
-
-                                            # Set publication date if available
-                                            if edition_data.get("release_date"):
-                                                try:
-                                                    edition.publication_date = (
-                                                        datetime.strptime(
-                                                            edition_data[
-                                                                "release_date"
-                                                            ],
-                                                            "%Y-%m-%d",
-                                                        ).date()
-                                                    )
-                                                    edition.save(
-                                                        update_fields=[
-                                                            "publication_date"
-                                                        ]
-                                                    )
-                                                except (ValueError, TypeError):
-                                                    pass
-
-                                            user_progress.edition = edition
-                                            logger.debug(
-                                                f"Created and linked to new edition ID: {comment.hardcover_edition_id}"
-                                            )
-                                            break
-                            except Exception as e:
-                                logger.exception(
-                                    f"Error fetching edition data: {str(e)}"
-                                )
-
-                    user_progress.save()
-
                 except json.JSONDecodeError as e:
                     logger.error(f"Error parsing Hardcover data: {e}")
             else:
@@ -322,57 +159,20 @@ def update_book_progress(request, book_id):
         )
 
         data = json.loads(request.body)
-        auto_sync = data.get("auto_sync", False)
         reload_page = False
 
-        # Update progress fields
-        if "progress_type" in data and "progress_value" in data:
-            # This is a manual update without Hardcover data
-            if "hardcover_data" not in data:
-                # Clear any existing Hardcover data to ensure manual entry takes precedence
-                user_progress.hardcover_percent = None
-                user_progress.hardcover_current_page = None
-                user_progress.hardcover_current_position = None
+        # Process data and update user_progress
+        user_progress = process_progress_from_request(data, user_progress)
 
-            user_progress.progress_type = data["progress_type"]
-            user_progress.progress_value = data["progress_value"]
+        # Handle edition linking if edition_id is available
+        if "hardcover_data" in data and data["hardcover_data"].get("edition_id"):
+            reload_page = link_progress_to_edition(
+                user_progress, data["hardcover_data"]["edition_id"], book, request.user
+            )
 
-        # Process Hardcover data if available
+        # Update book metadata if available and not already saved
         if "hardcover_data" in data:
             hardcover_data = data["hardcover_data"]
-
-            # Process timestamps to make them timezone-aware
-            started_at = hardcover_data.get("started_at")
-            finished_at = hardcover_data.get("finished_at")
-
-            # Make them timezone aware if they exist
-            if started_at:
-                user_progress.hardcover_started_at = timezone.make_aware(
-                    timezone.datetime.strptime(started_at, "%Y-%m-%d")
-                )
-            else:
-                user_progress.hardcover_started_at = None
-
-            if finished_at:
-                user_progress.hardcover_finished_at = timezone.make_aware(
-                    timezone.datetime.strptime(finished_at, "%Y-%m-%d")
-                )
-            else:
-                user_progress.hardcover_finished_at = None
-
-            user_progress.hardcover_percent = hardcover_data.get("progress")
-            user_progress.hardcover_current_page = hardcover_data.get("current_page")
-            user_progress.hardcover_current_position = hardcover_data.get(
-                "current_position"
-            )
-            user_progress.hardcover_reading_format = hardcover_data.get(
-                "reading_format"
-            )
-            user_progress.hardcover_edition_id = hardcover_data.get("edition_id")
-            if "user_book_id" in hardcover_data:
-                user_progress.hardcover_read_id = str(hardcover_data["user_book_id"])
-
-            # Update book metadata if available and not already saved
             if hardcover_data.get("edition_pages") and not book.pages:
                 book.pages = hardcover_data.get("edition_pages")
                 book.save(update_fields=["pages"])
@@ -380,77 +180,6 @@ def update_book_progress(request, book_id):
             if hardcover_data.get("edition_audio_seconds") and not book.audio_seconds:
                 book.audio_seconds = hardcover_data.get("edition_audio_seconds")
                 book.save(update_fields=["audio_seconds"])
-
-            if "rating" in hardcover_data:
-                user_progress.hardcover_rating = hardcover_data.get("rating")
-
-            # Link to BookEdition if edition_id is available
-            hardcover_edition_id = hardcover_data.get("edition_id")
-            if hardcover_edition_id:
-                try:
-                    edition = BookEdition.objects.get(
-                        hardcover_edition_id=str(hardcover_edition_id)
-                    )
-                    user_progress.edition = edition
-                    logger.debug(
-                        f"Linked progress to existing edition ID: {hardcover_edition_id}"
-                    )
-                except BookEdition.DoesNotExist:
-                    # Edition doesn't exist yet, let's fetch it from Hardcover
-                    try:
-                        editions = HardcoverAPI.get_book_editions(
-                            book.hardcover_id, user=request.user
-                        )
-                        if editions:
-                            for edition_data in editions:
-                                if str(edition_data["id"]) == str(hardcover_edition_id):
-                                    # Found the matching edition, create it in our database
-                                    edition = BookEdition.objects.create(
-                                        book=book,
-                                        hardcover_edition_id=str(hardcover_edition_id),
-                                        title=edition_data.get("title", book.title),
-                                        isbn=edition_data.get("isbn_10", ""),
-                                        isbn13=edition_data.get("isbn_13", ""),
-                                        cover_image_url=edition_data.get(
-                                            "cover_image_url", ""
-                                        ),
-                                        publisher=extract_publisher_name(
-                                            edition_data.get("publisher", "")
-                                        ),
-                                        pages=edition_data.get("pages"),
-                                        audio_seconds=edition_data.get("audio_seconds"),
-                                        reading_format=edition_data.get(
-                                            "reading_format", ""
-                                        ),
-                                        reading_format_id=edition_data.get(
-                                            "reading_format_id"
-                                        ),
-                                    )
-
-                                    # Set publication date if available
-                                    if edition_data.get("release_date"):
-                                        try:
-                                            edition.publication_date = (
-                                                datetime.strptime(
-                                                    edition_data["release_date"],
-                                                    "%Y-%m-%d",
-                                                ).date()
-                                            )
-                                            edition.save(
-                                                update_fields=["publication_date"]
-                                            )
-                                        except (ValueError, TypeError):
-                                            pass
-
-                                    user_progress.edition = edition
-                                    logger.debug(
-                                        f"Created and linked to new edition ID: {hardcover_edition_id}"
-                                    )
-                                    # Set flag to reload page if this is a new edition
-                                    reload_page = True
-                                    break
-                    except Exception as e:
-                        logger.exception(f"Error fetching edition data: {str(e)}")
 
         # Save the updated progress
         user_progress.save()
@@ -630,43 +359,11 @@ def select_edition(request, book_id):
             messages.success(request, "Edition selection cleared.")
             return redirect("book_detail", book_id=book.id)
 
-        # Find or create the edition in our database
+        # Find and create/update the edition in our database
         for edition_data in editions:
             if str(edition_data["id"]) == edition_id:
-                # Create or update the edition in our database
-                edition, created = BookEdition.objects.update_or_create(
-                    hardcover_edition_id=edition_id,
-                    defaults={
-                        "book": book,
-                        "title": edition_data.get("title", book.title),
-                        "isbn": edition_data.get("isbn_10", ""),
-                        "isbn13": edition_data.get("isbn_13", ""),
-                        "cover_image_url": (
-                            edition_data.get("cached_image", {}).get("url", "")
-                            if edition_data.get("cached_image")
-                            else ""
-                        ),
-                        "publisher": (
-                            edition_data.get("publisher", {}).get("name", "")
-                            if edition_data.get("publisher")
-                            else ""
-                        ),
-                        "pages": edition_data.get("pages"),
-                        "audio_seconds": edition_data.get("audio_seconds"),
-                        "reading_format": edition_data.get("reading_format", ""),
-                        "reading_format_id": edition_data.get("reading_format_id"),
-                    },
-                )
-
-                # Update publication date if available
-                if edition_data.get("release_date"):
-                    try:
-                        edition.publication_date = datetime.strptime(
-                            edition_data["release_date"], "%Y-%m-%d"
-                        ).date()
-                        edition.save()
-                    except (ValueError, TypeError):
-                        pass
+                # Create or update the edition using our utility function
+                edition = create_or_update_book_edition(book, edition_data)
 
                 # Update user progress to use this edition
                 user_progress.edition = edition
@@ -763,234 +460,64 @@ def set_manual_progress(request, book_id):
         user_progress.save()
 
         # Push to Hardcover if requested and API key exists
-        hardcover_sync_result = None
         if sync_to_hardcover and request.user.profile.hardcover_api_key:
-            # Only sync if we have a hardcover_read_id or can determine it
-            if hardcover_read_id:
+            # Calculate pages or seconds based on progress type
+            pages = None
+            seconds = None
+
+            if user_progress.progress_type == "page" and user_progress.progress_value:
                 try:
-                    # Get edition info if available
-                    edition_id = None
-                    reading_format_id = None
-
-                    if user_progress.edition:
-                        if user_progress.edition.hardcover_edition_id:
-                            edition_id = int(user_progress.edition.hardcover_edition_id)
-
-                        if user_progress.edition.reading_format_id:
-                            reading_format_id = user_progress.edition.reading_format_id
-
-                    # Calculate pages or seconds based on progress type
-                    pages = None
-                    seconds = None
-
+                    pages = int(user_progress.progress_value)
+                except (ValueError, TypeError):
+                    pass
+            elif (
+                user_progress.progress_type == "audio" and user_progress.progress_value
+            ):
+                seconds = parse_audio_progress(user_progress.progress_value)
+            elif (
+                user_progress.progress_type == "percent"
+                and user_progress.normalized_progress
+            ):
+                # For percentage, convert to pages or seconds based on edition format
+                progress_percent = user_progress.normalized_progress
+                if user_progress.edition:
                     if (
-                        user_progress.progress_type == "page"
-                        and user_progress.progress_value
+                        user_progress.edition.reading_format_id == 2
+                        and user_progress.edition.audio_seconds
                     ):
-                        try:
-                            pages = int(user_progress.progress_value)
-                        except (ValueError, TypeError):
-                            pass
+                        # Audio format
+                        seconds = convert_progress_to_seconds(
+                            progress_percent, edition=user_progress.edition
+                        )
                     elif (
-                        user_progress.progress_type == "audio"
-                        and user_progress.progress_value
+                        user_progress.edition.reading_format_id in [1, 4]
+                        and user_progress.edition.pages
                     ):
-                        try:
-                            seconds = 0
-                            if "h" in user_progress.progress_value:
-                                parts = user_progress.progress_value.split()
-                                hours_part = next((p for p in parts if "h" in p), None)
-                                if hours_part:
-                                    seconds += int(hours_part.replace("h", "")) * 3600
+                        # Physical book or ebook
+                        pages = convert_progress_to_pages(
+                            progress_percent, edition=user_progress.edition
+                        )
 
-                                minutes_part = next(
-                                    (p for p in parts if "m" in p), None
-                                )
-                                if minutes_part:
-                                    seconds += int(minutes_part.replace("m", "")) * 60
-                            elif "m" in user_progress.progress_value:
-                                seconds = (
-                                    int(user_progress.progress_value.replace("m", ""))
-                                    * 60
-                                )
-                        except (ValueError, TypeError):
-                            pass
-                    elif (
-                        user_progress.progress_type == "percent"
-                        and user_progress.normalized_progress
-                    ):
-                        # For percentage, convert to pages or seconds based on edition format
-                        progress_percent = user_progress.normalized_progress
-                        if user_progress.edition:
-                            if (
-                                user_progress.edition.reading_format_id == 2
-                                and user_progress.edition.audio_seconds
-                            ):
-                                # Audio format
-                                seconds = int(
-                                    (progress_percent / 100)
-                                    * user_progress.edition.audio_seconds
-                                )
-                            elif (
-                                user_progress.edition.reading_format_id in [1, 4]
-                                and user_progress.edition.pages
-                            ):
-                                # Physical book or ebook
-                                pages = int(
-                                    (progress_percent / 100)
-                                    * user_progress.edition.pages
-                                )
+            # Sync to Hardcover
+            sync_result = sync_progress_to_hardcover(
+                request.user, book, user_progress, pages=pages, seconds=seconds
+            )
 
-                    # Call the update method with the correct parameters
-                    hardcover_sync_result = HardcoverAPI.update_reading_progress(
-                        read_id=hardcover_read_id,
-                        started_at=user_progress.hardcover_started_at,
-                        finished_at=user_progress.hardcover_finished_at,
-                        edition_id=edition_id,
-                        pages=pages,
-                        seconds=seconds,
-                        user=request.user,
+            # Handle sync result
+            if sync_result and isinstance(sync_result, dict):
+                if "error" not in sync_result:
+                    messages.success(
+                        request, "Progress was updated and synced to Hardcover."
                     )
-
-                    if (
-                        hardcover_sync_result
-                        and isinstance(hardcover_sync_result, dict)
-                        and "error" not in hardcover_sync_result
-                    ):
-                        messages.success(
-                            request, "Progress was updated and synced to Hardcover."
-                        )
-                    elif hardcover_sync_result and "error" in hardcover_sync_result:
-                        messages.warning(
-                            request,
-                            f"Local progress updated but Hardcover sync failed: {hardcover_sync_result['error']}",
-                        )
-                    else:
-                        messages.warning(
-                            request, "Local progress updated but Hardcover sync failed."
-                        )
-
-                except Exception as e:
-                    logger.exception(f"Error syncing to Hardcover: {str(e)}")
+                else:
                     messages.warning(
                         request,
-                        f"Local progress updated but Hardcover sync failed: {str(e)}",
+                        f"Local progress updated but Hardcover sync failed: {sync_result['error']}",
                     )
             else:
-                # No existing record found, try to create a new one
-                try:
-                    # Format progress data for starting a new read
-                    edition_id = None
-                    pages = None
-                    seconds = None
-
-                    if (
-                        user_progress.edition
-                        and user_progress.edition.hardcover_edition_id
-                    ):
-                        edition_id = int(user_progress.edition.hardcover_edition_id)
-
-                    # Determine format-specific progress
-                    if (
-                        user_progress.progress_type == "page"
-                        and user_progress.progress_value
-                    ):
-                        try:
-                            pages = int(user_progress.progress_value)
-                        except (ValueError, TypeError):
-                            pass
-                    elif (
-                        user_progress.progress_type == "audio"
-                        and user_progress.progress_value
-                    ):
-                        try:
-                            seconds = 0
-                            if "h" in user_progress.progress_value:
-                                parts = user_progress.progress_value.split()
-                                hours_part = next((p for p in parts if "h" in p), None)
-                                if hours_part:
-                                    seconds += int(hours_part.replace("h", "")) * 3600
-
-                                minutes_part = next(
-                                    (p for p in parts if "m" in p), None
-                                )
-                                if minutes_part:
-                                    seconds += int(minutes_part.replace("m", "")) * 60
-                            elif "m" in user_progress.progress_value:
-                                seconds = (
-                                    int(user_progress.progress_value.replace("m", ""))
-                                    * 60
-                                )
-                        except (ValueError, TypeError):
-                            pass
-
-                    # Use normalized progress as fallback for percentage
-                    if (
-                        not pages
-                        and not seconds
-                        and user_progress.progress_type == "percent"
-                    ):
-                        # For percentage, we need to convert to pages or seconds if possible
-                        if user_progress.edition:
-                            if (
-                                user_progress.edition.reading_format_id == 2
-                                and user_progress.edition.audio_seconds
-                            ):
-                                # Audio format
-                                seconds = int(
-                                    (user_progress.normalized_progress / 100)
-                                    * user_progress.edition.audio_seconds
-                                )
-                            elif (
-                                user_progress.edition.reading_format_id in [1, 4]
-                                and user_progress.edition.pages
-                            ):
-                                # Physical or ebook format
-                                pages = int(
-                                    (user_progress.normalized_progress / 100)
-                                    * user_progress.edition.pages
-                                )
-
-                    # Start a new reading record on Hardcover
-                    start_result = HardcoverAPI.start_reading_progress(
-                        book_id=book.hardcover_id,
-                        edition_id=edition_id,
-                        pages=pages,
-                        seconds=seconds,
-                        started_at=user_progress.hardcover_started_at or timezone.now(),
-                        user=request.user,
-                    )
-
-                    if (
-                        start_result
-                        and "success" in start_result
-                        and "read_id" in start_result
-                    ):
-                        # Save the read ID for future updates
-                        user_progress.hardcover_read_id = str(start_result["read_id"])
-                        user_progress.save(update_fields=["hardcover_read_id"])
-
-                        messages.success(
-                            request,
-                            "Started tracking this book on Hardcover and synced your progress!",
-                        )
-                    elif start_result and "error" in start_result:
-                        messages.warning(
-                            request,
-                            f"Local progress updated but couldn't start Hardcover tracking: {start_result['error']}",
-                        )
-                    else:
-                        messages.warning(
-                            request,
-                            "Local progress updated but couldn't start Hardcover tracking.",
-                        )
-
-                except Exception as e:
-                    logger.exception(f"Error starting Hardcover tracking: {str(e)}")
-                    messages.warning(
-                        request,
-                        f"Local progress updated but couldn't start Hardcover tracking: {str(e)}",
-                    )
+                messages.warning(
+                    request, "Local progress updated but Hardcover sync failed."
+                )
         else:
             messages.success(request, "Reading progress updated successfully.")
 
@@ -1128,127 +655,10 @@ def delete_comment(request, comment_id):
 @login_required
 def toggle_reaction(request, comment_id):
     """Toggle a reaction on a comment"""
-    if request.method != "POST":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
-
-    try:
-        data = json.loads(request.body)
-        reaction_type = data.get("reaction")
-
-        if not reaction_type:
-            return JsonResponse({"error": "Reaction type is required"}, status=400)
-
-        comment = get_object_or_404(Comment, id=comment_id)
-
-        # Check if the user already has this reaction on the comment
-        existing_reaction = CommentReaction.objects.filter(
-            comment=comment, user=request.user, reaction=reaction_type
-        ).first()
-
-        if existing_reaction:
-            # Remove the reaction if it exists
-            existing_reaction.delete()
-            action = "removed"
-        else:
-            # Add the reaction
-            CommentReaction.objects.create(
-                comment=comment, user=request.user, reaction=reaction_type
-            )
-            action = "added"
-
-        # Get updated reaction counts
-        reaction_counts = (
-            CommentReaction.objects.filter(comment=comment)
-            .values("reaction")
-            .annotate(count=Count("id"))
-        )
-        counts_dict = {item["reaction"]: item["count"] for item in reaction_counts}
-
-        return JsonResponse(
-            {
-                "success": True,
-                "action": action,
-                "reaction": reaction_type,
-                "counts": counts_dict,
-            }
-        )
-
-    except Exception as e:
-        logger.exception(f"Error toggling reaction: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=500)
+    return handle_comment_reaction(request, comment_id)
 
 
 @login_required
 def reply_to_comment(request, comment_id):
-    logger.debug(f"=== REPLY TO COMMENT VIEW STARTED for comment_id={comment_id} ===")
-    logger.debug(f"User: {request.user.username}, Method: {request.method}")
-
-    try:
-        parent_comment = get_object_or_404(Comment, id=comment_id)
-        logger.debug(
-            f"Parent comment found: id={parent_comment.id}, text={parent_comment.text[:30]}..."
-        )
-
-        book = parent_comment.book
-        logger.debug(f"Book: id={book.id}, title={book.title}")
-
-        if request.method == "POST":
-            logger.debug(f"POST data received: {dict(request.POST)}")
-
-            form = CommentForm(request.POST)
-            logger.debug(f"Form initialized with POST data")
-
-            if form.is_valid():
-                logger.debug("Form is valid, creating reply")
-
-                # Log form cleaned data
-                logger.debug(f"Form cleaned data: {form.cleaned_data}")
-
-                try:
-                    reply = form.save(commit=False)
-                    logger.debug("Form saved with commit=False")
-
-                    reply.user = request.user
-                    reply.book = book
-                    reply.parent = parent_comment
-
-                    # Copy progress fields from parent comment
-                    reply.progress_type = parent_comment.progress_type
-                    reply.progress_value = parent_comment.progress_value
-
-                    logger.debug(
-                        f"About to save reply with: user={reply.user.id}, book={reply.book.id}, parent={reply.parent.id}"
-                    )
-                    reply.save()
-                    logger.debug(f"Reply saved successfully with ID: {reply.id}")
-
-                    messages.success(request, "Your reply has been posted.")
-                    redirect_url = f"{reverse('book_detail', args=[book.id])}#comment-{parent_comment.id}"
-                    logger.debug(f"Redirecting to: {redirect_url}")
-                    return redirect(redirect_url)
-                except Exception as e:
-                    logger.error(f"Error saving reply: {str(e)}", exc_info=True)
-                    messages.error(request, f"Error saving your reply: {str(e)}")
-            else:
-                logger.warning(f"Form validation failed. Errors: {form.errors}")
-                messages.error(request, "Please correct the errors in your form.")
-        else:
-            logger.debug("GET request, initializing empty form")
-            form = CommentForm()
-
-        logger.debug("Rendering reply_to_comment.html template")
-        return render(
-            request,
-            "bookclub/reply_to_comment.html",
-            {
-                "form": form,
-                "parent_comment": parent_comment,
-                "book": book,
-            },
-        )
-    except Exception as e:
-        logger.error(
-            f"Unexpected error in reply_to_comment view: {str(e)}", exc_info=True
-        )
-        messages.error(request, f"An unexpected error occurred: {str(e)}")
-        return redirect("home")
+    """Handle replying to a comment"""
+    return handle_reply_to_comment(request, comment_id)
