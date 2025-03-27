@@ -1,5 +1,5 @@
 from bookclub.views.api_views import get_hardcover_progress
-from bookclub.views.auth_views import landing_page, register, register_with_invite
+from bookclub.views.auth_views import landing_page, register_with_invite
 from bookclub.views.book_views import (
     add_book_to_group,
     book_detail,
@@ -34,7 +34,6 @@ from django.urls import path
 urlpatterns = [
     path("", landing_page, name="landing_page"),
     path("home/", home, name="home"),
-    path("register/", register, name="register"),
     path("profile/settings/", profile_settings, name="profile_settings"),
     path(
         "accounts/logout/",
