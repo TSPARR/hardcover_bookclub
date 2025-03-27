@@ -125,6 +125,40 @@ def group_detail(request, group_id):
     admins = group.admins.all()
     is_admin = group.is_admin(request.user)
 
+    # Get user progress for all books in this group
+    user_progress_dict = {}
+    progress_entries = UserBookProgress.objects.filter(
+        user=request.user, book__in=books
+    )
+
+    # Create a dictionary of progress status information
+    book_progress = {}
+    for progress in progress_entries:
+        if progress.normalized_progress == 0:
+            status = "Not Started"
+            status_class = "bg-secondary"
+        elif progress.normalized_progress == 100:
+            status = "Finished"
+            status_class = "bg-success"
+        else:
+            status = "Reading"
+            status_class = "bg-info"
+
+        book_progress[progress.book_id] = {
+            "progress": progress,
+            "status": status,
+            "status_class": status_class,
+        }
+
+    # For books without progress entries, add default "Not Started" status
+    for book in books:
+        if book.id not in book_progress:
+            book_progress[book.id] = {
+                "progress": None,
+                "status": "Not Started",
+                "status_class": "bg-secondary",
+            }
+
     # Handle book order updates
     if request.method == "POST" and is_admin:
         if "book_order" in request.POST:
@@ -168,6 +202,7 @@ def group_detail(request, group_id):
             "members": members,
             "admins": admins,
             "is_admin": is_admin,
+            "book_progress": book_progress,
         },
     )
 
