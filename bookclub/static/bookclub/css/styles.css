@@ -499,3 +499,40 @@ h6 {
         animation-duration: 0.01ms !important;
     }
 }
+
+.rating-display {
+    display: inline-flex;
+    align-items: center;
+}
+
+.rating-display.small i {
+    font-size: 0.8rem;
+}
+
+.rating-display i {
+    margin-right: 1px;
+}
+
+.rating-display .rating-value {
+    font-weight: 600;
+}
+
+/* Animation for rating selection */
+@keyframes star-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.rating-option:hover i,
+.rating-option.selected i {
+    animation: star-pulse 0.3s ease;
+}

@@ -148,6 +148,10 @@ def book_detail(request, book_id):
                     )
                     comment.hardcover_edition_id = hardcover_data.get("edition_id")
 
+                    if hardcover_data.get("rating") is not None:
+                        comment.hardcover_rating = hardcover_data.get("rating")
+                        user_progress.hardcover_rating = hardcover_data.get("rating")
+
                     # Update book metadata if available and not already saved
                     if hardcover_data.get("edition_pages") and not book.pages:
                         book.pages = hardcover_data.get("edition_pages")
@@ -376,6 +380,9 @@ def update_book_progress(request, book_id):
             if hardcover_data.get("edition_audio_seconds") and not book.audio_seconds:
                 book.audio_seconds = hardcover_data.get("edition_audio_seconds")
                 book.save(update_fields=["audio_seconds"])
+
+            if "rating" in hardcover_data:
+                user_progress.hardcover_rating = hardcover_data.get("rating")
 
             # Link to BookEdition if edition_id is available
             hardcover_edition_id = hardcover_data.get("edition_id")

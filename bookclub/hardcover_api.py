@@ -240,6 +240,9 @@ class HardcoverAPI:
             pages
             audio_seconds
             }
+            user_book {
+            rating
+            }
         }
         }
         """
@@ -296,6 +299,7 @@ class HardcoverAPI:
                     "reading_format": reading_format,
                     "reading_format_id": reading_format_id,
                     "read_id": read.get("user_book_id"),
+                    "rating": read["user_book"].get("rating"),
                     "edition": {
                         "id": read["edition"]["id"],
                         "title": read["edition"].get("title", "Unknown Edition"),

@@ -120,6 +120,16 @@
         <h1>{{ book.title }}</h1>
         <h4 class="text-muted">{{ book.author }}</h4>
 
+        <div class="book-rating mb-3">
+            {% if user_progress.hardcover_rating %}
+                {% include "bookclub/includes/star_rating.html" with rating=user_progress.hardcover_rating %}
+            {% else %}
+                <div class="rating-display text-muted">
+                    <small>No rating</small>
+                </div>
+            {% endif %}
+        </div>
+
         {% if book.url %}
         <div class="mb-3">
             <a href="{{ book.url }}" target="_blank" class="btn btn-sm btn-outline-info">

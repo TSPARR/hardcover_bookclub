@@ -1,3 +1,5 @@
+import math
+
 from django import template
 
 register = template.Library()
@@ -31,3 +33,12 @@ def rejectattr(value, arg):
     else:
         # This is a list
         return [item for item in value if not getattr(item, arg, False)]
+
+
+@register.filter
+def floor(value):
+    """Returns the floor of a number."""
+    try:
+        return math.floor(float(value))
+    except (ValueError, TypeError):
+        return 0

@@ -1,0 +1,20 @@
+{% load bookclub_extras %}
+
+{% if rating is not None %}
+<div class="rating-display{% if small %} small{% endif %}" title="{{ rating }} / 5">
+    {% for i in "12345" %}
+        {% if forloop.counter <= rating|floor %}
+            <i class="bi bi-star-fill text-warning{% if small %} small{% endif %}"></i>
+        {% elif forloop.counter == rating|floor|add:1 and rating|floatformat:1|slice:"-1:" == "5" %}
+            <i class="bi bi-star-half text-warning{% if small %} small{% endif %}"></i>
+        {% else %}
+            <i class="bi bi-star text-warning{% if small %} small{% endif %}"></i>
+        {% endif %}
+    {% endfor %}
+    <span class="rating-value ms-1 text-muted">{{ rating }}</span>
+</div>
+{% else %}
+<div class="rating-display text-muted{% if small %} small{% endif %}">
+    <small>No rating</small>
+</div>
+{% endif %}
