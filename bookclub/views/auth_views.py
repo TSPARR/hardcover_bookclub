@@ -66,11 +66,3 @@ def register_with_invite(request, invite_code=None):
         form = UserRegistrationForm(initial=initial_data)
 
     return render(request, "bookclub/register.html", {"form": form})
-
-
-def register(request):
-    """
-    Legacy registration function now redirects to landing page
-    """
-    messages.info(request, "Registration requires an invitation link.")
-    return redirect("landing_page")
