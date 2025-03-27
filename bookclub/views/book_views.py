@@ -364,6 +364,8 @@ def update_book_progress(request, book_id):
                 "reading_format"
             )
             user_progress.hardcover_edition_id = hardcover_data.get("edition_id")
+            if "user_book_id" in hardcover_data:
+                user_progress.hardcover_read_id = str(hardcover_data["user_book_id"])
 
             # Update book metadata if available and not already saved
             if hardcover_data.get("edition_pages") and not book.pages:
@@ -656,11 +658,36 @@ def set_manual_progress(request, book_id):
         },
     )
 
+    # Get or fetch hardcover reading progress if available
+    hardcover_progress = None
+    hardcover_read_id = user_progress.hardcover_read_id
+
+    if not hardcover_read_id and request.user.profile.hardcover_api_key:
+        # Try to fetch from Hardcover API if we don't have an ID yet
+        try:
+            progress_data = HardcoverAPI.get_reading_progress(
+                book.hardcover_id, user=request.user
+            )
+            if (
+                progress_data
+                and "progress" in progress_data
+                and progress_data["progress"]
+            ):
+                # Found progress on Hardcover, save the read ID for future updates
+                hardcover_progress = progress_data["progress"][0]
+                hardcover_read_id = hardcover_progress.get("read_id")
+                if hardcover_read_id:
+                    user_progress.hardcover_read_id = hardcover_read_id
+                    user_progress.save(update_fields=["hardcover_read_id"])
+        except Exception as e:
+            logger.exception(f"Error fetching Hardcover progress: {str(e)}")
+
     if request.method == "POST":
         progress_type = request.POST.get("progress_type")
         progress_value = request.POST.get("progress_value")
         started_reading = request.POST.get("started_reading") == "on"
         finished_reading = request.POST.get("finished_reading") == "on"
+        sync_to_hardcover = request.POST.get("sync_to_hardcover") == "on"
 
         # Update progress type and value
         user_progress.progress_type = progress_type
@@ -686,7 +713,238 @@ def set_manual_progress(request, book_id):
         # Update normalized progress
         user_progress.save()
 
-        messages.success(request, "Reading progress updated successfully.")
+        # Push to Hardcover if requested and API key exists
+        hardcover_sync_result = None
+        if sync_to_hardcover and request.user.profile.hardcover_api_key:
+            # Only sync if we have a hardcover_read_id or can determine it
+            if hardcover_read_id:
+                try:
+                    # Get edition info if available
+                    edition_id = None
+                    reading_format_id = None
+
+                    if user_progress.edition:
+                        if user_progress.edition.hardcover_edition_id:
+                            edition_id = int(user_progress.edition.hardcover_edition_id)
+
+                        if user_progress.edition.reading_format_id:
+                            reading_format_id = user_progress.edition.reading_format_id
+
+                    # Calculate pages or seconds based on progress type
+                    pages = None
+                    seconds = None
+
+                    if (
+                        user_progress.progress_type == "page"
+                        and user_progress.progress_value
+                    ):
+                        try:
+                            pages = int(user_progress.progress_value)
+                        except (ValueError, TypeError):
+                            pass
+                    elif (
+                        user_progress.progress_type == "audio"
+                        and user_progress.progress_value
+                    ):
+                        try:
+                            seconds = 0
+                            if "h" in user_progress.progress_value:
+                                parts = user_progress.progress_value.split()
+                                hours_part = next((p for p in parts if "h" in p), None)
+                                if hours_part:
+                                    seconds += int(hours_part.replace("h", "")) * 3600
+
+                                minutes_part = next(
+                                    (p for p in parts if "m" in p), None
+                                )
+                                if minutes_part:
+                                    seconds += int(minutes_part.replace("m", "")) * 60
+                            elif "m" in user_progress.progress_value:
+                                seconds = (
+                                    int(user_progress.progress_value.replace("m", ""))
+                                    * 60
+                                )
+                        except (ValueError, TypeError):
+                            pass
+                    elif (
+                        user_progress.progress_type == "percent"
+                        and user_progress.normalized_progress
+                    ):
+                        # For percentage, convert to pages or seconds based on edition format
+                        progress_percent = user_progress.normalized_progress
+                        if user_progress.edition:
+                            if (
+                                user_progress.edition.reading_format_id == 2
+                                and user_progress.edition.audio_seconds
+                            ):
+                                # Audio format
+                                seconds = int(
+                                    (progress_percent / 100)
+                                    * user_progress.edition.audio_seconds
+                                )
+                            elif (
+                                user_progress.edition.reading_format_id in [1, 4]
+                                and user_progress.edition.pages
+                            ):
+                                # Physical book or ebook
+                                pages = int(
+                                    (progress_percent / 100)
+                                    * user_progress.edition.pages
+                                )
+
+                    # Call the update method with the correct parameters
+                    hardcover_sync_result = HardcoverAPI.update_reading_progress(
+                        read_id=hardcover_read_id,
+                        started_at=user_progress.hardcover_started_at,
+                        finished_at=user_progress.hardcover_finished_at,
+                        edition_id=edition_id,
+                        pages=pages,
+                        seconds=seconds,
+                        user=request.user,
+                    )
+
+                    if (
+                        hardcover_sync_result
+                        and isinstance(hardcover_sync_result, dict)
+                        and "error" not in hardcover_sync_result
+                    ):
+                        messages.success(
+                            request, "Progress was updated and synced to Hardcover."
+                        )
+                    elif hardcover_sync_result and "error" in hardcover_sync_result:
+                        messages.warning(
+                            request,
+                            f"Local progress updated but Hardcover sync failed: {hardcover_sync_result['error']}",
+                        )
+                    else:
+                        messages.warning(
+                            request, "Local progress updated but Hardcover sync failed."
+                        )
+
+                except Exception as e:
+                    logger.exception(f"Error syncing to Hardcover: {str(e)}")
+                    messages.warning(
+                        request,
+                        f"Local progress updated but Hardcover sync failed: {str(e)}",
+                    )
+            else:
+                # No existing record found, try to create a new one
+                try:
+                    # Format progress data for starting a new read
+                    edition_id = None
+                    pages = None
+                    seconds = None
+
+                    if (
+                        user_progress.edition
+                        and user_progress.edition.hardcover_edition_id
+                    ):
+                        edition_id = int(user_progress.edition.hardcover_edition_id)
+
+                    # Determine format-specific progress
+                    if (
+                        user_progress.progress_type == "page"
+                        and user_progress.progress_value
+                    ):
+                        try:
+                            pages = int(user_progress.progress_value)
+                        except (ValueError, TypeError):
+                            pass
+                    elif (
+                        user_progress.progress_type == "audio"
+                        and user_progress.progress_value
+                    ):
+                        try:
+                            seconds = 0
+                            if "h" in user_progress.progress_value:
+                                parts = user_progress.progress_value.split()
+                                hours_part = next((p for p in parts if "h" in p), None)
+                                if hours_part:
+                                    seconds += int(hours_part.replace("h", "")) * 3600
+
+                                minutes_part = next(
+                                    (p for p in parts if "m" in p), None
+                                )
+                                if minutes_part:
+                                    seconds += int(minutes_part.replace("m", "")) * 60
+                            elif "m" in user_progress.progress_value:
+                                seconds = (
+                                    int(user_progress.progress_value.replace("m", ""))
+                                    * 60
+                                )
+                        except (ValueError, TypeError):
+                            pass
+
+                    # Use normalized progress as fallback for percentage
+                    if (
+                        not pages
+                        and not seconds
+                        and user_progress.progress_type == "percent"
+                    ):
+                        # For percentage, we need to convert to pages or seconds if possible
+                        if user_progress.edition:
+                            if (
+                                user_progress.edition.reading_format_id == 2
+                                and user_progress.edition.audio_seconds
+                            ):
+                                # Audio format
+                                seconds = int(
+                                    (user_progress.normalized_progress / 100)
+                                    * user_progress.edition.audio_seconds
+                                )
+                            elif (
+                                user_progress.edition.reading_format_id in [1, 4]
+                                and user_progress.edition.pages
+                            ):
+                                # Physical or ebook format
+                                pages = int(
+                                    (user_progress.normalized_progress / 100)
+                                    * user_progress.edition.pages
+                                )
+
+                    # Start a new reading record on Hardcover
+                    start_result = HardcoverAPI.start_reading_progress(
+                        book_id=book.hardcover_id,
+                        edition_id=edition_id,
+                        pages=pages,
+                        seconds=seconds,
+                        started_at=user_progress.hardcover_started_at or timezone.now(),
+                        user=request.user,
+                    )
+
+                    if (
+                        start_result
+                        and "success" in start_result
+                        and "read_id" in start_result
+                    ):
+                        # Save the read ID for future updates
+                        user_progress.hardcover_read_id = str(start_result["read_id"])
+                        user_progress.save(update_fields=["hardcover_read_id"])
+
+                        messages.success(
+                            request,
+                            "Started tracking this book on Hardcover and synced your progress!",
+                        )
+                    elif start_result and "error" in start_result:
+                        messages.warning(
+                            request,
+                            f"Local progress updated but couldn't start Hardcover tracking: {start_result['error']}",
+                        )
+                    else:
+                        messages.warning(
+                            request,
+                            "Local progress updated but couldn't start Hardcover tracking.",
+                        )
+
+                except Exception as e:
+                    logger.exception(f"Error starting Hardcover tracking: {str(e)}")
+                    messages.warning(
+                        request,
+                        f"Local progress updated but couldn't start Hardcover tracking: {str(e)}",
+                    )
+        else:
+            messages.success(request, "Reading progress updated successfully.")
+
         return redirect("book_detail", book_id=book.id)
 
     return render(
@@ -695,6 +953,8 @@ def set_manual_progress(request, book_id):
         {
             "book": book,
             "user_progress": user_progress,
+            "has_hardcover_key": bool(request.user.profile.hardcover_api_key),
+            "hardcover_read_id": hardcover_read_id,
         },
     )
 

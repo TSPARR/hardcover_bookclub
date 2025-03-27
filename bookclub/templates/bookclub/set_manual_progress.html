@@ -121,6 +121,46 @@
                             </label>
                         </div>
                         
+                        {% if has_hardcover_key %}
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="sync_to_hardcover" name="sync_to_hardcover">
+                            <label class="form-check-label" for="sync_to_hardcover">
+                                Also sync this progress to Hardcover
+                            </label>
+                            
+                            {% if hardcover_read_id %}
+                            <div class="form-text text-success">
+                                <i class="bi bi-check-circle"></i> Hardcover reading record detected
+                            </div>
+                            
+                            <div class="hardcover-sync-details mt-2 ps-4 border-start border-success">
+                                <small>When syncing to Hardcover:</small>
+                                <ul class="small">
+                                    {% if user_progress.edition %}
+                                        {% if user_progress.edition.reading_format_id == 2 %}
+                                        <li>Audio position will be calculated based on timestamp</li>
+                                        {% elif user_progress.edition.reading_format_id == 1 or user_progress.edition.reading_format_id == 4 %}
+                                        <li>Page progress will be sent to Hardcover</li>
+                                        {% else %}
+                                        <li>Progress percentage will be sent to Hardcover</li>
+                                        {% endif %}
+                                    {% else %}
+                                    <li>Progress percentage will be sent to Hardcover</li>
+                                    {% endif %}
+                                    
+                                    {% if user_progress.edition %}
+                                    <li>Using edition: {{ user_progress.edition.title }}</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            {% else %}
+                            <div class="form-text">
+                                <span class="text-info"><i class="bi bi-info-circle"></i> No existing Hardcover record found.</span> If you enable this option, a new reading record will be created on Hardcover with your current progress.
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
                         <button type="submit" class="btn btn-primary">
                             Update Progress
                         </button>
@@ -130,6 +170,20 @@
                     </form>
                 </div>
             </div>
+
+            {% if has_hardcover_key and not hardcover_read_id %}
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Hardcover Integration</h5>
+                </div>
+                <div class="card-body">
+                    <p>To enable two-way sync with Hardcover, first sync from Hardcover to establish a connection:</p>
+                    <a href="#" class="btn btn-info" id="syncHardcoverProgress" data-book-id="{{ book.id }}" data-hardcover-id="{{ book.hardcover_id }}">
+                        <i class="bi bi-cloud-download"></i> Import Progress from Hardcover
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -159,6 +213,64 @@
         
         // Update when changed
         document.getElementById('progress_type').addEventListener('change', updateHelpText);
+        
+        // Add Hardcover sync functionality if button exists
+        const syncButton = document.getElementById('syncHardcoverProgress');
+        if (syncButton) {
+            syncButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const bookId = this.getAttribute('data-book-id');
+                const hardcoverId = this.getAttribute('data-hardcover-id');
+                
+                // Show loading state
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Syncing...';
+                this.disabled = true;
+                
+                // Fetch progress from Hardcover
+                fetch(`/bookclub/api/hardcover-progress/${hardcoverId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert('Error: ' + data.error);
+                            return;
+                        }
+                        
+                        if (data.progress && data.progress.length > 0) {
+                            // Send the data to update local progress
+                            return fetch(`/bookclub/books/${bookId}/update-progress/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                },
+                                body: JSON.stringify({
+                                    auto_sync: true,
+                                    hardcover_data: data.progress[0]
+                                })
+                            });
+                        } else {
+                            throw new Error('No reading progress found in Hardcover');
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to show updated progress
+                            window.location.reload();
+                        } else {
+                            throw new Error(data.error || 'Failed to update local progress');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error: ' + error.message);
+                        
+                        // Reset button
+                        this.innerHTML = '<i class="bi bi-cloud-download"></i> Import Progress from Hardcover';
+                        this.disabled = false;
+                    });
+            });
+        }
     });
 </script>
 {% endblock extra_js %}
