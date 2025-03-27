@@ -214,13 +214,14 @@
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th>#</th>
-                                                    <th>Book</th>
-                                                    <th>Author</th>
-                                                    <th>Picked By</th>
-                                                    <th>Status</th>
+                                                    <th width="5%">#</th>
+                                                    <th width="25%">Book</th>
+                                                    <th width="20%">Author</th>
+                                                    <th width="15%">Picked By</th>
+                                                    <th width="10%">Status</th>
+                                                    <th width="15%">Your Progress</th>
                                                     {% if is_admin %}
-                                                    <th>Actions</th>
+                                                    <th width="10%">Actions</th>
                                                     {% endif %}
                                                 </tr>
                                             </thead>
@@ -234,7 +235,7 @@
                                                     <td>{{ book.author }}</td>
                                                     <td>
                                                         {% if book.is_collective_pick %}
-                                                        <span class="badge bg-info">Group Pick</span>
+                                                        <span class="badge bg-info text-dark">Group Pick</span>
                                                         {% elif book.picked_by %}
                                                         {{ book.picked_by.username }}
                                                         {% endif %}
@@ -243,6 +244,14 @@
                                                         {% if book.is_active %}
                                                         <span class="badge bg-primary">Active</span>
                                                         {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% with prog=book_progress|get_item:book.id %}
+                                                            <span class="badge {{ prog.status_class }}">{{ prog.status }}</span>
+                                                            {% if prog.progress and prog.progress.normalized_progress > 0 %}
+                                                                <span class="ms-1">{{ prog.progress.normalized_progress }}%</span>
+                                                            {% endif %}
+                                                        {% endwith %}
                                                     </td>
                                                     {% if is_admin %}
                                                     <td>
@@ -296,10 +305,17 @@
                                                         
                                                         <div class="mb-2">
                                                             {% if book.is_collective_pick %}
-                                                            <span class="badge bg-info">Group Pick</span>
+                                                            <span class="badge bg-info text-dark">Group Pick</span>
                                                             {% elif book.picked_by %}
                                                             <span class="badge bg-secondary">Picked by: {{ book.picked_by.username }}</span>
                                                             {% endif %}
+                                                            
+                                                            {% with prog=book_progress|get_item:book.id %}
+                                                            <span class="badge {{ prog.status_class }} ms-1">{{ prog.status }}</span>
+                                                            {% if prog.progress and prog.progress.normalized_progress > 0 %}
+                                                                <span class="ms-1">{{ prog.progress.normalized_progress }}%</span>
+                                                            {% endif %}
+                                                            {% endwith %}
                                                         </div>
                                                         
                                                         <div class="mt-2">
