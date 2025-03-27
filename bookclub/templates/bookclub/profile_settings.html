@@ -10,14 +10,6 @@
                 <h2>Profile Settings</h2>
             </div>
             <div class="card-body">
-                {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-                {% endif %}
-
                 <form method="post">
                     {% csrf_token %}
 
