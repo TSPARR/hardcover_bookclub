@@ -207,7 +207,9 @@ document.addEventListener('DOMContentLoaded', function () {
             edition_pages: progress.edition?.pages,
             edition_audio_seconds: progress.edition?.audio_seconds,
             edition_title: progress.edition?.title,
-            edition_format: progress.reading_format_id
+            edition_format: progress.reading_format_id,
+            rating: progress.rating,
+            user_book_id: progress.read_id
         };
 
         // Log what we're updating
@@ -271,6 +273,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 progressText.textContent = 'Audio: ' + progressValue;
             } else {
                 progressText.textContent = progressValue + '% complete';
+            }
+        }
+
+        const ratingDisplay = document.querySelector('.book-rating');
+        if (ratingDisplay && hardcoverProgress.rating) {
+            // Replace the rating display with new content
+            // This would depend on your specific HTML structure
+            const ratingValue = parseFloat(hardcoverProgress.rating);
+            if (!isNaN(ratingValue)) {
+                // This is a simplified example - you'd need to adjust based on your actual HTML
+                let starsHTML = '';
+                
+                // Create full stars
+                const fullStars = Math.floor(ratingValue);
+                for (let i = 0; i < fullStars; i++) {
+                    starsHTML += '<i class="bi bi-star-fill text-warning"></i>';
+                }
+                
+                // Create half star if needed
+                if (ratingValue % 1 >= 0.5) {
+                    starsHTML += '<i class="bi bi-star-half text-warning"></i>';
+                }
+                
+                // Create empty stars
+                const emptyStars = 5 - Math.ceil(ratingValue);
+                for (let i = 0; i < emptyStars; i++) {
+                    starsHTML += '<i class="bi bi-star text-warning"></i>';
+                }
+                
+                starsHTML += `<span class="rating-value ms-1 text-muted">${ratingValue}</span>`;
+                
+                ratingDisplay.innerHTML = starsHTML;
+                ratingDisplay.title = `${ratingValue} / 5`;
+                ratingDisplay.classList.remove('text-muted');
             }
         }
 
@@ -734,7 +770,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 edition_pages: selectedProgress.edition.pages,
                 edition_audio_seconds: selectedProgress.edition.audio_seconds,
                 edition_title: selectedProgress.edition.title,
-                edition_format: selectedProgress.reading_format_id
+                edition_format: selectedProgress.reading_format_id,
+                rating: selectedProgress.rating,
+                user_book_id: selectedProgress.read_id
             };
 
             // Update progress via API

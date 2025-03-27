@@ -2,6 +2,7 @@ import uuid
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Count
 from django.db.models.signals import post_save
@@ -230,6 +231,14 @@ class UserBookProgress(models.Model):
     hardcover_reading_format = models.CharField(max_length=10, null=True, blank=True)
     hardcover_edition_id = models.CharField(max_length=50, null=True, blank=True)
     hardcover_read_id = models.CharField(max_length=50, null=True, blank=True)
+
+    hardcover_rating = models.DecimalField(
+        max_digits=2,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+    )
 
     class Meta:
         unique_together = (
