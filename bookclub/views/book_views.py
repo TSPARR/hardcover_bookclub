@@ -505,10 +505,26 @@ def search_books(request, group_id):
 def add_book_to_group(request, group_id, hardcover_id):
     group = get_object_or_404(BookGroup, id=group_id)
 
+    # Check if user is a member of this group
+    if not group.is_admin(request.user):
+        messages.error(request, "You don't have permission to add books to this group.")
+        return redirect("group_detail", group_id=group.id)
+
     # Get book details from Hardcover API
     book_data = HardcoverAPI.get_book_details(hardcover_id, user=request.user)
 
-    if book_data:
+    if not book_data:
+        messages.error(request, "Could not retrieve book details from Hardcover.")
+        return redirect("search_books", group_id=group.id)
+
+    if request.method == "POST":
+        # Process attribution data if provided
+        picked_by_id = request.POST.get("picked_by")
+        is_collective_pick = request.POST.get("is_collective_pick") == "on"
+
+        # Determine the next display order
+        next_order = Book.objects.filter(group=group).count()
+
         # Create or update book in database
         book, created = Book.objects.get_or_create(
             hardcover_id=hardcover_id,
@@ -523,6 +539,8 @@ def add_book_to_group(request, group_id, hardcover_id):
                 "url": book_data.get("url", ""),
                 "description": book_data.get("description", ""),
                 "group": group,
+                "display_order": next_order,
+                "is_collective_pick": is_collective_pick,
             },
         )
 
@@ -531,14 +549,37 @@ def add_book_to_group(request, group_id, hardcover_id):
             book.group = group
             if not book.url and book_data.get("url"):
                 book.url = book_data.get("url")
+            book.display_order = next_order
+            book.is_collective_pick = is_collective_pick
             book.save()
+
+        # Set picked_by if provided and not a collective pick
+        if picked_by_id and not is_collective_pick:
+            picked_by_user = get_object_or_404(User, id=picked_by_id)
+            book.picked_by = picked_by_user
+            book.save()
+
+        # Set as active book if requested
+        set_active = request.POST.get("set_active") == "on"
+        if set_active:
+            book.set_active()
 
         messages.success(request, f"'{book.title}' has been added to the group.")
         return redirect("group_detail", group_id=group.id)
 
-    # Handle error case
-    messages.error(request, "Could not retrieve book details from Hardcover.")
-    return redirect("search_books", group_id=group.id)
+    # For GET requests, show confirmation form with attribution options
+    members = group.members.all()
+
+    return render(
+        request,
+        "bookclub/confirm_add_book.html",
+        {
+            "group": group,
+            "book_data": book_data,
+            "members": members,
+            "hardcover_id": hardcover_id,
+        },
+    )
 
 
 @login_required

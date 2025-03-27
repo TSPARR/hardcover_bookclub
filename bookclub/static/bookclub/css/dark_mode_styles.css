@@ -929,3 +929,90 @@ input[name="hardcover_api_key"] {
     color: #ffffff !important;
     margin-bottom: 0;
 }
+
+/* Complete Bootstrap Table Variable Overrides for Dark Mode */
+.dark-mode {
+    /* Core table variables */
+    --bs-table-color: #e1e1e1 !important;
+    --bs-table-bg: #1e1e1e !important;
+    --bs-table-border-color: #3a3a3a !important;
+
+    /* Striped table variables - increase contrast */
+    --bs-table-striped-color: #ffffff !important;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.08) !important;
+
+    /* Active table state */
+    --bs-table-active-color: #ffffff !important;
+    --bs-table-active-bg: rgba(255, 255, 255, 0.1) !important;
+
+    /* Hover effect */
+    --bs-table-hover-color: #ffffff !important;
+    --bs-table-hover-bg: rgba(13, 110, 253, 0.15) !important;
+}
+
+/* Fix for text-muted class in tables */
+.dark-mode .table tr.text-muted {
+    color: #a0a0a0 !important;
+}
+
+/* Ensure text-muted cells have proper contrast */
+.dark-mode .table tr.text-muted td {
+    color: #a0a0a0 !important;
+}
+
+/* Date column and other text should be clearly visible */
+.dark-mode .table td {
+    color: inherit !important;
+}
+
+/* Fix table header color */
+.dark-mode .table thead th {
+    color: #ffffff !important;
+    background-color: #2c2c2c !important;
+    border-color: #3a3a3a !important;
+}
+
+/* Enhanced hover for better feedback */
+.dark-mode .table-hover tbody tr:hover {
+    --bs-table-accent-bg: var(--bs-table-hover-bg) !important;
+}
+
+/* When hovering over muted rows, make text more visible */
+.dark-mode .table-hover tbody tr.text-muted:hover td {
+    color: #d0d0d0 !important;
+}
+
+/* Fix badge styling in tables */
+.dark-mode .table .badge {
+    color: #ffffff !important;
+}
+
+.dark-mode .table tr.text-muted .badge {
+    opacity: 0.85 !important;
+}
+
+.dark-mode .table tr.text-muted:hover .badge {
+    opacity: 1 !important;
+}
+
+/* Fix for badge-specific colors */
+.dark-mode .badge.bg-warning.text-dark {
+    color: #000000 !important;
+}
+
+/* Fix for border colors */
+.dark-mode .table th,
+.dark-mode .table td {
+    border-color: #3a3a3a !important;
+}
+
+/* Fix for "Copy Link" and "Revoke" buttons in text-muted rows */
+.dark-mode .table tr.text-muted .btn-outline-primary,
+.dark-mode .table tr.text-muted .btn-outline-danger {
+    opacity: 0.85 !important;
+}
+
+.dark-mode .table tr.text-muted:hover .btn-outline-primary,
+.dark-mode .table tr.text-muted:hover .btn-outline-danger {
+    opacity: 1 !important;
+}
