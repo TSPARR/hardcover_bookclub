@@ -559,6 +559,11 @@ def add_book_to_group(request, group_id, hardcover_id):
             book.picked_by = picked_by_user
             book.save()
 
+        # Set as active book if requested
+        set_active = request.POST.get("set_active") == "on"
+        if set_active:
+            book.set_active()
+
         messages.success(request, f"'{book.title}' has been added to the group.")
         return redirect("group_detail", group_id=group.id)
 

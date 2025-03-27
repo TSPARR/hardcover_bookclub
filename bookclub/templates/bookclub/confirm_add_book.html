@@ -78,6 +78,18 @@
                             <div class="form-text">Select a member who suggested or picked this book.</div>
                         </div>
                         
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="id_set_active" name="set_active">
+                                <label class="form-check-label" for="id_set_active">
+                                    Set as active book
+                                </label>
+                            </div>
+                            <div class="form-text" id="setActiveSection">
+                                This will make this book the currently reading book and deactivate any other active books.
+                            </div>
+                        </div>
+                        
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary">Add to Group</button>
                             <a href="{% url 'search_books' group.id %}" class="btn btn-outline-secondary">Cancel</a>

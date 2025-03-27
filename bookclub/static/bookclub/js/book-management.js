@@ -2,6 +2,39 @@
  * Book management functionality for book clubs
  */
 
+// Document ready event handler
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all book management features
+    initBookSorting();
+    initBookAttribution();
+    initAddBookForm();
+    initEditModeToggle();
+});
+
+// Initialize edit mode toggle in the group detail page
+function initEditModeToggle() {
+    const toggleEditModeBtn = document.getElementById('toggleEditMode');
+    const cancelEditBtn = document.getElementById('cancelEdit');
+    const reorderForm = document.getElementById('reorderForm');
+    const readOnlyBooks = document.getElementById('readOnlyBooks');
+    
+    if (toggleEditModeBtn && reorderForm && readOnlyBooks) {
+        toggleEditModeBtn.addEventListener('click', function() {
+            reorderForm.classList.remove('d-none');
+            readOnlyBooks.classList.add('d-none');
+            toggleEditModeBtn.classList.add('d-none');
+        });
+        
+        if (cancelEditBtn) {
+            cancelEditBtn.addEventListener('click', function() {
+                reorderForm.classList.add('d-none');
+                readOnlyBooks.classList.remove('d-none');
+                toggleEditModeBtn.classList.remove('d-none');
+            });
+        }
+    }
+}
+
 // Initialize book sorting functionality
 function initBookSorting() {
     const booksList = document.getElementById('sortableBooks');
@@ -19,34 +52,6 @@ function initBookSorting() {
             updateBookNumbers();
         }
     });
-    
-    // Function to update the hidden input with the book order
-    function updateBookOrderInput() {
-        const bookItems = document.querySelectorAll('#sortableBooks li');
-        const bookIds = Array.from(bookItems).map(function(item) {
-            return item.getAttribute('data-id');
-        });
-        
-        document.getElementById('bookOrderInput').value = bookIds.join(',');
-    }
-    
-    // Function to update book numbers after reordering
-    function updateBookNumbers() {
-        const bookItems = document.querySelectorAll('#sortableBooks li');
-        bookItems.forEach((item, index) => {
-            // Update the data-order attribute
-            item.setAttribute('data-order', index + 1);
-            
-            // Update the visible number badge
-            const numberBadge = item.querySelector('.book-number');
-            if (numberBadge) {
-                numberBadge.textContent = index + 1;
-            }
-        });
-    }
-    
-    // Initialize the book order input on page load
-    updateBookOrderInput();
     
     // Handle form submission for reordering
     const reorderForm = document.getElementById('reorderForm');
@@ -80,6 +85,37 @@ function initBookSorting() {
             form.submit();
         });
     }
+    
+    // Initialize the book order input on page load
+    updateBookOrderInput();
+}
+
+// Function to update the hidden input with the book order
+function updateBookOrderInput() {
+    const bookOrderInput = document.getElementById('bookOrderInput');
+    if (!bookOrderInput) return;
+    
+    const bookItems = document.querySelectorAll('#sortableBooks li');
+    const bookIds = Array.from(bookItems).map(function(item) {
+        return item.getAttribute('data-id');
+    });
+    
+    bookOrderInput.value = bookIds.join(',');
+}
+
+// Function to update book numbers after reordering
+function updateBookNumbers() {
+    const bookItems = document.querySelectorAll('#sortableBooks li');
+    bookItems.forEach((item, index) => {
+        // Update the data-order attribute
+        item.setAttribute('data-order', index + 1);
+        
+        // Update the visible number badge
+        const numberBadge = item.querySelector('.book-number');
+        if (numberBadge) {
+            numberBadge.textContent = index + 1;
+        }
+    });
 }
 
 // Initialize book attribution functionality
@@ -95,21 +131,27 @@ function initBookAttribution() {
             const pickedBy = this.getAttribute('data-picked-by');
             const isCollective = this.getAttribute('data-collective') === 'true';
             
-            document.getElementById('attributionBookId').value = bookId;
-            document.getElementById('attributionBookTitle').textContent = bookTitle;
-            
+            const attributionBookId = document.getElementById('attributionBookId');
+            const attributionBookTitle = document.getElementById('attributionBookTitle');
             const pickedBySelect = document.getElementById('pickedBy');
-            if (pickedBy) {
-                pickedBySelect.value = pickedBy;
-            } else {
-                pickedBySelect.value = '';
+            const collectiveCheck = document.getElementById('isCollectivePick');
+            
+            if (attributionBookId) attributionBookId.value = bookId;
+            if (attributionBookTitle) attributionBookTitle.textContent = bookTitle;
+            
+            if (pickedBySelect) {
+                if (pickedBy) {
+                    pickedBySelect.value = pickedBy;
+                } else {
+                    pickedBySelect.value = '';
+                }
             }
             
-            const collectiveCheck = document.getElementById('isCollectivePick');
-            collectiveCheck.checked = isCollective;
-            
-            // Toggle visibility of picked by section based on collective pick checkbox
-            togglePickedBySection(isCollective);
+            if (collectiveCheck) {
+                collectiveCheck.checked = isCollective;
+                // Toggle visibility of picked by section based on collective pick checkbox
+                togglePickedBySection(isCollective);
+            }
         });
     });
     
@@ -129,7 +171,11 @@ function togglePickedBySection(isCollective) {
     
     if (isCollective) {
         pickedBySection.style.display = 'none';
-        document.getElementById('pickedBy').value = '';
+        
+        const pickedBySelect = document.getElementById('pickedBy');
+        if (pickedBySelect) {
+            pickedBySelect.value = '';
+        }
     } else {
         pickedBySection.style.display = 'block';
     }
@@ -139,17 +185,34 @@ function togglePickedBySection(isCollective) {
 function initAddBookForm() {
     // Toggle picked by section when collective pick checkbox changes
     const collectiveCheck = document.getElementById('id_is_collective_pick');
-    if (!collectiveCheck) return;
+    if (collectiveCheck) {
+        collectiveCheck.addEventListener('change', function() {
+            const pickedBySection = document.getElementById('pickedBySection');
+            if (pickedBySection) {
+                pickedBySection.style.display = this.checked ? 'none' : 'block';
+                
+                // Clear selection if collective is checked
+                if (this.checked) {
+                    const pickedBySelect = document.getElementById('id_picked_by');
+                    if (pickedBySelect) {
+                        pickedBySelect.value = '';
+                    }
+                }
+            }
+        });
+    }
     
-    collectiveCheck.addEventListener('change', function() {
-        togglePickedBySection(this.checked);
-    });
+    // Handle "Set as active book" checkbox if present
+    const setActiveCheck = document.getElementById('id_set_active');
+    const setActiveSection = document.getElementById('setActiveSection');
+    
+    if (setActiveCheck && setActiveSection) {
+        // Initially show/hide based on checkbox state
+        setActiveSection.style.display = setActiveCheck.checked ? 'block' : 'none';
+        
+        // Add change handler
+        setActiveCheck.addEventListener('change', function() {
+            setActiveSection.style.display = this.checked ? 'block' : 'none';
+        });
+    }
 }
-
-// Document ready event handler
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all book management features
-    initBookSorting();
-    initBookAttribution();
-    initAddBookForm();
-});

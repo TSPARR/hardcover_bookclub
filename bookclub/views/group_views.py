@@ -119,10 +119,45 @@ def group_detail(request, group_id):
         messages.error(request, "You are not a member of this group.")
         return redirect("home")
 
-    books = group.books.all()
+    # Get books ordered by display_order
+    books = group.books.all().order_by("display_order", "created_at")
     members = group.members.all()
     admins = group.admins.all()
     is_admin = group.is_admin(request.user)
+
+    # Handle book order updates
+    if request.method == "POST" and is_admin:
+        if "book_order" in request.POST:
+            # Process book reordering
+            order_data = request.POST.getlist("book_order")
+            for i, book_id in enumerate(order_data):
+                Book.objects.filter(id=book_id, group=group).update(display_order=i)
+            messages.success(request, "Book order has been updated.")
+            return redirect("group_detail", group_id=group.id)
+
+        elif "attribution" in request.POST:
+            # Process book attribution update
+            book_id = request.POST.get("book_id")
+            picked_by_id = request.POST.get("picked_by")
+            is_collective = request.POST.get("is_collective_pick") == "on"
+
+            book = get_object_or_404(Book, id=book_id, group=group)
+
+            if picked_by_id and not is_collective:
+                book.picked_by = get_object_or_404(User, id=picked_by_id)
+                book.is_collective_pick = False
+            elif is_collective:
+                book.picked_by = None
+                book.is_collective_pick = True
+            else:
+                book.picked_by = None
+                book.is_collective_pick = False
+
+            book.save()
+            messages.success(
+                request, f"Attribution for '{book.title}' has been updated."
+            )
+            return redirect("group_detail", group_id=group.id)
 
     return render(
         request,
