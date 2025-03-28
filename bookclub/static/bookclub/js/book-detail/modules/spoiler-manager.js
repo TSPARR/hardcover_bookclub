@@ -139,7 +139,7 @@ export const SpoilerManager = {
             const commentProgress = parseFloat(parentComment.dataset.progress || 0);
             
             // Get reply author
-            const replyUser = reply.querySelector('.reply-user')?.textContent.trim();
+            const replyUser = reply.querySelector('.comment-user')?.textContent.trim();
             
             // Skip if it's the user's own reply
             if (replyUser === this.username) return;

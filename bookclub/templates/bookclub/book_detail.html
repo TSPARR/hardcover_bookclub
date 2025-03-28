@@ -321,7 +321,7 @@
         <div class="card mb-2 reply-card" id="comment-{{ reply.id }}">
             <div class="card-header d-flex justify-content-between">
                 <div class="d-flex align-items-center">
-                    <span class="reply-user">{{ reply.user.username }}</span>
+                    <span class="comment-user">{{ reply.user.username }}</span>
                     {% if reply.user == user %}
                     <div class="dropdown ms-2">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -334,7 +334,7 @@
                     </div>
                     {% endif %}
                 </div>
-                <span class="reply-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
+                <span class="comment-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
             </div>
             <div class="card-body">
                 <!-- Add spoiler handling for replies too -->
