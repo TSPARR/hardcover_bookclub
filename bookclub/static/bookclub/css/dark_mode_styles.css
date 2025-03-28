@@ -963,30 +963,31 @@ input[name="hardcover_api_key"] {
     border-color: #0d6efd !important;
 }
 
-/* Add this to both your CSS files */
-
-/* Global fix for all dropdown menus in comments and replies */
+/* Fix for all dropdown menus in comments and replies */
 .comment-card .dropdown-menu.reaction-picker,
 .reply-card .dropdown-menu.reaction-picker {
-    position: fixed !important;
-    /* Changes positioning to be relative to viewport */
-    z-index: 9999999 !important;
-    /* Extremely high z-index */
+    /* Don't use position: fixed as it breaks the dropdown behavior */
+    position: absolute !important;
+    z-index: 999999 !important;
+    /* Very high z-index */
+    transform: none !important;
+    /* Prevent transform from affecting position */
 }
 
-/* Make the dropdown position calculation work correctly */
-.comment-card .dropdown,
-.reply-card .dropdown {
-    position: static !important;
-}
-
-/* Ensure dropdown items are clickable */
-.dropdown-menu.reaction-picker .dropdown-item {
+/* Ensure the dropdown container has the right positioning */
+.comment-card .add-reaction .dropdown,
+.reply-card .add-reaction .dropdown {
     position: relative !important;
-    z-index: 10000000 !important;
+    z-index: 100000 !important;
+    /* Ensure the dropdown is positioned above all content */
 }
 
-/* Remove any overflow restrictions that could clip dropdowns */
+/* Make all dropdown items visible and interactive */
+.dropdown-menu.reaction-picker .dropdown-item {
+    z-index: 1000000 !important;
+}
+
+/* Remove any hidden overflow in parent containers */
 .card-body,
 .spoiler-content,
 .comment-reactions,
@@ -996,35 +997,18 @@ input[name="hardcover_api_key"] {
     overflow: visible !important;
 }
 
-/* Make sure comment elements don't create stacking contexts that trap dropdowns */
-.comment-card,
-.reply-card,
-.card-body,
-.spoiler-content,
-.spoiler-warning {
-    transform: none !important;
-    /* Prevents creating a new stacking context */
-    filter: none !important;
-    /* Prevents creating a new stacking context */
-    perspective: none !important;
-    /* Prevents creating a new stacking context */
-    contain: none !important;
-    /* Prevents creating a new stacking context */
-    isolation: auto !important;
-    /* Prevents creating a new stacking context */
+/* Ensure the comment card doesn't overlap the dropdown */
+.card {
+    overflow: visible !important;
 }
 
-/* Ensure reaction containers have proper stacking */
-.comment-reactions {
-    z-index: 100 !important;
-    position: relative !important;
+/* Fix for popper.js positioning */
+[data-popper-placement] {
+    z-index: 999999 !important;
 }
 
-/* Bootstrap's popper.js fix */
-.popper,
-[data-popper-reference-hidden],
-[data-popper-escaped] {
-    visibility: visible !important;
-    pointer-events: auto !important;
-    z-index: 9999999 !important;
+/* Ensure the dropdown appears above other elements */
+.dropdown-menu.show {
+    display: block !important;
+    z-index: 999999 !important;
 }
