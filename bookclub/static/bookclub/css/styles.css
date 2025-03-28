@@ -588,3 +588,69 @@ h6 {
 .rating-option.selected i {
     animation: star-pulse 0.3s ease;
 }
+
+/* Add this to both your CSS files */
+
+/* Global fix for all dropdown menus in comments and replies */
+.comment-card .dropdown-menu.reaction-picker,
+.reply-card .dropdown-menu.reaction-picker {
+    position: fixed !important;
+    /* Changes positioning to be relative to viewport */
+    z-index: 9999999 !important;
+    /* Extremely high z-index */
+}
+
+/* Make the dropdown position calculation work correctly */
+.comment-card .dropdown,
+.reply-card .dropdown {
+    position: static !important;
+}
+
+/* Ensure dropdown items are clickable */
+.dropdown-menu.reaction-picker .dropdown-item {
+    position: relative !important;
+    z-index: 10000000 !important;
+}
+
+/* Remove any overflow restrictions that could clip dropdowns */
+.card-body,
+.spoiler-content,
+.comment-reactions,
+.replies,
+.comment-card,
+.reply-card {
+    overflow: visible !important;
+}
+
+/* Make sure comment elements don't create stacking contexts that trap dropdowns */
+.comment-card,
+.reply-card,
+.card-body,
+.spoiler-content,
+.spoiler-warning {
+    transform: none !important;
+    /* Prevents creating a new stacking context */
+    filter: none !important;
+    /* Prevents creating a new stacking context */
+    perspective: none !important;
+    /* Prevents creating a new stacking context */
+    contain: none !important;
+    /* Prevents creating a new stacking context */
+    isolation: auto !important;
+    /* Prevents creating a new stacking context */
+}
+
+/* Ensure reaction containers have proper stacking */
+.comment-reactions {
+    z-index: 100 !important;
+    position: relative !important;
+}
+
+/* Bootstrap's popper.js fix */
+.popper,
+[data-popper-reference-hidden],
+[data-popper-escaped] {
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 9999999 !important;
+}
