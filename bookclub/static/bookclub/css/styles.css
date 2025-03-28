@@ -307,6 +307,25 @@ h6 {
     background-color: rgba(13, 110, 253, 0.1);
 }
 
+/* Fix for reaction dropdown visibility */
+.dropdown-menu.reaction-picker {
+    z-index: 9999 !important;
+}
+
+/* For dropdown items to be visible and interactive */
+.dropdown-item.reaction-option {
+    z-index: 10000 !important;
+    position: relative !important;
+}
+
+/* Ensure modals still appear above dropdowns */
+.modal {
+    z-index: 10500 !important;
+}
+.modal-backdrop {
+    z-index: 10490 !important;
+}
+
 /* Progress percentage display */
 .comment-progress .text-muted {
     font-size: 0.875rem;
