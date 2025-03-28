@@ -175,7 +175,7 @@ export const SpoilerManager = {
             try {
                 // Create spoiler warning
                 const spoilerWarning = DomHelpers.createElement('div', {
-                    className: 'spoiler-warning alert alert-warning'
+                    className: 'spoiler-warning alert alert-warning alert-permanent'
                 }, '<i class="bi bi-exclamation-triangle-fill"></i> This comment is from further in the book than you\'ve read. <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>');
                 
                 // Create spoiler content container
