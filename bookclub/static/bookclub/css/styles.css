@@ -322,8 +322,41 @@ h6 {
 .modal {
     z-index: 10500 !important;
 }
+
 .modal-backdrop {
     z-index: 10490 !important;
+}
+
+/* Specific fix for reply dropdown visibility */
+.replies .dropdown-menu.reaction-picker {
+    position: fixed !important;
+    /* This changes positioning to be relative to viewport */
+    z-index: 20000 !important;
+    /* Super high z-index */
+}
+
+/* Ensure reply dropdowns have proper z-index stacking */
+.replies .dropdown {
+    position: static !important;
+    /* Makes the fixed positioning work */
+}
+
+/* Make dropdown items clickable */
+.dropdown-menu.reaction-picker .dropdown-item {
+    position: relative !important;
+    z-index: 20001 !important;
+}
+
+/* Ensure card-body and other containers don't limit the visibility */
+.card-body,
+.spoiler-content,
+.replies {
+    overflow: visible !important;
+}
+
+/* Fix for the reply reactions container */
+.replies .comment-reactions {
+    z-index: 1200 !important;
 }
 
 /* Progress percentage display */
