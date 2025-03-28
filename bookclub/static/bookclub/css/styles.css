@@ -473,95 +473,49 @@ h6 {
     animation: star-pulse 0.3s ease;
 }
 
-/* Basic dropdown styling */
-.dropdown-menu {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    position: absolute !important;
-    z-index: 9999 !important;
+/* Reaction panel styling */
+.reaction-panel {
+    display: none; /* Hidden by default */
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    animation: fadeIn 0.2s ease-in-out;
 }
 
-/* Dropdown item styling */
-.dropdown-item.active,
-.dropdown-item:active {
+/* Animation for panel appearance */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Reaction option buttons */
+.reaction-option {
+    min-width: 2.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.reaction-option:hover {
+    transform: scale(1.1);
+}
+
+/* Existing reaction buttons */
+.reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    transition: all 0.2s;
+}
+
+.reaction-count {
+    margin-left: 0.25rem;
+    font-weight: bold;
+}
+
+/* Active reaction */
+.reaction-btn.active {
     background-color: #0d6efd;
+    border-color: #0d6efd;
     color: white;
-}
-
-.dropdown-item:hover {
-    background-color: rgba(13, 110, 253, 0.1);
-}
-
-/* Fix for reaction dropdown visibility */
-.dropdown-menu.reaction-picker {
-    z-index: 9999999 !important;
-    /* Extremely high z-index */
-}
-
-/* Make dropdown items clickable */
-.dropdown-menu.reaction-picker .dropdown-item {
-    position: relative !important;
-    z-index: 10000000 !important;
-}
-
-/* Specific fix for reply dropdown visibility */
-.replies .dropdown-menu.reaction-picker {
-    position: fixed !important;
-    /* Changes positioning to be relative to viewport */
-    z-index: 20000000 !important;
-    /* Even higher z-index for nested replies */
-}
-
-/* Ensure reply dropdowns have proper z-index stacking */
-.replies .dropdown {
-    position: static !important;
-    /* Makes the fixed positioning work */
-}
-
-/* Fix for containers that could clip dropdowns */
-.card,
-.comment-card,
-.reply-card,
-.card-body,
-.spoiler-content,
-.spoiler-warning,
-.comment-reactions,
-.replies {
-    overflow: visible !important;
-}
-
-/* General z-index setup for comment elements */
-.dropdown {
-    position: relative !important;
-    z-index: 1000 !important;
-}
-
-.comment-reactions {
-    position: relative !important;
-    z-index: 999 !important;
-}
-
-.card,
-.comment-card,
-.reply-card {
-    position: relative !important;
-    z-index: 1 !important;
-}
-
-.replies .comment-reactions {
-    z-index: 1200 !important;
-}
-
-/* Bootstrap's dropdown backdrop fix */
-.dropdown-backdrop {
-    z-index: 990 !important;
-}
-
-/* Ensure modals remain on top */
-.modal {
-    z-index: 10500000 !important;
-}
-
-.modal-backdrop {
-    z-index: 10490000 !important;
 }

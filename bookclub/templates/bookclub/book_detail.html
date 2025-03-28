@@ -292,19 +292,17 @@
                 {% endfor %}
             </div>
             
-            <!-- Add reaction button -->
+            <!-- Add reaction button and inline panel -->
             <div class="add-reaction">
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        Add Reaction
+                <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
+                    Add Reaction
+                </button>
+                <div class="reaction-panel" style="display: none;">
+                    {% for reaction_code, reaction_name in reaction_choices %}
+                    <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                        {{ reaction_code }}
                     </button>
-                    <div class="dropdown-menu reaction-picker">
-                        {% for reaction_code, reaction_name in reaction_choices %}
-                        <button class="dropdown-item reaction-option" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
-                            {{ reaction_code }} {{ reaction_name }}
-                        </button>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -362,19 +360,17 @@
                         {% endfor %}
                     </div>
                     
-                    <!-- Add reaction button -->
+                    <!-- Add reaction button and inline panel -->
                     <div class="add-reaction">
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Add Reaction
+                        <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
+                            Add Reaction
+                        </button>
+                        <div class="reaction-panel" style="display: none;">
+                            {% for reaction_code, reaction_name in reaction_choices %}
+                            <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                {{ reaction_code }}
                             </button>
-                            <div class="dropdown-menu reaction-picker">
-                                {% for reaction_code, reaction_name in reaction_choices %}
-                                <button class="dropdown-item reaction-option" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
-                                    {{ reaction_code }} {{ reaction_name }}
-                                </button>
-                                {% endfor %}
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
