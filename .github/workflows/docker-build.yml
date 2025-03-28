@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - "Docker/**"
       - "VERSION"
@@ -35,6 +36,17 @@ jobs:
       - name: Convert repository name to lowercase
         id: repo_name
         run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        
+      - name: Set Docker tags
+        id: set_tags
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "TAGS=ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }},ghcr.io/${{ env.REPO_NAME }}:latest" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "TAGS=ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }}-dev,ghcr.io/${{ env.REPO_NAME }}:nightly" >> $GITHUB_ENV
+          else
+            echo "TAGS=ghcr.io/${{ env.REPO_NAME }}:${{ github.sha }}" >> $GITHUB_ENV
+          fi
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -42,8 +54,6 @@ jobs:
           context: .
           file: ./Docker/Dockerfile
           push: true
-          tags: |
-            ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }}
-            ghcr.io/${{ env.REPO_NAME }}:latest
+          tags: ${{ env.TAGS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
