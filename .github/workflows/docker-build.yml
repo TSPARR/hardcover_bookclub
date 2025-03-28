@@ -2,13 +2,9 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - main
-      - develop
-    paths:
-      - "Docker/**"
-      - "VERSION"
-      - ".github/workflows/docker-build.yml"
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -36,16 +32,30 @@ jobs:
       - name: Convert repository name to lowercase
         id: repo_name
         run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      
+      - name: Extract branch name and short SHA
+        id: extract_branch
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
         
       - name: Set Docker tags
         id: set_tags
         run: |
+          # Always include a commit-specific tag for precise deployments
+          COMMIT_TAG="ghcr.io/${{ env.REPO_NAME }}:${{ env.SHORT_SHA }}"
+          
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "TAGS=ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }},ghcr.io/${{ env.REPO_NAME }}:latest" >> $GITHUB_ENV
+            # Main branch gets version and latest tags
+            echo "TAGS=${COMMIT_TAG},ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }},ghcr.io/${{ env.REPO_NAME }}:latest" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "TAGS=ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }}-dev,ghcr.io/${{ env.REPO_NAME }}:nightly" >> $GITHUB_ENV
+            # Develop branch gets version-dev and nightly tags
+            echo "TAGS=${COMMIT_TAG},ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }}-dev,ghcr.io/${{ env.REPO_NAME }}:nightly" >> $GITHUB_ENV
           else
-            echo "TAGS=ghcr.io/${{ env.REPO_NAME }}:${{ github.sha }}" >> $GITHUB_ENV
+            # Feature branches get branch-name tags
+            # Convert branch name to a valid Docker tag by replacing invalid characters
+            SAFE_BRANCH_NAME=$(echo "${{ env.BRANCH_NAME }}" | tr '/' '-' | tr '_' '-' | tr '[:upper:]' '[:lower:]')
+            echo "TAGS=${COMMIT_TAG},ghcr.io/${{ env.REPO_NAME }}:${SAFE_BRANCH_NAME}" >> $GITHUB_ENV
           fi
 
       - name: Build and push Docker image
@@ -57,3 +67,7 @@ jobs:
           tags: ${{ env.TAGS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.repository.updated_at }}
