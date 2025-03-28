@@ -963,52 +963,114 @@ input[name="hardcover_api_key"] {
     border-color: #0d6efd !important;
 }
 
-/* Fix for all dropdown menus in comments and replies */
-.comment-card .dropdown-menu.reaction-picker,
-.reply-card .dropdown-menu.reaction-picker {
-    /* Don't use position: fixed as it breaks the dropdown behavior */
+/* Consolidated dropdown and z-index fixes - Replace existing conflicting sections with these */
+
+/* Basic dropdown styling */
+.dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     position: absolute !important;
-    z-index: 999999 !important;
-    /* Very high z-index */
-    transform: none !important;
-    /* Prevent transform from affecting position */
+    z-index: 9999 !important;
 }
 
-/* Ensure the dropdown container has the right positioning */
-.comment-card .add-reaction .dropdown,
-.reply-card .add-reaction .dropdown {
-    position: relative !important;
-    z-index: 100000 !important;
-    /* Ensure the dropdown is positioned above all content */
+/* Dark mode dropdown styling - for dark_mode_styles.css only */
+.dark-mode .dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: #2c2c2c;
 }
 
-/* Make all dropdown items visible and interactive */
+/* Dropdown item styling */
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+/* Dark mode dropdown item styling - for dark_mode_styles.css only */
+.dark-mode .dropdown-item {
+    color: #e1e1e1;
+}
+
+.dark-mode .dropdown-item:hover {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #ffffff;
+}
+
+/* Fix for reaction dropdown visibility */
+.dropdown-menu.reaction-picker {
+    z-index: 9999999 !important;
+    /* Extremely high z-index */
+}
+
+/* Make dropdown items clickable */
 .dropdown-menu.reaction-picker .dropdown-item {
-    z-index: 1000000 !important;
+    position: relative !important;
+    z-index: 10000000 !important;
 }
 
-/* Remove any hidden overflow in parent containers */
+/* Specific fix for reply dropdown visibility */
+.replies .dropdown-menu.reaction-picker {
+    position: fixed !important;
+    /* Changes positioning to be relative to viewport */
+    z-index: 20000000 !important;
+    /* Even higher z-index for nested replies */
+}
+
+/* Ensure reply dropdowns have proper z-index stacking */
+.replies .dropdown {
+    position: static !important;
+    /* Makes the fixed positioning work */
+}
+
+/* Fix for containers that could clip dropdowns */
+.card,
+.comment-card,
+.reply-card,
 .card-body,
 .spoiler-content,
+.spoiler-warning,
 .comment-reactions,
-.replies,
+.replies {
+    overflow: visible !important;
+}
+
+/* General z-index setup for comment elements */
+.dropdown {
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+.comment-reactions {
+    position: relative !important;
+    z-index: 999 !important;
+}
+
+.card,
 .comment-card,
 .reply-card {
-    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
-/* Ensure the comment card doesn't overlap the dropdown */
-.card {
-    overflow: visible !important;
+.replies .comment-reactions {
+    z-index: 1200 !important;
 }
 
-/* Fix for popper.js positioning */
-[data-popper-placement] {
-    z-index: 999999 !important;
+/* Bootstrap's dropdown backdrop fix */
+.dropdown-backdrop {
+    z-index: 990 !important;
 }
 
-/* Ensure the dropdown appears above other elements */
-.dropdown-menu.show {
-    display: block !important;
-    z-index: 999999 !important;
+/* Ensure modals remain on top */
+.modal {
+    z-index: 10500000 !important;
+}
+
+.modal-backdrop {
+    z-index: 10490000 !important;
 }
