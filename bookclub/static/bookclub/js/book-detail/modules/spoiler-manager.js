@@ -17,6 +17,9 @@ export const SpoilerManager = {
         this._setupEventListeners();
         this._setupIndividualSpoilerButtons();
         
+        // Initial check for spoilers
+        this._checkSpoilersOnLoad();
+        
         return this;
     },
     
@@ -51,7 +54,8 @@ export const SpoilerManager = {
      * @param {boolean} show - Whether to show all spoilers
      */
     _toggleAllSpoilers(show) {
-        const spoilerComments = document.querySelectorAll('.spoiler-comment');
+        // Check both main comments and replies
+        const spoilerComments = document.querySelectorAll('.comment-card.spoiler-comment, .reply-card.spoiler-comment');
         
         spoilerComments.forEach(comment => {
             const spoilerWarning = comment.querySelector('.spoiler-warning');
@@ -70,6 +74,18 @@ export const SpoilerManager = {
     },
     
     /**
+     * Check for spoilers on page load
+     */
+    _checkSpoilersOnLoad() {
+        // Get user's progress percentage from the progress bar
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar && this.username) {
+            const userProgressValue = parseFloat(progressBar.getAttribute('aria-valuenow') || 0);
+            this.checkSpoilers({ normalized_progress: userProgressValue });
+        }
+    },
+    
+    /**
      * Check for spoilers based on user progress
      * @param {object} userProgress - User's current progress
      */
@@ -78,8 +94,18 @@ export const SpoilerManager = {
         
         const userProgressValue = parseFloat(userProgress.normalized_progress);
         
+        // Process all comments (both main and replies)
+        this._processCommentCards(userProgressValue);
+        this._processReplyCards(userProgressValue);
+    },
+    
+    /**
+     * Process main comment cards for spoilers
+     * @param {number} userProgressValue - User's progress value
+     */
+    _processCommentCards(userProgressValue) {
         document.querySelectorAll('.comment-card').forEach(comment => {
-            const commentProgress = parseFloat(comment.dataset.progress);
+            const commentProgress = parseFloat(comment.dataset.progress || 0);
             const commentUser = comment.querySelector('.comment-user')?.textContent.trim();
             
             // Skip if it's the user's own comment
@@ -91,6 +117,31 @@ export const SpoilerManager = {
             } else {
                 // This comment is not ahead of user's progress
                 this._unmarkSpoiler(comment);
+            }
+        });
+    },
+    
+    /**
+     * Process reply cards for spoilers
+     * @param {number} userProgressValue - User's progress value
+     */
+    _processReplyCards(userProgressValue) {
+        document.querySelectorAll('.reply-card').forEach(reply => {
+            // Try to get progress from the parent comment
+            const parentComment = reply.closest('.comment-card');
+            const commentProgress = parentComment ? parseFloat(parentComment.dataset.progress || 0) : 0;
+            
+            // Get reply author
+            const replyUser = reply.querySelector('.reply-user')?.textContent.trim();
+            
+            // Skip if it's the user's own reply
+            if (replyUser === this.username) return;
+            
+            // Apply spoiler based on parent comment's progress
+            if (commentProgress > userProgressValue) {
+                this._markAsSpoiler(reply);
+            } else {
+                this._unmarkSpoiler(reply);
             }
         });
     },
