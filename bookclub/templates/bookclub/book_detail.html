@@ -337,7 +337,18 @@
                 <span class="reply-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
             </div>
             <div class="card-body">
+                <!-- Add spoiler handling for replies too -->
+                {% if comment_progress_value > user_progress.normalized_progress and reply.user != user %}
+                <div class="spoiler-warning alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i> This reply is to a comment from further in the book than you've read.
+                    <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
+                </div>
+                <div class="spoiler-content" style="display: none;">
+                    <p class="card-text">{{ reply.text }}</p>
+                </div>
+                {% else %}
                 <p class="card-text">{{ reply.text }}</p>
+                {% endif %}
                 
                 <!-- Reply reactions -->
                 <div class="comment-reactions mt-3">
