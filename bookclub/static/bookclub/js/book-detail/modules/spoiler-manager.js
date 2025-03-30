@@ -169,7 +169,6 @@ export const SpoilerManager = {
             if (!cardBody) return; // Skip if card body doesn't exist
             
             const commentText = cardBody.querySelector('.card-text');
-            const reactionsSection = cardBody.querySelector('.comment-reactions');
             
             if (!commentText) return; // Skip if comment text doesn't exist
             
@@ -185,16 +184,9 @@ export const SpoilerManager = {
                     style: { display: 'none' }
                 });
                 
-                // Clone the comment text and reactions (if exist) and move them to the spoiler content
+                // Clone the comment text and move it to the spoiler content
                 const commentTextClone = commentText.cloneNode(true);
                 spoilerContent.appendChild(commentTextClone);
-                
-                // Also move reactions inside the spoiler content if they exist
-                if (reactionsSection) {
-                    const reactionsClone = reactionsSection.cloneNode(true);
-                    spoilerContent.appendChild(reactionsClone);
-                    reactionsSection.style.display = 'none';
-                }
                 
                 // Don't remove original text for replies, as they have a different structure
                 if (comment.classList.contains('comment-card')) {
@@ -232,12 +224,6 @@ export const SpoilerManager = {
         if (spoilerWarning && spoilerContent) {
             try {
                 const cardBody = comment.querySelector('.card-body');
-                
-                // Show the original reactions section
-                const reactionsSection = cardBody.querySelector('.comment-reactions');
-                if (reactionsSection) {
-                    reactionsSection.style.display = '';
-                }
                 
                 if (comment.classList.contains('comment-card')) {
                     // For main comments, restore the comment text from spoiler content
