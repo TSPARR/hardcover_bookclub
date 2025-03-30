@@ -275,12 +275,38 @@
         </div>
         <div class="spoiler-content" style="display: none;">
             <p class="card-text">{{ comment.text }}</p>
+            
+            <!-- Comment reactions INSIDE spoiler content -->
+            <div class="comment-reactions mt-3">
+                <!-- Existing reactions -->
+                <div class="existing-reactions mb-2">
+                    {% for reaction_type, count in comment.get_reactions_summary.items %}
+                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
+                        data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
+                        {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                
+                <!-- Add reaction button and inline panel -->
+                <div class="add-reaction">
+                    <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
+                        Add Reaction
+                    </button>
+                    <div class="reaction-panel" style="display: none;">
+                        {% for reaction_code, reaction_name in reaction_choices %}
+                        <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                            {{ reaction_code }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
         {% else %}
         <p class="card-text">{{ comment.text }}</p>
-        {% endif %}
 
-        <!-- Comment reactions -->
+        <!-- Comment reactions for non-spoiler comments -->
         <div class="comment-reactions mt-3">
             <!-- Existing reactions -->
             <div class="existing-reactions mb-2">
@@ -306,6 +332,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <div class="card-footer d-flex justify-content-between">
@@ -343,12 +370,38 @@
                 </div>
                 <div class="spoiler-content" style="display: none;">
                     <p class="card-text">{{ reply.text }}</p>
+                    
+                    <!-- Reply reactions INSIDE spoiler content -->
+                    <div class="comment-reactions mt-3">
+                        <!-- Existing reactions -->
+                        <div class="existing-reactions mb-2">
+                            {% for reaction_type, count in reply.get_reactions_summary.items %}
+                            <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
+                                data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
+                                {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Add reaction button and inline panel -->
+                        <div class="add-reaction">
+                            <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
+                                Add Reaction
+                            </button>
+                            <div class="reaction-panel" style="display: none;">
+                                {% for reaction_code, reaction_name in reaction_choices %}
+                                <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                    {{ reaction_code }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {% else %}
                 <p class="card-text">{{ reply.text }}</p>
-                {% endif %}
                 
-                <!-- Reply reactions -->
+                <!-- Reply reactions for non-spoiler replies -->
                 <div class="comment-reactions mt-3">
                     <!-- Existing reactions -->
                     <div class="existing-reactions mb-2">
@@ -374,6 +427,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
