@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.1.0
+- Reworked reactions on comments to work more consistently and properly apply spoiler tags
+- Added new nightly builds based on the develop branch
+
 ## Release 0.0.9
 - Refactor of main javascript and python files into more discrete functions
 
