@@ -48,7 +48,7 @@ services:
 ```
 
 <details>
-<summary>📚 Kavita Integration (Optional)</summary>
+<summary><h3>📚 Kavita Integration (Optional)</h3></summary>
 
 The app includes optional integration with [Kavita](https://www.kavitareader.com/), a self-hosted digital library server. This integration adds "View on Kavita" links to books that exist in your Kavita library.
 
@@ -74,7 +74,7 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 </details>
 
 <details>
-<summary>## 🔨 Development</summary>
+<summary><h3>🔨 Development</h3></summary>
 
 ### 🐍 Running Locally
 
