@@ -130,11 +130,19 @@
             {% endif %}
         </div>
 
-        {% if book.url %}
+        {% if book.url or book.kavita_url %}
         <div class="mb-3">
-            <a href="{{ book.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+            {% if book.url %}
+            <a href="{{ book.url }}" target="_blank" class="btn btn-sm external-link-btn hardcover-btn">
                 <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
             </a>
+            {% endif %}
+            
+            {% if book.kavita_url %}
+            <a href="{{ book.kavita_url }}" target="_blank" class="btn btn-sm external-link-btn kavita-btn">
+                <i class="bi bi-box-arrow-up-right"></i> View on Kavita
+            </a>
+            {% endif %}
         </div>
         {% endif %}
 

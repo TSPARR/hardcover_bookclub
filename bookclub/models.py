@@ -55,6 +55,9 @@ class Book(models.Model):
     pages = models.IntegerField(null=True, blank=True)
     audio_seconds = models.IntegerField(null=True, blank=True)
 
+    # Kavita metadata
+    kavita_url = models.URLField(blank=True)
+
     class Meta:
         ordering = ["display_order", "id"]
 

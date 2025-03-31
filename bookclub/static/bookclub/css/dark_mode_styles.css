@@ -1040,3 +1040,23 @@ input[name="hardcover_api_key"] {
     border-color: #0d6efd;
     color: white;
 }
+
+/* Hardcover button */
+.hardcover-btn {
+    border-color: #31d2f2;
+    color: #31d2f2;
+}
+
+.hardcover-btn:hover {
+    background-color: rgba(49, 210, 242, 0.15);
+}
+
+/* Kavita button */
+.kavita-btn {
+    border-color: #adb5bd;
+    color: #adb5bd;
+}
+
+.kavita-btn:hover {
+    background-color: rgba(173, 181, 189, 0.15);
+}
