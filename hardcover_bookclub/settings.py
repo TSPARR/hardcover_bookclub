@@ -226,3 +226,9 @@ if not CSRF_TRUSTED_ORIGINS:
 KAVITA_BASE_URL = os.environ.get("KAVITA_BASE_URL", "")
 KAVITA_API_KEY = os.environ.get("KAVITA_API_KEY", "")
 KAVITA_ENABLED = bool(KAVITA_BASE_URL and KAVITA_API_KEY)
+
+# Plex integration (optional)
+PLEX_BASE_URL = os.environ.get("PLEX_BASE_URL", "")
+PLEX_TOKEN = os.environ.get("PLEX_TOKEN", "")
+PLEX_LIBRARY_NAME = os.environ.get("PLEX_LIBRARY_NAME", "")
+PLEX_ENABLED = bool(PLEX_BASE_URL and PLEX_TOKEN and PLEX_LIBRARY_NAME)

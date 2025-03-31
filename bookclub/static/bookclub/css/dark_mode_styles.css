@@ -1060,3 +1060,14 @@ input[name="hardcover_api_key"] {
 .kavita-btn:hover {
     background-color: rgba(173, 181, 189, 0.15);
 }
+
+/* Plex button */
+.plex-btn {
+    background-color: #e68a1e;
+    color: white;
+}
+
+.plex-btn:hover {
+    background-color: #f59c2a;
+    color: white;
+}

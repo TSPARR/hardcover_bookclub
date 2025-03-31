@@ -25,6 +25,7 @@ from ..models import (
     User,
     UserBookProgress,
 )
+from ..plex_api import update_plex_info_for_book
 from .book_utils import (
     convert_progress_to_pages,
     convert_progress_to_seconds,
@@ -51,6 +52,9 @@ def book_detail(request, book_id):
 
     if settings.KAVITA_ENABLED and not book.kavita_url:
         update_kavita_info_for_book(book)
+
+    if settings.PLEX_ENABLED and not book.plex_url:
+        update_plex_info_for_book(book)
 
     # Get or create user progress for this book
     user_progress, created = UserBookProgress.objects.get_or_create(
