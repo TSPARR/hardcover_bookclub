@@ -47,8 +47,10 @@ services:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
 
+### 📚 Kavita Integration (Optional)
+
 <details>
-<summary><h3>📚 Kavita Integration (Optional)</h3></summary>
+<summary>Click to expand Kavita integration details</summary>
 
 The app includes optional integration with [Kavita](https://www.kavitareader.com/), a self-hosted digital library server. This integration adds "View on Kavita" links to books that exist in your Kavita library.
 
@@ -73,8 +75,11 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 - For best results, maintain consistent naming conventions between your Hardcover and Kavita libraries
 </details>
 
+
+### 🔨 Development
+
 <details>
-<summary><h3>🔨 Development</h3></summary>
+<summary>Click to see information about setting up a dev environment</summary>
 
 ### 🐍 Running Locally
 
