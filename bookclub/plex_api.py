@@ -25,24 +25,26 @@ def get_plex_server():
         return None
 
 
-def update_plex_info_for_book(book):
+def get_plex_book_url(book_title, book_author):
     """
-    Search Plex for a book and update the book's plex_url if found
+    Search for a book in Plex and return its URL if found
 
     Args:
-        book: Book model instance to update
+        book_title (str): Title of the book
+        book_author (str): Author of the book
 
     Returns:
-        bool: True if book was updated, False otherwise
+        str: URL to the book in Plex or None if not found
     """
+    # Skip if Plex integration is not configured
     if not settings.PLEX_ENABLED:
-        return False
+        return None
 
     try:
         # Connect to Plex server
         plex = get_plex_server()
         if not plex:
-            return False
+            return None
 
         # Get the server identifier
         plex_server_identifier = plex.machineIdentifier
@@ -52,24 +54,30 @@ def update_plex_info_for_book(book):
             audiobooks = plex.library.section(settings.PLEX_LIBRARY_NAME)
         except NotFound:
             logger.error(f"Plex library not found: {settings.PLEX_LIBRARY_NAME}")
-            return False
+            return None
 
-        # Search for the book
+        # Process the title to remove subtitles (anything after first colon)
+        processed_title = book_title.split(":", 1)[0].strip()
+
+        # Search for the book using the processed title and author filter
         try:
             book_search = audiobooks.search(
-                filters={"artist.title": f"{book.author}"},
-                title=f"{book.title}",
+                filters={"artist.title": f"{book_author}"},
+                title=f"{processed_title}",
                 libtype="album",
             )
-        except (BadRequest, Exception) as e:
-            logger.error(f"Error searching Plex for book '{book.title}': {str(e)}")
+        except Exception as e:
+            logger.error(
+                f"Error searching Plex for '{processed_title}' by '{book_author}': {str(e)}"
+            )
+            return None
 
         # Check if we found any matches
         if not book_search:
             logger.info(
-                f"No matches found in Plex for '{book.title}' by '{book.author}'"
+                f"No matches found in Plex for '{processed_title}' by '{book_author}'"
             )
-            return False
+            return None
 
         # Get the best match (first result)
         best_match = book_search[0]
@@ -77,15 +85,24 @@ def update_plex_info_for_book(book):
         # Construct the URL to the book in Plex
         book_url = f"https://app.plex.tv/desktop#!/server/{plex_server_identifier}/details?key=%2Flibrary%2Fmetadata%2F{best_match.ratingKey}"
 
-        # Update the book model
-        book.plex_url = book_url
-        book.save(update_fields=["plex_url"])
-
-        logger.info(f"Updated Plex URL for book: {book.title} by {book.author}")
-        return True
+        return book_url
 
     except Exception as e:
         logger.exception(
-            f"Unexpected error updating Plex info for '{book.title}': {str(e)}"
+            f"Unexpected error searching Plex for '{book_title}': {str(e)}"
         )
-        return False
+        return None
+
+
+def update_plex_info_for_book(book):
+    """
+    Update Plex information for a book
+    """
+    plex_url = get_plex_book_url(book.title, book.author)
+
+    if plex_url:
+        book.plex_url = plex_url
+        book.save(update_fields=["plex_url"])
+        return True
+
+    return False
