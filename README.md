@@ -37,7 +37,7 @@ services:
       - DJANGO_ADMIN_EMAIL=admin@email.com
       - DJANGO_ADMIN_PASSWORD=admin
       # trusted origins, set to your domain if behind a reverse proxy
-      - DJANGO_CSRF_TRUSTED_ORIGINS=https://bookclub.zmthree.xyz
+      - DJANGO_CSRF_TRUSTED_ORIGINS=https://bookclub.domain.com
       # optionally enable debug mode
       - DJANGO_DEBUG=False
       # optional Kavita integration
