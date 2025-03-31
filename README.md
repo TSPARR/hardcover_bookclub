@@ -47,7 +47,8 @@ services:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
 
-### 📚 Kavita Integration (Optional)
+<details>
+<summary>📚 Kavita Integration (Optional)</summary>
 
 The app includes optional integration with [Kavita](https://www.kavitareader.com/), a self-hosted digital library server. This integration adds "View on Kavita" links to books that exist in your Kavita library.
 
@@ -70,8 +71,10 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 
 - The search uses the book title to find matches, so ensure your Kavita library has accurate metadata
 - For best results, maintain consistent naming conventions between your Hardcover and Kavita libraries
+</details>
 
-## 🔨 Development
+<details>
+<summary>## 🔨 Development</summary>
 
 ### 🐍 Running Locally
 
@@ -87,3 +90,4 @@ python manage.py flush
 python manage.py createsuperuser
 python manage.py set_group_admin $USERNAME
 ```
+</details>
