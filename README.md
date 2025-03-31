@@ -68,8 +68,7 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 
 #### Troubleshooting
 
-- If links aren't appearing, check that your API key has appropriate permissions
-- The search uses the book title and author to find matches, so ensure your Kavita library has accurate metadata
+- The search uses the book title to find matches, so ensure your Kavita library has accurate metadata
 - For best results, maintain consistent naming conventions between your Hardcover and Kavita libraries
 
 ## 🔨 Development
