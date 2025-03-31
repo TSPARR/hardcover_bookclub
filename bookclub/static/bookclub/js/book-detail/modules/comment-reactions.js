@@ -123,14 +123,24 @@ export const CommentReactions = {
         
         // Add updated reactions
         for (const [reaction, count] of Object.entries(data.counts)) {
-            const button = DomHelpers.createElement('button', {
-                className: `btn btn-sm btn-outline-secondary reaction-btn me-1 ${data.action === 'added' && data.reaction === reaction ? 'active' : ''}`,
-                dataset: {
-                    commentId: commentId,
-                    reaction: reaction
-                }
-            }, `${reaction} <span class="reaction-count">${count}</span>`);
+            // Create button element
+            const button = document.createElement('button');
+            button.className = `btn btn-sm btn-outline-secondary reaction-btn me-1 ${data.action === 'added' && data.reaction === reaction ? 'active' : ''}`;
+            button.dataset.commentId = commentId;
+            button.dataset.reaction = reaction;
             
+            // Add text node first
+            button.appendChild(document.createTextNode(reaction + ' '));
+            
+            // Create span for count
+            const countSpan = document.createElement('span');
+            countSpan.className = 'reaction-count';
+            countSpan.textContent = count;
+            
+            // Add span to button
+            button.appendChild(countSpan);
+            
+            // Add button to container
             reactionsContainer.appendChild(button);
         }
     }
