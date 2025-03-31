@@ -19,7 +19,7 @@ def get_plex_server():
         return None
 
     try:
-        return PlexServer(settings.PLEX_URL, settings.PLEX_TOKEN)
+        return PlexServer(settings.PLEX_BASE_URL, settings.PLEX_TOKEN)
     except (NotFound, Unauthorized, BadRequest) as e:
         logger.error(f"Error connecting to Plex server: {str(e)}")
         return None
