@@ -16,7 +16,7 @@ def authenticate(api_url_base, api_key):
     return session, token
 
 
-def get_kavita_book_url(book_title):
+def get_kavita_book_url(book_title, author_name):
     """
     Search for a book in Kavita and return its URL if found
     """
@@ -37,22 +37,21 @@ def get_kavita_book_url(book_title):
         search_url = f"{kavita_base_url}/api/Search/search"
         headers = {"Authorization": f"Bearer {token}"}
         params = {
-            "queryString": f"{book_title}",
+            "queryString": f"{book_title} {author_name}",
             "includeChapterAndFiles": "true",
         }
 
         response = session.get(search_url, headers=headers, params=params)
+        if response.status_code != 200:
+            return None
 
         response.raise_for_status()
-
         data = response.json()
 
-        # Step 3: First check for series matches
-        series_matches = []
+        # Step 3: First check for series matches - this is our preferred match type
         if "series" in data and data["series"]:
             series_matches = data["series"]
 
-        if series_matches:
             # If we found a series match, use that directly
             best_match = series_matches[0]  # Assuming first match is best
 
@@ -60,52 +59,47 @@ def get_kavita_book_url(book_title):
             library_id = best_match.get("libraryId")
 
             if series_id and library_id:
-                # For series, we build a URL to the series page
+                # For series, we build a URL directly to the series page
                 kavita_url = (
                     f"{kavita_base_url}/library/{library_id}/series/{series_id}"
                 )
                 return kavita_url
 
-        # Step 4: If no series matches, try chapters
-        chapter_matches = []
+        # Step 4: If no series matches found, only then try chapters
         if "chapters" in data and data["chapters"]:
             chapter_matches = data["chapters"]
 
-        if not chapter_matches:
-            return None
+            # Find the most relevant chapter match
+            best_match = chapter_matches[0]
 
-        # Find the most relevant chapter match
-        best_match = chapter_matches[0]
+            chapter_id = best_match.get("id")
+            volume_id = best_match.get("volumeId")
 
-        chapter_id = best_match.get("id")
-        volume_id = best_match.get("volumeId")
+            if not chapter_id or not volume_id:
+                return None
 
-        if not chapter_id or not volume_id:
-            return None
+            # Get series info for this chapter
+            series_url = f"{kavita_base_url}/api/search/series-for-chapter"
+            params = {"chapterId": chapter_id}
 
-        # Get series info for this chapter
-        series_url = f"{kavita_base_url}/api/search/series-for-chapter"
-        params = {"chapterId": chapter_id}
+            series_response = session.get(series_url, headers=headers, params=params)
+            if series_response.status_code != 200:
+                return None
 
-        series_response = session.get(series_url, headers=headers, params=params)
+            series_response.raise_for_status()
+            series_data = series_response.json()
 
-        if series_response.status_code != 200:
-            return None
+            series_id = series_data.get("id")
+            library_id = series_data.get("libraryId")
 
-        series_response.raise_for_status()
+            if not series_id or not library_id:
+                return None
 
-        series_data = series_response.json()
+            # Build the final URL for chapter-based matches
+            kavita_url = f"{kavita_base_url}/library/{library_id}/series/{series_id}/volume/{volume_id}"
+            return kavita_url
 
-        series_id = series_data.get("id")
-        library_id = series_data.get("libraryId")
-
-        if not series_id or not library_id:
-            return None
-
-        # Build the final URL for chapter-based matches
-        kavita_url = f"{kavita_base_url}/library/{library_id}/series/{series_id}/volume/{volume_id}"
-
-        return kavita_url
+        return None
 
     except Exception as e:
         return None
