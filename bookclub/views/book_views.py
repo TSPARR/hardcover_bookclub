@@ -5,6 +5,7 @@ Book-related views for managing books, reading progress, etc.
 import json
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -14,6 +15,7 @@ from django.utils import timezone
 
 from ..forms import BookSearchForm, CommentForm
 from ..hardcover_api import HardcoverAPI
+from ..kavita_api import update_kavita_info_for_book
 from ..models import (
     Book,
     BookEdition,
@@ -46,6 +48,9 @@ logger = logging.getLogger(__name__)
 @login_required
 def book_detail(request, book_id):
     book = get_object_or_404(Book, id=book_id)
+
+    if settings.KAVITA_ENABLED and not book.kavita_url:
+        update_kavita_info_for_book(book)
 
     # Get or create user progress for this book
     user_progress, created = UserBookProgress.objects.get_or_create(

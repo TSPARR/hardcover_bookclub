@@ -65,6 +65,45 @@ class GroupInvitationAdmin(admin.ModelAdmin):
     readonly_fields = ("code",)
 
 
+class BookAdmin(admin.ModelAdmin):
+    list_display = ["title", "author", "group", "is_active"]
+    search_fields = ["title", "author"]
+    list_filter = ["group", "is_active"]
+    readonly_fields = ["hardcover_id", "created_at"]
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "title",
+                    "author",
+                    "description",
+                    "group",
+                    "is_active",
+                    "display_order",
+                    "picked_by",
+                    "is_collective_pick",
+                )
+            },
+        ),
+        (
+            "External Services",
+            {
+                "fields": ("hardcover_id", "cover_image_url", "url", "kavita_url"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Metadata",
+            {
+                "fields": ("pages", "audio_seconds", "created_at"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(BookGroup, BookGroupAdmin)
 admin.site.register(Book)

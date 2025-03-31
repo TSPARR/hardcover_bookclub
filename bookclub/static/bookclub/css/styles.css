@@ -475,7 +475,8 @@ h6 {
 
 /* Reaction panel styling */
 .reaction-panel {
-    display: none; /* Hidden by default */
+    display: none;
+    /* Hidden by default */
     flex-wrap: wrap;
     gap: 0.25rem;
     margin-top: 0.5rem;
@@ -484,8 +485,13 @@ h6 {
 
 /* Animation for panel appearance */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Reaction option buttons */
@@ -518,4 +524,37 @@ h6 {
     background-color: #0d6efd;
     border-color: #0d6efd;
     color: white;
+}
+
+/* External service link buttons */
+.external-link-btn {
+    border-width: 1px;
+    border-style: solid;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.hardcover-btn {
+    border-color: #0aa2c0;
+    color: #0aa2c0;
+}
+
+/* Hardcover button */
+.hardcover-btn:hover {
+    background-color: rgba(10, 162, 192, 0.1);
+    color: #0aa2c0;
+    border-color: #0aa2c0;
+}
+
+/* Kavita button */
+.kavita-btn {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.kavita-btn:hover {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border-color: #6c757d;
 }

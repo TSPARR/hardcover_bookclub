@@ -160,7 +160,7 @@ class HardcoverAPI:
                 "id": book_data["id"],
                 "title": book_data["title"],
                 "description": book_data["description"],
-                "url": f"https://hardcover.app/books/{book_data['slug']}",
+                "url": f"https://hardcover.app/books/{book_data['slug']}?referrer_id=8674",
             }
 
             # Add cover image URL
