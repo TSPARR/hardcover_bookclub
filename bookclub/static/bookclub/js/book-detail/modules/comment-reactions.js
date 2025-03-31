@@ -15,15 +15,12 @@ export const CommentReactions = {
      * Set up event listeners for reactions
      */
     _setupEventListeners() {
-        // Use event delegation for all reaction buttons
+        // Event delegation for reaction buttons
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('reaction-btn') || 
-                e.target.closest('.reaction-btn') ||
-                e.target.classList.contains('reaction-option')) {
-                
+            // Handle clicking existing reaction buttons
+            if (e.target.classList.contains('reaction-btn') || e.target.closest('.reaction-btn')) {
                 const button = e.target.classList.contains('reaction-btn') ? 
-                              e.target : 
-                              (e.target.closest('.reaction-btn') || e.target);
+                              e.target : e.target.closest('.reaction-btn');
                 
                 const commentId = button.dataset.commentId;
                 const reaction = button.dataset.reaction;
@@ -31,6 +28,55 @@ export const CommentReactions = {
                 if (commentId && reaction) {
                     this._toggleReaction(commentId, reaction);
                 }
+            }
+            
+            // Handle clicking reaction options from the panel
+            if (e.target.classList.contains('reaction-option')) {
+                const button = e.target;
+                const commentId = button.dataset.commentId;
+                const reaction = button.dataset.reaction;
+                
+                if (commentId && reaction) {
+                    this._toggleReaction(commentId, reaction);
+                    
+                    // Hide the reaction panel after selection
+                    const panel = button.closest('.reaction-panel');
+                    if (panel) {
+                        panel.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Handle the "Add Reaction" button click
+            if (e.target.classList.contains('add-reaction-btn') || e.target.closest('.add-reaction-btn')) {
+                const button = e.target.classList.contains('add-reaction-btn') ? 
+                              e.target : e.target.closest('.add-reaction-btn');
+                
+                const panel = button.nextElementSibling;
+                if (panel && panel.classList.contains('reaction-panel')) {
+                    // Toggle the panel visibility
+                    const isVisible = panel.style.display === 'flex';
+                    panel.style.display = isVisible ? 'none' : 'flex';
+                    
+                    // Close other open panels
+                    if (!isVisible) {
+                        document.querySelectorAll('.reaction-panel').forEach(p => {
+                            if (p !== panel && p.style.display === 'flex') {
+                                p.style.display = 'none';
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Close reaction panels when clicking elsewhere
+            if (!e.target.classList.contains('add-reaction-btn') && 
+                !e.target.closest('.add-reaction-btn') &&
+                !e.target.classList.contains('reaction-option') && 
+                !e.target.closest('.reaction-panel')) {
+                document.querySelectorAll('.reaction-panel').forEach(panel => {
+                    panel.style.display = 'none';
+                });
             }
         });
     },

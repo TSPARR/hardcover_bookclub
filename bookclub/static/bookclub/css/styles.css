@@ -289,24 +289,6 @@ h6 {
     }
 }
 
-/* Sorting dropdown styles */
-.dropdown-menu {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    position: absolute !important;
-    z-index: 9999 !important;
-}
-
-.dropdown-item.active,
-.dropdown-item:active {
-    background-color: #0d6efd;
-    color: white;
-}
-
-.dropdown-item:hover {
-    background-color: rgba(13, 110, 253, 0.1);
-}
-
 /* Progress percentage display */
 .comment-progress .text-muted {
     font-size: 0.875rem;
@@ -446,52 +428,6 @@ h6 {
     color: #6c757d;
 }
 
-/* Comprehensive z-index fixes for dropdown menus */
-.dropdown {
-    position: relative !important;
-    z-index: 5 !important;
-}
-
-/* Ensure card elements don't hide dropdowns */
-.card,
-.comment-card,
-.reply-card {
-    overflow: visible !important;
-    position: relative !important;
-    z-index: 1 !important;
-}
-
-/* Fix for comment reactions container */
-.comment-reactions {
-    position: relative !important;
-    z-index: 10 !important;
-}
-
-/* Give each card a different z-index to stack properly */
-.comment-card {
-    z-index: auto !important;
-}
-
-/* Fix for reply cards container */
-.replies {
-    position: relative !important;
-    overflow: visible !important;
-}
-
-/* Bootstrap's dropdown backdrop fix */
-.dropdown-backdrop {
-    z-index: 990 !important;
-}
-
-/* Z-Index Fixes */
-.modal {
-    z-index: 1050;
-}
-
-.modal-backdrop {
-    z-index: 1040;
-}
-
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -535,4 +471,51 @@ h6 {
 .rating-option:hover i,
 .rating-option.selected i {
     animation: star-pulse 0.3s ease;
+}
+
+/* Reaction panel styling */
+.reaction-panel {
+    display: none; /* Hidden by default */
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Animation for panel appearance */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Reaction option buttons */
+.reaction-option {
+    min-width: 2.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.reaction-option:hover {
+    transform: scale(1.1);
+}
+
+/* Existing reaction buttons */
+.reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    transition: all 0.2s;
+}
+
+.reaction-count {
+    margin-left: 0.25rem;
+    font-weight: bold;
+}
+
+/* Active reaction */
+.reaction-btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
 }

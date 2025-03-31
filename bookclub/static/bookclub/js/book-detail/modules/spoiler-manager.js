@@ -32,21 +32,26 @@ export const SpoilerManager = {
                 this._toggleAllSpoilers(this.showSpoilersToggle.checked);
             });
         }
-    },
-    
-    /**
-     * Set up individual spoiler buttons
-     */
-    _setupIndividualSpoilerButtons() {
-        document.querySelectorAll('.show-spoiler-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        
+        // Use event delegation for dynamically added spoiler buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('show-spoiler-btn')) {
                 const spoilerWarning = e.target.closest('.spoiler-warning');
                 const spoilerContent = spoilerWarning.nextElementSibling;
                 
-                spoilerWarning.style.display = 'none';
-                spoilerContent.style.display = 'block';
-            });
+                if (spoilerWarning && spoilerContent) {
+                    spoilerWarning.style.display = 'none';
+                    spoilerContent.style.display = 'block';
+                }
+            }
         });
+    },
+    
+    /**
+     * Set up individual spoiler buttons that exist on page load
+     */
+    _setupIndividualSpoilerButtons() {
+        // This is now handled by event delegation in _setupEventListeners
     },
     
     /**
@@ -129,10 +134,12 @@ export const SpoilerManager = {
         document.querySelectorAll('.reply-card').forEach(reply => {
             // Try to get progress from the parent comment
             const parentComment = reply.closest('.comment-card');
-            const commentProgress = parentComment ? parseFloat(parentComment.dataset.progress || 0) : 0;
+            if (!parentComment) return; // Skip if no parent found
+            
+            const commentProgress = parseFloat(parentComment.dataset.progress || 0);
             
             // Get reply author
-            const replyUser = reply.querySelector('.reply-user')?.textContent.trim();
+            const replyUser = reply.querySelector('.comment-user')?.textContent.trim();
             
             // Skip if it's the user's own reply
             if (replyUser === this.username) return;
@@ -159,34 +166,44 @@ export const SpoilerManager = {
         // Make sure the comment has spoiler warning and hidden content
         if (!comment.querySelector('.spoiler-warning')) {
             const cardBody = comment.querySelector('.card-body');
+            if (!cardBody) return; // Skip if card body doesn't exist
+            
             const commentText = cardBody.querySelector('.card-text');
             
-            if (!commentText) return;
+            if (!commentText) return; // Skip if comment text doesn't exist
             
-            // Create spoiler warning
-            const spoilerWarning = DomHelpers.createElement('div', {
-                className: 'spoiler-warning alert alert-warning'
-            }, '<i class="bi bi-exclamation-triangle-fill"></i> This comment is from further in the book than you\'ve read. <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>');
-            
-            // Create spoiler content container
-            const spoilerContent = DomHelpers.createElement('div', {
-                className: 'spoiler-content',
-                style: { display: 'none' }
-            });
-            
-            // Move the comment text into the spoiler content
-            spoilerContent.appendChild(commentText.cloneNode(true));
-            commentText.remove();
-            
-            // Add the elements to the card
-            cardBody.appendChild(spoilerWarning);
-            cardBody.appendChild(spoilerContent);
-            
-            // Add event listener to show button
-            spoilerWarning.querySelector('.show-spoiler-btn').addEventListener('click', function() {
-                spoilerWarning.style.display = 'none';
-                spoilerContent.style.display = 'block';
-            });
+            try {
+                // Create spoiler warning
+                const spoilerWarning = DomHelpers.createElement('div', {
+                    className: 'spoiler-warning alert alert-warning alert-permanent'
+                }, '<i class="bi bi-exclamation-triangle-fill"></i> This comment is from further in the book than you\'ve read. <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>');
+                
+                // Create spoiler content container
+                const spoilerContent = DomHelpers.createElement('div', {
+                    className: 'spoiler-content',
+                    style: { display: 'none' }
+                });
+                
+                // Clone the comment text and move it to the spoiler content
+                const commentTextClone = commentText.cloneNode(true);
+                spoilerContent.appendChild(commentTextClone);
+                
+                // Don't remove original text for replies, as they have a different structure
+                if (comment.classList.contains('comment-card')) {
+                    commentText.remove();
+                } else {
+                    // For replies, hide the original text instead of removing it
+                    commentText.style.display = 'none';
+                }
+                
+                // Add the elements to the card
+                cardBody.insertBefore(spoilerContent, commentText.nextSibling);
+                cardBody.insertBefore(spoilerWarning, spoilerContent);
+                
+                // Event listeners are now handled by event delegation
+            } catch (error) {
+                console.error('Error marking spoiler:', error);
+            }
         }
     },
     
@@ -205,16 +222,28 @@ export const SpoilerManager = {
         const spoilerContent = comment.querySelector('.spoiler-content');
         
         if (spoilerWarning && spoilerContent) {
-            const cardBody = comment.querySelector('.card-body');
-            const commentText = spoilerContent.querySelector('.card-text');
-            
-            if (commentText && cardBody) {
-                // Move the comment text back into the card body
-                cardBody.appendChild(commentText);
+            try {
+                const cardBody = comment.querySelector('.card-body');
+                
+                if (comment.classList.contains('comment-card')) {
+                    // For main comments, restore the comment text from spoiler content
+                    const commentText = spoilerContent.querySelector('.card-text');
+                    if (commentText && cardBody) {
+                        cardBody.appendChild(commentText);
+                    }
+                } else {
+                    // For replies, just show the original text that was hidden
+                    const originalText = cardBody.querySelector('.card-text');
+                    if (originalText) {
+                        originalText.style.display = '';
+                    }
+                }
                 
                 // Remove spoiler elements
-                spoilerWarning.remove();
-                spoilerContent.remove();
+                if (spoilerWarning) spoilerWarning.remove();
+                if (spoilerContent) spoilerContent.remove();
+            } catch (error) {
+                console.error('Error unmarking spoiler:', error);
             }
         }
     }

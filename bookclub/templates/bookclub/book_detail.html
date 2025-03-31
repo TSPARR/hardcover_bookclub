@@ -269,18 +269,44 @@
         </p>
 
         {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}
-        <div class="spoiler-warning alert alert-warning">
+        <div class="spoiler-warning alert alert-warning alert-permanent">
             <i class="bi bi-exclamation-triangle-fill"></i> This comment is from further in the book than you've read.
             <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
         </div>
         <div class="spoiler-content" style="display: none;">
             <p class="card-text">{{ comment.text }}</p>
+            
+            <!-- Comment reactions INSIDE spoiler content -->
+            <div class="comment-reactions mt-3">
+                <!-- Existing reactions -->
+                <div class="existing-reactions mb-2">
+                    {% for reaction_type, count in comment.get_reactions_summary.items %}
+                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
+                        data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
+                        {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                
+                <!-- Add reaction button and inline panel -->
+                <div class="add-reaction">
+                    <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
+                        Add Reaction
+                    </button>
+                    <div class="reaction-panel" style="display: none;">
+                        {% for reaction_code, reaction_name in reaction_choices %}
+                        <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                            {{ reaction_code }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
         {% else %}
         <p class="card-text">{{ comment.text }}</p>
-        {% endif %}
 
-        <!-- Comment reactions -->
+        <!-- Comment reactions for non-spoiler comments -->
         <div class="comment-reactions mt-3">
             <!-- Existing reactions -->
             <div class="existing-reactions mb-2">
@@ -292,22 +318,21 @@
                 {% endfor %}
             </div>
             
-            <!-- Add reaction button -->
+            <!-- Add reaction button and inline panel -->
             <div class="add-reaction">
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        Add Reaction
+                <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
+                    Add Reaction
+                </button>
+                <div class="reaction-panel" style="display: none;">
+                    {% for reaction_code, reaction_name in reaction_choices %}
+                    <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                        {{ reaction_code }}
                     </button>
-                    <div class="dropdown-menu reaction-picker">
-                        {% for reaction_code, reaction_name in reaction_choices %}
-                        <button class="dropdown-item reaction-option" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
-                            {{ reaction_code }} {{ reaction_name }}
-                        </button>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <div class="card-footer d-flex justify-content-between">
@@ -321,7 +346,7 @@
         <div class="card mb-2 reply-card" id="comment-{{ reply.id }}">
             <div class="card-header d-flex justify-content-between">
                 <div class="d-flex align-items-center">
-                    <span class="reply-user">{{ reply.user.username }}</span>
+                    <span class="comment-user">{{ reply.user.username }}</span>
                     {% if reply.user == user %}
                     <div class="dropdown ms-2">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -334,12 +359,49 @@
                     </div>
                     {% endif %}
                 </div>
-                <span class="reply-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
+                <span class="comment-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
             </div>
             <div class="card-body">
+                <!-- Add spoiler handling for replies too -->
+                {% if comment_progress_value > user_progress.normalized_progress and reply.user != user %}
+                <div class="spoiler-warning alert alert-warning alert-permanent">
+                    <i class="bi bi-exclamation-triangle-fill"></i> This reply is to a comment from further in the book than you've read.
+                    <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
+                </div>
+                <div class="spoiler-content" style="display: none;">
+                    <p class="card-text">{{ reply.text }}</p>
+                    
+                    <!-- Reply reactions INSIDE spoiler content -->
+                    <div class="comment-reactions mt-3">
+                        <!-- Existing reactions -->
+                        <div class="existing-reactions mb-2">
+                            {% for reaction_type, count in reply.get_reactions_summary.items %}
+                            <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
+                                data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
+                                {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Add reaction button and inline panel -->
+                        <div class="add-reaction">
+                            <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
+                                Add Reaction
+                            </button>
+                            <div class="reaction-panel" style="display: none;">
+                                {% for reaction_code, reaction_name in reaction_choices %}
+                                <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                    {{ reaction_code }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
                 <p class="card-text">{{ reply.text }}</p>
                 
-                <!-- Reply reactions -->
+                <!-- Reply reactions for non-spoiler replies -->
                 <div class="comment-reactions mt-3">
                     <!-- Existing reactions -->
                     <div class="existing-reactions mb-2">
@@ -351,22 +413,21 @@
                         {% endfor %}
                     </div>
                     
-                    <!-- Add reaction button -->
+                    <!-- Add reaction button and inline panel -->
                     <div class="add-reaction">
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Add Reaction
+                        <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
+                            Add Reaction
+                        </button>
+                        <div class="reaction-panel" style="display: none;">
+                            {% for reaction_code, reaction_name in reaction_choices %}
+                            <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                {{ reaction_code }}
                             </button>
-                            <div class="dropdown-menu reaction-picker">
-                                {% for reaction_code, reaction_name in reaction_choices %}
-                                <button class="dropdown-item reaction-option" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
-                                    {{ reaction_code }} {{ reaction_name }}
-                                </button>
-                                {% endfor %}
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
