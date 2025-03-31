@@ -28,16 +28,17 @@ def get_kavita_book_url(book_title):
         return None
 
     try:
-        # Step 1: Authenticate with Kavita
         session, token = authenticate(kavita_base_url, kavita_api_key)
         if not session or not token:
             return None
 
-        # Step 2: Search for the book
+        # Process the title to remove subtitles (anything after first colon)
+        processed_title = book_title.split(":", 1)[0].strip()
+
         search_url = f"{kavita_base_url}/api/Search/search"
         headers = {"Authorization": f"Bearer {token}"}
         params = {
-            "queryString": f"{book_title}",
+            "queryString": processed_title,
             "includeChapterAndFiles": "true",
         }
 
@@ -48,7 +49,7 @@ def get_kavita_book_url(book_title):
         response.raise_for_status()
         data = response.json()
 
-        # Step 3: First check for series matches - this is our preferred match type
+        # First check for series matches - this indicates a standalone book
         if "series" in data and data["series"]:
             series_matches = data["series"]
 
@@ -65,7 +66,7 @@ def get_kavita_book_url(book_title):
                 )
                 return kavita_url
 
-        # Step 4: If no series matches found, only then try chapters
+        # If no series matches found, only then try chapters
         if "chapters" in data and data["chapters"]:
             chapter_matches = data["chapters"]
 
