@@ -89,7 +89,7 @@ The bash script on the root directory [start.sh](./start.sh) will set up the dat
 
 Run the following to reset the databases for testing.
 
-```
+```bash
 source venv/bin/activate
 python manage.py flush
 python manage.py createsuperuser
