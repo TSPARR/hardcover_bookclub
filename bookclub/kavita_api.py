@@ -73,6 +73,7 @@ def get_kavita_book_url(book_title):
                 print(
                     f"First series match: '{data['series'][0].get('name', 'unknown')}'"
                 )
+                print(f"Series keys: {data['series'][0].keys()}")
         else:
             print("No series key in response")
 
@@ -96,8 +97,11 @@ def get_kavita_book_url(book_title):
             # If we found a series match, use that directly
             best_match = series_matches[0]  # Assuming first match is best
 
-            series_id = best_match.get("id")
+            # The key is seriesId, not id
+            series_id = best_match.get("seriesId")
             library_id = best_match.get("libraryId")
+
+            print(f"Found series ID: {series_id}, library ID: {library_id}")
 
             if series_id and library_id:
                 # For series, we build a URL directly to the series page
@@ -107,7 +111,7 @@ def get_kavita_book_url(book_title):
                 print(f"Created series URL: {kavita_url}")
                 return kavita_url
             else:
-                print("Series match found but missing ID or library ID")
+                print("Series match found but missing seriesId or libraryId")
         else:
             print("No series matches found")
 
