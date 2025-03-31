@@ -63,7 +63,7 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
     KAVITA_API_KEY=your-kavita-api-key
    ```
 
-2. **API Key**: You can find or create your Kavita API key in the Kavita admin dashboard under Settings > API Key.
+2. **API Key**: You can find or create your Kavita API key in the Kavita interface under Settings > Account -> API Key / OPDS.
 
 3. **How It Works**: When a book detail page is viewed, the app will automatically search your Kavita library for matching books and add a "View on Kavita" link if found.
 
