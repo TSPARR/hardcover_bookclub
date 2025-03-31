@@ -16,7 +16,7 @@ def authenticate(api_url_base, api_key):
     return session, token
 
 
-def get_kavita_book_url(book_title, author_name):
+def get_kavita_book_url(book_title):
     """
     Search for a book in Kavita and return its URL if found
     """
@@ -37,7 +37,7 @@ def get_kavita_book_url(book_title, author_name):
         search_url = f"{kavita_base_url}/api/Search/search"
         headers = {"Authorization": f"Bearer {token}"}
         params = {
-            "queryString": f"{book_title} {author_name}",
+            "queryString": f"{book_title}",
             "includeChapterAndFiles": "true",
         }
 
