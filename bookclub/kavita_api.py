@@ -89,7 +89,9 @@ def get_kavita_book_url(book_title):
         # Step 4: First check for series matches - this is our preferred match type
         if "series" in data and data["series"]:
             series_matches = data["series"]
-            print(f"Found {len(series_matches)} series matches, using first match")
+            print(
+                f"Found {len(series_matches)} series matches, attempting to use first match"
+            )
 
             # If we found a series match, use that directly
             best_match = series_matches[0]  # Assuming first match is best
@@ -104,11 +106,17 @@ def get_kavita_book_url(book_title):
                 )
                 print(f"Created series URL: {kavita_url}")
                 return kavita_url
+            else:
+                print("Series match found but missing ID or library ID")
+        else:
+            print("No series matches found")
 
-        # Step 5: If no series matches found, only then try chapters
+        # Step 5: If execution reaches here, it means no valid series matches were found
+        # Now try chapters as a fallback
+        print("Checking for chapter matches as fallback")
         if "chapters" in data and data["chapters"]:
             chapter_matches = data["chapters"]
-            print(f"No series matches, falling back to chapter match")
+            print(f"Found {len(chapter_matches)} chapter matches, using first match")
 
             # Find the most relevant chapter match
             best_match = chapter_matches[0]
@@ -148,8 +156,10 @@ def get_kavita_book_url(book_title):
             kavita_url = f"{kavita_base_url}/library/{library_id}/series/{series_id}/volume/{volume_id}"
             print(f"Created chapter-based URL: {kavita_url}")
             return kavita_url
+        else:
+            print("No chapter matches found either")
 
-        print("No matches found")
+        print("No matches found at all")
         return None
 
     except Exception as e:
