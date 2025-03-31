@@ -221,3 +221,8 @@ CSRF_TRUSTED_ORIGINS = [origin for origin in CSRF_TRUSTED_ORIGINS if origin]
 # If no origins are provided, use a default
 if not CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
+
+# Kavita integration (optional)
+KAVITA_BASE_URL = os.environ.get("KAVITA_BASE_URL", "")
+KAVITA_API_KEY = os.environ.get("KAVITA_API_KEY", "")
+KAVITA_ENABLED = bool(KAVITA_BASE_URL and KAVITA_API_KEY)
