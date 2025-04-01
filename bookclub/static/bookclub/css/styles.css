@@ -569,3 +569,124 @@ h6 {
     background-color: #e68a1e;
     color: white;
 }
+
+/* Quick Edition Selection buttons */
+.quick-edition-selection {
+    margin-bottom: 1.5rem;
+}
+
+.quick-edition-selection .card-header {
+    font-weight: 600;
+}
+
+.quick-edition-selection .btn {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Kavita button styling */
+.btn-kavita {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.btn-kavita:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    color: white;
+}
+
+.btn-kavita i {
+    font-size: 1.1rem;
+}
+
+/* Plex button styling */
+.btn-plex {
+    background-color: #cc7b19;
+    border-color: #cc7b19;
+    color: white;
+}
+
+.btn-plex:hover {
+    background-color: #b36d16;
+    border-color: #a66414;
+    color: white;
+}
+
+.btn-plex i {
+    font-size: 1.1rem;
+}
+
+/* Edition management buttons */
+.btn-editions {
+    color: #0aa2c0;
+    border-color: #0aa2c0;
+    background-color: transparent;
+}
+
+.btn-editions:hover {
+    background-color: rgba(10, 162, 192, 0.1);
+    color: #0aa2c0;
+    border-color: #0aa2c0;
+}
+
+.edition-selector {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+.edition-selector.kavita {
+    background-color: rgba(25, 135, 84, 0.1);
+    border: 1px solid rgba(25, 135, 84, 0.2);
+}
+
+.edition-selector.plex {
+    background-color: rgba(204, 123, 25, 0.1);
+    border: 1px solid rgba(204, 123, 25, 0.2);
+}
+
+/* Edition promoted badge */
+.edition-promoted-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* Edition card cover image */
+.edition-card .card-img-top {
+    max-height: 200px;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+/* Edition card cover placeholder */
+.edition-card .card-img-top-placeholder {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: #f8f9fa;
+}
+
+/* Accordion styling for book details */
+.accordion-button:not(.collapsed) {
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.125);
+}
+
+.accordion-button:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.accordion-body {
+    padding: 1rem;
+}
+
+.buttons-container .btn {
+    margin-bottom: 0.5rem;
+}

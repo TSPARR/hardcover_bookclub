@@ -95,9 +95,26 @@ class BookEdition(models.Model):
     reading_format_id = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_kavita_promoted = models.BooleanField(default=False)
+    is_plex_promoted = models.BooleanField(default=False)
+
     def __str__(self):
         format_str = f" ({self.reading_format})" if self.reading_format else ""
         return f"{self.title}{format_str}"
+
+    def save(self, *args, **kwargs):
+        # Ensure only one edition is marked as promoted for each service per book
+        if self.is_kavita_promoted:
+            BookEdition.objects.filter(book=self.book, is_kavita_promoted=True).exclude(
+                id=self.id
+            ).update(is_kavita_promoted=False)
+
+        if self.is_plex_promoted:
+            BookEdition.objects.filter(book=self.book, is_plex_promoted=True).exclude(
+                id=self.id
+            ).update(is_plex_promoted=False)
+
+        super().save(*args, **kwargs)
 
     @property
     def audio_duration_formatted(self):

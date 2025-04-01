@@ -6,452 +6,281 @@
 
 {% block content %}
 <div class="row mb-4">
+    <!-- Left Sidebar -->
     <div class="col-md-3">
+        <!-- Book Cover -->
         {% if user_progress.edition and user_progress.edition.cover_image_url %}
-        <img src="{{ user_progress.edition.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}" style="object-fit: contain; width: 100%; height: auto; max-height: 400px;">
+        <img src="{{ user_progress.edition.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
         {% elif book.cover_image_url %}
-        <img src="{{ book.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}" style="object-fit: contain; width: 100%; height: auto; max-height: 400px;">
+        <img src="{{ book.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
         {% endif %}
 
-        <!-- User Progress Indicator -->
-        <div class="card mt-3">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Your Progress</h5>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="autoSyncToggle">
-                    <label class="form-check-label" for="autoSyncToggle">Auto-sync</label>
-                </div>
-            </div>
-            <div class="card-body progress-indicator">
-                <div class="progress mb-3" style="height: 24px;">
-                    <div class="progress-bar" role="progressbar"
-                        style="width: {{ user_progress.normalized_progress }}%;"
-                        aria-valuenow="{{ user_progress.normalized_progress }}" aria-valuemin="0" aria-valuemax="100">
-                        {{ user_progress.normalized_progress|floatformat:1 }}%
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                        {% if user_progress.progress_type == 'page' %}
-                        Page {{ user_progress.progress_value }}
-                        {% elif user_progress.progress_type == 'audio' %}
-                        Audio: {{ user_progress.progress_value }}
-                        {% else %}
-                        {{ user_progress.progress_value }}% complete
-                        {% endif %}
-                    </div>
-
-                    <button class="btn btn-sm btn-outline-primary" id="updateProgressBtn">
-                        Update Progress
+        <!-- Book Navigation Accordion -->
+        <div class="accordion mt-3" id="bookDetailsAccordion">
+            <!-- Progress Section -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingProgress">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProgress" aria-expanded="true" aria-controls="collapseProgress">
+                        Your Progress
                     </button>
-                </div>
+                </h2>
+                <div id="collapseProgress" class="accordion-collapse collapse show" aria-labelledby="headingProgress">
+                    <div class="accordion-body">
+                        <!-- Progress content -->
+                        <div class="progress mb-3" style="height: 24px;">
+                            <div class="progress-bar" role="progressbar"
+                                style="width: {{ user_progress.normalized_progress }}%;"
+                                aria-valuenow="{{ user_progress.normalized_progress }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ user_progress.normalized_progress|floatformat:1 }}%
+                            </div>
+                        </div>
 
-                {% if user_progress.hardcover_finished_at %}
-                <div class="badge bg-success w-100 p-2 mt-2">Finished</div>
-                {% elif user_progress.hardcover_started_at %}
-                <div class="badge bg-primary w-100 p-2 mt-2">In Progress</div>
-                {% endif %}
-                
-                <div class="sync-info mt-2 text-muted d-flex justify-content-between align-items-center">
-                    <small>Last sync: <span id="lastSyncTime">Never</span></small>
-                    <button id="clearSyncButton" class="btn btn-sm btn-link p-0 text-muted">
-                        <small>Clear</small>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-grid gap-2 mt-3">
-            <a href="#" class="btn btn-info" id="syncHardcoverProgress">Sync Hardcover Progress</a>
-        </div>
-        <div class="d-grid gap-2 mt-2">
-            <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary">Select Edition</a>
-            <a href="{% url 'set_manual_progress' book.id %}" class="btn btn-outline-secondary">Manual Progress</a>
-        </div>
-
-        <!-- If an edition is selected, show this information -->
-        {% if user_progress.edition %}
-        <div class="card mt-3">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Edition Info</h5>
-            </div>
-            <div class="card-body">
-                <h6 class="mb-3">{{ user_progress.edition.title }}</h6>
-                
-                <div class="edition-details">
-                    {% if user_progress.edition.reading_format %}
-                    <p class="mb-1"><strong>Format:</strong> {{ user_progress.edition.reading_format|title }}</p>
-                    {% endif %}
-
-                    {% if user_progress.edition.pages %}
-                    <p class="mb-1"><strong>Pages:</strong> {{ user_progress.edition.pages }}</p>
-                    {% endif %}
-
-                    {% if user_progress.edition.audio_seconds %}
-                    <p class="mb-1"><strong>Duration:</strong> {{ user_progress.edition.audio_duration_formatted }}</p>
-                    {% endif %}
-
-                    {% if user_progress.edition.publisher %}
-                        {% if 'name' in user_progress.edition.publisher %}
-                        <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher.name }}</p>
-                        {% else %}
-                        <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher }}</p>
-                        {% endif %}
-                    {% endif %}
-                    
-                    {% if user_progress.edition.publication_date %}
-                    <p class="mb-1"><strong>Published:</strong> {{ user_progress.edition.publication_date|date:"F Y" }}</p>
-                    {% endif %}
-                    
-                    {% if user_progress.edition.isbn %}
-                    <p class="mb-1"><strong>ISBN:</strong> {{ user_progress.edition.isbn }}</p>
-                    {% endif %}
-                    
-                    {% if user_progress.edition.isbn13 %}
-                    <p class="mb-0"><strong>ISBN-13:</strong> {{ user_progress.edition.isbn13 }}</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-    <div class="col-md-9">
-        <h1>{{ book.title }}</h1>
-        <h4 class="text-muted">{{ book.author }}</h4>
-
-        <div class="book-rating mb-3">
-            {% if user_progress.hardcover_rating %}
-                {% include "bookclub/includes/star_rating.html" with rating=user_progress.hardcover_rating %}
-            {% else %}
-                <div class="rating-display text-muted">
-                    <small>No rating</small>
-                </div>
-            {% endif %}
-        </div>
-
-        {% if book.url or book.kavita_url or book.plex_url %}
-        <div class="mb-3">
-            {% if book.url %}
-            <a href="{{ book.url }}" target="_blank" class="btn btn-sm external-link-btn hardcover-btn">
-                <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
-            </a>
-            {% endif %}
-            
-            {% if book.kavita_url %}
-            <a href="{{ book.kavita_url }}" target="_blank" class="btn btn-sm external-link-btn kavita-btn">
-                <i class="bi bi-box-arrow-up-right"></i> View on Kavita
-            </a>
-            {% endif %}
-            
-            {% if book.plex_url %}
-            <a href="{{ book.plex_url }}" target="_blank" class="btn btn-sm external-link-btn plex-btn">
-                <i class="bi bi-box-arrow-up-right"></i> View on Plex
-            </a>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <p>{{ book.description }}</p>
-        <div class="d-flex gap-2">
-            <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>
-        </div>
-    </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-header">
-        <h3>Add Comment</h3>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-
-            <div class="mb-3">
-                {{ form.text.label_tag }}
-                {{ form.text }}
-            </div>
-
-            <!-- Progress fields -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="comment_progress_type" class="form-label">Progress Type</label>
-                    <select class="form-select" id="comment_progress_type" name="progress_type">
-                        <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>Page Number</option>
-                        <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
-                        <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="comment_progress_value" class="form-label">Progress Value</label>
-                    <input type="text" class="form-control" id="comment_progress_value" name="progress_value" value="{{ user_progress.progress_value }}">
-                    <div class="form-text" id="commentProgressHelp">
-                        {% if user_progress.progress_type == 'page' %}
-                        Enter the page number you're commenting about.
-                        {% elif user_progress.progress_type == 'audio' %}
-                        Enter the timestamp (e.g., "2h 30m").
-                        {% else %}
-                        Enter a percentage (e.g., "75").
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Post Comment</button>
-        </form>
-    </div>
-</div>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Discussion</h2>
-
-    <div class="form-check form-switch me-3">
-        <input class="form-check-input" type="checkbox" id="showSpoilersToggle" checked>
-        <label class="form-check-label" for="showSpoilersToggle">Show all comments</label>
-    </div>
-
-    <div class="dropdown">
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            Sort by:
-            {% if current_sort == 'date_desc' %}Newest First
-            {% elif current_sort == 'date_asc' %}Oldest First
-            {% elif current_sort == 'progress_desc' %}Most Progress First
-            {% elif current_sort == 'progress_asc' %}Least Progress First
-            {% endif %}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
-            <li><a class="dropdown-item {% if current_sort == 'date_desc' %}active{% endif %}"
-                    href="?sort=date_desc">Newest First</a></li>
-            <li><a class="dropdown-item {% if current_sort == 'date_asc' %}active{% endif %}"
-                    href="?sort=date_asc">Oldest First</a></li>
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item {% if current_sort == 'progress_desc' %}active{% endif %}"
-                    href="?sort=progress_desc">Most Progress First</a></li>
-            <li><a class="dropdown-item {% if current_sort == 'progress_asc' %}active{% endif %}"
-                    href="?sort=progress_asc">Least Progress First</a></li>
-        </ul>
-    </div>
-</div>
-
-{% for comment in comments %}
-{% with comment_progress_value=comment.normalized_progress|default:0 %}
-<div class="card mb-3 comment-card {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}spoiler-comment{% endif %}"
-    data-progress="{{ comment_progress_value }}" data-comment-id="{{ comment.id }}" id="comment-{{ comment.id }}">
-    <div class="card-header d-flex justify-content-between">
-        <div class="d-flex align-items-center">
-            <span class="comment-user">{{ comment.user.username }}</span>
-            {% if comment.user == user %}
-            <div class="dropdown ms-2">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{% url 'edit_comment' comment.id %}">Edit</a></li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'delete_comment' comment.id %}">Delete</a></li>
-                </ul>
-            </div>
-            {% endif %}
-        </div>
-        <span class="comment-date">{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
-    </div>
-    <div class="card-body">
-        <p class="comment-progress">
-            {% if comment.progress_type == 'page' %}
-            Page {{ comment.progress_value }}
-            {% elif comment.progress_type == 'audio' %}
-            Audio: {{ comment.progress_value }}
-            {% else %}
-            {{ comment.progress_value }}% complete
-            {% endif %}
-
-            {% if comment.hardcover_finished_at %}
-            <span class="badge bg-success ms-2">Finished</span>
-            {% elif comment.hardcover_started_at %}
-            <span class="badge bg-primary ms-2">In Progress</span>
-            {% endif %}
-
-            {% if comment.hardcover_percent %}
-            <span class="text-muted ms-2">({{ comment.hardcover_percent|floatformat:1 }}%)</span>
-            {% endif %}
-
-            {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}
-            <span class="badge bg-warning text-dark ms-2">Ahead of your progress</span>
-            {% endif %}
-        </p>
-
-        {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}
-        <div class="spoiler-warning alert alert-warning alert-permanent">
-            <i class="bi bi-exclamation-triangle-fill"></i> This comment is from further in the book than you've read.
-            <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
-        </div>
-        <div class="spoiler-content" style="display: none;">
-            <p class="card-text">{{ comment.text }}</p>
-            
-            <!-- Comment reactions INSIDE spoiler content -->
-            <div class="comment-reactions mt-3">
-                <!-- Existing reactions -->
-                <div class="existing-reactions mb-2">
-                    {% for reaction_type, count in comment.get_reactions_summary.items %}
-                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                        data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
-                        {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
-                    </button>
-                    {% endfor %}
-                </div>
-                
-                <!-- Add reaction button and inline panel -->
-                <div class="add-reaction">
-                    <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
-                        Add Reaction
-                    </button>
-                    <div class="reaction-panel" style="display: none;">
-                        {% for reaction_code, reaction_name in reaction_choices %}
-                        <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
-                            {{ reaction_code }}
-                        </button>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <p class="card-text">{{ comment.text }}</p>
-
-        <!-- Comment reactions for non-spoiler comments -->
-        <div class="comment-reactions mt-3">
-            <!-- Existing reactions -->
-            <div class="existing-reactions mb-2">
-                {% for reaction_type, count in comment.get_reactions_summary.items %}
-                <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                    data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
-                    {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
-                </button>
-                {% endfor %}
-            </div>
-            
-            <!-- Add reaction button and inline panel -->
-            <div class="add-reaction">
-                <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
-                    Add Reaction
-                </button>
-                <div class="reaction-panel" style="display: none;">
-                    {% for reaction_code, reaction_name in reaction_choices %}
-                    <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
-                        {{ reaction_code }}
-                    </button>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-    <div class="card-footer d-flex justify-content-between">
-        <a href="{% url 'reply_to_comment' comment.id %}" class="btn btn-sm btn-outline-primary">Reply</a>
-    </div>
-    
-    <!-- Replies -->
-    {% if comment.get_replies %}
-    <div class="replies ms-4 mt-2 mb-2">
-        {% for reply in comment.get_replies %}
-        <div class="card mb-2 reply-card" id="comment-{{ reply.id }}">
-            <div class="card-header d-flex justify-content-between">
-                <div class="d-flex align-items-center">
-                    <span class="comment-user">{{ reply.user.username }}</span>
-                    {% if reply.user == user %}
-                    <div class="dropdown ms-2">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'edit_comment' reply.id %}">Edit</a></li>
-                            <li><a class="dropdown-item text-danger" href="{% url 'delete_comment' reply.id %}">Delete</a></li>
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
-                <span class="comment-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
-            </div>
-            <div class="card-body">
-                <!-- Add spoiler handling for replies too -->
-                {% if comment_progress_value > user_progress.normalized_progress and reply.user != user %}
-                <div class="spoiler-warning alert alert-warning alert-permanent">
-                    <i class="bi bi-exclamation-triangle-fill"></i> This reply is to a comment from further in the book than you've read.
-                    <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
-                </div>
-                <div class="spoiler-content" style="display: none;">
-                    <p class="card-text">{{ reply.text }}</p>
-                    
-                    <!-- Reply reactions INSIDE spoiler content -->
-                    <div class="comment-reactions mt-3">
-                        <!-- Existing reactions -->
-                        <div class="existing-reactions mb-2">
-                            {% for reaction_type, count in reply.get_reactions_summary.items %}
-                            <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                                data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
-                                {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                {% if user_progress.progress_type == 'page' %}
+                                Page {{ user_progress.progress_value }}
+                                {% elif user_progress.progress_type == 'audio' %}
+                                Audio: {{ user_progress.progress_value }}
+                                {% else %}
+                                {{ user_progress.progress_value }}% complete
+                                {% endif %}
+                            </div>
+                        
+                            <button class="btn btn-sm btn-outline-primary" id="updateProgressBtn">
+                                Quick Update
                             </button>
-                            {% endfor %}
                         </div>
                         
-                        <!-- Add reaction button and inline panel -->
-                        <div class="add-reaction">
-                            <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
-                                Add Reaction
+                        {% if user_progress.hardcover_finished_at %}
+                        <div class="badge bg-success w-100 p-2 mt-2">Finished</div>
+                        {% elif user_progress.hardcover_started_at %}
+                        <div class="badge bg-primary w-100 p-2 mt-2">In Progress</div>
+                        {% endif %}
+                        
+                        <div class="buttons-container mt-3 d-grid gap-2">
+                            <a href="#" class="btn btn-info btn-sm" id="syncHardcoverProgress">Sync with Hardcover</a>
+                            <a href="{% url 'set_manual_progress' book.id %}" class="btn btn-outline-secondary btn-sm">Advanced Progress Options</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Edition Selection -->
+            {% if kavita_promoted_edition or plex_promoted_edition %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingEditionSelection">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditionSelection" aria-expanded="true" aria-controls="collapseEditionSelection">
+                        Quick Edition Selection
+                    </button>
+                </h2>
+                <div id="collapseEditionSelection" class="accordion-collapse collapse show" aria-labelledby="headingEditionSelection">
+                    <div class="accordion-body">
+                        {% if kavita_promoted_edition and book.kavita_url %}
+                        <form method="post" action="{% url 'quick_select_edition' book.id %}" class="mb-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="edition_id" value="{{ kavita_promoted_edition.id }}">
+                            <input type="hidden" name="source" value="kavita">
+                            <button type="submit" class="btn btn-kavita w-100">
+                                <i class="bi bi-book"></i> I'm reading on Kavita
                             </button>
-                            <div class="reaction-panel" style="display: none;">
-                                {% for reaction_code, reaction_name in reaction_choices %}
-                                <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
-                                    {{ reaction_code }}
-                                </button>
-                                {% endfor %}
+                        </form>
+                        {% endif %}
+                        
+                        {% if plex_promoted_edition and book.plex_url %}
+                        <form method="post" action="{% url 'quick_select_edition' book.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="edition_id" value="{{ plex_promoted_edition.id }}">
+                            <input type="hidden" name="source" value="plex">
+                            <button type="submit" class="btn btn-plex w-100">
+                                <i class="bi bi-headphones"></i> I'm listening on Plex
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Edition Info Section -->
+            {% if user_progress.edition %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingEditionInfo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditionInfo" aria-expanded="false" aria-controls="collapseEditionInfo">
+                        Edition Info
+                    </button>
+                </h2>
+                <div id="collapseEditionInfo" class="accordion-collapse collapse" aria-labelledby="headingEditionInfo">
+                    <div class="accordion-body">
+                        <h6 class="mb-3">{{ user_progress.edition.title }}</h6>
+                        
+                        <div class="edition-details">
+                            {% if user_progress.edition.reading_format %}
+                            <p class="mb-1"><strong>Format:</strong> {{ user_progress.edition.reading_format|title }}</p>
+                            {% endif %}
+
+                            {% if user_progress.edition.pages %}
+                            <p class="mb-1"><strong>Pages:</strong> {{ user_progress.edition.pages }}</p>
+                            {% endif %}
+
+                            {% if user_progress.edition.audio_seconds %}
+                            <p class="mb-1"><strong>Duration:</strong> {{ user_progress.edition.audio_duration_formatted }}</p>
+                            {% endif %}
+
+                            {% if user_progress.edition.publisher %}
+                                {% if 'name' in user_progress.edition.publisher %}
+                                <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher.name }}</p>
+                                {% else %}
+                                <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher }}</p>
+                                {% endif %}
+                            {% endif %}
+                            
+                            <!-- More edition details -->
+                        </div>
+                        
+                        <div class="buttons-container mt-3">
+                            <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary btn-sm w-100">Select Different Edition</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="d-grid mt-3">
+                <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary">Select Edition</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <!-- Book Header -->
+        <div class="book-header mb-4">
+            <h1>{{ book.title }}</h1>
+            <h4 class="text-muted">{{ book.author }}</h4>
+
+            <div class="book-rating mb-3">
+                {% if user_progress.hardcover_rating %}
+                    {% include "bookclub/includes/star_rating.html" with rating=user_progress.hardcover_rating %}
+                {% else %}
+                    <div class="rating-display text-muted">
+                        <small>No rating</small>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if book.url or book.kavita_url or book.plex_url %}
+            <div class="mb-3">
+                {% if book.url %}
+                <a href="{{ book.url }}" target="_blank" class="btn btn-sm external-link-btn hardcover-btn">
+                    <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
+                </a>
+                {% endif %}
+                
+                {% if book.kavita_url %}
+                <a href="{{ book.kavita_url }}" target="_blank" class="btn btn-sm external-link-btn kavita-btn">
+                    <i class="bi bi-box-arrow-up-right"></i> View on Kavita
+                </a>
+                {% endif %}
+                
+                {% if book.plex_url %}
+                <a href="{{ book.plex_url }}" target="_blank" class="btn btn-sm external-link-btn plex-btn">
+                    <i class="bi bi-box-arrow-up-right"></i> View on Plex
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <p>{{ book.description }}</p>
+            <div class="d-flex gap-2">
+                <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">Back to Group</a>
+            </div>
+        </div>
+
+        <!-- Discussion Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Discussion</h3>
+                    
+                    <div class="form-check form-switch me-3">
+                        <input class="form-check-input" type="checkbox" id="showSpoilersToggle" checked>
+                        <label class="form-check-label" for="showSpoilersToggle">Show all comments</label>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort by:
+                            {% if current_sort == 'date_desc' %}Newest First
+                            {% elif current_sort == 'date_asc' %}Oldest First
+                            {% elif current_sort == 'progress_desc' %}Most Progress First
+                            {% elif current_sort == 'progress_asc' %}Least Progress First
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item {% if current_sort == 'date_desc' %}active{% endif %}"
+                                    href="?sort=date_desc">Newest First</a></li>
+                            <li><a class="dropdown-item {% if current_sort == 'date_asc' %}active{% endif %}"
+                                    href="?sort=date_asc">Oldest First</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item {% if current_sort == 'progress_desc' %}active{% endif %}"
+                                    href="?sort=progress_desc">Most Progress First</a></li>
+                            <li><a class="dropdown-item {% if current_sort == 'progress_asc' %}active{% endif %}"
+                                    href="?sort=progress_asc">Least Progress First</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Comment Form -->
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        {{ form.text.label_tag }}
+                        {{ form.text }}
+                    </div>
+
+                    <!-- Progress fields -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="comment_progress_type" class="form-label">Progress Type</label>
+                            <select class="form-select" id="comment_progress_type" name="progress_type">
+                                <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+                                <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+                                <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="comment_progress_value" class="form-label">Progress Value</label>
+                            <input type="text" class="form-control" id="comment_progress_value" name="progress_value" value="{{ user_progress.progress_value }}">
+                            <div class="form-text" id="commentProgressHelp">
+                                {% if user_progress.progress_type == 'page' %}
+                                Enter the page number you're commenting about.
+                                {% elif user_progress.progress_type == 'audio' %}
+                                Enter the timestamp (e.g., "2h 30m").
+                                {% else %}
+                                Enter a percentage (e.g., "75").
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                </div>
-                {% else %}
-                <p class="card-text">{{ reply.text }}</p>
-                
-                <!-- Reply reactions for non-spoiler replies -->
-                <div class="comment-reactions mt-3">
-                    <!-- Existing reactions -->
-                    <div class="existing-reactions mb-2">
-                        {% for reaction_type, count in reply.get_reactions_summary.items %}
-                        <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                            data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
-                            {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
-                        </button>
-                        {% endfor %}
-                    </div>
-                    
-                    <!-- Add reaction button and inline panel -->
-                    <div class="add-reaction">
-                        <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
-                            Add Reaction
-                        </button>
-                        <div class="reaction-panel" style="display: none;">
-                            {% for reaction_code, reaction_name in reaction_choices %}
-                            <button class="reaction-option btn btn-sm btn-outline-secondary" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
-                                {{ reaction_code }}
-                            </button>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+
+                <!-- Comments List -->
+                {% for comment in comments %}
+                {% include "bookclub/includes/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices %}
+                {% empty %}
+                <p>No comments yet. Be the first to start the discussion!</p>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
     </div>
-    {% endif %}
 </div>
-{% endwith %}
-{% empty %}
-<p>No comments yet. Be the first to start the discussion!</p>
-{% endfor %}
 
 <!-- Progress Update Modal -->
 <div class="modal fade" id="progressUpdateModal" tabindex="-1" aria-labelledby="progressUpdateModalLabel"

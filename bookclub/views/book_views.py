@@ -49,6 +49,7 @@ logger = logging.getLogger(__name__)
 @login_required
 def book_detail(request, book_id):
     book = get_object_or_404(Book, id=book_id)
+    group = book.group
 
     if settings.KAVITA_ENABLED and not book.kavita_url:
         update_kavita_info_for_book(book)
@@ -78,6 +79,20 @@ def book_detail(request, book_id):
 
     # Add normalized progress for spoiler detection
     comments = add_normalized_progress_to_comments(comments)
+
+    # Get promoted editions
+    kavita_promoted_edition = None
+    plex_promoted_edition = None
+
+    if book.kavita_url:
+        kavita_promoted_edition = BookEdition.objects.filter(
+            book=book, is_kavita_promoted=True
+        ).first()
+
+    if book.plex_url:
+        plex_promoted_edition = BookEdition.objects.filter(
+            book=book, is_plex_promoted=True
+        ).first()
 
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -133,18 +148,20 @@ def book_detail(request, book_id):
     # Add reaction choices to the context
     reaction_choices = CommentReaction.REACTION_CHOICES
 
-    return render(
-        request,
-        "bookclub/book_detail.html",
-        {
-            "book": book,
-            "comments": comments,
-            "form": form,
-            "current_sort": sort_by,
-            "user_progress": user_progress,
-            "reaction_choices": reaction_choices,
-        },
-    )
+    # Prepare the context with all required data
+    context = {
+        "book": book,
+        "comments": comments,
+        "form": form,
+        "current_sort": sort_by,
+        "user_progress": user_progress,
+        "reaction_choices": reaction_choices,
+        "kavita_promoted_edition": kavita_promoted_edition,
+        "plex_promoted_edition": plex_promoted_edition,
+        "is_admin": group.is_admin(request.user),
+    }
+
+    return render(request, "bookclub/book_detail.html", context)
 
 
 @login_required
@@ -671,3 +688,163 @@ def toggle_reaction(request, comment_id):
 def reply_to_comment(request, comment_id):
     """Handle replying to a comment"""
     return handle_reply_to_comment(request, comment_id)
+
+
+@login_required
+def manage_promoted_editions(request, book_id):
+    """Allow admins to select promoted editions for Kavita and Plex"""
+    book = get_object_or_404(Book, id=book_id)
+    group = book.group
+
+    # Check if user is a group admin
+    if not group.is_admin(request.user):
+        messages.error(
+            request, "You don't have permission to manage promoted editions."
+        )
+        return redirect("book_detail", book_id=book.id)
+
+    # Get currently promoted editions
+    kavita_promoted = BookEdition.objects.filter(
+        book=book, is_kavita_promoted=True
+    ).first()
+    plex_promoted = BookEdition.objects.filter(book=book, is_plex_promoted=True).first()
+
+    # Try to get editions from Hardcover API
+    editions = HardcoverAPI.get_book_editions(book.hardcover_id, user=request.user)
+
+    if request.method == "POST":
+        # Check for clear actions
+        if request.POST.get("clear_kavita"):
+            if kavita_promoted:
+                kavita_promoted.is_kavita_promoted = False
+                kavita_promoted.save(update_fields=["is_kavita_promoted"])
+                messages.success(request, "Cleared the promoted Kavita edition.")
+
+        elif request.POST.get("clear_plex"):
+            if plex_promoted:
+                plex_promoted.is_plex_promoted = False
+                plex_promoted.save(update_fields=["is_plex_promoted"])
+                messages.success(request, "Cleared the promoted Plex edition.")
+
+        # Check for setting a Kavita edition
+        elif request.POST.get("kavita_edition_id"):
+            kavita_edition_id = request.POST.get("kavita_edition_id")
+
+            # Clear any existing Kavita promotion
+            BookEdition.objects.filter(book=book, is_kavita_promoted=True).update(
+                is_kavita_promoted=False
+            )
+
+            # Find the edition in the API response
+            kavita_edition_data = next(
+                (e for e in editions if str(e["id"]) == kavita_edition_id), None
+            )
+
+            if kavita_edition_data:
+                # Create or update the edition
+                kavita_edition = create_or_update_book_edition(
+                    book, kavita_edition_data
+                )
+                kavita_edition.is_kavita_promoted = True
+                kavita_edition.save()  # Save all fields to ensure the edition exists completely
+                messages.success(
+                    request,
+                    f"'{kavita_edition.title}' is now the promoted Kavita edition.",
+                )
+            else:
+                messages.error(request, "Selected Kavita edition not found.")
+
+        # Check for setting a Plex edition
+        elif request.POST.get("plex_edition_id"):
+            plex_edition_id = request.POST.get("plex_edition_id")
+
+            # Clear any existing Plex promotion
+            BookEdition.objects.filter(book=book, is_plex_promoted=True).update(
+                is_plex_promoted=False
+            )
+
+            # Find the edition in the API response
+            plex_edition_data = next(
+                (e for e in editions if str(e["id"]) == plex_edition_id), None
+            )
+
+            if plex_edition_data:
+                # Create or update the edition
+                plex_edition = create_or_update_book_edition(book, plex_edition_data)
+                plex_edition.is_plex_promoted = True
+                plex_edition.save()  # Save all fields to ensure the edition exists completely
+                messages.success(
+                    request, f"'{plex_edition.title}' is now the promoted Plex edition."
+                )
+            else:
+                messages.error(request, "Selected Plex edition not found.")
+
+        # Get updated promoted editions after any changes
+        kavita_promoted = BookEdition.objects.filter(
+            book=book, is_kavita_promoted=True
+        ).first()
+        plex_promoted = BookEdition.objects.filter(
+            book=book, is_plex_promoted=True
+        ).first()
+
+    # Check if we have Kavita and Plex URLs
+    has_kavita = bool(book.kavita_url)
+    has_plex = bool(book.plex_url)
+
+    return render(
+        request,
+        "bookclub/manage_promoted_editions.html",
+        {
+            "book": book,
+            "editions": editions,
+            "kavita_promoted": kavita_promoted,
+            "plex_promoted": plex_promoted,
+            "has_kavita": has_kavita,
+            "has_plex": has_plex,
+        },
+    )
+
+
+@login_required
+def quick_select_edition(request, book_id):
+    """Quickly select a promoted edition for a book"""
+    book = get_object_or_404(Book, id=book_id)
+
+    if request.method == "POST":
+        edition_id = request.POST.get("edition_id")
+        source = request.POST.get("source")  # 'kavita' or 'plex'
+
+        try:
+            edition = BookEdition.objects.get(id=edition_id, book=book)
+
+            # Get or create user progress
+            user_progress, created = UserBookProgress.objects.get_or_create(
+                user=request.user,
+                book=book,
+                defaults={
+                    "progress_type": "percent",
+                    "progress_value": "0",
+                    "normalized_progress": 0,
+                },
+            )
+
+            # Update user progress with the selected edition
+            user_progress.edition = edition
+            user_progress.save(update_fields=["edition"])
+
+            # Customize message based on source
+            if source == "kavita":
+                messages.success(
+                    request, f"You're now reading '{edition.title}' on Kavita."
+                )
+            elif source == "plex":
+                messages.success(
+                    request, f"You're now listening to '{edition.title}' on Plex."
+                )
+            else:
+                messages.success(request, f"Selected edition: {edition.title}")
+
+        except BookEdition.DoesNotExist:
+            messages.error(request, "Selected edition not found.")
+
+    return redirect("book_detail", book_id=book.id)

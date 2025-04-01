@@ -14,6 +14,8 @@ from bookclub.views.book_views import (
     toggle_book_active,
     toggle_reaction,
     update_book_progress,
+    manage_promoted_editions,
+    quick_select_edition,
 )
 from bookclub.views.group_views import (
     add_group_member,
@@ -96,9 +98,19 @@ urlpatterns = [
     ),
     path("books/<int:book_id>/select-edition/", select_edition, name="select_edition"),
     path(
+        "books/<int:book_id>/promoted-editions/",
+        manage_promoted_editions,
+        name="manage_promoted_editions",
+    ),
+    path(
         "books/<int:book_id>/set-progress/",
         set_manual_progress,
         name="set_manual_progress",
+    ),
+    path(
+        "books/<int:book_id>/quick-select-edition/",
+        quick_select_edition,
+        name="quick_select_edition",
     ),
     path(
         "groups/<int:group_id>/books/<int:book_id>/toggle-active/",
