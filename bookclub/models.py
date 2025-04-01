@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import timedelta
 
@@ -280,6 +281,7 @@ class UserBookProgress(models.Model):
 
     def _calculate_normalized_progress(self):
         """Convert different progress types to a value between 0 and 100."""
+        # Only use hardcover_percent if it's not None
         if self.hardcover_percent is not None:
             # Ensure hardcover_percent is capped at 100
             return min(float(self.hardcover_percent), 100.0)
@@ -329,14 +331,31 @@ class UserBookProgress(models.Model):
                         100.0,
                     )
 
-            # Try to parse timestamps like "2h 45m"
+            # Try to parse timestamps like "2h 45m" or "1:30:00"
             try:
-                if "h" in self.progress_value and "m" in self.progress_value:
-                    parts = self.progress_value.split()
-                    hours = int(parts[0].replace("h", ""))
-                    minutes = int(parts[1].replace("m", ""))
-                    total_seconds = (hours * 3600) + (minutes * 60)
+                total_seconds = 0
 
+                # Try HH:MM:SS format
+                colon_pattern = r"^(\d+):([0-5]?\d):([0-5]?\d)$"
+                colon_match = re.match(colon_pattern, self.progress_value)
+
+                if colon_match:
+                    hours = int(colon_match.group(1))
+                    minutes = int(colon_match.group(2))
+                    seconds = int(colon_match.group(3))
+                    total_seconds = (hours * 3600) + (minutes * 60) + seconds
+
+                # Try Xh Ym format
+                elif "h" in self.progress_value or "m" in self.progress_value:
+                    time_pattern = r"^(?:(\d+)h\s*)?(?:(\d+)m)?$"
+                    time_match = re.match(time_pattern, self.progress_value)
+
+                    if time_match:
+                        hours = int(time_match.group(1) or 0)
+                        minutes = int(time_match.group(2) or 0)
+                        total_seconds = (hours * 3600) + (minutes * 60)
+
+                if total_seconds > 0:
                     # First check if we have edition audio duration
                     if (
                         self.edition
@@ -351,7 +370,7 @@ class UserBookProgress(models.Model):
                         return min(
                             (total_seconds / self.book.audio_seconds) * 100, 100.0
                         )
-            except (ValueError, IndexError, ZeroDivisionError):
+            except (ValueError, IndexError, ZeroDivisionError, AttributeError):
                 pass
 
             return 0  # Default for audio if we can't calculate

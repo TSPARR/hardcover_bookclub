@@ -3,6 +3,15 @@
 
 {% block title %}Update Progress - {{ book.title }}{% endblock %}
 
+{% block extrahead %}
+<meta name="book-pages" content="{{ book_pages|default:'' }}">
+<meta name="book-audio-seconds" content="{{ book_audio_seconds|default:'' }}">
+<meta name="edition-pages" content="{{ edition_pages|default:'' }}">
+<meta name="edition-audio-seconds" content="{{ edition_audio_seconds|default:'' }}">
+<meta name="kavita-edition-pages" content="{{ kavita_promoted_edition.pages|default:'' }}">
+<meta name="plex-edition-audio-seconds" content="{{ plex_promoted_edition.audio_seconds|default:'' }}">
+{% endblock %}
+
 {% block content %}
 <div class="container my-4">
     <div class="row mb-4">
@@ -93,7 +102,7 @@
                                 Enter a page number (e.g., "150")
                             </small>
                             <small class="form-text text-muted progress-help" id="audio-help" style="display: none;">
-                                Enter time in format: "2h 30m" or "45m"
+                                Enter time in format: "2h 30m" or "1:30:00"
                             </small>
                         </div>
                         
@@ -190,87 +199,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Show/hide the appropriate help text based on selected progress type
-        function updateHelpText() {
-            document.querySelectorAll('.progress-help').forEach(el => {
-                el.style.display = 'none';
-            });
-            
-            const progressType = document.getElementById('progress_type').value;
-            if (progressType === 'percent') {
-                document.getElementById('percent-help').style.display = 'block';
-            } else if (progressType === 'page') {
-                document.getElementById('page-help').style.display = 'block';
-            } else if (progressType === 'audio') {
-                document.getElementById('audio-help').style.display = 'block';
-            }
-        }
-        
-        // Initialize
-        updateHelpText();
-        
-        // Update when changed
-        document.getElementById('progress_type').addEventListener('change', updateHelpText);
-        
-        // Add Hardcover sync functionality if button exists
-        const syncButton = document.getElementById('syncHardcoverProgress');
-        if (syncButton) {
-            syncButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                const bookId = this.getAttribute('data-book-id');
-                const hardcoverId = this.getAttribute('data-hardcover-id');
-                
-                // Show loading state
-                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Syncing...';
-                this.disabled = true;
-                
-                // Fetch progress from Hardcover
-                fetch(`/bookclub/api/hardcover-progress/${hardcoverId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            alert('Error: ' + data.error);
-                            return;
-                        }
-                        
-                        if (data.progress && data.progress.length > 0) {
-                            // Send the data to update local progress
-                            return fetch(`/bookclub/books/${bookId}/update-progress/`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                                },
-                                body: JSON.stringify({
-                                    auto_sync: true,
-                                    hardcover_data: data.progress[0]
-                                })
-                            });
-                        } else {
-                            throw new Error('No reading progress found in Hardcover');
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Reload the page to show updated progress
-                            window.location.reload();
-                        } else {
-                            throw new Error(data.error || 'Failed to update local progress');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error: ' + error.message);
-                        
-                        // Reset button
-                        this.innerHTML = '<i class="bi bi-cloud-download"></i> Import Progress from Hardcover';
-                        this.disabled = false;
-                    });
-            });
-        }
-    });
-</script>
+<script type="module" src="{% static 'bookclub/js/manual-progress.js' %}"></script>
 {% endblock extra_js %}

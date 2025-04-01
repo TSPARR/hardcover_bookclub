@@ -535,12 +535,13 @@ h6 {
     transition: all 0.2s ease;
 }
 
+/* Hardcover button */
 .hardcover-btn {
     border-color: #0aa2c0;
     color: #0aa2c0;
+    background-color: transparent;
 }
 
-/* Hardcover button */
 .hardcover-btn:hover {
     background-color: rgba(10, 162, 192, 0.1);
     color: #0aa2c0;
@@ -551,6 +552,7 @@ h6 {
 .kavita-btn {
     border-color: #6c757d;
     color: #6c757d;
+    background-color: transparent;
 }
 
 .kavita-btn:hover {
@@ -561,13 +563,15 @@ h6 {
 
 /* Plex button */
 .plex-btn {
-    background-color: #cc7b19;
-    color: white;
+    border-color: #cc7b19;
+    color: #cc7b19;
+    background-color: transparent;
 }
 
 .plex-btn:hover {
-    background-color: #e68a1e;
-    color: white;
+    background-color: rgba(204, 123, 25, 0.1);
+    color: #cc7b19;
+    border-color: #cc7b19;
 }
 
 /* Quick Edition Selection buttons */

@@ -1041,35 +1041,35 @@ input[name="hardcover_api_key"] {
     color: white;
 }
 
-/* Hardcover button */
-.hardcover-btn {
+/* Dark mode external link buttons */
+.dark-mode .hardcover-btn {
     border-color: #31d2f2;
     color: #31d2f2;
+    background-color: transparent;
 }
 
-.hardcover-btn:hover {
+.dark-mode .hardcover-btn:hover {
     background-color: rgba(49, 210, 242, 0.15);
 }
 
-/* Kavita button */
-.kavita-btn {
+.dark-mode .kavita-btn {
     border-color: #adb5bd;
     color: #adb5bd;
+    background-color: transparent;
 }
 
-.kavita-btn:hover {
+.dark-mode .kavita-btn:hover {
     background-color: rgba(173, 181, 189, 0.15);
 }
 
-/* Plex button */
-.plex-btn {
-    background-color: #e68a1e;
-    color: white;
+.dark-mode .plex-btn {
+    border-color: #e68a1e;
+    color: #e68a1e;
+    background-color: transparent;
 }
 
-.plex-btn:hover {
-    background-color: #f59c2a;
-    color: white;
+.dark-mode .plex-btn:hover {
+    background-color: rgba(230, 138, 30, 0.15);
 }
 
 /* Quick Edition Selection dark mode */

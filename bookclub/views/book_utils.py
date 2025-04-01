@@ -216,13 +216,16 @@ def sync_progress_to_hardcover(user, book, user_progress, pages=None, seconds=No
 
 def process_progress_from_request(request_data, user_progress):
     """Process and update user progress based on request data"""
+    # Check if we're clearing Hardcover data
+    clear_hardcover_data = request_data.get("clear_hardcover_data", False)
+
     # Update basic progress fields
     if "progress_type" in request_data and "progress_value" in request_data:
         user_progress.progress_type = request_data["progress_type"]
         user_progress.progress_value = request_data["progress_value"]
 
-    # Process Hardcover data if available
-    if "hardcover_data" in request_data:
+    # Process Hardcover data if available and not clearing
+    if "hardcover_data" in request_data and not clear_hardcover_data:
         hardcover_data = request_data["hardcover_data"]
 
         # Process timestamps
@@ -257,6 +260,12 @@ def process_progress_from_request(request_data, user_progress):
 
         if "rating" in hardcover_data:
             user_progress.hardcover_rating = hardcover_data.get("rating")
+    elif clear_hardcover_data:
+        # Clear Hardcover percentage and position data
+        user_progress.hardcover_percent = None
+        user_progress.hardcover_current_page = None
+        user_progress.hardcover_current_position = None
+        # Keep other fields like hardcover_read_id for reference
 
     return user_progress
 

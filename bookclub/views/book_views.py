@@ -42,6 +42,7 @@ from .comment_utils import (
     handle_reply_to_comment,
     sort_comments,
 )
+from .progress_validator import ProgressValidator
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +95,19 @@ def book_detail(request, book_id):
             book=book, is_plex_promoted=True
         ).first()
 
+    # Add reaction choices to the context - MOVED THIS UP to avoid UnboundLocalError
+    reaction_choices = CommentReaction.REACTION_CHOICES
+
+    # Add book and edition metadata for client-side validation
+    book_pages = book.pages if book and book.pages else None
+    book_audio_seconds = book.audio_seconds if book and book.audio_seconds else None
+    edition_pages = None
+    edition_audio_seconds = None
+
+    if user_progress and user_progress.edition:
+        edition_pages = user_progress.edition.pages
+        edition_audio_seconds = user_progress.edition.audio_seconds
+
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -114,10 +128,77 @@ def book_detail(request, book_id):
                     comment.progress_type = parent_comment.progress_type
                     comment.progress_value = parent_comment.progress_value
 
-            # Get progress data from form
+            # Get progress data from form and validate
             if request.POST.get("progress_type") and request.POST.get("progress_value"):
-                comment.progress_type = request.POST.get("progress_type")
-                comment.progress_value = request.POST.get("progress_value")
+                progress_type = request.POST.get("progress_type")
+                progress_value = request.POST.get("progress_value")
+
+                # Get book data for validation
+                book_data = {"book": book, "edition": user_progress.edition}
+
+                # Validate progress value
+                is_valid, result, seconds = ProgressValidator.validate(
+                    progress_type, progress_value, book_data
+                )
+
+                if not is_valid:
+                    error_message = f"Progress validation error: {result}"
+                    messages.error(request, error_message)
+                    # Add extra information to help the user
+                    if "pages" in result:
+                        if user_progress.edition and user_progress.edition.pages:
+                            messages.info(
+                                request,
+                                f"This edition has {user_progress.edition.pages} pages.",
+                            )
+                        elif book.pages:
+                            messages.info(request, f"This book has {book.pages} pages.")
+                    elif "timestamp" in result:
+                        if (
+                            user_progress.edition
+                            and user_progress.edition.audio_duration_formatted
+                        ):
+                            messages.info(
+                                request,
+                                f"This edition's duration is {user_progress.edition.audio_duration_formatted}.",
+                            )
+                        elif book.audio_seconds:
+                            hours = book.audio_seconds // 3600
+                            minutes = (book.audio_seconds % 3600) // 60
+                            messages.info(
+                                request,
+                                f"This book's audio duration is approximately {hours}h {minutes}m.",
+                            )
+
+                    return render(
+                        request,
+                        "bookclub/book_detail.html",
+                        {
+                            "book": book,
+                            "comments": comments,
+                            "form": form,
+                            "current_sort": sort_by,
+                            "user_progress": user_progress,
+                            "reaction_choices": reaction_choices,
+                            "kavita_promoted_edition": kavita_promoted_edition,
+                            "plex_promoted_edition": plex_promoted_edition,
+                            "is_admin": group.is_admin(request.user),
+                            "book_pages": book_pages,
+                            "book_audio_seconds": book_audio_seconds,
+                            "edition_pages": edition_pages,
+                            "edition_audio_seconds": edition_audio_seconds,
+                        },
+                    )
+
+                # Set validated progress
+                comment.progress_type = progress_type
+                comment.progress_value = ProgressValidator.format_progress_value(
+                    progress_type, result
+                )
+
+                # If it's audio progress and we have seconds, update Hardcover position
+                if progress_type == "audio" and seconds is not None:
+                    comment.hardcover_current_position = seconds
 
             # Get Hardcover progress data from hidden fields if available
             if request.POST.get("hardcover_data"):
@@ -145,9 +226,6 @@ def book_detail(request, book_id):
     else:
         form = CommentForm()
 
-    # Add reaction choices to the context
-    reaction_choices = CommentReaction.REACTION_CHOICES
-
     # Prepare the context with all required data
     context = {
         "book": book,
@@ -159,6 +237,10 @@ def book_detail(request, book_id):
         "kavita_promoted_edition": kavita_promoted_edition,
         "plex_promoted_edition": plex_promoted_edition,
         "is_admin": group.is_admin(request.user),
+        "book_pages": book_pages,
+        "book_audio_seconds": book_audio_seconds,
+        "edition_pages": edition_pages,
+        "edition_audio_seconds": edition_audio_seconds,
     }
 
     return render(request, "bookclub/book_detail.html", context)
@@ -184,8 +266,67 @@ def update_book_progress(request, book_id):
             },
         )
 
+        # Get promoted editions for this book
+        kavita_promoted_edition = None
+        plex_promoted_edition = None
+
+        if book.kavita_url:
+            kavita_promoted_edition = BookEdition.objects.filter(
+                book=book, is_kavita_promoted=True
+            ).first()
+
+        if book.plex_url:
+            plex_promoted_edition = BookEdition.objects.filter(
+                book=book, is_plex_promoted=True
+            ).first()
+
         data = json.loads(request.body)
         reload_page = False
+
+        # Check if we should clear Hardcover data
+        clear_hardcover_data = data.get("clear_hardcover_data", False)
+        if clear_hardcover_data:
+            # Clear Hardcover-specific data fields
+            user_progress.hardcover_percent = None
+            user_progress.hardcover_current_page = None
+            user_progress.hardcover_current_position = None
+            # Don't clear read ID or other fields that help with sync identification
+
+        # Validate progress data
+        progress_type = data.get("progress_type")
+        progress_value = data.get("progress_value")
+
+        if not progress_type or not progress_value:
+            return JsonResponse(
+                {"error": "Progress type and value are required"}, status=400
+            )
+
+        # Get book data for validation
+        book_data = {
+            "book": book,
+            "edition": user_progress.edition,
+            "kavita_promoted_edition": kavita_promoted_edition,
+            "plex_promoted_edition": plex_promoted_edition,
+        }
+
+        # Validate progress value
+        is_valid, result, seconds = ProgressValidator.validate(
+            progress_type, progress_value, book_data
+        )
+
+        if not is_valid:
+            return JsonResponse({"error": result}, status=400)
+
+        # Update progress with validated value
+        data["progress_value"] = ProgressValidator.format_progress_value(
+            progress_type, result
+        )
+
+        # If it's audio progress and we have seconds, update Hardcover position
+        if progress_type == "audio" and seconds is not None:
+            if "hardcover_data" not in data:
+                data["hardcover_data"] = {}
+            data["hardcover_data"]["current_position"] = seconds
 
         # Process data and update user_progress
         user_progress = process_progress_from_request(data, user_progress)
@@ -461,9 +602,77 @@ def set_manual_progress(request, book_id):
         finished_reading = request.POST.get("finished_reading") == "on"
         sync_to_hardcover = request.POST.get("sync_to_hardcover") == "on"
 
-        # Update progress type and value
+        # Get audio_seconds from hidden field if available
+        audio_seconds = None
+        if request.POST.get("audio_seconds"):
+            try:
+                audio_seconds = int(request.POST.get("audio_seconds"))
+            except (ValueError, TypeError):
+                pass
+
+        # Get promoted editions for this book
+        kavita_promoted_edition = None
+        plex_promoted_edition = None
+
+        if book.kavita_url:
+            kavita_promoted_edition = BookEdition.objects.filter(
+                book=book, is_kavita_promoted=True
+            ).first()
+
+        if book.plex_url:
+            plex_promoted_edition = BookEdition.objects.filter(
+                book=book, is_plex_promoted=True
+            ).first()
+
+        # Validate progress data
+        book_data = {
+            "book": book,
+            "edition": user_progress.edition,
+            "kavita_promoted_edition": kavita_promoted_edition,
+            "plex_promoted_edition": plex_promoted_edition,
+        }
+
+        # Validate progress value
+        is_valid, result, seconds = ProgressValidator.validate(
+            progress_type, progress_value, book_data
+        )
+
+        if not is_valid:
+            messages.error(request, f"Progress validation error: {result}")
+            return render(
+                request,
+                "bookclub/set_manual_progress.html",
+                {
+                    "book": book,
+                    "user_progress": user_progress,
+                    "has_hardcover_key": bool(request.user.profile.hardcover_api_key),
+                    "hardcover_read_id": hardcover_read_id,
+                    "book_pages": book.pages,
+                    "book_audio_seconds": book.audio_seconds,
+                    "edition_pages": (
+                        user_progress.edition.pages if user_progress.edition else None
+                    ),
+                    "edition_audio_seconds": (
+                        user_progress.edition.audio_seconds
+                        if user_progress.edition
+                        else None
+                    ),
+                },
+            )
+
+        # Update progress with validated value
         user_progress.progress_type = progress_type
-        user_progress.progress_value = progress_value
+        user_progress.progress_value = ProgressValidator.format_progress_value(
+            progress_type, result
+        )
+
+        # If it's audio progress and we have seconds, update Hardcover position
+        if progress_type == "audio":
+            # Use seconds from either validation or hidden field, prioritizing validation
+            if seconds is not None:
+                user_progress.hardcover_current_position = seconds
+            elif audio_seconds is not None:
+                user_progress.hardcover_current_position = audio_seconds
 
         if started_reading and not user_progress.hardcover_started_at:
             user_progress.hardcover_started_at = timezone.now()
@@ -496,10 +705,13 @@ def set_manual_progress(request, book_id):
                     pages = int(user_progress.progress_value)
                 except (ValueError, TypeError):
                     pass
-            elif (
-                user_progress.progress_type == "audio" and user_progress.progress_value
-            ):
-                seconds = parse_audio_progress(user_progress.progress_value)
+            elif user_progress.progress_type == "audio":
+                # Use the hardcover_current_position if available
+                if user_progress.hardcover_current_position:
+                    seconds = user_progress.hardcover_current_position
+                else:
+                    # Fall back to parsing from progress_value
+                    seconds = parse_audio_progress(user_progress.progress_value)
             elif (
                 user_progress.progress_type == "percent"
                 and user_progress.normalized_progress
@@ -549,6 +761,17 @@ def set_manual_progress(request, book_id):
 
         return redirect("book_detail", book_id=book.id)
 
+    # For GET request, prepare the template context
+    # Add book and edition metadata for client-side validation
+    book_pages = book.pages if book and book.pages else None
+    book_audio_seconds = book.audio_seconds if book and book.audio_seconds else None
+    edition_pages = None
+    edition_audio_seconds = None
+
+    if user_progress and user_progress.edition:
+        edition_pages = user_progress.edition.pages
+        edition_audio_seconds = user_progress.edition.audio_seconds
+
     return render(
         request,
         "bookclub/set_manual_progress.html",
@@ -557,6 +780,10 @@ def set_manual_progress(request, book_id):
             "user_progress": user_progress,
             "has_hardcover_key": bool(request.user.profile.hardcover_api_key),
             "hardcover_read_id": hardcover_read_id,
+            "book_pages": book_pages,
+            "book_audio_seconds": book_audio_seconds,
+            "edition_pages": edition_pages,
+            "edition_audio_seconds": edition_audio_seconds,
         },
     )
 

@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
         accessibilityHelper.setupModal('progressUpdateModal', 'updateProgressBtn');
         accessibilityHelper.setupModal('hardcoverSyncModal', 'syncHardcoverProgress');
         
+        // Set up validation for progress fields
+        progressTracker._setupProgressValidation();
+        
         // Expose modules to window for cross-module access (for functions that need direct access)
         window.ProgressTracker = progressTracker;
         window.HardcoverSync = hardcoverSync;
