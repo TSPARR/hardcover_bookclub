@@ -318,8 +318,13 @@ export const HardcoverSync = {
                     }
                     
                     // Call updateProgressFromSync directly if callback not set up
-                    if (!this.onProgressSynced && this.progressTracker) {
-                        this.progressTracker.updateProgressFromSync(this.selectedProgress, data.progress);
+                    if (this.onProgressSynced) {
+                        // Ensure we're passing both sync data and progress data
+                        this.onProgressSynced(this.selectedProgress, {
+                            normalized_progress: this.selectedProgress.progress || 0,
+                            progress_type: this.selectedProgress.reading_format || 'percent',
+                            progress_value: this.selectedProgress.progress || '0'
+                        });
                     }
                     
                     // Close the modal

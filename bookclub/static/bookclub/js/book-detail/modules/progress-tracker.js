@@ -204,53 +204,48 @@ export const ProgressTracker = {
         }
     },
 
-    /**
+   /**
      * Update status badges based on progress data
      * @param {object} progressData - Progress data from server
      */
     _updateStatusBadges(progressData) {
+        // Validate input
+        if (!progressData) {
+            console.warn('No progress data provided to update status badges');
+            return;
+        }
+
         // Add or update the "Finished" badge if we're at 100%
         const normalizedProgress = parseFloat(progressData.normalized_progress);
         
         // Find any existing status badges
-        const existingBadge = document.querySelector('.badge.bg-success, .badge.bg-primary');
-        const progressContainer = document.querySelector('.progress').closest('.card-body');
+        const progressContainer = document.querySelector('.progress-indicator .card-body') || 
+                                document.querySelector('.progress').closest('.card-body') || 
+                                document.querySelector('.progress').closest('.accordion-body');
+        
+        if (!progressContainer) {
+            console.warn('Could not find progress container for status badge');
+            return;
+        }
+        
+        // Remove any existing badges first
+        const existingBadge = progressContainer.querySelector('.badge.bg-success, .badge.bg-primary');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
         
         if (normalizedProgress >= 100) {
-            // Should show finished badge
-            if (existingBadge) {
-                if (!existingBadge.classList.contains('bg-success')) {
-                    existingBadge.classList.remove('bg-primary');
-                    existingBadge.classList.add('bg-success');
-                    existingBadge.textContent = 'Finished';
-                }
-            } else {
-                // Create new finished badge
-                const finishedBadge = document.createElement('div');
-                finishedBadge.className = 'badge bg-success w-100 p-2 mt-2';
-                finishedBadge.textContent = 'Finished';
-                progressContainer.appendChild(finishedBadge);
-            }
+            // Create finished badge
+            const finishedBadge = document.createElement('div');
+            finishedBadge.className = 'badge bg-success w-100 p-2 mt-2';
+            finishedBadge.textContent = 'Finished';
+            progressContainer.appendChild(finishedBadge);
         } else if (normalizedProgress > 0) {
-            // Should show in progress badge
-            if (existingBadge) {
-                if (!existingBadge.classList.contains('bg-primary')) {
-                    existingBadge.classList.remove('bg-success');
-                    existingBadge.classList.add('bg-primary');
-                    existingBadge.textContent = 'In Progress';
-                }
-            } else {
-                // Create new in progress badge
-                const progressBadge = document.createElement('div');
-                progressBadge.className = 'badge bg-primary w-100 p-2 mt-2';
-                progressBadge.textContent = 'In Progress';
-                progressContainer.appendChild(progressBadge);
-            }
-        } else {
-            // Remove any existing badge if progress is 0
-            if (existingBadge) {
-                existingBadge.remove();
-            }
+            // Create in progress badge
+            const progressBadge = document.createElement('div');
+            progressBadge.className = 'badge bg-primary w-100 p-2 mt-2';
+            progressBadge.textContent = 'In Progress';
+            progressContainer.appendChild(progressBadge);
         }
     },
     
@@ -410,6 +405,26 @@ export const ProgressTracker = {
      * @param {object} progressData - Local progress data
      */
     updateProgressFromSync(syncData, progressData) {
+        // Log incoming data for debugging
+        console.log('Sync Data:', syncData);
+        console.log('Progress Data:', progressData);
+
+        // If progressData is undefined, create a basic object
+        if (!progressData) {
+            progressData = {
+                normalized_progress: syncData.progress || 0,
+                progress_type: syncData.reading_format || 'percent',
+                progress_value: syncData.progress || '0'
+            };
+        }
+
+        // Ensure normalized_progress exists
+        if (progressData.normalized_progress === undefined) {
+            progressData.normalized_progress = progressData.progress || 
+                                            syncData.progress || 
+                                            0;
+        }
+
         // Update UI with new progress
         this._updateProgressDisplay(progressData);
         
