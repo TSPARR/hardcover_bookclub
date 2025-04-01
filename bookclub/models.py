@@ -51,12 +51,15 @@ class Book(models.Model):
     )
     is_collective_pick = models.BooleanField(default=False)
 
-    # Book metadata from Hardcover
+    # Hardcover metadata
     pages = models.IntegerField(null=True, blank=True)
     audio_seconds = models.IntegerField(null=True, blank=True)
 
     # Kavita metadata
     kavita_url = models.URLField(blank=True)
+
+    # Plex Metadata
+    plex_url = models.URLField(blank=True)
 
     class Meta:
         ordering = ["display_order", "id"]

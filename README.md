@@ -9,6 +9,7 @@ Hardcover Bookclub is a self-hosted application that integrates seamlessly with 
 - **Comments and Discussions**: Leave comments and engage in discussions about your favorite books.
 - **Progress Tracking**: Track your reading progress and stay motivated.
 - **Integration with Hardcover.app API**: Leverage the powerful features of Hardcover.app through seamless API integration.
+- **Optional Plex Integration**: Link directly to audiobooks in your Plex library.
 - **Optional Kavita Integration**: Connect with your self-hosted Kavita library for easy access to your digital books.
 
 ## 🏗️ Self Hosting
@@ -40,12 +41,48 @@ services:
       - DJANGO_CSRF_TRUSTED_ORIGINS=https://bookclub.domain.com
       # optionally enable debug mode
       - DJANGO_DEBUG=False
+      # optional Plex integration
+      - PLEX_URL=https://your-plex-server.com
+      - PLEX_TOKEN=your-plex-token
+      - PLEX_LIBRARY_NAME=Audiobooks
       # optional Kavita integration
       - KAVITA_BASE_URL=https://your-kavita-server.com
       - KAVITA_API_KEY=your-kavita-api-key
     volumes:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
+
+### 🎧 Plex Integration (Optional)
+
+<details>
+<summary>Click to expand Plex integration details</summary>
+
+The app includes optional integration with [Plex](https://www.plex.tv/), allowing you to link directly to audiobooks in your Plex library. This integration adds "View on Plex" links to books that exist in your Plex library.
+
+#### Setup
+
+1. **Environment Variables**: Add the following environment variables to enable Plex integration:
+  
+  ```
+    PLEX_URL=https://your-plex-server.com
+    PLEX_TOKEN=your-plex-token
+    PLEX_LIBRARY_NAME=Audiobooks
+  ```
+
+2. **Plex Token**: To find your Plex token, please refer to the [official documentation](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/).
+
+3. **Library Name**: Use the exact name of your audiobooks library in Plex (case-sensitive).
+
+4. **How It Works**: When a book detail page is viewed, the app will automatically search your Plex library for matching books by title and author, and add a "View on Plex" link if found.
+
+5. **No Configuration Needed**: There's no additional setup required beyond setting the environment variables - the integration is designed to work seamlessly in the background.
+
+#### Troubleshooting
+
+- The search uses the author and book title to find matches, so ensure your Plex library has accurate metadata
+- The search removes subtitles (text after colons) from book titles for better matching
+- For best results, maintain consistent naming conventions between your Hardcover and Plex libraries
+</details>
 
 ### 📚 Kavita Integration (Optional)
 
@@ -58,10 +95,10 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 
 1. **Environment Variables**: Add the following environment variables to enable Kavita integration:
 
-   ```
+  ```
     KAVITA_BASE_URL=https://your-kavita-server.com
     KAVITA_API_KEY=your-kavita-api-key
-   ```
+  ```
 
 2. **API Key**: You can find or create your Kavita API key in the Kavita interface under Settings > Account -> API Key / OPDS.
 
@@ -72,6 +109,7 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 #### Troubleshooting
 
 - The search uses the book title to find matches, so ensure your Kavita library has accurate metadata
+- The search removes subtitles (text after colons) from book titles for better matching
 - For best results, maintain consistent naming conventions between your Hardcover and Kavita libraries
 </details>
 

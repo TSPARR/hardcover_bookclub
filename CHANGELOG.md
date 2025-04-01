@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.1.2
+- Added optional Plex integration to more easily help your users discover the books.
+
 ## Release 0.1.1
 - Added optional Kavita integration to more easily help your users discover the books.
 

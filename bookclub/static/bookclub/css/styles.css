@@ -558,3 +558,14 @@ h6 {
     color: #6c757d;
     border-color: #6c757d;
 }
+
+/* Plex button */
+.plex-btn {
+    background-color: #cc7b19;
+    color: white;
+}
+
+.plex-btn:hover {
+    background-color: #e68a1e;
+    color: white;
+}
