@@ -102,8 +102,6 @@ def attribution_analytics(request, group_id):
             (deviation / max(fair_share, 0.1) * 100) if fair_share > 0 else 0
         )
 
-        fairness_metrics = annotate_fairness_metrics(fairness_metrics)
-
         fairness_metrics.append(
             {
                 "user": member,
@@ -111,9 +109,11 @@ def attribution_analytics(request, group_id):
                 "fair_share": fair_share,
                 "deviation": deviation,
                 "deviation_percent": deviation_percent,
-                "fairness_metrics": fairness_metrics,
             }
         )
+
+    # Annotate after creating the metrics
+    fairness_metrics = annotate_fairness_metrics(fairness_metrics)
 
     # Sort by absolute deviation to highlight most significant disparities
     fairness_metrics.sort(key=lambda x: abs(x["deviation"]), reverse=True)
