@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
 
 from ..models import BookGroup, GroupInvitation
 
@@ -77,10 +78,14 @@ def create_invitation(request, group_id):
             reverse("register_with_invite", kwargs={"invite_code": invitation.code})
         )
 
+        # Safely escape the URL to prevent XSS
+        escaped_invite_url = escape(invite_url)
+
+        # Use a template-friendly message that can be rendered safely
         messages.success(
             request,
-            f"Invitation created! Link: <a href='{invite_url}' class='alert-link'>{invite_url}</a>",
-            extra_tags="safe",
+            f"Invitation created! Link: {escaped_invite_url}",
+            extra_tags="invitation-link",
         )
         return redirect("manage_invitations", group_id=group.id)
 

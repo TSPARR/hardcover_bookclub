@@ -11,6 +11,7 @@ Hardcover Bookclub is a self-hosted application that integrates seamlessly with 
 - **Integration with Hardcover.app API**: Leverage the powerful features of Hardcover.app through seamless API integration.
 - **Optional Plex Integration**: Link directly to audiobooks in your Plex library.
 - **Optional Kavita Integration**: Connect with your self-hosted Kavita library for easy access to your digital books.
+- **Optional Admin Promoted Editions**: Quickly promote the editions your users will be most likely to use.
 
 ## 🏗️ Self Hosting
 

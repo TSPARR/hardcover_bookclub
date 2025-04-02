@@ -1,0 +1,238 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+{% load bookclub_extras %
+
+{% block title %}Manage Promoted Editions - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Manage Promoted Editions for "{{ book.title }}"</h1>
+            <p class="text-muted">By {{ book.author }}</p>
+
+            <div class="alert alert-info alert-permanent">
+                <p><strong>What are promoted editions?</strong></p>
+                <p>Promoted editions are Hardcover book editions that you recommend for members who are reading this book on Kavita or Plex. When a member selects "I'm reading on Kavita" or "I'm listening on Plex", they'll automatically use your recommended edition.</p>
+            </div>
+            
+            {% if has_kavita %}
+            <div class="alert alert-success alert-permanent mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-book me-2" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <h5 class="mb-1">Kavita Edition</h5>
+                        {% if kavita_promoted %}
+                        <p class="mb-0">Currently promoting: <strong>{{ kavita_promoted.title }}</strong> 
+                            {% if kavita_promoted.reading_format %}({{ kavita_promoted.reading_format }}){% endif %}
+                        </p>
+                        {% else %}
+                        <p class="mb-0">No edition currently promoted for Kavita.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if has_plex %}
+            <div class="alert alert-warning alert-permanent mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-headphones me-2" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <h5 class="mb-1">Plex Edition</h5>
+                        {% if plex_promoted %}
+                        <p class="mb-0">Currently promoting: <strong>{{ plex_promoted.title }}</strong>
+                            {% if plex_promoted.reading_format %}({{ plex_promoted.reading_format }}){% endif %}
+                        </p>
+                        {% else %}
+                        <p class="mb-0">No edition currently promoted for Plex.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if editions %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Available Editions</h5>
+                    <div class="d-flex align-items-center">
+                        <button id="clear-filter" class="btn btn-sm btn-light me-2 d-none">Clear Filter</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="1">
+                                Physical <span class="badge bg-secondary format-count" data-format-id="1">0</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="4">
+                                Ebook <span class="badge bg-secondary format-count" data-format-id="4">0</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="2">
+                                Audio <span class="badge bg-secondary format-count" data-format-id="2">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="no-editions-filtered" class="alert alert-warning d-none">
+                        No editions match the selected filter.
+                    </div>
+                    <div class="row">
+                        {% for edition in editions %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 position-relative edition-card" data-format-id="{{ edition.reading_format_id }}">
+                                {% if kavita_promoted and edition.id|stringformat:"s" == kavita_promoted.hardcover_edition_id %}
+                                <span class="edition-promoted-badge badge bg-success">Kavita Edition</span>
+                                {% elif plex_promoted and edition.id|stringformat:"s" == plex_promoted.hardcover_edition_id %}
+                                <span class="edition-promoted-badge badge bg-warning text-dark">Plex Edition</span>
+                                {% endif %}
+                                
+                                {% if edition.cover_image_url %}
+                                <img src="{{ edition.cover_image_url }}" class="card-img-top" alt="{{ edition.title }}">
+                                {% else %}
+                                <div class="card-img-top-placeholder">No Cover Available</div>
+                                {% endif %}
+
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ edition.title }}</h5>
+
+                                    <ul class="list-unstyled">
+                                        {% if edition.reading_format %}
+                                        <li>
+                                            <strong>Format:</strong> 
+                                            <span class="badge 
+                                                {% if edition.reading_format == 'physical' %}bg-success{% endif %}
+                                                {% if edition.reading_format == 'ebook' %}bg-info{% endif %}
+                                                {% if edition.reading_format == 'audio' %}bg-warning text-dark{% endif %}
+                                            ">
+                                                {{ edition.reading_format|title }}
+                                            </span>
+                                        </li>
+                                        {% endif %}
+
+                                        {% if edition.pages %}
+                                        <li><strong>Pages:</strong> {{ edition.pages }}</li>
+                                        {% endif %}
+
+                                        {% if edition.audio_duration_formatted or edition.audio_seconds %}
+                                        <li><strong>Duration:</strong> 
+                                            {% if edition.audio_duration_formatted %}
+                                                {{ edition.audio_duration_formatted }}
+                                            {% else %}
+                                                ~{{ edition.audio_seconds|floatformat:0|default:"0" }} seconds
+                                            {% endif %}
+                                        </li>
+                                        {% endif %}
+
+                                        {% if edition.publisher %}
+                                        <li><strong>Publisher:</strong> {{ edition.publisher.name }}</li>
+                                        {% endif %}
+
+                                        {% if edition.release_date_formatted %}
+                                        <li><strong>Published:</strong> {{ edition.release_date_formatted }}</li>
+                                        {% endif %}
+
+                                        {% if edition.isbn %}
+                                        <li><strong>ISBN:</strong> {{ edition.isbn }}</li>
+                                        {% endif %}
+
+                                        {% if edition.isbn13 %}
+                                        <li><strong>ISBN-13:</strong> {{ edition.isbn13 }}</li>
+                                        {% endif %}
+                                    </ul>
+
+                                    <div class="mt-auto">
+                                        {% if has_kavita %}
+                                        <form method="post" action="{% url 'manage_promoted_editions' book.id %}" class="mb-2">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="kavita_edition_id" value="{{ edition.id }}">
+                                            <button type="submit" class="btn btn-kavita w-100" 
+                                                {% if kavita_promoted and edition.id|stringformat:"s" == kavita_promoted.hardcover_edition_id %}disabled{% endif %}>
+                                                {% if kavita_promoted and edition.id|stringformat:"s" == kavita_promoted.hardcover_edition_id %}
+                                                <i class="bi bi-check-circle"></i> Current Kavita Edition
+                                                {% else %}
+                                                <i class="bi bi-book"></i> Set as Kavita Edition
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        
+                                        {% if has_plex %}
+                                        <form method="post" action="{% url 'manage_promoted_editions' book.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="plex_edition_id" value="{{ edition.id }}">
+                                            <button type="submit" class="btn btn-plex w-100"
+                                                {% if plex_promoted and edition.id|stringformat:"s" == plex_promoted.hardcover_edition_id %}disabled{% endif %}>
+                                                {% if plex_promoted and edition.id|stringformat:"s" == plex_promoted.hardcover_edition_id %}
+                                                <i class="bi bi-check-circle"></i> Current Plex Edition
+                                                {% else %}
+                                                <i class="bi bi-headphones"></i> Set as Plex Edition
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if kavita_promoted or plex_promoted %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="post" action="{% url 'manage_promoted_editions' book.id %}">
+                {% csrf_token %}
+                {% if kavita_promoted %}
+                <input type="hidden" name="clear_kavita" value="true">
+                <button type="submit" class="btn btn-outline-success me-2">
+                    <i class="bi bi-x-circle"></i> Clear Kavita Edition
+                </button>
+                {% endif %}
+                
+                {% if plex_promoted %}
+                <input type="hidden" name="clear_plex" value="true">
+                <button type="submit" class="btn btn-outline-warning">
+                    <i class="bi bi-x-circle"></i> Clear Plex Edition
+                </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-warning alert-permanent">
+                <p>No editions found for this book. This could be because:</p>
+                <ul>
+                    <li>The book doesn't have any editions registered in Hardcover</li>
+                    <li>Your Hardcover API key is not set or is invalid</li>
+                    <li>There was an error communicating with the Hardcover API</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">
+                Back to Book
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if editions %}
+<!-- Load the edition filter JavaScript -->
+<script src="{% static 'bookclub/js/edition-filter.js' %}"></script>
+{% endif %}
+{% endblock %}

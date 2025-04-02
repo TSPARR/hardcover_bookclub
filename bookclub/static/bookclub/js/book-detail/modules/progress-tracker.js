@@ -1,6 +1,7 @@
 // progress-tracker.js - Handles user reading progress tracking and updates
 import { Storage } from '../utils/storage.js';
 import { DomHelpers } from '../utils/dom-helpers.js';
+import { ProgressValidator } from './progress-validator.js';
 
 export const ProgressTracker = {
     bookId: null,
@@ -28,6 +29,7 @@ export const ProgressTracker = {
         
         this._setupEventListeners();
         this._setupAutoSync();
+        this._setupProgressValidation();
         
         // Update last sync time display if available
         if (this.lastSyncTimeEl) {
@@ -56,13 +58,29 @@ export const ProgressTracker = {
         // Progress type change (to update help text)
         const progressType = document.getElementById('progressType');
         if (progressType) {
-            progressType.addEventListener('change', () => this._updateProgressHelp());
+            progressType.addEventListener('change', () => {
+                this._updateProgressHelp();
+                // Re-validate when type changes
+                const progressValue = document.getElementById('progressValue');
+                if (progressValue && progressValue.value.trim() !== '') {
+                    const event = new Event('input', { bubbles: true });
+                    progressValue.dispatchEvent(event);
+                }
+            });
         }
         
         // Comment progress type change
         const commentProgressType = document.getElementById('comment_progress_type');
         if (commentProgressType) {
-            commentProgressType.addEventListener('change', () => this._updateCommentProgressHelp());
+            commentProgressType.addEventListener('change', () => {
+                this._updateCommentProgressHelp();
+                // Re-validate when type changes
+                const commentProgressValue = document.getElementById('comment_progress_value');
+                if (commentProgressValue && commentProgressValue.value.trim() !== '') {
+                    const event = new Event('input', { bubbles: true });
+                    commentProgressValue.dispatchEvent(event);
+                }
+            });
         }
         
         // Auto sync toggle
@@ -160,7 +178,7 @@ export const ProgressTracker = {
         if (selectedType === 'page') {
             helpText.textContent = "Enter the page number you're currently on.";
         } else if (selectedType === 'audio') {
-            helpText.textContent = 'Enter the timestamp (e.g., "2h 30m").';
+            helpText.textContent = 'Enter the timestamp (e.g., "2h 30m" or "1:30:00").';
         } else {
             helpText.textContent = 'Enter a percentage (e.g., "75").';
         }
@@ -180,9 +198,54 @@ export const ProgressTracker = {
         if (selectedType === 'page') {
             helpText.textContent = "Enter the page number you're commenting about.";
         } else if (selectedType === 'audio') {
-            helpText.textContent = 'Enter the timestamp (e.g., "2h 30m").';
+            helpText.textContent = 'Enter the timestamp (e.g., "2h 30m" or "1:30:00").';
         } else {
             helpText.textContent = 'Enter a percentage (e.g., "75").';
+        }
+    },
+
+   /**
+     * Update status badges based on progress data
+     * @param {object} progressData - Progress data from server
+     */
+    _updateStatusBadges(progressData) {
+        // Validate input
+        if (!progressData) {
+            console.warn('No progress data provided to update status badges');
+            return;
+        }
+
+        // Add or update the "Finished" badge if we're at 100%
+        const normalizedProgress = parseFloat(progressData.normalized_progress);
+        
+        // Find any existing status badges
+        const progressContainer = document.querySelector('.progress-indicator .card-body') || 
+                                document.querySelector('.progress').closest('.card-body') || 
+                                document.querySelector('.progress').closest('.accordion-body');
+        
+        if (!progressContainer) {
+            console.warn('Could not find progress container for status badge');
+            return;
+        }
+        
+        // Remove any existing badges first
+        const existingBadge = progressContainer.querySelector('.badge.bg-success, .badge.bg-primary');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        if (normalizedProgress >= 100) {
+            // Create finished badge
+            const finishedBadge = document.createElement('div');
+            finishedBadge.className = 'badge bg-success w-100 p-2 mt-2';
+            finishedBadge.textContent = 'Finished';
+            progressContainer.appendChild(finishedBadge);
+        } else if (normalizedProgress > 0) {
+            // Create in progress badge
+            const progressBadge = document.createElement('div');
+            progressBadge.className = 'badge bg-primary w-100 p-2 mt-2';
+            progressBadge.textContent = 'In Progress';
+            progressContainer.appendChild(progressBadge);
         }
     },
     
@@ -198,12 +261,51 @@ export const ProgressTracker = {
             return;
         }
         
-        const data = {
-            progress_type: progressType,
-            progress_value: progressValue
+        // Get book metadata for validation
+        const bookData = {
+            book: {
+                pages: parseInt(document.querySelector('meta[name="book-pages"]')?.content),
+                audio_seconds: parseInt(document.querySelector('meta[name="book-audio-seconds"]')?.content)
+            },
+            edition: {
+                pages: parseInt(document.querySelector('meta[name="edition-pages"]')?.content),
+                audio_seconds: parseInt(document.querySelector('meta[name="edition-audio-seconds"]')?.content)
+            }
         };
         
+        // Validate progress value
+        const validation = ProgressValidator.validate(progressType, progressValue, bookData);
+        if (!validation.isValid) {
+            alert(validation.message);
+            return;
+        }
+        
+        // Format the validated value
+        const formattedValue = ProgressValidator.formatProgressValue(progressType, validation.value);
+        
+        // Check if auto-sync is enabled
+        const autoSyncEnabled = this.autoSyncToggle && this.autoSyncToggle.checked;
+        
+        const data = {
+            progress_type: progressType,
+            progress_value: formattedValue,
+            clear_hardcover_data: !autoSyncEnabled // Clear Hardcover data if auto-sync is off
+        };
+        
+        // If it's audio progress and we have seconds, include them for the server
+        if (progressType === 'audio' && validation.seconds) {
+            data.hardcover_data = {
+                current_position: validation.seconds
+            };
+        }
+        
         console.log('Saving progress:', data); // Debug log
+        
+        // Show a loading indicator in the progress bar
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+        }
         
         // Send update to server
         fetch(`/books/${this.bookId}/update-progress/`, {
@@ -221,6 +323,9 @@ export const ProgressTracker = {
                 
                 // Force update the progress display with the new data
                 this._updateProgressDisplay(data.progress);
+                
+                // Update status badges if appropriate
+                this._updateStatusBadges(data.progress);
                 
                 // Close the modal
                 if (this.progressModalInstance) {
@@ -300,8 +405,31 @@ export const ProgressTracker = {
      * @param {object} progressData - Local progress data
      */
     updateProgressFromSync(syncData, progressData) {
+        // Log incoming data for debugging
+        console.log('Sync Data:', syncData);
+        console.log('Progress Data:', progressData);
+
+        // If progressData is undefined, create a basic object
+        if (!progressData) {
+            progressData = {
+                normalized_progress: syncData.progress || 0,
+                progress_type: syncData.reading_format || 'percent',
+                progress_value: syncData.progress || '0'
+            };
+        }
+
+        // Ensure normalized_progress exists
+        if (progressData.normalized_progress === undefined) {
+            progressData.normalized_progress = progressData.progress || 
+                                            syncData.progress || 
+                                            0;
+        }
+
         // Update UI with new progress
         this._updateProgressDisplay(progressData);
+        
+        // Update status badges
+        this._updateStatusBadges(progressData);
         
         // Update status badges if applicable
         const cardBody = document.querySelector('.progress-indicator .card-body');
@@ -390,5 +518,161 @@ export const ProgressTracker = {
      */
     isAutoSyncEnabled() {
         return Storage.get(`auto_sync_${this.bookId}`, false);
+    },
+    
+    /**
+     * Set up live validation for progress fields
+     */
+    _setupProgressValidation() {
+        const progressTypeInput = document.getElementById('progressType');
+        const progressValueInput = document.getElementById('progressValue');
+        const progressHelp = document.getElementById('progressHelp');
+        
+        if (!progressTypeInput || !progressValueInput) return;
+        
+        // Get book metadata for validation
+        const bookData = {
+            book: {
+                pages: parseInt(document.querySelector('meta[name="book-pages"]')?.content),
+                audio_seconds: parseInt(document.querySelector('meta[name="book-audio-seconds"]')?.content)
+            },
+            edition: {
+                pages: parseInt(document.querySelector('meta[name="edition-pages"]')?.content),
+                audio_seconds: parseInt(document.querySelector('meta[name="edition-audio-seconds"]')?.content)
+            }
+        };
+        
+        // Add input event listener to validate on typing
+        progressValueInput.addEventListener('input', () => {
+            const type = progressTypeInput.value;
+            const value = progressValueInput.value;
+            
+            if (value.trim() === '') return; // Skip validation for empty values
+            
+            const validation = ProgressValidator.validate(type, value, bookData);
+            
+            if (!validation.isValid) {
+                progressValueInput.classList.add('is-invalid');
+                
+                // Create or update validation feedback
+                let feedback = progressValueInput.nextElementSibling;
+                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    progressValueInput.parentNode.insertBefore(feedback, progressValueInput.nextSibling);
+                }
+                
+                feedback.textContent = validation.message;
+            } else {
+                progressValueInput.classList.remove('is-invalid');
+                progressValueInput.classList.add('is-valid');
+                
+                // Remove validation feedback if it exists
+                const feedback = progressValueInput.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.remove();
+                }
+            }
+        });
+        
+        // Also set up validation for the comment form if it exists
+        this._setupCommentFormValidation(bookData);
+    },
+    
+    /**
+     * Set up validation for the comment form
+     */
+    _setupCommentFormValidation(bookData) {
+        const commentForm = document.querySelector('form[action*="book_detail"]');
+        if (!commentForm) return;
+        
+        const progressTypeInput = document.getElementById('comment_progress_type');
+        const progressValueInput = document.getElementById('comment_progress_value');
+        
+        if (!progressTypeInput || !progressValueInput) return;
+        
+        // Add submit event listener to validate before submission
+        commentForm.addEventListener('submit', (e) => {
+            const type = progressTypeInput.value;
+            const value = progressValueInput.value;
+            
+            const validation = ProgressValidator.validate(type, value, bookData);
+            
+            if (!validation.isValid) {
+                e.preventDefault();
+                
+                // Show error message
+                progressValueInput.classList.add('is-invalid');
+                
+                // Create or update validation feedback
+                let feedback = progressValueInput.nextElementSibling;
+                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    progressValueInput.parentNode.insertBefore(feedback, progressValueInput.nextSibling);
+                }
+                
+                feedback.textContent = validation.message;
+                
+                // Scroll to the error
+                progressValueInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // Format the value before submission
+                progressValueInput.value = ProgressValidator.formatProgressValue(type, validation.value);
+                
+                // If it's audio progress and we have seconds, include them in a hidden field
+                if (type === 'audio' && validation.seconds) {
+                    let hardcoverDataInput = document.getElementById('hardcover_data');
+                    
+                    if (!hardcoverDataInput) {
+                        hardcoverDataInput = document.createElement('input');
+                        hardcoverDataInput.type = 'hidden';
+                        hardcoverDataInput.id = 'hardcover_data';
+                        hardcoverDataInput.name = 'hardcover_data';
+                        commentForm.appendChild(hardcoverDataInput);
+                    }
+                    
+                    const hardcoverData = {
+                        current_position: validation.seconds
+                    };
+                    
+                    hardcoverDataInput.value = JSON.stringify(hardcoverData);
+                }
+            }
+        });
+        
+        // Add input validation for the comment form
+        progressValueInput.addEventListener('input', () => {
+            const type = progressTypeInput.value;
+            const value = progressValueInput.value;
+            
+            if (value.trim() === '') return; // Skip validation for empty values
+            
+            const validation = ProgressValidator.validate(type, value, bookData);
+            
+            if (!validation.isValid) {
+                progressValueInput.classList.add('is-invalid');
+                progressValueInput.classList.remove('is-valid');
+                
+                // Create or update validation feedback
+                let feedback = progressValueInput.nextElementSibling;
+                if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    progressValueInput.parentNode.insertBefore(feedback, progressValueInput.nextSibling);
+                }
+                
+                feedback.textContent = validation.message;
+            } else {
+                progressValueInput.classList.remove('is-invalid');
+                progressValueInput.classList.add('is-valid');
+                
+                // Remove validation feedback if it exists
+                const feedback = progressValueInput.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.remove();
+                }
+            }
+        });
     }
 };
