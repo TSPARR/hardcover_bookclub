@@ -456,3 +456,27 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
     else:
         instance.profile.save()
+
+
+class MemberStartingPoint(models.Model):
+    """Tracks when a member officially joined the rotation."""
+
+    group = models.ForeignKey(BookGroup, on_delete=models.CASCADE)
+    member = models.ForeignKey(User, on_delete=models.CASCADE)
+    starting_book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        help_text="The first book this member was eligible to pick",
+    )
+    notes = models.TextField(blank=True, null=True)
+    set_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="set_starting_points"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("group", "member")
+        ordering = ["group", "starting_book__display_order"]
+
+    def __str__(self):
+        return f"{self.member.username} in {self.group.name} starting with '{self.starting_book.title}'"

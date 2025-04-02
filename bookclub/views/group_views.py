@@ -3,12 +3,13 @@ Group-related views for managing book groups.
 """
 
 import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import GroupForm
-from ..models import Book, BookGroup, User, UserBookProgress
+from ..models import Book, BookGroup, MemberStartingPoint, User, UserBookProgress
 
 logger = logging.getLogger(__name__)
 
@@ -374,5 +375,65 @@ def manage_group_books(request, group_id):
             "group": group,
             "books": books,
             "members": members,
+        },
+    )
+
+
+@login_required
+def manage_member_starting_points(request, group_id):
+    """View for managing when members joined the rotation."""
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is an admin of this group
+    if not group.is_admin(request.user):
+        messages.error(request, "You don't have permission to manage this group.")
+        return redirect("group_detail", group_id=group.id)
+
+    books = group.books.all().order_by("display_order", "created_at")
+    members = group.members.all()
+
+    # Get existing starting points
+    existing_starting_points = MemberStartingPoint.objects.filter(
+        group=group
+    ).select_related("member", "starting_book")
+
+    # Create a dictionary for easy lookup
+    starting_points_dict = {sp.member.id: sp for sp in existing_starting_points}
+
+    if request.method == "POST":
+        member_id = request.POST.get("member_id")
+        book_id = request.POST.get("book_id")
+        notes = request.POST.get("notes", "")
+
+        if member_id and book_id:
+            member = get_object_or_404(User, id=member_id)
+            book = get_object_or_404(Book, id=book_id, group=group)
+
+            # Update or create the starting point
+            MemberStartingPoint.objects.update_or_create(
+                group=group,
+                member=member,
+                defaults={
+                    "starting_book": book,
+                    "notes": notes,
+                    "set_by": request.user,
+                },
+            )
+
+            messages.success(
+                request,
+                f"Starting point for {member.username} has been set to '{book.title}'.",
+            )
+
+        return redirect("manage_member_starting_points", group_id=group.id)
+
+    return render(
+        request,
+        "bookclub/manage_member_starting_points.html",
+        {
+            "group": group,
+            "books": books,
+            "members": members,
+            "starting_points_dict": starting_points_dict,
         },
     )

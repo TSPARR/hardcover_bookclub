@@ -1,0 +1,137 @@
+{% extends 'bookclub/base.html' %}
+{% load bookclub_extras %}
+
+{% block title %}Manage Member Starting Points - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Manage Member Starting Points</h1>
+                <div>
+                    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
+                </div>
+            </div>
+            <p class="lead">Set when each member officially joined the rotation</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">Member Starting Points</h3>
+                </div>
+                <div class="card-body">
+                    <p>Use this interface to specify which book each member was first eligible to pick. 
+                    This helps provide more accurate rotation analysis.</p>
+                    
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Starting Book</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr>
+                                <td>{{ member.username }}</td>
+                                <td>
+                                    {% if member.id in starting_points_dict %}
+                                        {{ starting_points_dict|get_item:member.id|get_attr:"starting_book"|get_attr:"title" }}
+                                    {% else %}
+                                        <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if member.id in starting_points_dict %}
+                                        {{ starting_points_dict|get_item:member.id|get_attr:"notes"|default:"" }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#setStartingPointModal"
+                                            data-member-id="{{ member.id }}"
+                                            data-member-name="{{ member.username }}">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Setting Starting Point -->
+<div class="modal fade" id="setStartingPointModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="member_id" id="memberIdInput">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title">Set Starting Point for <span id="memberNameDisplay"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="bookSelect" class="form-label">Starting Book:</label>
+                        <select class="form-select" id="bookSelect" name="book_id" required>
+                            <option value="">-- Select book --</option>
+                            {% for book in books %}
+                            <option value="{{ book.id }}">{{ book.title }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">
+                            Choose the first book this member was eligible to pick in the rotation.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notesInput" class="form-label">Notes (optional):</label>
+                        <textarea class="form-control" id="notesInput" name="notes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up the modal data transfer
+    const setStartingPointModal = document.getElementById('setStartingPointModal');
+    if (setStartingPointModal) {
+        setStartingPointModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const memberId = button.getAttribute('data-member-id');
+            const memberName = button.getAttribute('data-member-name');
+            
+            // Update the modal content
+            document.getElementById('memberIdInput').value = memberId;
+            document.getElementById('memberNameDisplay').textContent = memberName;
+            
+            // If we have existing data for this member, we could pre-populate the form
+            // This would require passing starting_points_dict to JS
+        });
+    }
+});
+</script>
+{% endblock %}
