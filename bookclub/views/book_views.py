@@ -27,6 +27,7 @@ from ..models import (
 )
 from ..plex_api import update_plex_info_for_book
 from .book_utils import (
+    _get_progress_value_for_sorting,
     convert_progress_to_pages,
     convert_progress_to_seconds,
     create_or_update_book_edition,
@@ -210,10 +211,14 @@ def book_detail(request, book_id):
                 except json.JSONDecodeError as e:
                     logger.error(f"Error parsing Hardcover data: {e}")
             else:
-                # Update user progress based on the comment's progress
-                user_progress.progress_type = comment.progress_type
-                user_progress.progress_value = comment.progress_value
-                user_progress.save()
+                comment_progress_value = _get_progress_value_for_sorting(comment)
+                current_progress_value = _get_progress_value_for_sorting(user_progress)
+
+                if comment_progress_value > current_progress_value:
+                    # Only update if the comment represents progress further in the book
+                    user_progress.progress_type = comment.progress_type
+                    user_progress.progress_value = comment.progress_value
+                    user_progress.save()
 
             comment.save()
 
