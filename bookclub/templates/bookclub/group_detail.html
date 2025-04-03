@@ -11,6 +11,10 @@
                 <h1>{{ group.name }}</h1>
                 <div>
                     <a href="{% url 'home' %}" class="btn btn-secondary">Back to Groups</a>
+
+                    <a href="{% url 'attribution_analytics' group.id %}" class="btn btn-outline-info me-2">
+                        <i class="bi bi-graph-up"></i> Book Pick Analytics
+                    </a>
                     {% if is_admin %}
                     <div class="mb-3">
                         <a href="{% url 'manage_group_members' group.id %}" class="btn btn-outline-primary me-2">
@@ -19,6 +23,10 @@
                         
                         <a href="{% url 'manage_invitations' group.id %}" class="btn btn-outline-success me-2">
                             <i class="bi bi-envelope"></i> Manage Invitations
+                        </a>
+
+                        <a href="{% url 'manage_member_starting_points' group.id %}" class="btn btn-outline-secondary me-2">
+                            <i class="bi bi-calendar-date"></i> Member Starting Points
                         </a>
                     </div>
                     {% endif %}

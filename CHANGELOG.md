@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.1.4
+- Adds Book Pick analytics for some fun views into who's picking books.
+
 ## Release 0.1.3
 - Adds ability to select admin-promoted versions with a quick edition select for users
 - Reworks book details page to have less wasted space
