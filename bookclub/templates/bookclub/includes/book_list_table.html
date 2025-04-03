@@ -1,0 +1,85 @@
+<!-- includes/book_list_table.html -->
+{% load bookclub_extras %}
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th width="5%">#</th>
+            <th width="25%">Book</th>
+            <th width="20%">Author</th>
+            <th width="15%">Picked By</th>
+            <th width="10%">Status</th>
+            <th width="10%">Rating</th>
+            <th width="15%">Your Progress</th>
+            {% if is_admin %}
+            <th width="10%">Actions</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
+            </td>
+            <td>{{ book.author }}</td>
+            <td>
+                {% if book.is_collective_pick %}
+                <span class="badge bg-info text-dark">Group Pick</span>
+                {% elif book.picked_by %}
+                {{ book.picked_by.username }}
+                {% endif %}
+            </td>
+            <td>
+                {% if book.is_active %}
+                <span class="badge bg-primary">Active</span>
+                {% endif %}
+            </td>
+            <td>
+                {% with prog=book_progress|get_item:book.id %}
+                    {% if prog.progress.effective_rating %}
+                        {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
+                        {% if prog.progress.hardcover_rating %}
+                        <span class="text-muted small d-block">Hardcover</span>
+                        {% elif prog.progress.local_rating %}
+                        <span class="text-muted small d-block">Local</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted small">-</span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td>
+                {% with prog=book_progress|get_item:book.id %}
+                    <span class="badge {{ prog.status_class }}">{{ prog.status }}</span>
+                    {% if prog.progress and prog.progress.normalized_progress > 0 %}
+                        <span class="ms-1">{{ prog.progress.normalized_progress }}%</span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            {% if is_admin %}
+            <td>
+                {% if not book.is_active %}
+                <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        Set Active
+                    </button>
+                </form>
+                {% endif %}
+                <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-star"></i> Editions
+                </a>
+                <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Are you sure you want to remove this book?')">
+                        Remove
+                    </button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

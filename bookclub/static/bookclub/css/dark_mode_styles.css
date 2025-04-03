@@ -93,6 +93,20 @@ h6 {
     color: #c0c0c0;
 }
 
+/* Card headers with white background */
+.dark-mode .card-header.bg-white {
+    background-color: #2c2c2c !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Card footers with white background */
+.card-footer.bg-white {
+    background-color: #2c2c2c !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e1e1e1;
+}
+
 /* ===== Book Cards ===== */
 .book-card {
     height: 100%;
@@ -1387,13 +1401,6 @@ input[name="hardcover_api_key"] {
 
 .dark-mode .card.shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5) !important;
-}
-
-/* Card headers with white background */
-.dark-mode .card-header.bg-white {
-    background-color: #2c2c2c !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ffffff;
 }
 
 /* List group items */

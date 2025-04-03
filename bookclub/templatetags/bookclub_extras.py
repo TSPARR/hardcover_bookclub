@@ -19,12 +19,6 @@ def is_member(group, user):
 
 
 @register.filter
-def get_item(dictionary, key):
-    """Get an item from a dictionary using template variables"""
-    return dictionary.get(key, [])
-
-
-@register.filter
 def rejectattr(value, arg):
     """Filter a queryset or list based on an attribute being False."""
     if hasattr(value, "filter"):
