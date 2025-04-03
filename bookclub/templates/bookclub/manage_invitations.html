@@ -55,7 +55,7 @@
                             {% if invitation.is_valid %}
                                 <div class="d-flex">
                                     <button type="button" class="btn btn-sm btn-outline-primary me-2" 
-                                           onclick="copyInviteLink('{{ request.scheme }}://{{ request.get_host }}{% url "register_with_invite" invitation.code %}')">
+                                        onclick="copyInviteLink('{{ request.scheme }}://{{ request.get_host }}{% url "register_with_invite" invitation.code %}')">
                                         Copy Link
                                     </button>
                                     
@@ -80,14 +80,4 @@
         </div>
     {% endif %}
 </div>
-
-<script>
-    function copyInviteLink(link) {
-        navigator.clipboard.writeText(link).then(function() {
-            alert('Invitation link copied to clipboard!');
-        }, function() {
-            alert('Failed to copy invitation link.');
-        });
-    }
-</script>
 {% endblock %}

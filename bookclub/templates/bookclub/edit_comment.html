@@ -58,26 +58,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle progress type selection
-    const commentProgressType = document.getElementById('comment_progress_type');
-    if (commentProgressType) {
-        commentProgressType.addEventListener('change', function() {
-            const helpText = document.getElementById('commentProgressHelp');
-            const selectedType = this.value;
-
-            if (selectedType === 'page') {
-                helpText.textContent = 'Enter the page number you\'re commenting about.';
-            } else if (selectedType === 'audio') {
-                helpText.textContent = 'Enter the timestamp (e.g., "2h 30m").';
-            } else {
-                helpText.textContent = 'Enter a percentage (e.g., "75").';
-            }
-        });
-    }
-});
-</script>
-{% endblock %}
