@@ -17,15 +17,20 @@
             <div class="list-group-item p-3">
                 <div class="row g-0">
                     <div class="col-md-2 col-sm-3 col-4">
-                        {% if book.cover_image_url %}
-                        <img src="{{ book.cover_image_url }}" class="img-fluid rounded" 
-                            style="width: 100%; max-height: 150px; object-fit: contain;" alt="{{ book.title|split:":"|first|trim }}">
-                        {% else %}
-                        <div class="bg-light d-flex justify-content-center align-items-center rounded" 
-                            style="height: 150px; width: 100%;">
-                            <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
-                        </div>
-                        {% endif %}
+                        {% with prog=book_progress|get_item:book.id %}
+                            {% if prog.progress.selected_edition and prog.progress.selected_edition.cover_image_url %}
+                                <img src="{{ prog.progress.selected_edition.cover_image_url }}" class="img-fluid rounded" 
+                                style="width: 100%; max-height: 150px; object-fit: contain;" alt="{{ book.title|split:":"|first|trim }}">
+                            {% elif book.cover_image_url %}
+                                <img src="{{ book.cover_image_url }}" class="img-fluid rounded" 
+                                style="width: 100%; max-height: 150px; object-fit: contain;" alt="{{ book.title|split:":"|first|trim }}">
+                            {% else %}
+                            <div class="bg-light d-flex justify-content-center align-items-center rounded" 
+                                style="height: 150px; width: 100%;">
+                                <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                            {% endif %}
+                        {% endwith %}
                     </div>
                     <div class="col-md-10 col-sm-9 col-8 ps-3">
                         <div class="row">
