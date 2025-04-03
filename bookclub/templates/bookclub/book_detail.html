@@ -192,8 +192,13 @@
         <div class="col-md-9">
             <!-- Book Header -->
             <div class="book-header mb-4">
-                <h1>{{ book.title }}</h1>
-                <h4 class="text-muted">{{ book.author }}</h4>
+                {% with title_parts=book.title|split:":" %}
+                    <h1>{{ title_parts.0|trim }}</h1>
+                    {% if title_parts|length > 1 %}
+                        <h4 class="subtitle">{{ title_parts.1|trim }}</h4>
+                    {% endif %}
+                {% endwith %}
+                <h4 class="text-muted author">{{ book.author }}</h4>
 
                 <div class="book-rating mb-3">
                     {% if user_progress.effective_rating %}

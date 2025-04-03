@@ -19,7 +19,7 @@
                     <div class="col-md-2 col-sm-3 col-4">
                         {% if book.cover_image_url %}
                         <img src="{{ book.cover_image_url }}" class="img-fluid rounded" 
-                            style="width: 100%; max-height: 150px; object-fit: contain;" alt="{{ book.title }}">
+                            style="width: 100%; max-height: 150px; object-fit: contain;" alt="{{ book.title|split:":"|first|trim }}">
                         {% else %}
                         <div class="bg-light d-flex justify-content-center align-items-center rounded" 
                             style="height: 150px; width: 100%;">
@@ -30,7 +30,7 @@
                     <div class="col-md-10 col-sm-9 col-8 ps-3">
                         <div class="row">
                             <div class="col-md-7">
-                                <h4 class="mb-1">{{ book.title }}</h4>
+                                <h4 class="mb-1">{{ book.title|split:":"|first|trim }}</h4>
                                 <p class="text-muted mb-2">{{ book.author }}</p>
                                 
                                 <!-- Book Attribution Information -->

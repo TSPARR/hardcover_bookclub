@@ -1,5 +1,6 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Book Club - Home{% endblock %}
 
@@ -19,10 +20,10 @@
                         <div class="col-md-1 col-sm-2 col-3">
                             {% if book_data.progress.edition and book_data.progress.edition.cover_image_url %}
                             <img src="{{ book_data.progress.edition.cover_image_url }}" class="img-fluid rounded" 
-                                style="width: 100%; object-fit: contain;" alt="{{ book_data.book.title }}">
+                                style="width: 100%; object-fit: contain;" alt="{{ book_data.book.title|split:":"|first|trim }}">
                             {% elif book_data.book.cover_image_url %}
                             <img src="{{ book_data.book.cover_image_url }}" class="img-fluid rounded" 
-                                style="width: 100%; object-fit: contain;" alt="{{ book_data.book.title }}">
+                                style="width: 100%; object-fit: contain;" alt="{{ book_data.book.title|split:":"|first|trim }}">
                             {% else %}
                             <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded" 
                                 style="min-height: 100px;">
@@ -35,13 +36,8 @@
                                 <div class="col-md-6">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="mb-1">{{ book_data.book.title }}</h5>
+                                            <h5 class="mb-1">{{ book_data.book.title|split:":"|first|trim }}</h5>
                                             <p class="text-muted mb-1">{{ book_data.book.author }}</p>
-                                            {% if book_data.progress.edition %}
-                                            <p class="text-muted mb-1 small edition-tag">
-                                                <i class="bi bi-bookmark-fill me-1"></i>{{ book_data.progress.edition.title }}
-                                            </p>
-                                            {% endif %}
                                         </div>
                                         <span class="badge bg-info text-dark">{{ book_data.book.group.name }}</span>
                                     </div>
@@ -116,7 +112,7 @@
                             {% if group.active_book %}
                             <div class="d-flex align-items-center">
                                 <span class="badge bg-success me-2">Active Book</span>
-                                <span class="text-truncate">{{ group.active_book.title }}</span>
+                                <span class="text-truncate">{{ group.active_book.title|split:":"|first|trim }}</span>
                             </div>
                             {% else %}
                             <span class="text-muted">No active book</span>

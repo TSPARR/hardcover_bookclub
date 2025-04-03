@@ -83,3 +83,25 @@ def get_attr(obj, attr_name):
     if not obj:
         return None
     return getattr(obj, attr_name, None)
+
+
+@register.filter
+def split(value, separator):
+    """
+    Split a string by a given separator
+
+    Usage in template:
+    {{ some_string|split:":" }}
+    """
+    return value.split(separator)
+
+
+@register.filter
+def trim(value):
+    """
+    Remove leading and trailing whitespace
+
+    Usage in template:
+    {{ some_string|trim }}
+    """
+    return value.strip()
