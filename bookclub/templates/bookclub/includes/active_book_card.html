@@ -95,6 +95,14 @@
                                     <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-outline-info btn-sm">
                                         <i class="bi bi-star"></i> Editions
                                     </a>
+
+                                    <form method="post" action="{% url 'refresh_book_from_hardcover' book.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm" 
+                                                onclick="return confirm('Are you sure you want to refresh book details from Hardcover?')">
+                                            <i class="bi bi-arrow-clockwise"></i> Refresh from Hardcover
+                                        </button>
+                                    </form>
                                     
                                     <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline mt-2">
                                         {% csrf_token %}

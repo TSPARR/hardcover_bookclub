@@ -1158,3 +1158,56 @@ def update_book_rating(request, book_id):
     except Exception as e:
         logger.exception(f"Error updating book rating: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def refresh_book_from_hardcover(request, book_id):
+    """Refresh book details from Hardcover API"""
+    book = get_object_or_404(Book, id=book_id)
+    group = book.group
+
+    # Check if user is a group admin
+    if not group.is_admin(request.user):
+        messages.error(request, "You don't have permission to refresh book details.")
+        return redirect("book_detail", book_id=book.id)
+
+    try:
+        # Fetch updated book details from Hardcover
+        book_data = HardcoverAPI.get_book_details(book.hardcover_id, user=request.user)
+
+        if book_data:
+            # Update book fields
+            book.title = book_data.get("title", book.title)
+            book.description = book_data.get("description", book.description)
+            book.cover_image_url = book_data.get(
+                "cover_image_url", book.cover_image_url
+            )
+            book.url = book_data.get("url", book.url)
+
+            # Update author if available
+            if book_data.get("author"):
+                book.author = book_data["author"].get("name", book.author)
+
+            book.save()
+
+            # Optionally, refresh editions
+            editions = HardcoverAPI.get_book_editions(
+                book.hardcover_id, user=request.user
+            )
+            if editions:
+                for edition_data in editions:
+                    create_or_update_book_edition(book, edition_data)
+
+            messages.success(
+                request, f"Successfully refreshed details for '{book.title}'"
+            )
+        else:
+            messages.error(
+                request, "Could not retrieve updated book details from Hardcover"
+            )
+
+    except Exception as e:
+        logger.exception(f"Error refreshing book details: {str(e)}")
+        messages.error(request, f"An error occurred: {str(e)}")
+
+    return redirect("book_detail", book_id=book.id)

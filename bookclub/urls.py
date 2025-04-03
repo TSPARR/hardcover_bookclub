@@ -9,6 +9,7 @@ from bookclub.views.book_views import (
     get_book_editions,
     manage_promoted_editions,
     quick_select_edition,
+    refresh_book_from_hardcover,
     remove_book,
     reply_to_comment,
     search_books,
@@ -119,6 +120,11 @@ urlpatterns = [
         "books/<int:book_id>/update-rating/",
         update_book_rating,
         name="update_book_rating",
+    ),
+    path(
+        "book/<int:book_id>/refresh",
+        refresh_book_from_hardcover,
+        name="refresh_book_from_hardcover",
     ),
     path(
         "groups/<int:group_id>/books/<int:book_id>/toggle-active/",
