@@ -26,6 +26,7 @@ from ..models import (
     UserBookProgress,
 )
 from ..plex_api import update_plex_info_for_book
+from ..utils.storage import is_auto_sync_enabled
 from .book_utils import (
     _get_progress_value_for_sorting,
     convert_progress_to_pages,
@@ -231,6 +232,8 @@ def book_detail(request, book_id):
     else:
         form = CommentForm()
 
+    auto_sync_enabled = is_auto_sync_enabled(request, book_id)
+
     # Prepare the context with all required data
     context = {
         "book": book,
@@ -246,6 +249,7 @@ def book_detail(request, book_id):
         "book_audio_seconds": book_audio_seconds,
         "edition_pages": edition_pages,
         "edition_audio_seconds": edition_audio_seconds,
+        "autoSyncEnabled": auto_sync_enabled,
     }
 
     return render(request, "bookclub/book_detail.html", context)
@@ -1080,3 +1084,77 @@ def quick_select_edition(request, book_id):
             messages.error(request, "Selected edition not found.")
 
     return redirect("book_detail", book_id=book.id)
+
+
+@login_required
+def update_book_rating(request, book_id):
+    """API endpoint to update a user's rating for a book"""
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    book = get_object_or_404(Book, id=book_id)
+
+    try:
+        # Get or create user progress for this book
+        user_progress, created = UserBookProgress.objects.get_or_create(
+            user=request.user,
+            book=book,
+            defaults={
+                "progress_type": "percent",
+                "progress_value": "0",
+                "normalized_progress": 0,
+            },
+        )
+
+        # Don't allow local rating if Hardcover rating exists
+        if user_progress.hardcover_rating is not None:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Cannot set local rating when Hardcover rating exists",
+                }
+            )
+
+        # Get rating data from request
+        data = json.loads(request.body)
+        rating_value = data.get("rating")
+
+        if rating_value is not None:
+            try:
+                rating_value = float(rating_value)
+                if 0 <= rating_value <= 5:
+                    # Update local rating
+                    user_progress.local_rating = rating_value
+                    user_progress.save(update_fields=["local_rating"])
+
+                    return JsonResponse(
+                        {
+                            "success": True,
+                            "rating": rating_value,
+                            "effective_rating": user_progress.effective_rating,
+                            "is_hardcover_rating": False,
+                        }
+                    )
+                else:
+                    return JsonResponse(
+                        {"success": False, "error": "Rating must be between 0 and 5"}
+                    )
+            except (ValueError, TypeError):
+                return JsonResponse({"success": False, "error": "Invalid rating value"})
+        else:
+            # Handle rating removal
+            user_progress.local_rating = None
+            user_progress.save(update_fields=["local_rating"])
+
+            return JsonResponse(
+                {
+                    "success": True,
+                    "rating": None,
+                    "effective_rating": user_progress.effective_rating,
+                    "is_hardcover_rating": False,
+                }
+            )
+
+    except Exception as e:
+        logger.exception(f"Error updating book rating: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)

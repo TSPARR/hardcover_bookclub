@@ -135,6 +135,14 @@ def group_detail(request, group_id):
     # Create a dictionary of progress status information
     book_progress = {}
     for progress in progress_entries:
+        if progress.hardcover_rating is not None:
+            progress._temp_effective_rating = progress.hardcover_rating
+        elif hasattr(progress, "local_rating") and progress.local_rating is not None:
+            progress._temp_effective_rating = progress.local_rating
+        else:
+            progress._temp_effective_rating = None
+
+        # Determine progress status
         if progress.normalized_progress == 0:
             status = "Not Started"
             status_class = "bg-secondary"

@@ -262,8 +262,13 @@
                                                     </td>
                                                     <td>
                                                         {% with prog=book_progress|get_item:book.id %}
-                                                            {% if prog.progress.hardcover_rating %}
-                                                                {% include "bookclub/includes/star_rating.html" with rating=prog.progress.hardcover_rating small=True %}
+                                                            {% if prog.progress.effective_rating %}
+                                                                {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
+                                                                {% if prog.progress.hardcover_rating %}
+                                                                <span class="text-muted small d-block">Hardcover</span>
+                                                                {% elif prog.progress.local_rating %}
+                                                                <span class="text-muted small d-block">Local</span>
+                                                                {% endif %}
                                                             {% else %}
                                                                 <span class="text-muted small">-</span>
                                                             {% endif %}
@@ -331,9 +336,14 @@
                                                         <p class="card-text small">{{ book.author }}</p>
 
                                                         {% with prog=book_progress|get_item:book.id %}
-                                                            {% if prog.progress.hardcover_rating %}
+                                                            {% if prog.progress.effective_rating %}
                                                                 <div class="small mb-2">
-                                                                    {% include "bookclub/includes/star_rating.html" with rating=prog.progress.hardcover_rating small=True %}
+                                                                    {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
+                                                                    {% if prog.progress.hardcover_rating %}
+                                                                    <span class="text-muted small d-block">Hardcover</span>
+                                                                    {% elif prog.progress.local_rating %}
+                                                                    <span class="text-muted small d-block">Local</span>
+                                                                    {% endif %}
                                                                 </div>
                                                             {% endif %}
                                                         {% endwith %}

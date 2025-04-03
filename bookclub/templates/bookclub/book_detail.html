@@ -196,12 +196,34 @@
                 <h4 class="text-muted">{{ book.author }}</h4>
 
                 <div class="book-rating mb-3">
-                    {% if user_progress.hardcover_rating %}
-                        {% include "bookclub/includes/star_rating.html" with rating=user_progress.hardcover_rating %}
+                    {% if user_progress.effective_rating %}
+                        {% include "bookclub/includes/star_rating.html" with rating=user_progress.effective_rating %}
+                        
+                        {% if user_progress.hardcover_rating %}
+                        <small class="hardcover-sync-label text-muted d-block mt-1">
+                            <i class="bi bi-link"></i> Synced from Hardcover
+                        </small>
+                        {% endif %}
                     {% else %}
                         <div class="rating-display text-muted">
                             <small>No rating</small>
                         </div>
+                    {% endif %}
+                    
+                    <!-- Only hide rating controls if Hardcover rating exists -->
+                    {% if not user_progress.hardcover_rating %}
+                    <div class="rating-controls mt-3" {% if user_progress.hardcover_read_id %}data-hardcover-read-id="{{ user_progress.hardcover_read_id }}"{% endif %}>
+                        <div class="d-flex align-items-center">
+                            <div id="ratingStars" class="interactive-stars me-2" data-local-rating="{{ user_progress.local_rating|default:'0' }}">
+                                {% for i in "12345" %}
+                                <i class="bi bi-star text-warning rating-star" data-rating="{{ forloop.counter }}"></i>
+                                {% endfor %}
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary" id="clearRating">Clear</button>
+                        </div>
+                        
+                        <!-- The warning about auto-sync will be added dynamically by JavaScript -->
+                    </div>
                     {% endif %}
                 </div>
 

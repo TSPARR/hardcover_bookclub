@@ -263,6 +263,19 @@ class UserBookProgress(models.Model):
         blank=True,
         validators=[MinValueValidator(0), MaxValueValidator(5)],
     )
+    local_rating = models.DecimalField(
+        max_digits=2,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+    )
+
+    @property
+    def effective_rating(self):
+        if self.hardcover_rating is not None:
+            return self.hardcover_rating
+        return self.local_rating
 
     class Meta:
         unique_together = (

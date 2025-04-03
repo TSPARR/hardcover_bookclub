@@ -694,3 +694,37 @@ h6 {
 .buttons-container .btn {
     margin-bottom: 0.5rem;
 }
+
+/* Interactive star rating styling */
+.interactive-stars {
+    cursor: pointer;
+    display: inline-flex;
+}
+
+.rating-star {
+    font-size: 1.25rem;
+    transition: all 0.2s;
+    padding: 2px;
+}
+
+.rating-star:hover {
+    transform: scale(1.2);
+}
+
+/* Handle hover states */
+.interactive-stars:hover .rating-star {
+    color: #ffc107 !important;
+}
+
+/* Sync messages */
+.hardcover-sync-message {
+    font-size: 0.875rem;
+}
+
+.hardcover-sync-message.text-success {
+    color: #28a745 !important;
+}
+
+.hardcover-sync-message.text-danger {
+    color: #dc3545 !important;
+}
