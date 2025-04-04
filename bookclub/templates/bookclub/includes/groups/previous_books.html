@@ -25,12 +25,12 @@
             <div class="card-body">
                 {% if is_admin %}
                 <!-- Admin reorder form -->
-                {% include "bookclub/includes/book_reorder_form.html" with books=books %}
+                {% include "bookclub/includes/groups/book_reorder_form.html" with books=books %}
                 {% endif %}
                 
                 <!-- Read-only book list (always visible) -->
                 <div id="readOnlyBooks">
-                    {% include "bookclub/includes/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
+                    {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
                 </div>
             </div>
         </div>
@@ -39,7 +39,7 @@
         <div class="d-md-none">
             <div class="row row-cols-1 g-4">
                 {% for book in previous_books %}
-                {% include "bookclub/includes/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group %}
+                {% include "bookclub/includes/groups/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group %}
                 {% endfor %}
             </div>
         </div>
