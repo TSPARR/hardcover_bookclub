@@ -21,7 +21,7 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>
-                            <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
+                            <a href="{% url 'book_detail' book.id %}">{{ book.title|split:":"|first|trim }}</a>
                             <small class="text-muted d-block">{{ book.author }}</small>
                         </td>
                         <td>
