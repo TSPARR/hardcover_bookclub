@@ -1,4 +1,3 @@
-<!-- book_timeline.html -->
 {% load bookclub_extras %}
 <div class="card shadow-sm">
     <div class="card-header bg-secondary text-white">
@@ -6,7 +5,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table id="book-timeline-table" class="table table-hover book-timeline-table">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -18,17 +17,17 @@
                 </thead>
                 <tbody>
                     {% for picker_id, book, streak, rating_data in book_sequence %}
-                    <tr>
+                    <tr class="book-timeline-row">
                         <td>{{ forloop.counter }}</td>
                         <td>
-                            <a href="{% url 'book_detail' book.id %}">{{ book.title|split:":"|first|trim }}</a>
-                            <small class="text-muted d-block">{{ book.author }}</small>
+                            <a href="{% url 'book_detail' book.id %}" class="book-title">{{ book.title|split:":"|first|trim }}</a>
+                            <small class="text-muted d-block book-author">{{ book.author }}</small>
                         </td>
                         <td>
                             {% if picker_id == "collective" %}
                             <span class="badge bg-info">Group Pick</span>
                             {% elif picker_id %}
-                            {{ picker_id|get_username_from_id }}
+                            <span class="picker-name">{{ picker_id|get_username_from_id }}</span>
                             {% else %}
                             <span class="badge bg-light text-dark">Unattributed</span>
                             {% endif %}
@@ -46,11 +45,24 @@
                         </td>
                         <td>
                             {% if rating_data %}
-                                {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating small=True %}
-                                <small class="text-muted">({{ rating_data.count }})</small>
+                                {% if rating_data.count >= 2 %}
+                                    {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating|floatformat:2 small=True %}
+                                    <small class="text-muted">({{ rating_data.count }})</small>
+                                {% else %}
+                                    <span class="text-muted small">{{ rating_data.count }} rating</span>
+                                {% endif %}
                             {% else %}
                                 <span class="text-muted small">Not rated</span>
                             {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div class="alert alert-info alert-permanent mb-0">
+                                <i class="bi bi-info-circle"></i> 
+                                No books found for this group.
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

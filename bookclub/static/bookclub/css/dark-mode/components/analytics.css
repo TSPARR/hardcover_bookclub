@@ -1,0 +1,376 @@
+/* Dark Mode Analytics Styles */
+
+/* ===== Attribution Analytics Styles ===== */
+.container .lead {
+    color: #b0b0b0;
+}
+
+/* Quick stats cards */
+.card.bg-light {
+    background-color: #2c2c2c !important;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.card.bg-light .display-4 {
+    color: #ffffff;
+}
+
+.card.bg-light .text-muted {
+    color: #9e9e9e !important;
+}
+
+/* Book pick timeline */
+.book-sequence .badge {
+    font-weight: normal;
+}
+
+/* Fairness analysis specific styling */
+.fairness-metrics .badge {
+    font-weight: 600;
+}
+
+/* Fairness Metrics Table Styling */
+.fairness-metrics {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.fairness-metrics thead {
+    background-color: transparent;
+}
+
+.fairness-metrics thead th {
+    color: #e1e1e1 !important;
+    border-bottom: 1px solid #3a3a3a !important;
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+.fairness-metrics tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.fairness-metrics tbody tr.text-under {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    color: #7dd3fc !important;
+}
+
+.fairness-metrics tbody tr.text-over {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #ffc107 !important;
+}
+
+.fairness-metrics tbody tr.text-balanced {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+    color: #198754 !important;
+}
+
+.fairness-metrics tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.fairness-metrics .badge {
+    font-weight: 600;
+}
+
+.fairness-metrics .badge.bg-under {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.fairness-metrics .badge.bg-over {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.fairness-metrics .badge.bg-balanced {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+.fairness-metrics .text-recommendation {
+    color: #9e9e9e;
+    font-size: 0.875rem;
+}
+
+/* Make the rotation cycle table more readable */
+.table-bordered {
+    border-color: #3a3a3a;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border-color: #3a3a3a;
+}
+
+.table-sm th,
+.table-sm td {
+    padding: 0.5rem;
+}
+
+/* Empty state styling */
+.text-center .bi-people-fill {
+    color: #484848 !important;
+}
+
+/* ===== Top Rated Books Table Styles ===== */
+
+/* Top Rated Books and Book Timeline Dark Mode Styles */
+.top-rated-books-table,
+.book-timeline-table {
+    color: #e1e1e1;
+    background-color: #1e1e1e;
+}
+
+.top-rated-books-table thead th,
+.book-timeline-table thead th {
+    background-color: #121212 !important;
+    color: #ffffff;
+    border-color: #3a3a3a;
+}
+
+/* Rating group header styling */
+.rating-group-header {
+    background-color: #2c2c2c !important;
+    border-color: #3a3a3a;
+}
+
+.rating-group-content {
+    background-color: transparent !important;
+    border: none;
+}
+
+/* Collapse toggle button styling */
+.collapse-toggle {
+    background-color: #333333 !important;
+    border-color: #444444 !important;
+    color: #e1e1e1;
+}
+
+.collapse-toggle:hover {
+    background-color: #444444 !important;
+}
+
+.collapse-toggle .bi-chevron-right {
+    color: #e1e1e1;
+    transition: transform 0.3s ease;
+}
+
+.collapse-toggle[aria-expanded="true"] .bi-chevron-right {
+    transform: rotate(90deg);
+}
+
+.btn-outline-secondary {
+    background-color: #2c2c2c !important;
+    border-color: #3a3a3a !important;
+    color: #e1e1e1 !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #3a3a3a !important;
+}
+
+/* Book list styling */
+.book-list {
+    background-color: #252525;
+    border-top: 1px solid #3a3a3a;
+}
+
+.book-entry {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.book-entry:last-child {
+    border-bottom: none;
+}
+
+.book-entry:hover {
+    background-color: #333333;
+}
+
+/* Book title and author */
+.book-title {
+    color: #6ea8fe;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.book-title:hover {
+    color: #8abbff;
+    text-decoration: underline;
+}
+
+.book-author {
+    color: #b0b0b0 !important;
+    font-size: 0.875rem;
+}
+
+/* Rating stars */
+.rating-stars .bi-star-fill {
+    color: #ffc107 !important;
+}
+
+.rating-stars .bi-star {
+    color: #6c757d !important;
+}
+
+.book-rating small.text-muted {
+    color: #b0b0b0 !important;
+}
+
+/* Book picker styling */
+.book-picker .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.book-picker .badge.bg-light.text-dark {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.picker-name {
+    color: #e1e1e1;
+}
+
+/* Rating summary */
+.rating-summary {
+    color: #e1e1e1;
+}
+
+.rating-summary small.text-muted {
+    color: #b0b0b0 !important;
+}
+
+/* No ratings row */
+.no-ratings-row .alert-info {
+    color: #7dd3fc;
+    background-color: #0c4a6e;
+    border-color: #075985;
+}
+
+/* "Show More" button styling */
+.toggle-rows {
+    background-color: #333333 !important;
+    border-color: #444444 !important;
+    color: #e1e1e1 !important;
+    margin: 0.5rem 0;
+}
+
+.toggle-rows:hover {
+    background-color: #444444 !important;
+}
+
+.toggle-rows .bi {
+    transition: transform 0.3s ease;
+}
+
+.toggle-rows[data-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Card container */
+.card.shadow-sm {
+    background-color: #121212 !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Book Timeline Table Dark Mode Styles */
+
+.book-timeline-table {
+    color: #e1e1e1;
+    background-color: #1e1e1e;
+}
+
+.book-timeline-table thead th {
+    background-color: #121212 !important;
+    color: #ffffff;
+    border-color: #3a3a3a;
+}
+
+/* Book Timeline Table Rows */
+.book-timeline-table tbody tr {
+    border-color: #3a3a3a;
+    background-color: #1e1e1e !important;
+}
+
+.book-timeline-table tbody tr:nth-child(odd) {
+    background-color: #252525 !important;
+}
+
+.book-timeline-table tbody tr:hover {
+    background-color: #333333 !important;
+}
+
+/* Links in Timeline Table */
+.book-timeline-table a {
+    color: #6ea8fe;
+    text-decoration: none;
+}
+
+.book-timeline-table a:hover {
+    color: #8abbff;
+    text-decoration: underline;
+}
+
+/* Text styling */
+.book-timeline-table .text-muted {
+    color: #b0b0b0 !important;
+}
+
+/* Badges */
+.book-timeline-table .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.book-timeline-table .badge.bg-light.text-dark {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.book-timeline-table .badge.bg-warning.text-dark {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+}
+
+/* Star ratings */
+.book-timeline-table .rating-stars .bi-star-fill {
+    color: #ffc107 !important;
+}
+
+.book-timeline-table .rating-stars .bi-star {
+    color: #6c757d !important;
+}
+
+/* Streak icons */
+.book-timeline-table .bi-lightning,
+.book-timeline-table .bi-lightning-charge-fill {
+    color: #000 !important;
+}
+
+/* Show More/Less button row */
+.book-timeline-table .toggle-row {
+    background-color: #2c2c2c !important;
+}
+
+.book-timeline-table .toggle-rows {
+    background-color: #333333 !important;
+    border-color: #444444 !important;
+    color: #e1e1e1 !important;
+}
+
+.book-timeline-table .toggle-rows:hover {
+    background-color: #444444 !important;
+}
+
+.book-timeline-table .toggle-rows .bi {
+    transition: transform 0.3s ease;
+}
+
+.book-timeline-table .toggle-rows[data-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}

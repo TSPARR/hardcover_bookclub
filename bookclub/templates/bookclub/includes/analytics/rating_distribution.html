@@ -32,7 +32,7 @@
                         <tr>
                             <td>{{ stat.user.username }}</td>
                             <td>
-                                {% include "bookclub/includes/star_rating.html" with rating=stat.avg_rating small=True %}
+                                {% include "bookclub/includes/star_rating.html" with rating=stat.avg_rating|floatformat:2 small=True %}
                             </td>
                             <td>{{ stat.count }}</td>
                         </tr>

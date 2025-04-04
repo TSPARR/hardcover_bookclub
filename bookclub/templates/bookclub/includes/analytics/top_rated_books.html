@@ -5,7 +5,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table id="top-rated-books-table" class="table table-hover top-rated-books-table">
                 <thead>
                     <tr>
                         <th>Book</th>
@@ -14,44 +14,65 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% with has_books_with_multiple_ratings=False %}
-                        {% for picker_id, book, streak, rating_data in book_sequence %}
-                            {% if rating_data and rating_data.count >= 2 %}
-                                {% with has_books_with_multiple_ratings=True %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
-                                        <small class="text-muted d-block">{{ book.author }}</small>
-                                    </td>
-                                    <td>
-                                        {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating small=True %}
-                                        <small class="text-muted">({{ rating_data.count }})</small>
-                                    </td>
-                                    <td>
-                                        {% if picker_id == "collective" %}
-                                        <span class="badge bg-info">Group Pick</span>
-                                        {% elif picker_id %}
-                                        {{ picker_id|get_username_from_id }}
-                                        {% else %}
-                                        <span class="badge bg-light text-dark">Unattributed</span>
-                                        {% endif %}
+                    {% with rated_books=sorted_book_sequence|books_with_ratings %}
+                        {% if rated_books %}
+                            {% for rating_value, books in rated_books %}
+                                <tr class="rating-group-header">
+                                    <td colspan="3">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-sm btn-outline-secondary me-2 collapse-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#rating-{{ rating_value|floatformat:1|slugify }}" 
+                                                    aria-expanded="false"
+                                                    aria-label="Toggle books with {{ rating_value }} rating">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                            <div class="rating-summary">
+                                                {% include "bookclub/includes/star_rating.html" with rating=rating_value small=True %}
+                                                <small class="text-muted ms-2">({{ books|length }} book{{ books|length|pluralize }})</small>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
-                                {% endwith %}
-                            {% endif %}
-                        {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center">
-                                    <div class="alert alert-info alert-permanent mb-0">
-                                        <i class="bi bi-info-circle"></i> 
-                                        No books have been added to this group yet.
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-
-                        {% if not has_books_with_multiple_ratings %}
-                            <tr>
+                                <tr class="rating-group-content">
+                                    <td colspan="3" class="p-0">
+                                        <div class="collapse" id="rating-{{ rating_value|floatformat:1|slugify }}">
+                                            <div class="book-list py-2">
+                                                {% for book_tuple in books %}
+                                                    <div class="book-entry p-2">
+                                                        <div class="row align-items-center">
+                                                            <div class="col">
+                                                                <a href="{% url 'book_detail' book_tuple.1.id %}" class="book-title">{{ book_tuple.1.title }}</a>
+                                                                <small class="text-muted d-block book-author">{{ book_tuple.1.author }}</small>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <div class="book-rating">
+                                                                    {% include "bookclub/includes/star_rating.html" with rating=book_tuple.3.avg_rating small=True %}
+                                                                    <small class="text-muted">({{ book_tuple.3.count }})</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <div class="book-picker">
+                                                                    {% if book_tuple.0 == "collective" %}
+                                                                    <span class="badge bg-info">Group Pick</span>
+                                                                    {% elif book_tuple.0 %}
+                                                                    <span class="picker-name">{{ book_tuple.0|get_username_from_id }}</span>
+                                                                    {% else %}
+                                                                    <span class="badge bg-light text-dark">Unattributed</span>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr class="no-ratings-row">
                                 <td colspan="3" class="text-center">
                                     <div class="alert alert-info alert-permanent mb-0">
                                         <i class="bi bi-info-circle"></i> 

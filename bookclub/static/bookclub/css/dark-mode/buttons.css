@@ -1,0 +1,152 @@
+/* Dark Mode Button Styles */
+
+.btn {
+    border-radius: 0.25rem;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+/* Fix close button appearance */
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Outline buttons */
+.btn-outline-primary {
+    color: #6ea8fe;
+    border-color: #6ea8fe;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #ffffff;
+    border-color: #0d6efd;
+}
+
+/* Modal footer button styling */
+.modal-footer .btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.modal-footer .btn-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+/* Dark mode external link buttons */
+.hardcover-btn {
+    border-color: #31d2f2;
+    color: #31d2f2;
+    background-color: transparent;
+}
+
+.hardcover-btn:hover {
+    background-color: rgba(49, 210, 242, 0.15);
+}
+
+.kavita-btn {
+    border-color: #adb5bd;
+    color: #adb5bd;
+    background-color: transparent;
+}
+
+.kavita-btn:hover {
+    background-color: rgba(173, 181, 189, 0.15);
+}
+
+.plex-btn {
+    border-color: #e68a1e;
+    color: #e68a1e;
+    background-color: transparent;
+}
+
+.plex-btn:hover {
+    background-color: rgba(230, 138, 30, 0.15);
+}
+
+/* Quick Edition Selection buttons */
+.quick-edition-selection .btn-kavita {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.quick-edition-selection .btn-kavita:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    color: white;
+}
+
+.quick-edition-selection .btn-plex {
+    background-color: #cc7b19;
+    border-color: #cc7b19;
+    color: white;
+}
+
+.quick-edition-selection .btn-plex:hover {
+    background-color: #b36d16;
+    border-color: #a66414;
+    color: white;
+}
+
+.btn-editions {
+    color: #31d2f2;
+    border-color: #31d2f2;
+    background-color: transparent;
+}
+
+.btn-editions:hover {
+    background-color: rgba(49, 210, 242, 0.15);
+    color: #31d2f2;
+    border-color: #31d2f2;
+}
+
+/* Spoiler button styling */
+.spoiler-warning .show-spoiler-btn {
+    color: #fff3cd;
+    border-color: #fff3cd;
+    background-color: rgba(255, 243, 205, 0.1);
+}
+
+.spoiler-warning .show-spoiler-btn:hover {
+    background-color: #664d03;
+    color: #fff3cd;
+    border-color: #fff3cd;
+}
+
+.spoiler-warning .show-spoiler-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 243, 205, 0.5);
+}

@@ -7,14 +7,14 @@
         <div class="row">
             <div class="col-md-3 text-center">
                 <div class="h2">
-                    {{ group_rating_stats.avg_rating }}
+                    {{ group_rating_stats.avg_rating|floatformat:2 }}
                     <small class="text-muted fs-6">/5</small>
                 </div>
                 <p class="text-muted mb-0">Average Rating</p>
             </div>
             <div class="col-md-3 text-center">
                 <div class="h2">
-                    {{ group_rating_stats.median_rating }}
+                    {{ group_rating_stats.median_rating|floatformat:2 }}
                     <small class="text-muted fs-6">/5</small>
                 </div>
                 <p class="text-muted mb-0">Median Rating</p>

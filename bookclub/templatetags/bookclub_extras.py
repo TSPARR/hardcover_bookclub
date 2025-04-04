@@ -105,3 +105,48 @@ def trim(value):
     {{ some_string|trim }}
     """
     return value.strip()
+
+
+@register.filter
+def books_with_ratings(book_sequence):
+    """
+    Filter the book sequence to only include books with valid ratings.
+    Handles rating data as dictionaries (not objects).
+    Returns a list of (rating_value, books) tuples where each book has rating data.
+    """
+    result = []
+
+    # Group books by their rating
+    rating_groups = {}
+
+    for book_tuple in book_sequence:
+        if len(book_tuple) >= 4:
+            # Extract data from the tuple
+            picker_id, book, streak, rating_data = book_tuple
+
+            # Skip books without rating data
+            if not rating_data:
+                continue
+
+            # Check if rating data has the right keys (dictionary access)
+            if "avg_rating" not in rating_data or "count" not in rating_data:
+                continue
+
+            # Skip books with fewer than 2 ratings
+            if rating_data["count"] < 2:
+                continue
+
+            # Get the rating value
+            rating_value = rating_data["avg_rating"]
+
+            # Add to the appropriate rating group
+            if rating_value not in rating_groups:
+                rating_groups[rating_value] = []
+
+            rating_groups[rating_value].append(book_tuple)
+
+    # Convert the dictionary to a sorted list of (rating, books) tuples
+    for rating_value in sorted(rating_groups.keys(), reverse=True):
+        result.append((rating_value, rating_groups[rating_value]))
+
+    return result

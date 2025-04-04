@@ -1,0 +1,113 @@
+/* Dark Mode Card Styles */
+
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: #1e1e1e;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.card-subtitle {
+    margin-top: -0.25rem;
+    margin-bottom: 0.75rem;
+    color: #b0b0b0;
+}
+
+.card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-text {
+    flex-grow: 1;
+    color: #c0c0c0;
+}
+
+/* Card headers with white background */
+.card-header.bg-white {
+    background-color: #2c2c2c !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Card headers with bg-light */
+.card-header.bg-light {
+    background-color: #2c2c2c !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Card footers with white background */
+.card-footer.bg-white {
+    background-color: #2c2c2c !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e1e1e1;
+}
+
+/* Card with active book */
+.card.active-book {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Card headers with colored backgrounds */
+.card-header.bg-primary {
+    background-color: #0d6efd !important;
+    color: #ffffff;
+}
+
+.card-header.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000000;
+}
+
+.card-header.bg-success {
+    background-color: #198754 !important;
+    color: #ffffff;
+}
+
+.card-header.bg-secondary {
+    background-color: #6c757d !important;
+    color: #ffffff;
+}
+
+/* List group within cards */
+.list-group-item {
+    background-color: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.125);
+    color: #e1e1e1;
+}
+
+.list-group-flush .list-group-item {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Z-index fixes for cards */
+.card,
+.comment-card,
+.reply-card {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
