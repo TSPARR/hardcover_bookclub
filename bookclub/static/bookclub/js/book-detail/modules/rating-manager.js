@@ -39,30 +39,8 @@ export const RatingManager = {
      * Set up event listeners
      */
     _setupEventListeners() {
-        // Handle star hover
-        if (this.ratingStars) {
-            this.ratingStars.forEach(star => {
-                star.addEventListener('mouseenter', () => {
-                    const rating = parseInt(star.dataset.rating);
-                    this._highlightStars(rating);
-                });
-            });
-        }
-        
-        // Handle mouse leave from rating area
-        if (this.interactiveStarsContainer) {
-            this.interactiveStarsContainer.addEventListener('mouseleave', () => {
-                this._updateStarsDisplay();
-            });
-            
-            // Handle star click
-            this.interactiveStarsContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('rating-star')) {
-                    const rating = parseInt(e.target.dataset.rating);
-                    this._saveRating(rating);
-                }
-            });
-        }
+        // Set up half-star functionality
+        this._setupHalfStarFunctionality();
         
         // Handle clear rating
         if (this.clearRatingBtn) {
@@ -74,6 +52,88 @@ export const RatingManager = {
         // Listen for auto-sync toggle changes from progress tracker
         document.addEventListener('autoSyncToggled', (e) => {
             this._checkAutoSyncStatus();
+        });
+    },
+    
+    /**
+     * Set up half-star functionality
+     */
+    _setupHalfStarFunctionality() {
+        const stars = this.ratingStars;
+        const ratingStars = this.interactiveStarsContainer;
+        
+        if (!stars.length || !ratingStars) return;
+        
+        // Set up new event handlers for each star
+        stars.forEach(star => {
+            // Handle mousemove for half star detection
+            star.addEventListener('mousemove', (e) => {
+                // Get star's width and position
+                const rect = star.getBoundingClientRect();
+                const starWidth = rect.width;
+                // Determine position within the star
+                const mouseX = e.clientX - rect.left;
+                
+                // If mouse is in the left half of the star
+                const isHalfStar = mouseX < starWidth / 2;
+                const fullRating = parseInt(star.dataset.rating);
+                const hoverRating = isHalfStar ? fullRating - 0.5 : fullRating;
+                
+                // Update all stars for the hover state
+                this._highlightStarsWithHalf(hoverRating);
+                
+                // Show visual indicator for half-star target
+                stars.forEach(s => s.classList.remove('half-target'));
+                if (isHalfStar) {
+                    star.classList.add('half-target');
+                }
+            });
+            
+            // Handle click to set rating
+            star.addEventListener('click', (e) => {
+                // Get star's width and determine half or full star
+                const rect = star.getBoundingClientRect();
+                const starWidth = rect.width;
+                const mouseX = e.clientX - rect.left;
+                
+                // Calculate rating based on click position
+                const fullRating = parseInt(star.dataset.rating);
+                const isHalfStar = mouseX < starWidth / 2;
+                const newRating = isHalfStar ? fullRating - 0.5 : fullRating;
+                
+                // Save the rating
+                this._saveRating(newRating);
+                
+                // Store the selected rating for hover reset
+                ratingStars.dataset.localRating = newRating.toString();
+                
+                // Update the visual display
+                this._highlightStarsWithHalf(newRating);
+                
+                // Remove half-target indicator
+                stars.forEach(s => s.classList.remove('half-target'));
+                
+                // Add clicked animation
+                star.classList.add('clicked');
+                setTimeout(() => {
+                    star.classList.remove('clicked');
+                }, 300);
+            });
+            
+            // Handle mouseout to reset to selected rating
+            star.addEventListener('mouseout', () => {
+                // Remove half-target indicator
+                stars.forEach(s => s.classList.remove('half-target'));
+            });
+        });
+        
+        // Handle mouseout from entire container
+        ratingStars.addEventListener('mouseleave', () => {
+            const currentRating = parseFloat(ratingStars.dataset.localRating) || 0;
+            this._highlightStarsWithHalf(currentRating);
+            
+            // Remove half-target indicators
+            stars.forEach(s => s.classList.remove('half-target'));
         });
     },
     
@@ -122,10 +182,36 @@ export const RatingManager = {
         this.ratingStars.forEach(star => {
             const starRating = parseInt(star.dataset.rating);
             if (starRating <= rating) {
-                star.classList.remove('bi-star');
+                star.classList.remove('bi-star', 'bi-star-half');
                 star.classList.add('bi-star-fill');
             } else {
                 star.classList.remove('bi-star-fill', 'bi-star-half');
+                star.classList.add('bi-star');
+            }
+        });
+    },
+    
+    /**
+     * Highlight stars with half-star support
+     * @param {number} rating - Rating to highlight
+     */
+    _highlightStarsWithHalf(rating) {
+        if (!this.ratingStars) return;
+        
+        this.ratingStars.forEach(star => {
+            const starRating = parseInt(star.dataset.rating);
+            
+            // Reset classes first
+            star.classList.remove('bi-star-fill', 'bi-star-half', 'bi-star');
+            
+            if (starRating <= Math.floor(rating)) {
+                // Full star
+                star.classList.add('bi-star-fill');
+            } else if (starRating === Math.ceil(rating) && rating % 1 !== 0) {
+                // Half star
+                star.classList.add('bi-star-half');
+            } else {
+                // Empty star
                 star.classList.add('bi-star');
             }
         });
