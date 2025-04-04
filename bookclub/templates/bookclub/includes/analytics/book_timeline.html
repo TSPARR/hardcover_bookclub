@@ -8,6 +8,7 @@
             <table id="book-timeline-table" class="table table-hover book-timeline-table">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>#</th>
                         <th>Book</th>
                         <th>Picked By</th>
@@ -17,7 +18,18 @@
                 </thead>
                 <tbody>
                     {% for picker_id, book, streak, rating_data in book_sequence %}
-                    <tr class="book-timeline-row">
+                    <tr class="book-timeline-row book-row-{{ book.id }}">
+                        <td class="text-center">
+                            {% if rating_data and rating_data.user_ratings and rating_data.count > 0 %}
+                            <button class="btn btn-sm book-expand-btn" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#book-ratings-{{ book.id }}" 
+                                    aria-expanded="false"
+                                    aria-label="Show individual ratings">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                            {% endif %}
+                        </td>
                         <td>{{ forloop.counter }}</td>
                         <td>
                             <a href="{% url 'book_detail' book.id %}" class="book-title">{{ book.title|split:":"|first|trim }}</a>
@@ -27,7 +39,7 @@
                             {% if picker_id == "collective" %}
                             <span class="badge bg-info">Group Pick</span>
                             {% elif picker_id %}
-                            <span class="picker-name">{{ picker_id|get_username_from_id }}</span>
+                            {{ picker_id|get_username_from_id }}
                             {% else %}
                             <span class="badge bg-light text-dark">Unattributed</span>
                             {% endif %}
@@ -45,20 +57,45 @@
                         </td>
                         <td>
                             {% if rating_data %}
-                                {% if rating_data.count >= 2 %}
-                                    {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating|floatformat:2 small=True %}
-                                    <small class="text-muted">({{ rating_data.count }})</small>
-                                {% else %}
-                                    <span class="text-muted small">{{ rating_data.count }} rating</span>
-                                {% endif %}
+                                {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating|floatformat:2 small=True %}
+                                <small class="text-muted">({{ rating_data.count }})</small>
                             {% else %}
                                 <span class="text-muted small">Not rated</span>
                             {% endif %}
                         </td>
                     </tr>
+                    
+                    <!-- Individual ratings row -->
+                    {% if rating_data and rating_data.user_ratings %}
+                    <tr class="collapse" id="book-ratings-{{ book.id }}">
+                        <td colspan="6" class="p-0">
+                            <div class="member-ratings-container p-3">
+                                <h6 class="member-ratings-title mb-3">Individual Member Ratings</h6>
+                                <div class="member-ratings-list">
+                                    {% for user_id, user_rating in rating_data.user_ratings.items %}
+                                    <div class="member-rating-item mb-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="member-name">{{ user_id|get_username_from_id }}</span>
+                                            <div class="member-rating">
+                                                {% include "bookclub/includes/star_rating.html" with rating=user_rating.value small=True %}
+                                            </div>
+                                        </div>
+                                        {% if user_rating.comment %}
+                                        <div class="member-comment mt-1 ps-3 text-muted fst-italic">
+                                            "{{ user_rating.comment }}"
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center">
+                        <td colspan="6" class="text-center">
                             <div class="alert alert-info alert-permanent mb-0">
                                 <i class="bi bi-info-circle"></i> 
                                 No books found for this group.

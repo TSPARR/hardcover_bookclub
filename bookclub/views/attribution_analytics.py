@@ -79,6 +79,36 @@ def attribution_analytics(request, group_id):
                 "ratings": ratings,  # Include all ratings for distribution analysis
             }
 
+        # Add individual user ratings to the book_ratings
+        user_ratings = {}
+        for entry in progress_entries:
+            user_id = entry.user.id
+            rating = None
+
+            # Use the same rating preference as above
+            if entry.hardcover_rating is not None:
+                rating = entry.hardcover_rating
+            elif entry.local_rating is not None:
+                rating = entry.local_rating
+
+            if rating is not None:
+                # Also include any comments if they exist
+                comment = None
+                if hasattr(entry, "comment") and entry.comment:
+                    comment = entry.comment
+                elif hasattr(entry, "hardcover_review") and entry.hardcover_review:
+                    comment = entry.hardcover_review
+
+                # Add rating object with optional comment
+                if comment:
+                    user_ratings[user_id] = {"value": float(rating), "comment": comment}
+                else:
+                    user_ratings[user_id] = {"value": float(rating)}
+
+        # Add to book ratings if we have any ratings
+        if ratings:
+            book_ratings[book.id]["user_ratings"] = user_ratings
+
     for book in books:
         if book.is_collective_pick:
             picker_id = "collective"

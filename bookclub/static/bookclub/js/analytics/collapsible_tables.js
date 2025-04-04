@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!table) return;
 
         const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+        // Only select primary rows (not expanded rating rows)
+        const rows = Array.from(tbody.querySelectorAll('tr.book-timeline-row'));
         
         // If fewer rows than max, do nothing
         if (rows.length <= maxInitialRows) return;
@@ -81,6 +82,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide excess rows
         rows.slice(maxInitialRows).forEach(row => {
             row.classList.add('d-none');
+            
+            // If this row has an associated ratings row, hide that too
+            const bookId = row.className.match(/book-row-(\d+)/)?.[1];
+            if (bookId) {
+                const ratingsRow = tbody.querySelector(`#book-ratings-${bookId}`);
+                if (ratingsRow) {
+                    ratingsRow.classList.add('d-none');
+                }
+            }
         });
 
         // Create expand/collapse toggle
@@ -88,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleRow.className = 'toggle-row';
         
         // Get the colspan value based on the number of columns in the table
-        const columnCount = table.querySelector('thead tr').children.length || 5;
+        const columnCount = table.querySelector('thead tr').children.length || 6;
         
         toggleRow.innerHTML = `
             <td colspan="${columnCount}" class="text-center py-3">
@@ -109,6 +119,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // Toggle visibility of rows
             rows.slice(maxInitialRows).forEach(row => {
                 row.classList.toggle('d-none');
+                
+                // If this row has an associated expanded ratings row that's open, show that too
+                const bookId = row.className.match(/book-row-(\d+)/)?.[1];
+                if (bookId) {
+                    const ratingsRow = tbody.querySelector(`#book-ratings-${bookId}`);
+                    const expandBtn = row.querySelector('.book-expand-btn');
+                    
+                    if (ratingsRow && expandBtn && expandBtn.getAttribute('aria-expanded') === 'true') {
+                        ratingsRow.classList.toggle('d-none');
+                    }
+                }
             });
 
             // Update button text and icon
