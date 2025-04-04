@@ -4,6 +4,7 @@ import { HardcoverSync } from './modules/hardcover-sync.js';
 import { SpoilerManager } from './modules/spoiler-manager.js';
 import { CommentReactions } from './modules/comment-reactions.js';
 import { AccessibilityHelper } from './modules/accessibility.js';
+import { RatingManager } from './modules/rating-manager.js'; // Add this import
 
 // Initialize all modules when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const spoilerManager = SpoilerManager.init(currentUsername);
         const commentReactions = CommentReactions.init();
         const accessibilityHelper = AccessibilityHelper.init();
+        const ratingManager = RatingManager.init(bookId); // Add RatingManager initialization
         
         // Make the modules communicate with each other
         
@@ -44,5 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.ProgressTracker = progressTracker;
         window.HardcoverSync = hardcoverSync;
         window.SpoilerManager = spoilerManager;
+        window.RatingManager = ratingManager; // Add RatingManager to window
     }
 });

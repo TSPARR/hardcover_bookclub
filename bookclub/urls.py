@@ -1,6 +1,3 @@
-from django.contrib.auth import views as auth_views
-from django.urls import path
-
 from bookclub.views.api_views import get_hardcover_progress
 from bookclub.views.attribution_analytics import attribution_analytics
 from bookclub.views.auth_views import landing_page, register_with_invite
@@ -12,6 +9,7 @@ from bookclub.views.book_views import (
     get_book_editions,
     manage_promoted_editions,
     quick_select_edition,
+    refresh_book_from_hardcover,
     remove_book,
     reply_to_comment,
     search_books,
@@ -20,6 +18,7 @@ from bookclub.views.book_views import (
     toggle_book_active,
     toggle_reaction,
     update_book_progress,
+    update_book_rating,
 )
 from bookclub.views.group_views import (
     add_group_member,
@@ -35,6 +34,8 @@ from bookclub.views.invitation_views import (
     revoke_invitation,
 )
 from bookclub.views.profile_views import profile_settings
+from django.contrib.auth import views as auth_views
+from django.urls import path
 
 urlpatterns = [
     path("", landing_page, name="landing_page"),
@@ -114,6 +115,16 @@ urlpatterns = [
         "books/<int:book_id>/quick-select-edition/",
         quick_select_edition,
         name="quick_select_edition",
+    ),
+    path(
+        "books/<int:book_id>/update-rating/",
+        update_book_rating,
+        name="update_book_rating",
+    ),
+    path(
+        "book/<int:book_id>/refresh",
+        refresh_book_from_hardcover,
+        name="refresh_book_from_hardcover",
     ),
     path(
         "groups/<int:group_id>/books/<int:book_id>/toggle-active/",

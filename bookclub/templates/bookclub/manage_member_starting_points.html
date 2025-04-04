@@ -112,26 +112,3 @@
 </div>
 
 {% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Set up the modal data transfer
-    const setStartingPointModal = document.getElementById('setStartingPointModal');
-    if (setStartingPointModal) {
-        setStartingPointModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const memberId = button.getAttribute('data-member-id');
-            const memberName = button.getAttribute('data-member-name');
-            
-            // Update the modal content
-            document.getElementById('memberIdInput').value = memberId;
-            document.getElementById('memberNameDisplay').textContent = memberName;
-            
-            // If we have existing data for this member, we could pre-populate the form
-            // This would require passing starting_points_dict to JS
-        });
-    }
-});
-</script>
-{% endblock %}

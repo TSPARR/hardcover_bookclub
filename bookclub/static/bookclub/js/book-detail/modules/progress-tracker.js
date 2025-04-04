@@ -115,6 +115,12 @@ export const ProgressTracker = {
         const enabled = this.autoSyncToggle.checked;
         Storage.save(`auto_sync_${this.bookId}`, enabled);
         
+        // Dispatch an event for other modules to listen for
+        const toggleEvent = new CustomEvent('autoSyncToggled', {
+            detail: { enabled: enabled, bookId: this.bookId }
+        });
+        document.dispatchEvent(toggleEvent);
+        
         // If enabled, check if sync is needed immediately
         if (enabled && window.HardcoverSync) {
             setTimeout(() => {
@@ -464,6 +470,24 @@ export const ProgressTracker = {
         // Handle rating display if available
         if (syncData.rating) {
             this._updateRatingDisplay(syncData.rating);
+            
+            // Also update RatingManager if available
+            if (window.RatingManager) {
+                // Update the interactive stars display
+                if (window.RatingManager.interactiveStarsContainer) {
+                    window.RatingManager.interactiveStarsContainer.dataset.localRating = "0"; // Clear local rating
+                }
+                
+                // Update display with hardcover rating
+                window.RatingManager._updateRatingDisplay(syncData.rating, true);
+                
+                // Show sync notification
+                const syncLabel = document.querySelector('.hardcover-sync-label');
+                if (syncLabel) {
+                    syncLabel.innerHTML = '<i class="bi bi-link"></i> Synced from Hardcover';
+                    syncLabel.classList.remove('d-none');
+                }
+            }
         }
         
         // Update last sync time

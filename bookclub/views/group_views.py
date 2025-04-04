@@ -132,9 +132,36 @@ def group_detail(request, group_id):
         user=request.user, book__in=books
     )
 
-    # Create a dictionary of progress status information
     book_progress = {}
     for progress in progress_entries:
+        # First, prioritize the progress's own edition
+        progress.selected_edition = progress.edition
+
+        # If no edition is set, then look for promoted editions
+        if not progress.selected_edition:
+            # Try Kavita promoted edition
+            progress.selected_edition = progress.book.editions.filter(
+                is_kavita_promoted=True
+            ).first()
+
+        # If still no edition, try Plex promoted
+        if not progress.selected_edition:
+            progress.selected_edition = progress.book.editions.filter(
+                is_plex_promoted=True
+            ).first()
+
+        # If still no edition, get the first available edition
+        if not progress.selected_edition:
+            progress.selected_edition = progress.book.editions.first()
+
+        if progress.hardcover_rating is not None:
+            progress._temp_effective_rating = progress.hardcover_rating
+        elif hasattr(progress, "local_rating") and progress.local_rating is not None:
+            progress._temp_effective_rating = progress.local_rating
+        else:
+            progress._temp_effective_rating = None
+
+        # Determine progress status
         if progress.normalized_progress == 0:
             status = "Not Started"
             status_class = "bg-secondary"

@@ -102,6 +102,28 @@ h6 {
     object-position: center;
 }
 
+.book-header h1 {
+    font-size: 3rem;
+    /* Large, bold main title */
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.book-header .subtitle {
+    font-size: 1.5rem;
+    /* Slightly smaller than the main title */
+    color: #666;
+    /* Muted gray color */
+    font-weight: 300;
+    /* Lighter weight */
+    margin-bottom: 1rem;
+}
+
+.book-header .author {
+    font-size: 1.25rem;
+    color: #888;
+}
+
 /* Book details page */
 .book-detail-image {
     max-width: 100%;
@@ -693,4 +715,38 @@ h6 {
 
 .buttons-container .btn {
     margin-bottom: 0.5rem;
+}
+
+/* Interactive star rating styling */
+.interactive-stars {
+    cursor: pointer;
+    display: inline-flex;
+}
+
+.rating-star {
+    font-size: 1.25rem;
+    transition: all 0.2s;
+    padding: 2px;
+}
+
+.rating-star:hover {
+    transform: scale(1.2);
+}
+
+/* Handle hover states */
+.interactive-stars:hover .rating-star {
+    color: #ffc107 !important;
+}
+
+/* Sync messages */
+.hardcover-sync-message {
+    font-size: 0.875rem;
+}
+
+.hardcover-sync-message.text-success {
+    color: #28a745 !important;
+}
+
+.hardcover-sync-message.text-danger {
+    color: #dc3545 !important;
 }

@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
     alerts.forEach(alert => {
@@ -15,6 +21,37 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
+
+    // ===== Starting Points Modal =====
+    const setStartingPointModal = document.getElementById('setStartingPointModal');
+    if (setStartingPointModal) {
+        setStartingPointModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const memberId = button.getAttribute('data-member-id');
+            const memberName = button.getAttribute('data-member-name');
+            
+            // Update the modal content
+            document.getElementById('memberIdInput').value = memberId;
+            document.getElementById('memberNameDisplay').textContent = memberName;
+        });
+    }
+    
+    // ===== Comment Progress Type Selection =====
+    const commentProgressType = document.getElementById('comment_progress_type');
+    if (commentProgressType) {
+        commentProgressType.addEventListener('change', function() {
+            const helpText = document.getElementById('commentProgressHelp');
+            const selectedType = this.value;
+
+            if (selectedType === 'page') {
+                helpText.textContent = 'Enter the page number you\'re commenting about.';
+            } else if (selectedType === 'audio') {
+                helpText.textContent = 'Enter the timestamp (e.g., "2h 30m").';
+            } else {
+                helpText.textContent = 'Enter a percentage (e.g., "75").';
+            }
+        });
+    }
 
     // Dark Mode Implementation
     setupDarkMode();
@@ -134,3 +171,15 @@ function setupDarkMode() {
         });
     }
 }
+
+// ===== Copy Invitation Link function =====
+function copyInviteLink(link) {
+    navigator.clipboard.writeText(link).then(function() {
+        alert('Invitation link copied to clipboard!');
+    }, function() {
+        alert('Failed to copy invitation link.');
+    });
+}
+
+// Make the function available globally
+window.copyInviteLink = copyInviteLink;
