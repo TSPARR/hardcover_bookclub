@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.1.6
+- Adds aggregate rating data to the analytics page
+- Always display normalized progress on comments
+
 ## Release 0.1.5
 - Adds local book ratings that can be used with Hardcover taking precedence
 - Redesign of Home Page and Group Details page
