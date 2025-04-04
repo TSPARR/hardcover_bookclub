@@ -73,8 +73,8 @@ def attribution_analytics(request, group_id):
         # Calculate aggregate ratings if we have any
         if ratings:
             book_ratings[book.id] = {
-                "avg_rating": round(mean(ratings), 1),
-                "median_rating": round(median(ratings), 1),
+                "avg_rating": round_to_nearest_half(mean(ratings)),
+                "median_rating": round_to_nearest_half(median(ratings)),
                 "count": len(ratings),
                 "ratings": ratings,  # Include all ratings for distribution analysis
             }
@@ -170,8 +170,8 @@ def attribution_analytics(request, group_id):
     group_rating_stats = None
     if all_ratings:
         group_rating_stats = {
-            "avg_rating": round(mean(all_ratings), 1),
-            "median_rating": round(median(all_ratings), 1),
+            "avg_rating": round_to_nearest_half(mean(all_ratings)),
+            "median_rating": round_to_nearest_half(median(all_ratings)),
             "count": len(all_ratings),
             "books_rated": len(book_ratings),
             "distribution": rating_distribution,
@@ -186,13 +186,44 @@ def attribution_analytics(request, group_id):
                 member_rating_stats.append(
                     {
                         "user": member,
-                        "avg_rating": round(mean(ratings), 1),
+                        "avg_rating": round_to_nearest_half(mean(ratings)),
                         "count": len(ratings),
                     }
                 )
 
     # Sort member rating stats by count (descending)
     member_rating_stats.sort(key=lambda x: (-x["count"], -x["avg_rating"]))
+
+    # Sort books by average rating (descending)
+    sorted_book_sequence = sorted(
+        book_sequence,
+        key=lambda x: x[3]["avg_rating"] if x[3] and x[3]["count"] >= 2 else 0,
+        reverse=True,
+    )
+
+    has_any_books = False
+    for rating_group in sorted_book_sequence:
+        if not isinstance(rating_group, (list, tuple)):
+            continue
+
+        for item in rating_group:
+            if not isinstance(item, (list, tuple)) or len(item) < 4:
+                continue
+
+            try:
+                _, _, _, rating_data = item
+                if (
+                    rating_data
+                    and hasattr(rating_data, "count")
+                    and rating_data.count >= 2
+                ):
+                    has_any_books = True
+                    break
+            except (ValueError, TypeError):
+                continue
+
+        if has_any_books:
+            break
 
     return render(
         request,
@@ -204,6 +235,8 @@ def attribution_analytics(request, group_id):
             "unattributed_count": unattributed_count,
             "total_books": books.count(),
             "book_sequence": book_sequence,
+            "sorted_book_sequence": sorted_book_sequence,
+            "has_any_books": has_any_books,
             "rotation_analysis": rotation_analysis,
             "fairness_metrics": fairness_metrics,
             "next_picker": next_picker,
@@ -626,3 +659,7 @@ def annotate_fairness_metrics(fairness_metrics):
             metric["status"] = "balanced"
 
     return fairness_metrics
+
+
+def round_to_nearest_half(value):
+    return round(value * 2) / 2
