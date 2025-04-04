@@ -54,6 +54,15 @@ def _get_progress_value_for_sorting(comment):
     return 0  # Default case
 
 
+def calculate_normalized_progress(obj):
+    """
+    Calculate and set the normalized progress (0-100) for a UserBookProgress or Comment object
+    """
+    normalized_progress = _get_progress_value_for_sorting(obj)
+    obj.normalized_progress = normalized_progress
+    return obj
+
+
 def extract_publisher_name(publisher_data):
     """Extract publisher name from different data formats"""
     if not publisher_data:
@@ -267,6 +276,9 @@ def process_progress_from_request(request_data, user_progress):
         user_progress.hardcover_current_position = None
         # Keep other fields like hardcover_read_id for reference
 
+    # Calculate and set normalized progress
+    user_progress.normalized_progress = _get_progress_value_for_sorting(user_progress)
+
     return user_progress
 
 
@@ -335,6 +347,9 @@ def process_hardcover_edition_data(book, comment, hardcover_data, user_progress,
         comment.hardcover_reading_format = hardcover_data.get("reading_format")
         comment.hardcover_edition_id = hardcover_data.get("edition_id")
 
+        # Calculate and set normalized progress for the comment
+        comment.normalized_progress = _get_progress_value_for_sorting(comment)
+
         if hardcover_data.get("rating") is not None:
             comment.hardcover_rating = hardcover_data.get("rating")
             user_progress.hardcover_rating = hardcover_data.get("rating")
@@ -358,6 +373,11 @@ def process_hardcover_edition_data(book, comment, hardcover_data, user_progress,
         user_progress.hardcover_current_position = comment.hardcover_current_position
         user_progress.hardcover_reading_format = comment.hardcover_reading_format
         user_progress.hardcover_edition_id = comment.hardcover_edition_id
+
+        # Update normalized progress for user progress
+        user_progress.normalized_progress = _get_progress_value_for_sorting(
+            user_progress
+        )
 
         # If there's an edition_id, try to link to the corresponding BookEdition
         if comment.hardcover_edition_id:

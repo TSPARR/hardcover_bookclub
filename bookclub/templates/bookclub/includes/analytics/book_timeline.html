@@ -1,0 +1,73 @@
+{% load bookclub_extras %}
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white">
+        <h3 class="h5 mb-0">Book Pick Timeline with Ratings</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="book-timeline-table" class="table table-hover book-timeline-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Book</th>
+                        <th>Picked By</th>
+                        <th>Streak</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for picker_id, book, streak, rating_data in book_sequence %}
+                    <tr class="book-timeline-row">
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url 'book_detail' book.id %}" class="book-title">{{ book.title|split:":"|first|trim }}</a>
+                            <small class="text-muted d-block book-author">{{ book.author }}</small>
+                        </td>
+                        <td>
+                            {% if picker_id == "collective" %}
+                            <span class="badge bg-info">Group Pick</span>
+                            {% elif picker_id %}
+                            <span class="picker-name">{{ picker_id|get_username_from_id }}</span>
+                            {% else %}
+                            <span class="badge bg-light text-dark">Unattributed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if streak > 1 %}
+                            <span class="badge bg-warning text-dark">
+                                {% if streak > 2 %}
+                                <i class="bi bi-lightning-charge-fill"></i> {{ streak }} streak
+                                {% else %}
+                                <i class="bi bi-lightning"></i> {{ streak }} streak
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if rating_data %}
+                                {% if rating_data.count >= 2 %}
+                                    {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating|floatformat:2 small=True %}
+                                    <small class="text-muted">({{ rating_data.count }})</small>
+                                {% else %}
+                                    <span class="text-muted small">{{ rating_data.count }} rating</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted small">Not rated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div class="alert alert-info alert-permanent mb-0">
+                                <i class="bi bi-info-circle"></i> 
+                                No books found for this group.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<!-- group_rating_summary.html -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h3 class="h5 mb-0">Group Rating Summary</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                <div class="h2">
+                    {{ group_rating_stats.avg_rating|floatformat:2 }}
+                    <small class="text-muted fs-6">/5</small>
+                </div>
+                <p class="text-muted mb-0">Average Rating</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="h2">
+                    {{ group_rating_stats.median_rating|floatformat:2 }}
+                    <small class="text-muted fs-6">/5</small>
+                </div>
+                <p class="text-muted mb-0">Median Rating</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="h2">{{ group_rating_stats.count }}</div>
+                <p class="text-muted mb-0">Total Ratings</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="h2">{{ group_rating_stats.books_rated }}</div>
+                <p class="text-muted mb-0">Books Rated</p>
+            </div>
+        </div>
+    </div>
+</div>

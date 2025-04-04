@@ -1,0 +1,91 @@
+<!-- rotation_analysis.html -->
+{% load bookclub_extras %}
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h3 class="h5 mb-0">Rotation Analysis</h3>
+        
+        {% if next_picker %}
+        <div>
+            <span class="badge bg-light text-dark p-2">
+                <i class="bi bi-person-check"></i> Next Suggested: <strong>{{ next_picker.username }}</strong>
+            </span>
+        </div>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="alert {% if rotation_analysis.has_pattern %}alert-success alert-permanent{% else %}alert-info permanent{% endif %}">
+            <i class="bi {% if rotation_analysis.has_pattern %}bi-check-circle{% else %}bi-info-circle{% endif %}"></i>
+            {{ rotation_analysis.message }}
+        </div>
+        
+        {% if rotation_analysis.rotations %}
+        <div class="mb-4">
+            <h4>Detected Rotation Cycles</h4>
+            <p class="text-muted">Each row represents one complete rotation of picks</p>
+            
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Cycle</th>
+                        <th>Picking Order</th>
+                        <th>Quality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rotation in rotation_analysis.rotations %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% for picker_id in rotation.picks %}
+                            <span class="badge 
+                                {% if rotation.is_clean %}
+                                    bg-success text-white
+                                {% else %}
+                                    bg-secondary
+                                {% endif %} me-1">
+                                {{ picker_id|get_username_from_id }}
+                            </span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <div class="small">
+                                Balance: {{ rotation.balance|floatformat:2 }}
+                                <br>
+                                Coverage: {{ rotation.coverage|floatformat:2 }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if rotation_analysis.rotations %}
+            {% for rotation in rotation_analysis.rotations %}
+                {% if rotation.sub_patterns.pairs %}
+                <div class="mb-2">
+                    <strong>Cycle {{ forloop.counter }} common pairs:</strong>
+                    {% for pair in rotation.sub_patterns.pairs %}
+                    <span class="badge bg-info me-2">
+                        {{ pair.0|get_username_from_id }} → {{ pair.1|get_username_from_id }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            {% endif %}
+        
+        {% endif %}
+        
+        {% if rotation_analysis.non_participating %}
+        <div class="alert alert-warning alert-permanent">
+            <h5>Members Who Haven't Picked Books</h5>
+            <ul>
+                {% for member_id in rotation_analysis.non_participating %}
+                <li>{{ member_id|get_username_from_id }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>

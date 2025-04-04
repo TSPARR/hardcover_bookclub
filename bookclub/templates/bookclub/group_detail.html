@@ -6,12 +6,12 @@
 {% block content %}
 <div class="container py-4">
     <!-- Group Header Section -->
-    {% include "bookclub/includes/group_header.html" with group=group members=members is_admin=is_admin %}
+    {% include "bookclub/includes/groups/group_header.html" with group=group members=members is_admin=is_admin %}
 
     <div class="row">
         <!-- Left Sidebar - Members Section -->
         <div class="col-md-3 mb-4">
-            {% include "bookclub/includes/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
+            {% include "bookclub/includes/groups/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
         </div>
         
         <!-- Main Content - Books Section -->
@@ -32,20 +32,20 @@
                         <!-- Currently Reading Section -->
                         {% for book in active_books %}
                             {% if book.is_active %}
-                                {% include "bookclub/includes/active_book_card.html" with book=book group=group is_admin=is_admin book_progress=book_progress %}
+                                {% include "bookclub/includes/groups/active_book_card.html" with book=book group=group is_admin=is_admin book_progress=book_progress %}
                             {% endif %}
                         {% endfor %}
                         
                         <!-- Previous Books Section -->
                         {% with previous_books=books|rejectattr:"is_active" %}
                             {% if previous_books %}
-                                {% include "bookclub/includes/previous_books.html" with books=books previous_books=previous_books group=group is_admin=is_admin book_progress=book_progress members=members %}
+                                {% include "bookclub/includes/groups/previous_books.html" with books=books previous_books=previous_books group=group is_admin=is_admin book_progress=book_progress members=members %}
                             {% endif %}
                         {% endwith %}
                         
                         {% endwith %}
                     {% else %}
-                        {% include "bookclub/includes/empty_books_state.html" with group=group is_admin=is_admin %}
+                        {% include "bookclub/includes/groups/empty_books_state.html" with group=group is_admin=is_admin %}
                     {% endif %}
                 </div>
             </div>
@@ -55,7 +55,7 @@
 
 <!-- Attribution Modal -->
 {% if is_admin %}
-{% include "bookclub/includes/attribution_modal.html" with members=members %}
+{% include "bookclub/includes/groups/attribution_modal.html" with members=members %}
 {% endif %}
 {% endblock %}
 

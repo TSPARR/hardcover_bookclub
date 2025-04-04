@@ -1,0 +1,28 @@
+/* Dark Mode - Main Import File */
+
+/* Base styles */
+@import 'base.css';
+
+/* Layout and UI components */
+@import 'navigation.css';
+@import 'cards.css';
+@import 'forms.css';
+@import 'buttons.css';
+@import 'alerts.css';
+@import 'tables.css';
+@import 'modals.css';
+@import 'utilities.css';
+@import 'comments.css';
+
+/* Feature-specific components */
+@import 'components/book-cards.css';
+@import 'components/edition-info.css';
+@import 'components/progress.css';
+@import 'components/reactions.css';
+@import 'components/analytics.css';
+
+/* Add a class to the body for any body-level styling */
+body.dark-mode {
+    color: #e1e1e1;
+    background-color: #121212;
+}

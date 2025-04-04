@@ -1,0 +1,35 @@
+<!-- quick_stats.html -->
+<div class="row mb-4 mt-4">
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ total_books }}</h3>
+                <p class="text-muted">Total Books</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ collective_count }}</h3>
+                <p class="text-muted">Group Picks</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ unattributed_count }}</h3>
+                <p class="text-muted">Unattributed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ member_stats|length }}</h3>
+                <p class="text-muted">Pickers</p>
+            </div>
+        </div>
+    </div>
+</div>

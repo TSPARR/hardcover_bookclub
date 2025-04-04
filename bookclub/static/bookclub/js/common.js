@@ -64,7 +64,7 @@ function setupDarkMode() {
     // Create theme stylesheet link (but don't add it to DOM yet)
     const darkModeStylesheet = document.createElement('link');
     darkModeStylesheet.rel = 'stylesheet';
-    darkModeStylesheet.href = '/static/bookclub/css/dark_mode_styles.css'; // Updated path to match your structure
+    darkModeStylesheet.href = '/static/bookclub/css/dark-mode/dark-mode.css'; // Updated path to match new structure
     darkModeStylesheet.id = 'dark-mode-stylesheet';
 
     // Create toggle button

@@ -4,6 +4,7 @@ Book-related views for managing books, reading progress, etc.
 
 import json
 import logging
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,6 +13,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.http import require_http_methods
 
 from ..forms import BookSearchForm, CommentForm
 from ..hardcover_api import HardcoverAPI
@@ -202,26 +204,32 @@ def book_detail(request, book_id):
                 if progress_type == "audio" and seconds is not None:
                     comment.hardcover_current_position = seconds
 
-            # Get Hardcover progress data from hidden fields if available
-            if request.POST.get("hardcover_data"):
-                try:
-                    hardcover_data = json.loads(request.POST.get("hardcover_data"))
-                    process_hardcover_edition_data(
-                        book, comment, hardcover_data, user_progress, request.user
+                # Calculate and set normalized progress
+                comment.normalized_progress = _get_progress_value_for_sorting(comment)
+
+                # Get Hardcover progress data from hidden fields if available
+                if request.POST.get("hardcover_data"):
+                    try:
+                        hardcover_data = json.loads(request.POST.get("hardcover_data"))
+                        process_hardcover_edition_data(
+                            book, comment, hardcover_data, user_progress, request.user
+                        )
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Error parsing Hardcover data: {e}")
+                else:
+                    comment_progress_value = _get_progress_value_for_sorting(comment)
+                    current_progress_value = _get_progress_value_for_sorting(
+                        user_progress
                     )
-                except json.JSONDecodeError as e:
-                    logger.error(f"Error parsing Hardcover data: {e}")
-            else:
-                comment_progress_value = _get_progress_value_for_sorting(comment)
-                current_progress_value = _get_progress_value_for_sorting(user_progress)
 
-                if comment_progress_value > current_progress_value:
-                    # Only update if the comment represents progress further in the book
-                    user_progress.progress_type = comment.progress_type
-                    user_progress.progress_value = comment.progress_value
-                    user_progress.save()
+                    if comment_progress_value > current_progress_value:
+                        # Only update if the comment represents progress further in the book
+                        user_progress.progress_type = comment.progress_type
+                        user_progress.progress_value = comment.progress_value
+                        user_progress.normalized_progress = comment.normalized_progress
+                        user_progress.save()
 
-            comment.save()
+                comment.save()
 
             # If this is a reply, redirect to the parent comment
             if comment.parent:
@@ -1087,77 +1095,65 @@ def quick_select_edition(request, book_id):
 
 
 @login_required
+@require_http_methods(["POST"])
 def update_book_rating(request, book_id):
-    """API endpoint to update a user's rating for a book"""
-    if request.method != "POST":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
+    """API endpoint to update a book rating, including half-star ratings"""
+    # Parse the JSON data from request body
+    try:
+        data = json.loads(request.body)
+        rating = data.get("rating")
+        hardcover_read_id = data.get("hardcover_read_id")
 
+        # Convert rating to Decimal or None
+        if rating is not None:
+            try:
+                # Handle whole numbers and half-stars (like 3.5)
+                rating = Decimal(str(rating))
+
+                # Ensure rating is within valid range (0.5 to 5, in 0.5 steps)
+                if rating > 0 and rating <= 5:
+                    # Round to nearest 0.5
+                    rating = round(rating * 2) / 2
+                    if rating < 0.5:  # Minimum valid rating is 0.5
+                        rating = Decimal("0.5")
+                elif rating <= 0:
+                    rating = None  # Treat 0 or negative as clearing the rating
+            except (ValueError, TypeError):
+                rating = None
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    # Get the book
     book = get_object_or_404(Book, id=book_id)
 
-    try:
-        # Get or create user progress for this book
-        user_progress, created = UserBookProgress.objects.get_or_create(
-            user=request.user,
-            book=book,
-            defaults={
-                "progress_type": "percent",
-                "progress_value": "0",
-                "normalized_progress": 0,
-            },
-        )
+    # Get or create the user's progress for this book
+    progress, created = UserBookProgress.objects.get_or_create(
+        user=request.user,
+        book=book,
+        defaults={"progress_type": "percent", "progress_value": "0"},
+    )
 
-        # Don't allow local rating if Hardcover rating exists
-        if user_progress.hardcover_rating is not None:
-            return JsonResponse(
-                {
-                    "success": False,
-                    "error": "Cannot set local rating when Hardcover rating exists",
-                }
-            )
+    # Update the rating
+    old_rating = progress.local_rating
+    progress.local_rating = rating
+    progress.save()
 
-        # Get rating data from request
-        data = json.loads(request.body)
-        rating_value = data.get("rating")
+    # Return success response with effective rating
+    effective_rating = progress.effective_rating  # Use your model property
 
-        if rating_value is not None:
-            try:
-                rating_value = float(rating_value)
-                if 0 <= rating_value <= 5:
-                    # Update local rating
-                    user_progress.local_rating = rating_value
-                    user_progress.save(update_fields=["local_rating"])
-
-                    return JsonResponse(
-                        {
-                            "success": True,
-                            "rating": rating_value,
-                            "effective_rating": user_progress.effective_rating,
-                            "is_hardcover_rating": False,
-                        }
-                    )
-                else:
-                    return JsonResponse(
-                        {"success": False, "error": "Rating must be between 0 and 5"}
-                    )
-            except (ValueError, TypeError):
-                return JsonResponse({"success": False, "error": "Invalid rating value"})
-        else:
-            # Handle rating removal
-            user_progress.local_rating = None
-            user_progress.save(update_fields=["local_rating"])
-
-            return JsonResponse(
-                {
-                    "success": True,
-                    "rating": None,
-                    "effective_rating": user_progress.effective_rating,
-                    "is_hardcover_rating": False,
-                }
-            )
-
-    except Exception as e:
-        logger.exception(f"Error updating book rating: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse(
+        {
+            "success": True,
+            "book_id": book_id,
+            "rating": float(rating) if rating is not None else None,
+            "effective_rating": (
+                float(effective_rating) if effective_rating is not None else None
+            ),
+            "hardcover_read_id": hardcover_read_id,
+            "is_hardcover_rating": bool(progress.hardcover_rating),
+        }
+    )
 
 
 @login_required

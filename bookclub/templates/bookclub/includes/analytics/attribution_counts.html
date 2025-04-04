@@ -1,0 +1,57 @@
+{% load bookclub_extras %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="h5 mb-0">Book Picks by Member</h3>
+    </div>
+    <div class="card-body">
+        <!-- Chart visualization -->
+        <div class="mb-4" style="height: 250px;">
+            <canvas id="attributionChart"></canvas>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover" id="memberStatsTable">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Books Picked</th>
+                        <th>Visualization</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in member_stats %}
+                    <tr>
+                        <td>
+                            {{ stat.user.username }}
+                            {% if stat.is_admin %}
+                            <span class="badge bg-success ms-1">Admin</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ stat.count }}</td>
+                        <td>
+                            <div class="progress">
+                                {% with max_count=member_stats.0.count %}
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                    style="width: {% if max_count > 0 %}{{ stat.count|div:max_count|mul:100 }}{% else %}0{% endif %}%;"
+                                    aria-valuenow="{{ stat.count }}" aria-valuemin="0" aria-valuemax="{{ max_count }}">
+                                    {{ stat.count }}
+                                </div>
+                                {% endwith %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-info-circle"></i> 
+                                No individual book picks yet. As members pick books, their stats will appear here.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

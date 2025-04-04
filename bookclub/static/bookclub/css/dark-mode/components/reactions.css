@@ -1,0 +1,100 @@
+/* Dark Mode Reaction System Styles */
+
+/* Reaction panel styling */
+.reaction-panel {
+    display: none;
+    /* Hidden by default */
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Animation for panel appearance */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Reaction option buttons */
+.reaction-option {
+    min-width: 2.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+    color: #e1e1e1;
+}
+
+.reaction-option:hover {
+    transform: scale(1.1);
+    background-color: #3a3a3a;
+}
+
+/* Existing reaction buttons */
+.reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    transition: all 0.2s;
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+}
+
+.reaction-btn:hover {
+    background-color: #3a3a3a;
+}
+
+.reaction-count {
+    margin-left: 0.25rem;
+    font-weight: bold;
+}
+
+/* Active reaction */
+.reaction-btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+/* Fix for reaction dropdown visibility */
+.dropdown-menu.reaction-picker {
+    z-index: 9999 !important;
+}
+
+/* For dropdown items to be visible and interactive */
+.dropdown-item.reaction-option {
+    z-index: 10000 !important;
+    position: relative !important;
+}
+
+/* Specific fix for reply dropdown visibility */
+.replies .dropdown-menu.reaction-picker {
+    position: fixed !important;
+    /* This changes positioning to be relative to viewport */
+    z-index: 20000 !important;
+    /* Super high z-index */
+}
+
+/* Ensure reply dropdowns have proper z-index stacking */
+.replies .dropdown {
+    position: static !important;
+    /* Makes the fixed positioning work */
+}
+
+/* Make dropdown items clickable */
+.dropdown-menu.reaction-picker .dropdown-item {
+    position: relative !important;
+    z-index: 20001 !important;
+}
+
+/* Fix for the reply reactions container */
+.replies .comment-reactions {
+    z-index: 1200 !important;
+}

@@ -750,3 +750,11 @@ h6 {
 .hardcover-sync-message.text-danger {
     color: #dc3545 !important;
 }
+
+.collapse-toggle .bi-chevron-right {
+    transition: transform 0.3s ease;
+}
+
+.collapse-toggle[aria-expanded="true"] .bi-chevron-right {
+    transform: rotate(90deg);
+}
