@@ -1,0 +1,61 @@
+<!-- book_timeline.html -->
+{% load bookclub_extras %}
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white">
+        <h3 class="h5 mb-0">Book Pick Timeline with Ratings</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Book</th>
+                        <th>Picked By</th>
+                        <th>Streak</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for picker_id, book, streak, rating_data in book_sequence %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
+                            <small class="text-muted d-block">{{ book.author }}</small>
+                        </td>
+                        <td>
+                            {% if picker_id == "collective" %}
+                            <span class="badge bg-info">Group Pick</span>
+                            {% elif picker_id %}
+                            {{ picker_id|get_username_from_id }}
+                            {% else %}
+                            <span class="badge bg-light text-dark">Unattributed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if streak > 1 %}
+                            <span class="badge bg-warning text-dark">
+                                {% if streak > 2 %}
+                                <i class="bi bi-lightning-charge-fill"></i> {{ streak }} streak
+                                {% else %}
+                                <i class="bi bi-lightning"></i> {{ streak }} streak
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if rating_data %}
+                                {% include "bookclub/includes/star_rating.html" with rating=rating_data.avg_rating small=True %}
+                                <small class="text-muted">({{ rating_data.count }})</small>
+                            {% else %}
+                                <span class="text-muted small">Not rated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

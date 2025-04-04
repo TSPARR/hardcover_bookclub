@@ -4,13 +4,13 @@ Attribution analytics views for tracking book picks in groups.
 
 import logging
 from collections import defaultdict
+from statistics import mean, median
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 
-from ..models import BookGroup, MemberStartingPoint
+from ..models import BookGroup, MemberStartingPoint, UserBookProgress
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def attribution_analytics(request, group_id):
     members = group.members.all()
 
     # Initialize counters
-    attribution_counts = defaultdict(int)  # Define this here
+    attribution_counts = defaultdict(int)
     collective_count = 0
     unattributed_count = 0
 
@@ -40,6 +40,44 @@ def attribution_analytics(request, group_id):
     book_sequence = []
     previous_picker = None
     streak_count = 0
+
+    # Get all user ratings for books in this group
+    book_ratings = {}
+    rating_distribution = [0, 0, 0, 0, 0]  # Count of 1-5 star ratings
+    member_ratings = defaultdict(list)  # For tracking each member's ratings
+
+    for book in books:
+        # Get all progress entries for this book
+        progress_entries = UserBookProgress.objects.filter(book=book)
+
+        # Collect all valid ratings (prefer hardcover_rating, fall back to local_rating)
+        ratings = []
+        for entry in progress_entries:
+            rating = None
+            if entry.hardcover_rating is not None:
+                rating = entry.hardcover_rating
+            elif entry.local_rating is not None:
+                rating = entry.local_rating
+
+            if rating is not None:
+                float_rating = float(rating)
+                ratings.append(float_rating)
+
+                # Add to distribution count
+                star_index = min(int(float_rating) - 1, 4)  # 0-4 index for 1-5 stars
+                rating_distribution[star_index] += 1
+
+                # Add to member ratings
+                member_ratings[entry.user.id].append(float_rating)
+
+        # Calculate aggregate ratings if we have any
+        if ratings:
+            book_ratings[book.id] = {
+                "avg_rating": round(mean(ratings), 1),
+                "median_rating": round(median(ratings), 1),
+                "count": len(ratings),
+                "ratings": ratings,  # Include all ratings for distribution analysis
+            }
 
     for book in books:
         if book.is_collective_pick:
@@ -56,8 +94,11 @@ def attribution_analytics(request, group_id):
             streak_count = 1
             previous_picker = picker_id
 
+        # Get rating data for this book
+        rating_data = book_ratings.get(book.id, None)
+
         # Store as a tuple for compatibility with existing functions
-        book_sequence.append((picker_id, book, streak_count))
+        book_sequence.append((picker_id, book, streak_count, rating_data))
 
         # Count attributions
         if book.is_collective_pick:
@@ -121,6 +162,38 @@ def attribution_analytics(request, group_id):
     # Get next in rotation based on previous picks
     next_picker = suggest_next_picker(book_sequence, members, group)
 
+    # Calculate overall group rating statistics
+    all_ratings = []
+    for rating_data in book_ratings.values():
+        all_ratings.extend(rating_data["ratings"])
+
+    group_rating_stats = None
+    if all_ratings:
+        group_rating_stats = {
+            "avg_rating": round(mean(all_ratings), 1),
+            "median_rating": round(median(all_ratings), 1),
+            "count": len(all_ratings),
+            "books_rated": len(book_ratings),
+            "distribution": rating_distribution,
+        }
+
+    # Calculate member rating statistics
+    member_rating_stats = []
+    for member_id, ratings in member_ratings.items():
+        if ratings:
+            member = next((m for m in members if m.id == member_id), None)
+            if member:
+                member_rating_stats.append(
+                    {
+                        "user": member,
+                        "avg_rating": round(mean(ratings), 1),
+                        "count": len(ratings),
+                    }
+                )
+
+    # Sort member rating stats by count (descending)
+    member_rating_stats.sort(key=lambda x: (-x["count"], -x["avg_rating"]))
+
     return render(
         request,
         "bookclub/attribution_analytics.html",
@@ -134,6 +207,11 @@ def attribution_analytics(request, group_id):
             "rotation_analysis": rotation_analysis,
             "fairness_metrics": fairness_metrics,
             "next_picker": next_picker,
+            "group_rating_stats": group_rating_stats,
+            "member_rating_stats": member_rating_stats,
+            "rating_distribution": (
+                rating_distribution if group_rating_stats else [0, 0, 0, 0, 0]
+            ),
         },
     )
 
@@ -169,7 +247,9 @@ def analyze_rotation(book_sequence, members, group):
         # Count picks since eligible
         picks_since_eligible = sum(
             1
-            for idx, (picker_id, _, _) in enumerate(book_sequence)
+            for idx, (picker_id, _, _, _) in enumerate(
+                book_sequence
+            )  # Updated for 4-tuple
             if idx >= starting_idx and picker_id == member.id
         )
 
@@ -500,6 +580,8 @@ def calculate_fair_share(attribution_counts, participation_stats):
         # Proportional eligibility
         member_eligible_proportion = (
             stats["books_since_eligible"] / total_eligible_books
+            if total_eligible_books > 0
+            else 0
         )
 
         # Expected picks based on eligibility

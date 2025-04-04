@@ -35,8 +35,13 @@ def sort_comments(comments, sort_by):
         return comments.order_by("-created_at")
     elif sort_by == "progress_asc":
         # For progress sorting, we need custom logic
-        # First, try to sort by Hardcover percent if available
-        if comments.filter(hardcover_percent__isnull=False).exists():
+        # First, try to sort by normalized_progress if available
+        if hasattr(comments.first(), "normalized_progress"):
+            comments_list = list(comments.all())
+            comments_list.sort(key=lambda c: c.normalized_progress, reverse=False)
+            return comments_list
+        # Otherwise, try Hardcover percent if available
+        elif comments.filter(hardcover_percent__isnull=False).exists():
             return comments.order_by("hardcover_percent", "-created_at")
         else:
             # Fallback to sorting by progress_type and value
@@ -49,7 +54,11 @@ def sort_comments(comments, sort_by):
             return comments_list
     elif sort_by == "progress_desc":
         # Similar to progress_asc but in reverse
-        if comments.filter(hardcover_percent__isnull=False).exists():
+        if hasattr(comments.first(), "normalized_progress"):
+            comments_list = list(comments.all())
+            comments_list.sort(key=lambda c: c.normalized_progress, reverse=True)
+            return comments_list
+        elif comments.filter(hardcover_percent__isnull=False).exists():
             return comments.order_by("-hardcover_percent", "-created_at")
         else:
             comments_list = list(comments.all())
@@ -140,6 +149,9 @@ def create_comment_for_book(request, book, form, parent_id=None):
         comment.progress_type = request.POST.get("progress_type")
         comment.progress_value = request.POST.get("progress_value")
 
+    # Calculate and set normalized progress
+    comment.normalized_progress = _get_progress_value_for_sorting(comment)
+
     comment.save()
     return comment, True
 
@@ -182,6 +194,9 @@ def handle_reply_to_comment(request, comment_id):
                     # Copy progress fields from parent comment
                     reply.progress_type = parent_comment.progress_type
                     reply.progress_value = parent_comment.progress_value
+
+                    # Calculate and set normalized progress
+                    reply.normalized_progress = _get_progress_value_for_sorting(reply)
 
                     logger.debug(
                         f"About to save reply with: user={reply.user.id}, book={reply.book.id}, parent={reply.parent.id}"

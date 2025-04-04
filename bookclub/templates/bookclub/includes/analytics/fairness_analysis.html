@@ -1,0 +1,52 @@
+<!-- fairness_analysis.html -->
+<div class="card shadow-sm">
+    <div class="card-header bg-info text-dark">
+        <h3 class="h5 mb-0">Pick Fairness Analysis</h3>
+    </div>
+    <div class="card-body">
+        <p>This shows how each member's pick count deviates from the "fair share"</p>
+        <div class="table-responsive">
+            <table class="table table-hover fairness-metrics">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Books Picked</th>
+                        <th>Deviation from Fair Share</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for metric in fairness_metrics %}
+                        <tr class="
+                            {% if metric.status == 'over' %}text-warning bg-warning bg-opacity-10
+                            {% elif metric.status == 'under' %}text-info bg-info bg-opacity-10
+                            {% else %}text-success bg-success bg-opacity-10
+                            {% endif %}
+                        ">
+                            <td>
+                                {{ metric.user.username }}
+                                {% if metric.is_admin %}
+                                <span class="badge bg-success ms-1">Admin</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ metric.count }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if metric.status == 'over' %}bg-warning text-dark
+                                    {% elif metric.status == 'under' %}bg-info text-white
+                                    {% else %}bg-success text-white
+                                    {% endif %}
+                                ">
+                                    {{ metric.deviation|floatformat:1 }} ({{ metric.deviation_percent|floatformat:0 }}%)
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ metric.recommendation }}</small>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

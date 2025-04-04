@@ -1,0 +1,45 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-info text-dark">
+        <h3 class="h5 mb-0">Rating Distribution</h3>
+    </div>
+    <div class="card-body">
+        <!-- Added data validation and fallback -->
+        {% if rating_distribution %}
+            <canvas id="ratingDistributionChart" height="200" 
+                    data-distribution="{{ rating_distribution|join:"," }}"></canvas>
+        {% else %}
+            <canvas id="ratingDistributionChart" height="200" 
+                    data-distribution="0,0,0,0,0"></canvas>
+            <div class="text-center text-muted mt-3">
+                <p>No rating data available yet</p>
+            </div>
+        {% endif %}
+                
+        {% if member_rating_stats %}
+        <hr class="my-4">
+        <h6>Member Rating Patterns</h6>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Average Rating</th>
+                        <th>Books Rated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in member_rating_stats %}
+                        <tr>
+                            <td>{{ stat.user.username }}</td>
+                            <td>
+                                {% include "bookclub/includes/star_rating.html" with rating=stat.avg_rating small=True %}
+                            </td>
+                            <td>{{ stat.count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>

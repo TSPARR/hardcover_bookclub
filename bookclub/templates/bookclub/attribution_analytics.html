@@ -6,11 +6,13 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script src="{% static 'bookclub/js/attribution_analytics.js' %}"></script>
+<script src="{% static 'bookclub/js/analytics/attribution_analytics.js' %}"></script>
+<script src="{% static 'bookclub/js/analytics/rating_chart.js' %}"></script>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4">
+    <!-- Header and quick stats -->
     <div class="row mb-4">
         <div class="col">
             <div class="d-flex justify-content-between align-items-center">
@@ -23,303 +25,51 @@
             <p class="lead">Analysis of book picks and rotation patterns</p>
             
             <!-- Quick Stats -->
-            <div class="row mb-4 mt-4">
-                <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-body text-center">
-                            <h3 class="display-4">{{ total_books }}</h3>
-                            <p class="text-muted">Total Books</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-body text-center">
-                            <h3 class="display-4">{{ collective_count }}</h3>
-                            <p class="text-muted">Group Picks</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-body text-center">
-                            <h3 class="display-4">{{ unattributed_count }}</h3>
-                            <p class="text-muted">Unattributed</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-body text-center">
-                            <h3 class="display-4">{{ member_stats|length }}</h3>
-                            <p class="text-muted">Pickers</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include "bookclub/includes/analytics/quick_stats.html" %}
+            
+            <!-- Group Rating Summary (if available) -->
+            {% if group_rating_stats %}
+                {% include "bookclub/includes/analytics/group_rating_summary.html" %}
+            {% endif %}
         </div>
     </div>
 
-    <!-- Attribution Counts -->
+    <!-- Attribution and Fairness Analysis -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="h5 mb-0">Book Picks by Member</h3>
-                </div>
-                <div class="card-body">
-                    <!-- Chart visualization -->
-                    <div class="mb-4" style="height: 250px;">
-                        <canvas id="attributionChart"></canvas>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="memberStatsTable">
-                            <thead>
-                                <tr>
-                                    <th>Member</th>
-                                    <th>Books Picked</th>
-                                    <th>Visualization</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for stat in member_stats %}
-                                <tr>
-                                    <td>
-                                        {{ stat.user.username }}
-                                        {% if stat.is_admin %}
-                                        <span class="badge bg-success ms-1">Admin</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ stat.count }}</td>
-                                    <td>
-                                        <div class="progress">
-                                            {% with max_count=member_stats.0.count %}
-                                            <div class="progress-bar bg-primary" role="progressbar" 
-                                                style="width: {% if max_count > 0 %}{{ stat.count|div:max_count|mul:100 }}{% else %}0{% endif %}%;"
-                                                aria-valuenow="{{ stat.count }}" aria-valuemin="0" aria-valuemax="{{ max_count }}">
-                                                {{ stat.count }}
-                                            </div>
-                                            {% endwith %}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center">No individual book picks yet.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            {% include "bookclub/includes/analytics/attribution_counts.html" %}
         </div>
         
         <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-dark">
-                    <h3 class="h5 mb-0">Pick Fairness Analysis</h3>
-                </div>
-                <div class="card-body">
-                    <p>This shows how each member's pick count deviates from the "fair share"</p>
-                    <div class="table-responsive">
-                        <table class="table table-hover fairness-metrics">
-                            <thead>
-                                <tr>
-                                    <th>Member</th>
-                                    <th>Books Picked</th>
-                                    <th>Deviation from Fair Share</th>
-                                    <th>Recommendation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for metric in fairness_metrics %}
-                                    <tr class="
-                                        {% if metric.status == 'over' %}text-warning bg-warning bg-opacity-10
-                                        {% elif metric.status == 'under' %}text-info bg-info bg-opacity-10
-                                        {% else %}text-success bg-success bg-opacity-10
-                                        {% endif %}
-                                    ">
-                                        <td>
-                                            {{ metric.user.username }}
-                                            {% if metric.is_admin %}
-                                            <span class="badge bg-success ms-1">Admin</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ metric.count }}</td>
-                                        <td>
-                                            <span class="badge 
-                                                {% if metric.status == 'over' %}bg-warning text-dark
-                                                {% elif metric.status == 'under' %}bg-info text-white
-                                                {% else %}bg-success text-white
-                                                {% endif %}
-                                            ">
-                                                {{ metric.deviation|floatformat:1 }} ({{ metric.deviation_percent|floatformat:0 }}%)
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <small class="text-muted">{{ metric.recommendation }}</small>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            {% include "bookclub/includes/analytics/fairness_analysis.html" %}
         </div>
     </div>
 
     <!-- Rotation Analysis -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h3 class="h5 mb-0">Rotation Analysis</h3>
-                    
-                    {% if next_picker %}
-                    <div>
-                        <span class="badge bg-light text-dark p-2">
-                            <i class="bi bi-person-check"></i> Next Suggested: <strong>{{ next_picker.username }}</strong>
-                        </span>
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    <div class="alert {% if rotation_analysis.has_pattern %}alert-success alert-permanent{% else %}alert-info permanent{% endif %}">
-                        <i class="bi {% if rotation_analysis.has_pattern %}bi-check-circle{% else %}bi-info-circle{% endif %}"></i>
-                        {{ rotation_analysis.message }}
-                    </div>
-                    
-                    {% if rotation_analysis.rotations %}
-                    <div class="mb-4">
-                        <h4>Detected Rotation Cycles</h4>
-                        <p class="text-muted">Each row represents one complete rotation of picks</p>
-                        
-                        <table class="table table-sm table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Cycle</th>
-                                    <th>Picking Order</th>
-                                    <th>Quality</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for rotation in rotation_analysis.rotations %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>
-                                        {% for picker_id in rotation.picks %}
-                                        <span class="badge 
-                                            {% if rotation.is_clean %}
-                                                bg-success text-white
-                                            {% else %}
-                                                bg-secondary
-                                            {% endif %} me-1">
-                                            {{ picker_id|get_username_from_id }}
-                                        </span>
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        <div class="small">
-                                            Balance: {{ rotation.balance|floatformat:2 }}
-                                            <br>
-                                            Coverage: {{ rotation.coverage|floatformat:2 }}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    {% if rotation_analysis.rotations %}
-                        {% for rotation in rotation_analysis.rotations %}
-                            {% if rotation.sub_patterns.pairs %}
-                            <div class="mb-2">
-                                <strong>Cycle {{ forloop.counter }} common pairs:</strong>
-                                {% for pair in rotation.sub_patterns.pairs %}
-                                <span class="badge bg-info me-2">
-                                    {{ pair.0|get_username_from_id }} → {{ pair.1|get_username_from_id }}
-                                </span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% endif %}
-                    
-                    {% endif %}
-                    
-                    {% if rotation_analysis.non_participating %}
-                    <div class="alert alert-warning alert-permanent">
-                        <h5>Members Who Haven't Picked Books</h5>
-                        <ul>
-                            {% for member_id in rotation_analysis.non_participating %}
-                            <li>{{ member_id|get_username_from_id }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% include "bookclub/includes/analytics/rotation_analysis.html" %}
         </div>
     </div>
     
     <!-- Book Sequence Timeline -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h3 class="h5 mb-0">Book Pick Timeline</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Book</th>
-                                    <th>Picked By</th>
-                                    <th>Streak</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for picker_id, book, streak in book_sequence %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>
-                                        <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a>
-                                        <small class="text-muted d-block">{{ book.author }}</small>
-                                    </td>
-                                    <td>
-                                        {% if picker_id == "collective" %}
-                                        <span class="badge bg-info">Group Pick</span>
-                                        {% elif picker_id %}
-                                        {{ picker_id|get_username_from_id }}
-                                        {% else %}
-                                        <span class="badge bg-light text-dark">Unattributed</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if streak > 1 %}
-                                        <span class="badge bg-warning text-dark">
-                                            {% if streak > 2 %}
-                                            <i class="bi bi-lightning-charge-fill"></i> {{ streak }} streak
-                                            {% else %}
-                                            <i class="bi bi-lightning"></i> {{ streak }} streak
-                                            {% endif %}
-                                        </span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            {% include "bookclub/includes/analytics/book_timeline.html" %}
         </div>
     </div>
+    
+    <!-- Rating Analysis (if available) -->
+    {% if group_rating_stats %}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            {% include "bookclub/includes/analytics/top_rated_books.html" %}
+        </div>
+        
+        <div class="col-md-6">
+            {% include "bookclub/includes/analytics/rating_distribution.html" %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -202,26 +202,32 @@ def book_detail(request, book_id):
                 if progress_type == "audio" and seconds is not None:
                     comment.hardcover_current_position = seconds
 
-            # Get Hardcover progress data from hidden fields if available
-            if request.POST.get("hardcover_data"):
-                try:
-                    hardcover_data = json.loads(request.POST.get("hardcover_data"))
-                    process_hardcover_edition_data(
-                        book, comment, hardcover_data, user_progress, request.user
+                # Calculate and set normalized progress
+                comment.normalized_progress = _get_progress_value_for_sorting(comment)
+
+                # Get Hardcover progress data from hidden fields if available
+                if request.POST.get("hardcover_data"):
+                    try:
+                        hardcover_data = json.loads(request.POST.get("hardcover_data"))
+                        process_hardcover_edition_data(
+                            book, comment, hardcover_data, user_progress, request.user
+                        )
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Error parsing Hardcover data: {e}")
+                else:
+                    comment_progress_value = _get_progress_value_for_sorting(comment)
+                    current_progress_value = _get_progress_value_for_sorting(
+                        user_progress
                     )
-                except json.JSONDecodeError as e:
-                    logger.error(f"Error parsing Hardcover data: {e}")
-            else:
-                comment_progress_value = _get_progress_value_for_sorting(comment)
-                current_progress_value = _get_progress_value_for_sorting(user_progress)
 
-                if comment_progress_value > current_progress_value:
-                    # Only update if the comment represents progress further in the book
-                    user_progress.progress_type = comment.progress_type
-                    user_progress.progress_value = comment.progress_value
-                    user_progress.save()
+                    if comment_progress_value > current_progress_value:
+                        # Only update if the comment represents progress further in the book
+                        user_progress.progress_type = comment.progress_type
+                        user_progress.progress_value = comment.progress_value
+                        user_progress.normalized_progress = comment.normalized_progress
+                        user_progress.save()
 
-            comment.save()
+                comment.save()
 
             # If this is a reply, redirect to the parent comment
             if comment.parent:

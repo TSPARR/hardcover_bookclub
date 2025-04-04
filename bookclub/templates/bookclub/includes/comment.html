@@ -23,9 +23,9 @@
     <div class="card-body">
         <p class="comment-progress">
             {% if comment.progress_type == 'page' %}
-            Page {{ comment.progress_value }}
+            Page {{ comment.progress_value }} ({{ comment.normalized_progress|floatformat:1 }}%)
             {% elif comment.progress_type == 'audio' %}
-            Audio: {{ comment.progress_value }}
+            Audio: {{ comment.progress_value }} ({{ comment.normalized_progress|floatformat:1 }}%)
             {% else %}
             {{ comment.progress_value }}% complete
             {% endif %}
@@ -34,10 +34,6 @@
             <span class="badge bg-success ms-2">Finished</span>
             {% elif comment.hardcover_started_at %}
             <span class="badge bg-primary ms-2">In Progress</span>
-            {% endif %}
-
-            {% if comment.hardcover_percent %}
-            <span class="text-muted ms-2">({{ comment.hardcover_percent|floatformat:1 }}%)</span>
             {% endif %}
 
             {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}
