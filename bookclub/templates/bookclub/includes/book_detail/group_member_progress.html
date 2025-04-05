@@ -44,17 +44,19 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if member_progress %}
-                                    {% if member_progress.hardcover_finished_at %}
-                                        <span class="badge bg-success">Finished</span>
-                                    {% elif member_progress.hardcover_started_at %}
-                                        <span class="badge bg-primary">In Progress</span>
+                                <td>
+                                    {% if member_progress %}
+                                        {% if member_progress.normalized_progress == 0 %}
+                                            <span class="badge bg-secondary">Not Started</span>
+                                        {% elif member_progress.normalized_progress >= 100 %}
+                                            <span class="badge bg-success">Finished</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">In Progress</span>
+                                        {% endif %}
                                     {% else %}
                                         <span class="badge bg-secondary">Not Started</span>
                                     {% endif %}
-                                {% else %}
-                                    <span class="badge bg-secondary">Not Started</span>
-                                {% endif %}
+                                </td>
                             </td>
                         </tr>
                         {% endwith %}
