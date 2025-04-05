@@ -15,11 +15,10 @@
                 </div>
                 
                 <!-- Progress content -->
-                <div class="progress mb-3" style="height: 24px;">
+                <div class="progress progress-styled group-members-progress" data-progress="{{ user_progress.normalized_progress|floatformat:2 }}">
                     <div class="progress-bar" role="progressbar"
                         style="width: {{ user_progress.normalized_progress }}%;"
                         aria-valuenow="{{ user_progress.normalized_progress }}" aria-valuemin="0" aria-valuemax="100">
-                        {{ user_progress.normalized_progress|floatformat:1 }}%
                     </div>
                 </div>
 

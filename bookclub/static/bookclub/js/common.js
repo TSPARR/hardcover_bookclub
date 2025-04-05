@@ -61,20 +61,39 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupDarkMode() {
     console.log('Setting up dark mode functionality');
     
-    // Create theme stylesheet link (but don't add it to DOM yet)
+    // Create dark mode stylesheet link (but don't add it to DOM yet)
     const darkModeStylesheet = document.createElement('link');
     darkModeStylesheet.rel = 'stylesheet';
-    darkModeStylesheet.href = '/static/bookclub/css/dark-mode/dark-mode.css'; // Updated path to match new structure
+    darkModeStylesheet.href = '/static/bookclub/css/dark-mode/dark-mode.css';
     darkModeStylesheet.id = 'dark-mode-stylesheet';
 
+    // Check user preference from localStorage
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    
+    // Apply dark mode immediately if it's the saved preference
+    if (isDarkMode) {
+        document.head.appendChild(darkModeStylesheet);
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.add('light-mode');
+    }
+    
     // Create toggle button
     const darkModeToggle = document.createElement('button');
     darkModeToggle.classList.add('btn', 'btn-sm', 'ms-2');
     darkModeToggle.setAttribute('id', 'dark-mode-toggle');
     darkModeToggle.setAttribute('title', 'Toggle dark mode');
-    darkModeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
     
-    // Insert toggle in navbar - specifically target the ms-auto navbar-nav
+    // Set initial button state
+    if (isDarkMode) {
+        darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+        darkModeToggle.classList.add('btn-light');
+    } else {
+        darkModeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+        darkModeToggle.classList.add('btn-dark');
+    }
+    
+    // Insert toggle in navbar
     const navbarNav = document.querySelector('.navbar-nav.ms-auto');
     if (navbarNav) {
         const toggleContainer = document.createElement('li');
@@ -87,21 +106,12 @@ function setupDarkMode() {
         console.log('Primary navbar not found, trying alternative placement');
         const navbar = document.querySelector('.navbar-collapse');
         if (navbar) {
-            // Create a standalone button that will appear in the navbar
             darkModeToggle.classList.add('ms-3');
             navbar.appendChild(darkModeToggle);
             console.log('Dark mode toggle added as standalone button');
         } else {
             console.log('Could not find navbar to add dark mode toggle');
         }
-    }
-
-    // Check user preference from localStorage
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    
-    // Apply saved preference if it exists
-    if (isDarkMode) {
-        enableDarkMode();
     }
     
     // Toggle button click handler
@@ -127,7 +137,10 @@ function setupDarkMode() {
         localStorage.setItem('darkMode', 'true');
         
         // Add class to body for any additional styling
+        document.body.classList.remove('light-mode');
         document.body.classList.add('dark-mode');
+        
+        console.log('Dark mode enabled');
     }
 
     function disableDarkMode() {
@@ -145,8 +158,11 @@ function setupDarkMode() {
         // Save preference
         localStorage.setItem('darkMode', 'false');
         
-        // Remove body class
+        // Update body classes
         document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        
+        console.log('Light mode disabled');
     }
 
     // Listen for system preference changes
@@ -154,8 +170,10 @@ function setupDarkMode() {
         const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
         
         // Apply system preference if no saved preference
-        if (localStorage.getItem('darkMode') === null && prefersDarkScheme.matches) {
-            enableDarkMode();
+        if (localStorage.getItem('darkMode') === null) {
+            if (prefersDarkScheme.matches) {
+                enableDarkMode();
+            }
         }
         
         // Listen for changes

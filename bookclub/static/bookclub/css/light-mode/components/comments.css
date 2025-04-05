@@ -1,0 +1,61 @@
+/* Comment components */
+
+.comment-progress {
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.comment-user {
+    font-weight: 600;
+    font-weight: bold;
+}
+
+.comment-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+/* Comment Section Fixes */
+.replies {
+    padding-left: 1rem;
+    margin-left: 1rem;
+    border-left: 3px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Progress percentage display */
+.comment-progress .text-muted {
+    font-size: 0.875rem;
+}
+
+/* Make progress badges more prominent */
+.comment-progress .badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+
+/* Spoiler Comment Styles */
+.spoiler-warning {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+}
+
+.spoiler-warning i {
+    margin-right: 0.5rem;
+}
+
+.show-spoiler-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.spoiler-content {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.025);
+}

@@ -1,0 +1,38 @@
+/* Modal components - Light Mode */
+
+.modal-content {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+    border-top-left-radius: 0.4rem;
+    border-top-right-radius: 0.4rem;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 0.4rem;
+    border-bottom-right-radius: 0.4rem;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Special modal styles */
+.confirmation-modal .modal-header {
+    border-bottom: none;
+}
+
+.confirmation-modal .modal-footer {
+    border-top: none;
+}

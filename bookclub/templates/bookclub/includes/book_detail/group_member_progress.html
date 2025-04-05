@@ -30,7 +30,7 @@
                             <td>{{ member.username }}</td>
                             <td>
                                 {% if member_progress %}
-                                    <div class="progress group-members-progress" data-progress="{{ member_progress.normalized_progress|floatformat:1 }}">
+                                    <div class="progress group-members-progress" data-progress="{{ member_progress.normalized_progress|floatformat:2 }}">
                                         <div class="progress-bar" 
                                              style="width: {{ member_progress.normalized_progress }}%;">
                                         </div>
@@ -44,19 +44,17 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <td>
-                                    {% if member_progress %}
-                                        {% if member_progress.normalized_progress == 0 %}
-                                            <span class="badge bg-secondary">Not Started</span>
-                                        {% elif member_progress.normalized_progress >= 100 %}
-                                            <span class="badge bg-success">Finished</span>
-                                        {% else %}
-                                            <span class="badge bg-primary">In Progress</span>
-                                        {% endif %}
-                                    {% else %}
+                                {% if member_progress %}
+                                    {% if member_progress.normalized_progress == 0 %}
                                         <span class="badge bg-secondary">Not Started</span>
+                                    {% elif member_progress.normalized_progress >= 100 %}
+                                        <span class="badge bg-success">Finished</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">In Progress</span>
                                     {% endif %}
-                                </td>
+                                {% else %}
+                                    <span class="badge bg-secondary">Not Started</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endwith %}
