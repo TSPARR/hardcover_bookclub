@@ -220,3 +220,25 @@ table {
     color: #9e9e9e;
     font-size: 0.875rem;
 }
+
+/* Group Members Progress Dark Mode Styles */
+.dark-mode .group-members-progress {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .group-members-progress .progress-bar {
+    background-color: rgba(13, 110, 253, 0.5);
+}
+
+.dark-mode .group-members-progress::after {
+    color: #ffffff;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .group-members-progress .progress-bar.bg-secondary {
+    background-color: rgba(108, 117, 125, 0.5) !important;
+}
+
+.dark-mode .group-members-progress .progress-bar.bg-secondary::after {
+    color: #e1e1e1;
+}

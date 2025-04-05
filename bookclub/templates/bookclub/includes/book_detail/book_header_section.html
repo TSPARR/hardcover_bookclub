@@ -1,0 +1,70 @@
+{% load bookclub_extras %}
+<div class="book-header mb-4">
+    {% with title_parts=book.title|split:":" %}
+        <h1>{{ title_parts.0|trim }}</h1>
+        {% if title_parts|length > 1 %}
+            <h4 class="subtitle">{{ title_parts.1|trim }}</h4>
+        {% endif %}
+    {% endwith %}
+    <h4 class="text-muted author">{{ book.author }}</h4>
+Copy<!-- Rating Section (kept the same as before) -->
+<div class="book-rating mb-3">
+    {% if user_progress.effective_rating %}
+        {% include "bookclub/includes/star_rating.html" with rating=user_progress.effective_rating %}
+        
+        {% if user_progress.hardcover_rating %}
+        <small class="hardcover-sync-label text-muted d-block mt-1">
+            <i class="bi bi-link"></i> Synced from Hardcover
+        </small>
+        {% endif %}
+    {% else %}
+        <div class="rating-display text-muted">
+            <small>No rating</small>
+        </div>
+    {% endif %}
+    
+    {% if not user_progress.hardcover_rating %}
+    <div class="rating-controls mt-3" {% if user_progress.hardcover_read_id %}data-hardcover-read-id="{{ user_progress.hardcover_read_id }}"{% endif %}>
+        <div class="d-flex align-items-center">
+            <div id="ratingStars" class="interactive-stars me-2" data-local-rating="{{ user_progress.local_rating|default:'0' }}">
+                {% for i in "12345" %}
+                <i class="bi bi-star text-warning rating-star" data-rating="{{ forloop.counter }}"></i>
+                {% endfor %}
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" id="clearRating">Clear</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- External Links -->
+{% if book.url or book.kavita_url or book.plex_url %}
+<div class="external-links mb-3">
+    {% if book.url %}
+    <a href="{{ book.url }}" target="_blank" class="btn btn-sm external-link-btn hardcover-btn">
+        <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
+    </a>
+    {% endif %}
+    
+    {% if book.kavita_url %}
+    <a href="{{ book.kavita_url }}" target="_blank" class="btn btn-sm external-link-btn kavita-btn">
+        <i class="bi bi-box-arrow-up-right"></i> View on Kavita
+    </a>
+    {% endif %}
+    
+    {% if book.plex_url %}
+    <a href="{{ book.plex_url }}" target="_blank" class="btn btn-sm external-link-btn plex-btn">
+        <i class="bi bi-box-arrow-up-right"></i> View on Plex
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<p>{{ book.description }}</p>
+
+<div class="d-flex gap-2">
+    <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">
+        Back to Group
+    </a>
+</div>
+</div>

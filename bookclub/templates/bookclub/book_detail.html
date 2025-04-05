@@ -1,9 +1,7 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
 {% load bookclub_extras %}
-
 {% block title %}{{ book.title }}{% endblock %}
-
 {% block extrahead %}
 <meta name="book-pages" content="{{ book_pages|default:'' }}">
 <meta name="book-audio-seconds" content="{{ book_audio_seconds|default:'' }}">
@@ -12,444 +10,81 @@
 <meta name="kavita-edition-pages" content="{{ kavita_promoted_edition.pages|default:'' }}">
 <meta name="plex-edition-audio-seconds" content="{{ plex_promoted_edition.audio_seconds|default:'' }}">
 {% endblock %}
-
 {% block content %}
 <div class="container-fluid">
     <div class="row">
         <!-- Left Sidebar -->
         <div class="col-md-3">
-            <!-- Book Cover -->
-            <div class="book-cover-container mb-3">
-                {% if user_progress.edition and user_progress.edition.cover_image_url %}
-                    <img src="{{ user_progress.edition.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
-                {% elif book.cover_image_url %}
-                    <img src="{{ book.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
-                {% else %}
-                    <div class="card-img-top-placeholder text-center">
-                        <p class="text-muted">No cover available</p>
-                    </div>
-                {% endif %}
-            </div>
+            {% include "bookclub/includes/book_detail/book_cover_section.html" %}
+            {% include "bookclub/includes/book_detail/book_progress_accordion.html" %}
+    </div>
 
-            <!-- Book Navigation Accordion -->
-            <div class="accordion mb-3" id="bookDetailsAccordion">
-                <!-- Progress Section -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingProgress">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProgress" aria-expanded="true" aria-controls="collapseProgress">
-                            Your Progress
-                        </button>
-                    </h2>
-                    <div id="collapseProgress" class="accordion-collapse collapse show" aria-labelledby="headingProgress">
-                        <div class="accordion-body">
-                            <!-- Auto-sync toggle -->
-                            <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="autoSyncToggle">
-                                <label class="form-check-label" for="autoSyncToggle">Auto-sync</label>
-                            </div>
-                            
-                            <!-- Progress content -->
-                            <div class="progress mb-3" style="height: 24px;">
-                                <div class="progress-bar" role="progressbar"
-                                    style="width: {{ user_progress.normalized_progress }}%;"
-                                    aria-valuenow="{{ user_progress.normalized_progress }}" aria-valuemin="0" aria-valuemax="100">
-                                    {{ user_progress.normalized_progress|floatformat:1 }}%
-                                </div>
-                            </div>
+    <!-- Main Content -->
+    <div class="col-md-9">
+        {% include "bookclub/includes/book_detail/book_header_section.html" %}
 
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    {% if user_progress.progress_type == 'page' %}
-                                    Page {{ user_progress.progress_value }}
-                                    {% elif user_progress.progress_type == 'audio' %}
-                                    Audio: {{ user_progress.progress_value }}
-                                    {% else %}
-                                    {{ user_progress.progress_value }}% complete
-                                    {% endif %}
-                                </div>
+        <!-- Group Members' Progress -->
+        {% include "bookclub/includes/book_detail/group_member_progress.html" %}
 
-                                <button class="btn btn-sm btn-outline-primary" id="updateProgressBtn">
-                                    Quick Update
-                                </button>
-                            </div>
-
-                            {% if user_progress.hardcover_finished_at %}
-                            <div class="badge bg-success w-100 p-2 mt-2">Finished</div>
-                            {% elif user_progress.hardcover_started_at %}
-                            <div class="badge bg-primary w-100 p-2 mt-2">In Progress</div>
-                            {% endif %}
-                            
-                            <div class="sync-info mt-2 text-muted d-flex justify-content-between align-items-center">
-                                <small>Last sync: <span id="lastSyncTime">Never</span></small>
-                                <button id="clearSyncButton" class="btn btn-sm btn-link p-0 text-muted">
-                                    <small>Clear</small>
-                                </button>
-                            </div>
-                            
-                            <div class="buttons-container mt-3 d-grid gap-2">
-                                <a href="#" class="btn btn-info btn-sm" id="syncHardcoverProgress">Sync with Hardcover</a>
-                                <a href="{% url 'set_manual_progress' book.id %}" class="btn btn-outline-secondary btn-sm">Advanced Progress Options</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Edition Selection -->
-                {% if kavita_promoted_edition or plex_promoted_edition %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingEditionSelection">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" 
-                                data-bs-target="#collapseEditionSelection" aria-expanded="true" 
-                                aria-controls="collapseEditionSelection">
-                            Quick Edition Selection
-                        </button>
-                    </h2>
-                    <div id="collapseEditionSelection" class="accordion-collapse collapse show" 
-                         aria-labelledby="headingEditionSelection">
-                        <div class="accordion-body">
-                            {% if kavita_promoted_edition and book.kavita_url %}
-                            <form method="post" action="{% url 'quick_select_edition' book.id %}" class="mb-2">
-                                {% csrf_token %}
-                                <input type="hidden" name="edition_id" value="{{ kavita_promoted_edition.id }}">
-                                <input type="hidden" name="source" value="kavita">
-                                <button type="submit" class="btn btn-kavita w-100">
-                                    <i class="bi bi-book"></i> I'm reading on Kavita
-                                </button>
-                            </form>
-                            {% endif %}
-                            
-                            {% if plex_promoted_edition and book.plex_url %}
-                            <form method="post" action="{% url 'quick_select_edition' book.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="edition_id" value="{{ plex_promoted_edition.id }}">
-                                <input type="hidden" name="source" value="plex">
-                                <button type="submit" class="btn btn-plex w-100">
-                                    <i class="bi bi-headphones"></i> I'm listening on Plex
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Edition Info Section -->
-                {% if user_progress.edition %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingEditionInfo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                data-bs-target="#collapseEditionInfo" aria-expanded="false" 
-                                aria-controls="collapseEditionInfo">
-                            Edition Info
-                        </button>
-                    </h2>
-                    <div id="collapseEditionInfo" class="accordion-collapse collapse" 
-                         aria-labelledby="headingEditionInfo">
-                        <div class="accordion-body">
-                            <h6 class="mb-3">{{ user_progress.edition.title }}</h6>
-                            
-                            <div class="edition-details">
-                                {% if user_progress.edition.reading_format %}
-                                <p class="mb-1"><strong>Format:</strong> {{ user_progress.edition.reading_format|title }}</p>
-                                {% endif %}
-
-                                {% if user_progress.edition.pages %}
-                                <p class="mb-1"><strong>Pages:</strong> {{ user_progress.edition.pages }}</p>
-                                {% endif %}
-
-                                {% if user_progress.edition.audio_seconds %}
-                                <p class="mb-1"><strong>Duration:</strong> {{ user_progress.edition.audio_duration_formatted }}</p>
-                                {% endif %}
-
-                                {% if user_progress.edition.publisher %}
-                                    {% if 'name' in user_progress.edition.publisher %}
-                                    <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher.name }}</p>
-                                    {% else %}
-                                    <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher }}</p>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                            
-                            <div class="mt-3">
-                                <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary btn-sm w-100">
-                                    Select Different Edition
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="d-grid mt-3">
-                    <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary">
-                        Select Edition
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="col-md-9">
-            <!-- Book Header -->
-            <div class="book-header mb-4">
-                {% with title_parts=book.title|split:":" %}
-                    <h1>{{ title_parts.0|trim }}</h1>
-                    {% if title_parts|length > 1 %}
-                        <h4 class="subtitle">{{ title_parts.1|trim }}</h4>
-                    {% endif %}
-                {% endwith %}
-                <h4 class="text-muted author">{{ book.author }}</h4>
-
-                <div class="book-rating mb-3">
-                    {% if user_progress.effective_rating %}
-                        {% include "bookclub/includes/star_rating.html" with rating=user_progress.effective_rating %}
-                        
-                        {% if user_progress.hardcover_rating %}
-                        <small class="hardcover-sync-label text-muted d-block mt-1">
-                            <i class="bi bi-link"></i> Synced from Hardcover
-                        </small>
-                        {% endif %}
-                    {% else %}
-                        <div class="rating-display text-muted">
-                            <small>No rating</small>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Only hide rating controls if Hardcover rating exists -->
-                    {% if not user_progress.hardcover_rating %}
-                    <div class="rating-controls mt-3" {% if user_progress.hardcover_read_id %}data-hardcover-read-id="{{ user_progress.hardcover_read_id }}"{% endif %}>
-                        <div class="d-flex align-items-center">
-                            <div id="ratingStars" class="interactive-stars me-2" data-local-rating="{{ user_progress.local_rating|default:'0' }}">
-                                {% for i in "12345" %}
-                                <i class="bi bi-star text-warning rating-star" data-rating="{{ forloop.counter }}"></i>
-                                {% endfor %}
-                            </div>
-                            <button class="btn btn-sm btn-outline-secondary" id="clearRating">Clear</button>
-                        </div>
-                        
-                        <!-- The warning about auto-sync will be added dynamically by JavaScript -->
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- External Links -->
-                {% if book.url or book.kavita_url or book.plex_url %}
-                <div class="external-links mb-3">
-                    {% if book.url %}
-                    <a href="{{ book.url }}" target="_blank" class="btn btn-sm external-link-btn hardcover-btn">
-                        <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
-                    </a>
-                    {% endif %}
-                    
-                    {% if book.kavita_url %}
-                    <a href="{{ book.kavita_url }}" target="_blank" class="btn btn-sm external-link-btn kavita-btn">
-                        <i class="bi bi-box-arrow-up-right"></i> View on Kavita
-                    </a>
-                    {% endif %}
-                    
-                    {% if book.plex_url %}
-                    <a href="{{ book.plex_url }}" target="_blank" class="btn btn-sm external-link-btn plex-btn">
-                        <i class="bi bi-box-arrow-up-right"></i> View on Plex
-                    </a>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                <p>{{ book.description }}</p>
+        <!-- Discussion Section -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Discussion</h3>
                 
-                <div class="d-flex gap-2">
-                    <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">
-                        Back to Group
-                    </a>
-                </div>
-            </div>
-
-            <!-- Discussion Section -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">Discussion</h3>
-                    
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="showSpoilersToggle" checked>
-                            <label class="form-check-label" for="showSpoilersToggle">
-                                Show all comments
-                            </label>
-                        </div>
-
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
-                                    id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                Sort by:
-                                {% if current_sort == 'date_desc' %}Newest First
-                                {% elif current_sort == 'date_asc' %}Oldest First
-                                {% elif current_sort == 'progress_desc' %}Most Progress First
-                                {% elif current_sort == 'progress_asc' %}Least Progress First
-                                {% endif %}
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
-                                <li><a class="dropdown-item {% if current_sort == 'date_desc' %}active{% endif %}"
-                                       href="?sort=date_desc">Newest First</a></li>
-                                <li><a class="dropdown-item {% if current_sort == 'date_asc' %}active{% endif %}"
-                                       href="?sort=date_asc">Oldest First</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item {% if current_sort == 'progress_desc' %}active{% endif %}"
-                                       href="?sort=progress_desc">Most Progress First</a></li>
-                                <li><a class="dropdown-item {% if current_sort == 'progress_asc' %}active{% endif %}"
-                                       href="?sort=progress_asc">Least Progress First</a></li>
-                            </ul>
-                        </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="showSpoilersToggle" checked>
+                        <label class="form-check-label" for="showSpoilersToggle">
+                            Show all comments
+                        </label>
                     </div>
-                </div>
-                <div class="card-body">
-                    <!-- Comment Form -->
-                    <form method="post" class="mb-4">
-                        {% csrf_token %}
 
-                        <div class="mb-3">
-                            {{ form.text.label_tag }}
-                            {{ form.text }}
-                        </div>
-
-                        <!-- Progress fields -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="comment_progress_type" class="form-label">Progress Type</label>
-                                <select class="form-select" id="comment_progress_type" name="progress_type">
-                                    <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
-                                        Page Number
-                                    </option>
-                                    <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
-                                        Audio Timestamp
-                                    </option>
-                                    <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
-                                        Percentage
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="comment_progress_value" class="form-label">Progress Value</label>
-                                <input type="text" class="form-control" id="comment_progress_value" 
-                                       name="progress_value" value="{{ user_progress.progress_value }}">
-                                <div class="form-text" id="commentProgressHelp">
-                                    {% if user_progress.progress_type == 'page' %}
-                                        Enter the page number you're commenting about.
-                                    {% elif user_progress.progress_type == 'audio' %}
-                                        Enter the timestamp (e.g., "2h 30m").
-                                    {% else %}
-                                        Enter a percentage (e.g., "75").
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Post Comment</button>
-                    </form>
-
-                    <!-- Comments List -->
-                    {% for comment in comments %}
-                        {% include "bookclub/includes/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices %}
-                    {% empty %}
-                        <p>No comments yet. Be the first to start the discussion!</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Progress Update Modal -->
-<div class="modal fade" id="progressUpdateModal" tabindex="-1" 
-     aria-labelledby="progressUpdateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="progressUpdateModalLabel">
-                    Update Your Reading Progress
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="progressUpdateForm">
-                    <div class="mb-3">
-                        <label for="progressType" class="form-label">Progress Type</label>
-                        <select class="form-select" id="progressType">
-                            <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
-                                Page Number
-                            </option>
-                            <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
-                                Audio Timestamp
-                            </option>
-                            <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
-                                Percentage
-                            </option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="progressValue" class="form-label">Progress Value</label>
-                        <input type="text" class="form-control" id="progressValue"
-                               value="{{ user_progress.progress_value }}">
-                        <div class="form-text" id="progressHelp">
-                            {% if user_progress.progress_type == 'page' %}
-                                Enter the page number you're currently on.
-                            {% elif user_progress.progress_type == 'audio' %}
-                                Enter the timestamp (e.g., "2h 30m").
-                            {% else %}
-                                Enter a percentage (e.g., "75").
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort by:
+                            {% if current_sort == 'date_desc' %}Newest First
+                            {% elif current_sort == 'date_asc' %}Oldest First
+                            {% elif current_sort == 'progress_desc' %}Most Progress First
+                            {% elif current_sort == 'progress_asc' %}Least Progress First
                             {% endif %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cancel
-                </button>
-                <button type="button" class="btn btn-primary" id="saveProgressBtn">
-                    Save Progress
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Hardcover Sync Modal -->
-<div class="modal fade" id="hardcoverSyncModal" tabindex="-1" 
-     aria-labelledby="hardcoverSyncModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="hardcoverSyncModalLabel">
-                    Sync Progress from Hardcover
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="hardcoverSyncModalBody">
-                <p>Fetching your reading progress from Hardcover...</p>
-                <div class="d-flex justify-content-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item {% if current_sort == 'date_desc' %}active{% endif %}"
+                                   href="?sort=date_desc">Newest First</a></li>
+                            <li><a class="dropdown-item {% if current_sort == 'date_asc' %}active{% endif %}"
+                                   href="?sort=date_asc">Oldest First</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item {% if current_sort == 'progress_desc' %}active{% endif %}"
+                                   href="?sort=progress_desc">Most Progress First</a></li>
+                            <li><a class="dropdown-item {% if current_sort == 'progress_asc' %}active{% endif %}"
+                                   href="?sort=progress_asc">Least Progress First</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cancel
-                </button>
-                <button type="button" class="btn btn-primary" id="applyProgressBtn" disabled>
-                    Apply Progress
-                </button>
+            <div class="card-body">
+                {% include "bookclub/includes/book_detail/comment_form.html" %}
+
+                <!-- Comments List -->
+                {% for comment in comments %}
+                    {% include "bookclub/includes/book_detail/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices %}
+                {% empty %}
+                    <p>No comments yet. Be the first to start the discussion!</p>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
-
+</div>
+<!-- Progress Update Modal, Hardcover Sync Modal, and other existing modals -->
+{% include "bookclub/includes/book_detail/progress_update_modal.html" %}
+{% include "bookclub/includes/book_detail/hardcover_sync_modal.html" %}
 <!-- Hidden fields for JavaScript -->
 <input type="hidden" id="book-id" value="{{ book.id }}">
 <input type="hidden" id="hardcover-id" value="{{ book.hardcover_id }}">
 <input type="hidden" id="current-username" value="{{ user.username }}">
 {% endblock %}
-
 {% block extra_js %}
 <script type="module" src="{% static 'bookclub/js/book-detail/main.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,67 @@
+{% load bookclub_extras %}
+{% with group_members=book.group.members.all %}
+<div class="card mb-4 group-members-progress-card">
+    <div class="card-header d-flex justify-content-between align-items-center" 
+         data-bs-toggle="collapse" 
+         data-bs-target="#groupMembersProgressCollapse" 
+         aria-expanded="false" 
+         aria-controls="groupMembersProgressCollapse" 
+         role="button">
+        <h3 class="mb-0">
+            Group Members' Progress 
+            <span class="badge bg-secondary ms-2">{{ group_members.count }}</span>
+        </h3>
+        <i class="bi bi-chevron-down group-progress-chevron"></i>
+    </div>
+    <div class="accordion-collapse collapse" id="groupMembersProgressCollapse">
+        <div class="card-body">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in group_members %}
+                        {% with member_progress=user_progress_dict|get_item:member.id %}
+                        <tr>
+                            <td>{{ member.username }}</td>
+                            <td>
+                                {% if member_progress %}
+                                    <div class="progress group-members-progress" data-progress="{{ member_progress.normalized_progress|floatformat:1 }}">
+                                        <div class="progress-bar" 
+                                             style="width: {{ member_progress.normalized_progress }}%;">
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="progress group-members-progress" data-progress="0">
+                                        <div class="progress-bar bg-secondary" 
+                                             style="width: 0%;">
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if member_progress %}
+                                    {% if member_progress.hardcover_finished_at %}
+                                        <span class="badge bg-success">Finished</span>
+                                    {% elif member_progress.hardcover_started_at %}
+                                        <span class="badge bg-primary">In Progress</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Started</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Not Started</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endwith %}

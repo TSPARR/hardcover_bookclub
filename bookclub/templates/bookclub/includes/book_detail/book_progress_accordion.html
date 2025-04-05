@@ -1,0 +1,154 @@
+<div class="accordion mb-3" id="bookDetailsAccordion">
+    <!-- Progress Section -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingProgress">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProgress" aria-expanded="true" aria-controls="collapseProgress">
+                Your Progress
+            </button>
+        </h2>
+        <div id="collapseProgress" class="accordion-collapse collapse show" aria-labelledby="headingProgress">
+            <div class="accordion-body">
+                <!-- Auto-sync toggle -->
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="autoSyncToggle">
+                    <label class="form-check-label" for="autoSyncToggle">Auto-sync</label>
+                </div>
+                
+                <!-- Progress content -->
+                <div class="progress mb-3" style="height: 24px;">
+                    <div class="progress-bar" role="progressbar"
+                        style="width: {{ user_progress.normalized_progress }}%;"
+                        aria-valuenow="{{ user_progress.normalized_progress }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ user_progress.normalized_progress|floatformat:1 }}%
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        {% if user_progress.progress_type == 'page' %}
+                        Page {{ user_progress.progress_value }}
+                        {% elif user_progress.progress_type == 'audio' %}
+                        Audio: {{ user_progress.progress_value }}
+                        {% else %}
+                        {{ user_progress.progress_value }}% complete
+                        {% endif %}
+                    </div>
+
+                    <button class="btn btn-sm btn-outline-primary" id="updateProgressBtn">
+                        Quick Update
+                    </button>
+                </div>
+
+                {% if user_progress.hardcover_finished_at %}
+                <div class="badge bg-success w-100 p-2 mt-2">Finished</div>
+                {% elif user_progress.hardcover_started_at %}
+                <div class="badge bg-primary w-100 p-2 mt-2">In Progress</div>
+                {% endif %}
+                
+                <div class="sync-info mt-2 text-muted d-flex justify-content-between align-items-center">
+                    <small>Last sync: <span id="lastSyncTime">Never</span></small>
+                    <button id="clearSyncButton" class="btn btn-sm btn-link p-0 text-muted">
+                        <small>Clear</small>
+                    </button>
+                </div>
+                
+                <div class="buttons-container mt-3 d-grid gap-2">
+                    <a href="#" class="btn btn-info btn-sm" id="syncHardcoverProgress">Sync with Hardcover</a>
+                    <a href="{% url 'set_manual_progress' book.id %}" class="btn btn-outline-secondary btn-sm">Advanced Progress Options</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Edition Selection -->
+    {% if kavita_promoted_edition or plex_promoted_edition %}
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingEditionSelection">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#collapseEditionSelection" aria-expanded="true" 
+                    aria-controls="collapseEditionSelection">
+                Quick Edition Selection
+            </button>
+        </h2>
+        <div id="collapseEditionSelection" class="accordion-collapse collapse show" 
+             aria-labelledby="headingEditionSelection">
+            <div class="accordion-body">
+                {% if kavita_promoted_edition and book.kavita_url %}
+                <form method="post" action="{% url 'quick_select_edition' book.id %}" class="mb-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="edition_id" value="{{ kavita_promoted_edition.id }}">
+                    <input type="hidden" name="source" value="kavita">
+                    <button type="submit" class="btn btn-kavita w-100">
+                        <i class="bi bi-book"></i> I'm reading on Kavita
+                    </button>
+                </form>
+                {% endif %}
+                
+                {% if plex_promoted_edition and book.plex_url %}
+                <form method="post" action="{% url 'quick_select_edition' book.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="edition_id" value="{{ plex_promoted_edition.id }}">
+                    <input type="hidden" name="source" value="plex">
+                    <button type="submit" class="btn btn-plex w-100">
+                        <i class="bi bi-headphones"></i> I'm listening on Plex
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Edition Info Section -->
+    {% if user_progress.edition %}
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingEditionInfo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#collapseEditionInfo" aria-expanded="false" 
+                    aria-controls="collapseEditionInfo">
+                Edition Info
+            </button>
+        </h2>
+        <div id="collapseEditionInfo" class="accordion-collapse collapse" 
+             aria-labelledby="headingEditionInfo">
+            <div class="accordion-body">
+                <h6 class="mb-3">{{ user_progress.edition.title }}</h6>
+                
+                <div class="edition-details">
+                    {% if user_progress.edition.reading_format %}
+                    <p class="mb-1"><strong>Format:</strong> {{ user_progress.edition.reading_format|title }}</p>
+                    {% endif %}
+
+                    {% if user_progress.edition.pages %}
+                    <p class="mb-1"><strong>Pages:</strong> {{ user_progress.edition.pages }}</p>
+                    {% endif %}
+
+                    {% if user_progress.edition.audio_seconds %}
+                    <p class="mb-1"><strong>Duration:</strong> {{ user_progress.edition.audio_duration_formatted }}</p>
+                    {% endif %}
+
+                    {% if user_progress.edition.publisher %}
+                        {% if 'name' in user_progress.edition.publisher %}
+                        <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher.name }}</p>
+                        {% else %}
+                        <p class="mb-1"><strong>Publisher:</strong> {{ user_progress.edition.publisher }}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary btn-sm w-100">
+                        Select Different Edition
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="d-grid mt-3">
+        <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary">
+            Select Edition
+        </a>
+    </div>
+    {% endif %}
+</div>

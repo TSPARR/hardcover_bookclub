@@ -1,0 +1,53 @@
+<div class="modal fade" id="progressUpdateModal" tabindex="-1" 
+     aria-labelledby="progressUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="progressUpdateModalLabel">
+                    Update Your Reading Progress
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="progressUpdateForm">
+                    <div class="mb-3">
+                        <label for="progressType" class="form-label">Progress Type</label>
+                        <select class="form-select" id="progressType">
+                            <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
+                                Page Number
+                            </option>
+                            <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
+                                Audio Timestamp
+                            </option>
+                            <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
+                                Percentage
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="progressValue" class="form-label">Progress Value</label>
+                        <input type="text" class="form-control" id="progressValue"
+                               value="{{ user_progress.progress_value }}">
+                        <div class="form-text" id="progressHelp">
+                            {% if user_progress.progress_type == 'page' %}
+                                Enter the page number you're currently on.
+                            {% elif user_progress.progress_type == 'audio' %}
+                                Enter the timestamp (e.g., "2h 30m").
+                            {% else %}
+                                Enter a percentage (e.g., "75").
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveProgressBtn">
+                    Save Progress
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

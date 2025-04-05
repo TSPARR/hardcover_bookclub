@@ -758,3 +758,62 @@ h6 {
 .collapse-toggle[aria-expanded="true"] .bi-chevron-right {
     transform: rotate(90deg);
 }
+
+/* Group Members Progress Styles */
+.group-members-progress {
+    height: 4px;
+    margin: 0.15rem 0;
+    background-color: rgba(0, 0, 0, 0.075);
+    position: relative;
+}
+
+.group-members-progress .progress-bar {
+    transition: width 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+.group-members-progress::after {
+    content: attr(data-progress) '%';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    color: #ffffff;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    opacity: 0.9;
+    z-index: 1;
+}
+
+.group-progress-chevron {
+    transition: transform 0.3s ease;
+}
+
+.card-header[aria-expanded="true"] .group-progress-chevron {
+    transform: rotate(180deg);
+}
+
+/* Reduce overall card size and typography */
+.group-members-progress-card .card-header h3 {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.group-members-progress-card .card-header .badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.4em;
+}
+
+.group-members-progress-card .table {
+    margin-bottom: 0;
+}
+
+.group-members-progress-card .table th,
+.group-members-progress-card .table td {
+    padding: 0.25rem;
+    font-size: 0.875rem;
+}
