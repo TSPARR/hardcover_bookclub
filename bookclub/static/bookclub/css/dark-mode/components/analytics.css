@@ -208,19 +208,6 @@
     font-size: 0.875rem;
 }
 
-/* Rating stars */
-.rating-stars .bi-star-fill {
-    color: #ffc107 !important;
-}
-
-.rating-stars .bi-star {
-    color: #6c757d !important;
-}
-
-.book-rating small.text-muted {
-    color: #b0b0b0 !important;
-}
-
 /* Book picker styling */
 .book-picker .badge.bg-info {
     background-color: #0dcaf0 !important;

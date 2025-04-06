@@ -1,0 +1,25 @@
+/* Dark Mode Specific Styles for Star Ratings */
+.dark-mode .rating-display.rating-stars .star-container.star-partial {
+    background-color: rgba(255, 255, 255, 0.05); /* Subtle background for partial stars */
+}
+
+.dark-mode .rating-display.rating-stars .star-overlay {
+    border-right: 1px solid rgba(255, 255, 255, 0.3); /* Add a subtle separator for the filled portion */
+}
+
+.dark-mode .rating-display.rating-stars .star-overlay i {
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3)); /* Add subtle shadow to make filled portion stand out */
+    color: #ffc107; /* Filled star color for dark mode */
+}
+
+.dark-mode .rating-display.rating-stars .bi-star-fill {
+    color: #ffd43b !important; /* Brighter gold for better visibility in dark mode */
+}
+
+.dark-mode .rating-display.rating-stars .bi-star {
+    color: #6c757d !important; /* Keep empty stars visible but subdued */
+}
+
+.dark-mode .rating-display.rating-stars:hover .star-container.star-partial .star-overlay {
+    border-right-color: rgba(255, 193, 7, 0.8); /* Highlight on hover in dark mode */
+}

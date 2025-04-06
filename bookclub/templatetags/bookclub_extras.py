@@ -210,3 +210,21 @@ def filter_by_multiple_statuses(queryset, statuses):
 def exclude_status(queryset, status):
     """Filter a queryset to exclude items with the given status"""
     return queryset.exclude(status=status)
+
+
+@register.filter
+def to_float(value):
+    """Converts a value to a float"""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return ""
+
+
+@register.filter
+def subtract(value, arg):
+    """Subtracts arg from value"""
+    try:
+        return float(value) - float(arg)
+    except (ValueError, TypeError):
+        return ""

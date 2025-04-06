@@ -1,20 +1,33 @@
 {% load bookclub_extras %}
 
 {% if rating is not None %}
-<div class="rating-display{% if small %} small{% endif %}" title="{{ rating }} / 5">
-    {% for i in "12345" %}
-        {% if forloop.counter <= rating|floor %}
-            <i class="bi bi-star-fill text-warning{% if small %} small{% endif %}"></i>
-        {% elif forloop.counter == rating|floor|add:1 and rating|floatformat:1|slice:"-1:" == "5" %}
-            <i class="bi bi-star-half text-warning{% if small %} small{% endif %}"></i>
-        {% else %}
-            <i class="bi bi-star text-warning{% if small %} small{% endif %}"></i>
-        {% endif %}
-    {% endfor %}
-    <span class="rating-value ms-1 text-muted">{{ rating }}</span>
-</div>
+    {% with full_stars=rating|floor %}
+    {% with remainder=rating|to_float|subtract:full_stars|to_float %}
+    <div class="rating-display rating-stars{% if small %} small{% endif %}" title="{{ rating|floatformat:2 }} / 5" data-rating="{{ rating|floatformat:2 }}" data-full-stars="{{ full_stars }}" data-remainder="{{ remainder|floatformat:2 }}">
+        {% for i in "12345" %}
+            {% if forloop.counter <= full_stars %}
+                <div class="star-container{% if small %} small{% endif %}">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+            {% elif forloop.counter == full_stars|add:1 and remainder > 0 %}
+                <div class="star-container star-partial{% if small %} small{% endif %}" style="overflow: hidden !important;">
+                    <i class="bi bi-star"></i>
+                    <div class="star-overlay" style="width:{{ remainder|mul:100|floatformat:0 }}%; position: absolute; top: 0; left: 0; height: 100%; overflow: hidden; z-index: 2;">
+                        <i class="bi bi-star-fill" style="position: absolute; top: 0; left: 0;"></i>
+                    </div>
+                </div>
+            {% else %}
+                <div class="star-container{% if small %} small{% endif %}">
+                    <i class="bi bi-star"></i>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <span class="rating-value ms-1 text-muted">{{ rating|floatformat:2 }}</span>
+    </div>
+    {% endwith %}
+    {% endwith %}
 {% else %}
-<div class="rating-display text-muted{% if small %} small{% endif %}">
-    <small>No rating</small>
-</div>
+    <div class="rating-display text-muted{% if small %} small{% endif %}">
+        <small>No rating</small>
+    </div>
 {% endif %}

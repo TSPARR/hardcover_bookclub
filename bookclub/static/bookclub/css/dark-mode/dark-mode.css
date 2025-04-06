@@ -21,6 +21,7 @@
 @import 'components/reactions.css';
 @import 'components/analytics.css';
 @import 'components/dollar-bets.css';
+@import 'components/star_ratings.css';
 
 /* Add a class to the body for any body-level styling */
 body.dark-mode {

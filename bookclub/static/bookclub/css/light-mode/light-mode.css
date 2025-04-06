@@ -2,6 +2,7 @@
 
 /* Base styles */
 @import 'base.css';
+@import '../star_ratings.css';
 
 /* Layout and UI components */
 @import 'navigation.css';
@@ -22,6 +23,7 @@
 @import 'components/analytics.css';
 @import 'components/group-members.css';
 @import 'components/dollar-bets.css';
+@import 'components/star_ratings.css';
 
 /* Add a class to the body for any body-level styling */
 body.light-mode {

@@ -1,0 +1,24 @@
+/* Light Mode Specific Styles for Star Ratings */
+.light-mode .rating-display.rating-stars .star-container.star-partial {
+    background-color: rgba(0, 0, 0, 0.05); /* Subtle background for partial stars */
+}
+
+.light-mode .rating-display.rating-stars .star-overlay {
+    border-right: 1px solid rgba(0, 0, 0, 0.2); /* Add a subtle separator for the filled portion */
+}
+
+.light-mode .rating-display.rating-stars .star-overlay i {
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2)); /* Add subtle shadow to make filled portion stand out */
+}
+
+.light-mode .rating-display.rating-stars .bi-star-fill {
+    color: #f59f00 !important; /* Slightly darker gold for better contrast */
+}
+
+.light-mode .rating-display.rating-stars .bi-star {
+    color: #ced4da !important; /* Slightly darker gray for empty stars */
+}
+
+.light-mode .rating-display.rating-stars:hover .star-container.star-partial .star-overlay {
+    border-right-color: rgba(245, 159, 0, 0.8); /* Highlight on hover in light mode */
+}
