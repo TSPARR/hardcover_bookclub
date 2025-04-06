@@ -204,3 +204,9 @@ def filter_by_multiple_statuses(queryset, statuses):
     """
     status_list = statuses.split(",")
     return queryset.filter(status__in=status_list)
+
+
+@register.filter
+def exclude_status(queryset, status):
+    """Filter a queryset to exclude items with the given status"""
+    return queryset.exclude(status=status)
