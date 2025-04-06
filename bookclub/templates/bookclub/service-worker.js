@@ -31,10 +31,10 @@ self.addEventListener('fetch', function(event) {
         // Clone the request because it's a one-time use
         const fetchRequest = event.request.clone();
         
-        return fetch(fetchRequest).then(
+        return fetch(fetchRequest, { redirect: 'follow' }).then(
           function(response) {
-            // Check if valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
+            // Don't cache redirects or errors
+            if(!response || !response.ok || response.type !== 'basic') {
               return response;
             }
             
