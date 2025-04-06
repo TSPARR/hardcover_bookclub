@@ -42,9 +42,40 @@ export const SpoilerManager = {
                 if (spoilerWarning && spoilerContent) {
                     spoilerWarning.style.display = 'none';
                     spoilerContent.style.display = 'block';
+                    
+                    // Initialize tooltips inside the revealed spoiler content
+                    this._initTooltipsInContent(spoilerContent);
                 }
             }
         });
+    },
+    
+    /**
+     * Initialize tooltips within revealed spoiler content
+     * @param {HTMLElement} content - The revealed spoiler content
+     */
+    _initTooltipsInContent(content) {
+        // Find reaction buttons within the revealed content
+        const reactionButtons = content.querySelectorAll('.reaction-btn');
+        
+        // If Bootstrap is available
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            reactionButtons.forEach(button => {
+                // Dispose any existing tooltip
+                const oldTooltip = bootstrap.Tooltip.getInstance(button);
+                if (oldTooltip) {
+                    oldTooltip.dispose();
+                }
+                
+                // Create new tooltip
+                new bootstrap.Tooltip(button);
+            });
+        } 
+        
+        // Setup mobile-friendly tooltip alternative if CommentReactions is available
+        if (window.CommentReactions && window.CommentReactions._setupMobileTooltips) {
+            window.CommentReactions._setupMobileTooltips(content);
+        }
     },
     
     /**
@@ -70,6 +101,9 @@ export const SpoilerManager = {
                 if (show) {
                     spoilerWarning.style.display = 'none';
                     spoilerContent.style.display = 'block';
+                    
+                    // Initialize tooltips inside the revealed spoiler content
+                    this._initTooltipsInContent(spoilerContent);
                 } else {
                     spoilerWarning.style.display = 'block';
                     spoilerContent.style.display = 'none';
@@ -168,10 +202,6 @@ export const SpoilerManager = {
             const cardBody = comment.querySelector('.card-body');
             if (!cardBody) return; // Skip if card body doesn't exist
             
-            const commentText = cardBody.querySelector('.card-text');
-            
-            if (!commentText) return; // Skip if comment text doesn't exist
-            
             try {
                 // Create spoiler warning
                 const spoilerWarning = DomHelpers.createElement('div', {
@@ -184,23 +214,47 @@ export const SpoilerManager = {
                     style: { display: 'none' }
                 });
                 
-                // Clone the comment text and move it to the spoiler content
-                const commentTextClone = commentText.cloneNode(true);
-                spoilerContent.appendChild(commentTextClone);
+                // Deep clone all of the card body content
+                // This approach preserves all elements (comments, reactions, etc.) with their data attributes
+                const bodyContentClone = cardBody.cloneNode(true);
                 
-                // Don't remove original text for replies, as they have a different structure
+                // First, extract the spoiler warning from the clone if it already exists
+                const clonedWarning = bodyContentClone.querySelector('.spoiler-warning');
+                if (clonedWarning) {
+                    clonedWarning.remove();
+                }
+                
+                // Extract the card text and reactions from the clone
+                const commentText = bodyContentClone.querySelector('.card-text');
+                const commentReactions = bodyContentClone.querySelector('.comment-reactions');
+                
+                // Add them to the spoiler content
+                if (commentText) {
+                    spoilerContent.appendChild(commentText);
+                }
+                
+                if (commentReactions) {
+                    spoilerContent.appendChild(commentReactions);
+                }
+                
+                // Remove the original content from the card body
+                const originalText = cardBody.querySelector('.card-text');
+                const originalReactions = cardBody.querySelector('.comment-reactions');
+                
                 if (comment.classList.contains('comment-card')) {
-                    commentText.remove();
+                    // For main comments, remove the original content
+                    if (originalText) originalText.remove();
+                    if (originalReactions) originalReactions.remove();
                 } else {
-                    // For replies, hide the original text instead of removing it
-                    commentText.style.display = 'none';
+                    // For replies, hide the original content
+                    if (originalText) originalText.style.display = 'none';
+                    if (originalReactions) originalReactions.style.display = 'none';
                 }
                 
                 // Add the elements to the card
-                cardBody.insertBefore(spoilerContent, commentText.nextSibling);
-                cardBody.insertBefore(spoilerWarning, spoilerContent);
+                cardBody.appendChild(spoilerWarning);
+                cardBody.appendChild(spoilerContent);
                 
-                // Event listeners are now handled by event delegation
             } catch (error) {
                 console.error('Error marking spoiler:', error);
             }
@@ -225,18 +279,26 @@ export const SpoilerManager = {
             try {
                 const cardBody = comment.querySelector('.card-body');
                 
+                // Extract content from the spoiler
+                const contentText = spoilerContent.querySelector('.card-text');
+                const contentReactions = spoilerContent.querySelector('.comment-reactions');
+                
                 if (comment.classList.contains('comment-card')) {
-                    // For main comments, restore the comment text from spoiler content
-                    const commentText = spoilerContent.querySelector('.card-text');
-                    if (commentText && cardBody) {
-                        cardBody.appendChild(commentText);
+                    // For main comments, restore the content to the card body
+                    if (contentText && cardBody) {
+                        cardBody.appendChild(contentText);
+                    }
+                    
+                    if (contentReactions && cardBody) {
+                        cardBody.appendChild(contentReactions);
                     }
                 } else {
-                    // For replies, just show the original text that was hidden
+                    // For replies, show the original hidden content
                     const originalText = cardBody.querySelector('.card-text');
-                    if (originalText) {
-                        originalText.style.display = '';
-                    }
+                    const originalReactions = cardBody.querySelector('.comment-reactions:not(.spoiler-content .comment-reactions)');
+                    
+                    if (originalText) originalText.style.display = '';
+                    if (originalReactions) originalReactions.style.display = '';
                 }
                 
                 // Remove spoiler elements

@@ -2,6 +2,9 @@
 import { DomHelpers } from '../utils/dom-helpers.js';
 
 export const CommentReactions = {
+    // Store the user popup
+    mobileReactionPopup: null,
+    
     /**
      * Initialize comment reactions
      * @returns {object} - CommentReactions instance
@@ -9,7 +12,45 @@ export const CommentReactions = {
     init() {
         this._setupEventListeners();
         this._initializeTooltips();
+        this._createMobilePopup();
         return this;
+    },
+    
+    /**
+     * Create a mobile-friendly popup for showing reaction users
+     */
+    _createMobilePopup() {
+        // Create the popup once and reuse it
+        this.mobileReactionPopup = document.createElement('div');
+        this.mobileReactionPopup.className = 'reaction-mobile-popup';
+        this.mobileReactionPopup.style.display = 'none';
+        
+        // Add close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'reaction-popup-close';
+        closeButton.innerHTML = '&times;';
+        closeButton.setAttribute('aria-label', 'Close');
+        closeButton.addEventListener('click', () => {
+            this.mobileReactionPopup.style.display = 'none';
+        });
+        
+        // Create content container
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'reaction-popup-content';
+        
+        // Add elements to the popup
+        this.mobileReactionPopup.appendChild(closeButton);
+        this.mobileReactionPopup.appendChild(contentDiv);
+        document.body.appendChild(this.mobileReactionPopup);
+        
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (this.mobileReactionPopup.style.display === 'block' && 
+                !e.target.classList.contains('reaction-btn') && 
+                !this.mobileReactionPopup.contains(e.target)) {
+                this.mobileReactionPopup.style.display = 'none';
+            }
+        });
     },
     
     /**
@@ -22,6 +63,15 @@ export const CommentReactions = {
             if (e.target.classList.contains('reaction-btn') || e.target.closest('.reaction-btn')) {
                 const button = e.target.classList.contains('reaction-btn') ? 
                               e.target : e.target.closest('.reaction-btn');
+                
+                // Check if we're showing users or toggling the reaction
+                if (e.target.classList.contains('reaction-count') || e.target.closest('.reaction-count')) {
+                    // Show users who reacted
+                    this._showMobileReactionUsers(button);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
                 
                 const commentId = button.dataset.commentId;
                 const reaction = button.dataset.reaction;
@@ -83,6 +133,45 @@ export const CommentReactions = {
     },
     
     /**
+     * Show mobile popup with users who reacted
+     * @param {HTMLElement} button - The reaction button element
+     */
+    _showMobileReactionUsers(button) {
+        if (!this.mobileReactionPopup) return;
+        
+        const users = button.getAttribute('data-reaction-users');
+        const reaction = button.getAttribute('data-reaction');
+        
+        if (!users) return;
+        
+        // Update popup content
+        const contentDiv = this.mobileReactionPopup.querySelector('.reaction-popup-content');
+        contentDiv.innerHTML = `
+            <h5 class="reaction-popup-title">${reaction} Reactions</h5>
+            <p class="reaction-popup-users">${users}</p>
+        `;
+        
+        // Position and show the popup
+        const rect = button.getBoundingClientRect();
+        const isDesktop = window.innerWidth > 768;
+        
+        if (isDesktop) {
+            // On desktop, position near the button
+            this.mobileReactionPopup.style.top = `${rect.top - this.mobileReactionPopup.offsetHeight - 10}px`;
+            this.mobileReactionPopup.style.left = `${rect.left + (rect.width / 2) - (this.mobileReactionPopup.offsetWidth / 2)}px`;
+            this.mobileReactionPopup.classList.remove('reaction-mobile-popup-fullscreen');
+        } else {
+            // On mobile, position at the bottom of the screen
+            this.mobileReactionPopup.style.top = 'auto';
+            this.mobileReactionPopup.style.left = '0';
+            this.mobileReactionPopup.style.bottom = '0';
+            this.mobileReactionPopup.classList.add('reaction-mobile-popup-fullscreen');
+        }
+        
+        this.mobileReactionPopup.style.display = 'block';
+    },
+    
+    /**
      * Initialize tooltips for reaction buttons
      * This method uses Bootstrap tooltips if available
      */
@@ -93,41 +182,24 @@ export const CommentReactions = {
             document.querySelectorAll('.reaction-btn[data-reaction-users]').forEach(button => {
                 new bootstrap.Tooltip(button);
             });
-        } else {
-            // Fallback to simple hover card if Bootstrap tooltips aren't available
-            this._setupCustomHoverCards();
         }
     },
     
     /**
-     * Set up custom hover cards for browsers without Bootstrap
+     * Set up mobile tooltips for a specific container
+     * @param {HTMLElement} container - Container element to search within
      */
-    _setupCustomHoverCards() {
-        // Create a tooltip element once and reuse it
-        let hoverCard = document.createElement('div');
-        hoverCard.className = 'reaction-hover-card';
-        hoverCard.style.display = 'none';
-        document.body.appendChild(hoverCard);
+    _setupMobileTooltips(container) {
+        // Target all reaction buttons in the container
+        const buttons = container ? 
+            container.querySelectorAll('.reaction-btn') : 
+            document.querySelectorAll('.reaction-btn');
         
-        // Add event listeners to reaction buttons
-        document.querySelectorAll('.reaction-btn[data-reaction-users]').forEach(button => {
-            // Show hover card on mouseenter
-            button.addEventListener('mouseenter', (e) => {
-                const users = e.target.dataset.reactionUsers;
-                if (users) {
-                    // Position the hover card
-                    const rect = e.target.getBoundingClientRect();
-                    hoverCard.innerHTML = `<strong>Reacted by:</strong><br>${users}`;
-                    hoverCard.style.top = `${rect.top - hoverCard.offsetHeight - 5}px`;
-                    hoverCard.style.left = `${rect.left + (rect.width / 2) - (hoverCard.offsetWidth / 2)}px`;
-                    hoverCard.style.display = 'block';
-                }
-            });
-            
-            // Hide hover card on mouseleave
-            button.addEventListener('mouseleave', () => {
-                hoverCard.style.display = 'none';
-            });
+        // Make sure all buttons have click handlers for showing users
+        buttons.forEach(button => {
+            if (button.getAttribute('data-reaction-users')) {
+                // We don't need to do anything, event delegation handles this
+            }
         });
     },
     
@@ -189,6 +261,9 @@ export const CommentReactions = {
                     button.setAttribute('data-bs-custom-class', 'reaction-tooltip');
                     button.setAttribute('data-bs-placement', 'top');
                     button.setAttribute('data-bs-title', `Reacted by: ${usernames}`);
+                    
+                    // Add a small instruction for mobile
+                    button.setAttribute('aria-label', `${reaction} reaction - tap count to see who reacted`);
                 }
                 
                 // Add text node first
@@ -198,6 +273,8 @@ export const CommentReactions = {
                 const countSpan = document.createElement('span');
                 countSpan.className = 'reaction-count';
                 countSpan.textContent = info.count;
+                countSpan.setAttribute('role', 'button');
+                countSpan.setAttribute('aria-label', 'Show who reacted');
                 
                 // Add span to button
                 button.appendChild(countSpan);
