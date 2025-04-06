@@ -52,3 +52,50 @@
 .reaction-option:hover {
     transform: scale(1.1);
 }
+
+/* Styles for reaction tooltips and hover cards */
+
+/* Bootstrap tooltip customization */
+.reaction-tooltip {
+    font-size: 0.875rem;
+    max-width: 250px;
+}
+
+/* Custom hover card for non-Bootstrap fallback */
+.reaction-hover-card {
+    position: fixed;
+    background-color: #343a40;
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1070;
+    font-size: 0.875rem;
+    max-width: 250px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.reaction-hover-card:after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #343a40;
+}
+
+/* Dark mode tooltip adaptations */
+body.dark-mode .reaction-hover-card {
+    background-color: #212529;
+    color: #e1e1e1;
+    border: 1px solid #495057;
+}
+
+body.dark-mode .reaction-hover-card:after {
+    border-top-color: #212529;
+}

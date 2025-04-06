@@ -108,6 +108,45 @@ def trim(value):
 
 
 @register.filter
+def map(obj_list, attribute):
+    """
+    Extract a specific attribute from a list of objects
+
+    Example:
+    {{ users|map:'username' }} will return a list of usernames
+
+    Args:
+        obj_list: List of objects
+        attribute: Attribute name to extract
+
+    Returns:
+        List of attribute values
+    """
+    if not obj_list:
+        return []
+
+    # Handle nested attributes with dot notation (e.g., 'user.username')
+    if "." in attribute:
+        parts = attribute.split(".")
+        result = []
+        for obj in obj_list:
+            current = obj
+            valid = True
+            for part in parts:
+                if hasattr(current, part):
+                    current = getattr(current, part)
+                else:
+                    valid = False
+                    break
+            if valid:
+                result.append(current)
+        return result
+
+    # Simple attribute access
+    return [getattr(obj, attribute) for obj in obj_list if hasattr(obj, attribute)]
+
+
+@register.filter
 def books_with_ratings(book_sequence):
     """
     Filter the book sequence to only include books with valid ratings.

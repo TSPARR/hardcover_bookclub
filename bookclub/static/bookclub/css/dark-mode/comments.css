@@ -76,15 +76,12 @@
 /* Specific fix for reply dropdown visibility */
 .replies .dropdown-menu.reaction-picker {
     position: fixed !important;
-    /* This changes positioning to be relative to viewport */
     z-index: 20000 !important;
-    /* Super high z-index */
 }
 
 /* Ensure reply dropdowns have proper z-index stacking */
 .replies .dropdown {
     position: static !important;
-    /* Makes the fixed positioning work */
 }
 
 /* Make dropdown items clickable */
@@ -108,7 +105,6 @@
 /* Reaction panel styling */
 .reaction-panel {
     display: none;
-    /* Hidden by default */
     flex-wrap: wrap;
     gap: 0.25rem;
     margin-top: 0.5rem;
@@ -166,4 +162,34 @@
     background-color: #0d6efd;
     border-color: #0d6efd;
     color: white;
+}
+
+/* Sort Dropdown Styles */
+.card-header .dropdown-menu {
+    max-width: 100%;
+    min-width: fit-content;
+}
+
+@media (max-width: 768px) {
+    .card-header .d-flex {
+        width: 100%;
+    }
+
+    .card-header .dropdown {
+        max-width: 100%;
+    }
+
+    .card-header .dropdown-menu {
+        width: auto;
+        position: absolute !important;
+        right: 0;
+    }
+
+    /* Ensure the toggle button doesn't overflow */
+    #sortDropdown {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

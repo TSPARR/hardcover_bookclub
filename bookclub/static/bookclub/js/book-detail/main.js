@@ -5,6 +5,7 @@ import { SpoilerManager } from './modules/spoiler-manager.js';
 import { CommentReactions } from './modules/comment-reactions.js';
 import { AccessibilityHelper } from './modules/accessibility.js';
 import { RatingManager } from './modules/rating-manager.js';
+import { SortManager } from './modules/sort-manager.js';
 
 // Initialize all modules when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const commentReactions = CommentReactions.init();
         const accessibilityHelper = AccessibilityHelper.init();
         const ratingManager = RatingManager.init(bookId);
+        const sortManager = SortManager.init(bookId);
         
         // Make the modules communicate with each other
         
@@ -48,5 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.SpoilerManager = spoilerManager;
         window.RatingManager = ratingManager;
         window.AccessibilityHelper = accessibilityHelper;
+        window.SortManager = sortManager;
     }
 });

@@ -59,3 +59,33 @@
     border-radius: 0.25rem;
     background-color: rgba(0, 0, 0, 0.025);
 }
+
+/* Sort Dropdown Styles */
+.card-header .dropdown-menu {
+    max-width: 100%;
+    min-width: fit-content;
+}
+
+@media (max-width: 768px) {
+    .card-header .d-flex {
+        width: 100%;
+    }
+
+    .card-header .dropdown {
+        max-width: 100%;
+    }
+
+    .card-header .dropdown-menu {
+        width: auto;
+        position: absolute !important;
+        right: 0;
+    }
+
+    /* Ensure the toggle button doesn't overflow */
+    #sortDropdown {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
