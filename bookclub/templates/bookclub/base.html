@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light-mode">
 
 <head>
     <meta charset="UTF-8">
@@ -12,8 +12,25 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
-    <!-- Main CSS -->
+    <!-- Light Mode CSS (default) -->
     <link rel="stylesheet" href="{% static 'bookclub/css/light-mode/light-mode.css' %}">
+    
+    <!-- Dark Mode CSS (preloaded with media query to prevent flash) -->
+    <link rel="stylesheet" href="{% static 'bookclub/css/dark-mode/dark-mode.css' %}" media="(prefers-color-scheme: dark)">
+    
+    <!-- Theme-specific elements visibility -->
+    <style>
+        /* When dark-mode class is present, hide light mode elements */
+        html.dark-mode .light-mode-only {
+            display: none !important;
+        }
+        
+        /* When light-mode class is present, hide dark mode elements */
+        html.light-mode .dark-mode-only {
+            display: none !important;
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -44,6 +61,13 @@
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
                     </li>
                     {% endif %}
+                    
+                    <!-- Dark mode toggle button directly in template -->
+                    <li class="nav-item">
+                        <button id="dark-mode-toggle" class="btn btn-sm ms-2 btn-dark" title="Toggle dark mode">
+                            <i class="bi bi-moon-fill"></i>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
