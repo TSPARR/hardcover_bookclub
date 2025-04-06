@@ -73,11 +73,41 @@ def attribution_analytics(request, group_id):
         # Calculate aggregate ratings if we have any
         if ratings:
             book_ratings[book.id] = {
-                "avg_rating": round_to_nearest_half(mean(ratings)),
-                "median_rating": round_to_nearest_half(median(ratings)),
+                "avg_rating": mean(ratings),
+                "median_rating": median(ratings),
                 "count": len(ratings),
                 "ratings": ratings,  # Include all ratings for distribution analysis
             }
+
+        # Add individual user ratings to the book_ratings
+        user_ratings = {}
+        for entry in progress_entries:
+            user_id = entry.user.id
+            rating = None
+
+            # Use the same rating preference as above
+            if entry.hardcover_rating is not None:
+                rating = entry.hardcover_rating
+            elif entry.local_rating is not None:
+                rating = entry.local_rating
+
+            if rating is not None:
+                # Also include any comments if they exist
+                comment = None
+                if hasattr(entry, "comment") and entry.comment:
+                    comment = entry.comment
+                elif hasattr(entry, "hardcover_review") and entry.hardcover_review:
+                    comment = entry.hardcover_review
+
+                # Add rating object with optional comment
+                if comment:
+                    user_ratings[user_id] = {"value": float(rating), "comment": comment}
+                else:
+                    user_ratings[user_id] = {"value": float(rating)}
+
+        # Add to book ratings if we have any ratings
+        if ratings:
+            book_ratings[book.id]["user_ratings"] = user_ratings
 
     for book in books:
         if book.is_collective_pick:
@@ -170,8 +200,8 @@ def attribution_analytics(request, group_id):
     group_rating_stats = None
     if all_ratings:
         group_rating_stats = {
-            "avg_rating": round_to_nearest_half(mean(all_ratings)),
-            "median_rating": round_to_nearest_half(median(all_ratings)),
+            "avg_rating": mean(all_ratings),
+            "median_rating": median(all_ratings),
             "count": len(all_ratings),
             "books_rated": len(book_ratings),
             "distribution": rating_distribution,
@@ -186,7 +216,7 @@ def attribution_analytics(request, group_id):
                 member_rating_stats.append(
                     {
                         "user": member,
-                        "avg_rating": round_to_nearest_half(mean(ratings)),
+                        "avg_rating": mean(ratings),
                         "count": len(ratings),
                     }
                 )
@@ -659,7 +689,3 @@ def annotate_fairness_metrics(fairness_metrics):
             metric["status"] = "balanced"
 
     return fairness_metrics
-
-
-def round_to_nearest_half(value):
-    return round(value * 2) / 2

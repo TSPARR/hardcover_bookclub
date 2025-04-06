@@ -374,3 +374,92 @@
 .book-timeline-table .toggle-rows[data-expanded="true"] .bi-chevron-down {
     transform: rotate(180deg);
 }
+
+/* Book Timeline Table - Expandable Ratings Styles */
+
+/* Book expand button */
+.book-expand-btn {
+    background-color: transparent;
+    border: none;
+    color: #6ea8fe;
+    padding: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.book-expand-btn:hover {
+    color: #8abbff;
+    background-color: rgba(110, 168, 254, 0.1);
+}
+
+.book-expand-btn .bi-chevron-right {
+    transition: transform 0.3s ease;
+}
+
+.book-expand-btn[aria-expanded="true"] .bi-chevron-right {
+    transform: rotate(90deg);
+}
+
+/* Member ratings container */
+.member-ratings-container {
+    background-color: #252525;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.member-ratings-title {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+/* Individual member rating items */
+.member-rating-item {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.member-rating-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.member-name {
+    color: #e1e1e1;
+    font-weight: 500;
+}
+
+.member-comment {
+    font-size: 0.85rem;
+    color: #b0b0b0 !important;
+}
+
+/* Ensure the expand row has proper styling */
+.book-timeline-table tr.collapse {
+    background-color: transparent !important;
+}
+
+/* Ensure proper spacing around individual ratings */
+.member-ratings-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Styling for the scrollbar in the ratings list */
+.member-ratings-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.member-ratings-list::-webkit-scrollbar-track {
+    background: #2c2c2c;
+}
+
+.member-ratings-list::-webkit-scrollbar-thumb {
+    background-color: #4a4a4a;
+    border-radius: 3px;
+}
+
+.member-ratings-list::-webkit-scrollbar-thumb:hover {
+    background-color: #5a5a5a;
+}

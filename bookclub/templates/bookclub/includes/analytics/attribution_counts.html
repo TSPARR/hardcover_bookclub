@@ -15,7 +15,7 @@
                     <tr>
                         <th>Member</th>
                         <th>Books Picked</th>
-                        <th>Visualization</th>
+                        <!-- <th>Visualization</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -28,17 +28,6 @@
                             {% endif %}
                         </td>
                         <td>{{ stat.count }}</td>
-                        <td>
-                            <div class="progress">
-                                {% with max_count=member_stats.0.count %}
-                                <div class="progress-bar bg-primary" role="progressbar" 
-                                    style="width: {% if max_count > 0 %}{{ stat.count|div:max_count|mul:100 }}{% else %}0{% endif %}%;"
-                                    aria-valuenow="{{ stat.count }}" aria-valuemin="0" aria-valuemax="{{ max_count }}">
-                                    {{ stat.count }}
-                                </div>
-                                {% endwith %}
-                            </div>
-                        </td>
                     </tr>
                     {% empty %}
                     <tr>

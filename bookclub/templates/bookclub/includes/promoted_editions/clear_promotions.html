@@ -1,0 +1,20 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <form method="post" action="{% url 'manage_promoted_editions' book.id %}">
+            {% csrf_token %}
+            {% if kavita_promoted %}
+            <input type="hidden" name="clear_kavita" value="true">
+            <button type="submit" class="btn btn-outline-success me-2">
+                <i class="bi bi-x-circle"></i> Clear Kavita Edition
+            </button>
+            {% endif %}
+            
+            {% if plex_promoted %}
+            <input type="hidden" name="clear_plex" value="true">
+            <button type="submit" class="btn btn-outline-warning">
+                <i class="bi bi-x-circle"></i> Clear Plex Edition
+            </button>
+            {% endif %}
+        </form>
+    </div>
+</div>

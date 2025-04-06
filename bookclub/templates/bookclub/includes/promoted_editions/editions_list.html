@@ -1,0 +1,35 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Available Editions</h5>
+                <div class="d-flex align-items-center">
+                    <button id="clear-filter" class="btn btn-sm btn-light me-2 d-none">Clear Filter</button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="1">
+                            Physical <span class="badge bg-secondary format-count" data-format-id="1">0</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="4">
+                            Ebook <span class="badge bg-secondary format-count" data-format-id="4">0</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="2">
+                            Audio <span class="badge bg-secondary format-count" data-format-id="2">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="no-editions-filtered" class="alert alert-warning d-none">
+                    No editions match the selected filter.
+                </div>
+                <div class="row">
+                    {% for edition in editions %}
+                    <div class="col-md-4 mb-4">
+                        {% include 'bookclub/includes/promoted_editions/edition_card.html' with edition=edition %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

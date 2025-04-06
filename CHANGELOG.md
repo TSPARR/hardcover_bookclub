@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.2.0
+- Add ability for web page to be a PWA
+- Remember comment sorting
+- Add Clear Cache button in Profile Settings
+- Big CSS/HTML refactor to make pages easier to adjust down the line
+
 ## Release 0.1.6
 - Adds aggregate rating data to the analytics page
 - Always display normalized progress on comments

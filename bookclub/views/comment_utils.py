@@ -101,20 +101,36 @@ def handle_comment_reaction(request, comment_id):
             )
             action = "added"
 
-        # Get updated reaction counts
-        reaction_counts = (
-            CommentReaction.objects.filter(comment=comment)
-            .values("reaction")
-            .annotate(count=Count("id"))
-        )
-        counts_dict = {item["reaction"]: item["count"] for item in reaction_counts}
+        # Get updated reaction information
+        reactions_data = {}
+
+        # Get all reactions for this comment with user information
+        for reaction in CommentReaction.REACTION_CHOICES:
+            reaction_code = reaction[0]
+
+            # Get users who reacted with this reaction
+            user_reactions = CommentReaction.objects.filter(
+                comment=comment, reaction=reaction_code
+            ).select_related("user")
+
+            # Only include in response if there are reactions of this type
+            if user_reactions.exists():
+                reactions_data[reaction_code] = {
+                    "count": user_reactions.count(),
+                    "users": [r.user.username for r in user_reactions],
+                    "current_user_reacted": any(
+                        r.user.id == request.user.id for r in user_reactions
+                    ),
+                }
 
         return JsonResponse(
             {
                 "success": True,
                 "action": action,
                 "reaction": reaction_type,
-                "counts": counts_dict,
+                "reactions": reactions_data,
+                # Keep the old counts format for backward compatibility
+                "counts": {k: v["count"] for k, v in reactions_data.items()},
             }
         )
 

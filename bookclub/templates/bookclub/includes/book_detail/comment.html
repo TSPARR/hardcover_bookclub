@@ -54,10 +54,18 @@
                 <!-- Existing reactions -->
                 <div class="existing-reactions mb-2">
                     {% for reaction_type, count in comment.get_reactions_summary.items %}
-                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                        data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
+                    {% with users=comment.get_users_for_reaction|get_item:reaction_type %}
+                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in users %}active{% endif %}"
+                        data-comment-id="{{ comment.id }}" 
+                        data-reaction="{{ reaction_type }}"
+                        data-reaction-users="{{ users|map:'username'|join:', ' }}"
+                        data-bs-toggle="tooltip"
+                        data-bs-custom-class="reaction-tooltip"
+                        data-bs-placement="top"
+                        data-bs-title="Reacted by: {{ users|map:'username'|join:', ' }}">
                         {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
                     </button>
+                    {% endwith %}
                     {% endfor %}
                 </div>
                 

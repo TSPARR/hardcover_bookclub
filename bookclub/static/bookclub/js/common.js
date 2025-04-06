@@ -57,56 +57,38 @@ document.addEventListener('DOMContentLoaded', function() {
     setupDarkMode();
 });
 
-// Dark mode toggle functionality
 function setupDarkMode() {
     console.log('Setting up dark mode functionality');
     
-    // Create theme stylesheet link (but don't add it to DOM yet)
-    const darkModeStylesheet = document.createElement('link');
-    darkModeStylesheet.rel = 'stylesheet';
-    darkModeStylesheet.href = '/static/bookclub/css/dark-mode/dark-mode.css'; // Updated path to match new structure
-    darkModeStylesheet.id = 'dark-mode-stylesheet';
-
-    // Create toggle button
-    const darkModeToggle = document.createElement('button');
-    darkModeToggle.classList.add('btn', 'btn-sm', 'ms-2');
-    darkModeToggle.setAttribute('id', 'dark-mode-toggle');
-    darkModeToggle.setAttribute('title', 'Toggle dark mode');
-    darkModeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+    // Get reference to the dark mode stylesheet
+    const darkModeStylesheet = document.querySelector('link[href*="dark-mode.css"]');
     
-    // Insert toggle in navbar - specifically target the ms-auto navbar-nav
-    const navbarNav = document.querySelector('.navbar-nav.ms-auto');
-    if (navbarNav) {
-        const toggleContainer = document.createElement('li');
-        toggleContainer.classList.add('nav-item');
-        toggleContainer.appendChild(darkModeToggle);
-        navbarNav.appendChild(toggleContainer);
-        console.log('Dark mode toggle added to navbar');
-    } else {
-        // Fallback if the specific navbar can't be found
-        console.log('Primary navbar not found, trying alternative placement');
-        const navbar = document.querySelector('.navbar-collapse');
-        if (navbar) {
-            // Create a standalone button that will appear in the navbar
-            darkModeToggle.classList.add('ms-3');
-            navbar.appendChild(darkModeToggle);
-            console.log('Dark mode toggle added as standalone button');
-        } else {
-            console.log('Could not find navbar to add dark mode toggle');
-        }
+    if (!darkModeStylesheet) {
+        console.error('Dark mode stylesheet not found');
+        return;
     }
-
+    
+    // Find the dark mode toggle button
+    let darkModeToggle = document.getElementById('dark-mode-toggle');
+    
+    if (!darkModeToggle) {
+        console.error('Dark mode toggle button not found');
+        return;
+    }
+    
     // Check user preference from localStorage
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
     
-    // Apply saved preference if it exists
+    // Apply dark mode immediately if it's the saved preference
     if (isDarkMode) {
         enableDarkMode();
+    } else {
+        disableDarkMode();
     }
     
     // Toggle button click handler
     darkModeToggle.addEventListener('click', function() {
-        if (document.getElementById('dark-mode-stylesheet')) {
+        if (document.documentElement.classList.contains('dark-mode')) {
             disableDarkMode();
         } else {
             enableDarkMode();
@@ -115,8 +97,12 @@ function setupDarkMode() {
 
     // Functions to handle mode switching
     function enableDarkMode() {
-        // Add the stylesheet to enable dark mode
-        document.head.appendChild(darkModeStylesheet);
+        // Update document classes
+        document.documentElement.classList.add('dark-mode');
+        document.documentElement.classList.remove('light-mode');
+        
+        // Update the media attribute to always load the dark stylesheet
+        darkModeStylesheet.setAttribute('media', 'all');
         
         // Update button icon
         darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
@@ -126,16 +112,16 @@ function setupDarkMode() {
         // Save preference
         localStorage.setItem('darkMode', 'true');
         
-        // Add class to body for any additional styling
-        document.body.classList.add('dark-mode');
+        console.log('Dark mode enabled');
     }
 
     function disableDarkMode() {
-        // Remove the dark mode stylesheet
-        const stylesheet = document.getElementById('dark-mode-stylesheet');
-        if (stylesheet) {
-            stylesheet.remove();
-        }
+        // Update document classes
+        document.documentElement.classList.remove('dark-mode');
+        document.documentElement.classList.add('light-mode');
+        
+        // Update the media attribute to never load the dark stylesheet
+        darkModeStylesheet.setAttribute('media', 'not all');
         
         // Update button icon
         darkModeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
@@ -145,8 +131,7 @@ function setupDarkMode() {
         // Save preference
         localStorage.setItem('darkMode', 'false');
         
-        // Remove body class
-        document.body.classList.remove('dark-mode');
+        console.log('Dark mode disabled');
     }
 
     // Listen for system preference changes
@@ -154,8 +139,10 @@ function setupDarkMode() {
         const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
         
         // Apply system preference if no saved preference
-        if (localStorage.getItem('darkMode') === null && prefersDarkScheme.matches) {
-            enableDarkMode();
+        if (localStorage.getItem('darkMode') === null) {
+            if (prefersDarkScheme.matches) {
+                enableDarkMode();
+            }
         }
         
         // Listen for changes

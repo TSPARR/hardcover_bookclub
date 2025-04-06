@@ -1,34 +1,53 @@
 /* Dark Mode Table Styles */
 
+/* Base Progress Bar Styles */
+.dark-mode .progress {
+    background-color: rgba(255, 255, 255, 0.15);
+    height: 1.75rem;
+}
+
+.dark-mode .progress-bar {
+    background-color: rgba(13, 110, 253, 0.7);
+}
+
+.dark-mode .progress::after {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
+/* Base Table Styles */
 table {
     color: #e1e1e1;
 }
 
 .table {
-    color: #e1e1e1;
+    color: #f0f0f0;
     border-color: #3a3a3a;
-    --bs-table-color: #e1e1e1 !important;
+    --bs-table-color: #f0f0f0 !important;
     --bs-table-bg: #1e1e1e !important;
     --bs-table-border-color: #3a3a3a !important;
     --bs-table-striped-color: #ffffff !important;
-    --bs-table-striped-bg: rgba(255, 255, 255, 0.08) !important;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.1) !important;
     --bs-table-active-color: #ffffff !important;
-    --bs-table-active-bg: rgba(255, 255, 255, 0.1) !important;
+    --bs-table-active-bg: rgba(255, 255, 255, 0.15) !important;
     --bs-table-hover-color: #ffffff !important;
-    --bs-table-hover-bg: rgba(13, 110, 253, 0.15) !important;
+    --bs-table-hover-bg: rgba(13, 110, 253, 0.25) !important;
 }
 
 .table th,
 .table td {
+    padding: 1rem 1.25rem;
     border-color: #3a3a3a !important;
+    vertical-align: middle;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: rgba(255, 255, 255, 0.12);
     --bs-table-accent-bg: var(--bs-table-hover-bg) !important;
 }
 
@@ -36,19 +55,21 @@ table {
     color: #ffffff !important;
     background-color: #2c2c2c !important;
     border-color: #3a3a3a !important;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
 }
 
 /* Table text styling */
 .table tr.text-muted {
-    color: #a0a0a0 !important;
+    color: #c0c0c0 !important;
 }
 
 .table tr.text-muted td {
-    color: #a0a0a0 !important;
+    color: #c0c0c0 !important;
 }
 
 .table tr.text-muted:hover td {
-    color: #d0d0d0 !important;
+    color: #ffffff !important;
 }
 
 .table .badge {
@@ -56,7 +77,7 @@ table {
 }
 
 .table tr.text-muted .badge {
-    opacity: 0.85 !important;
+    opacity: 0.9 !important;
 }
 
 .table tr.text-muted:hover .badge {
@@ -70,7 +91,7 @@ table {
 /* Button styling in tables */
 .table tr.text-muted .btn-outline-primary,
 .table tr.text-muted .btn-outline-danger {
-    opacity: 0.85 !important;
+    opacity: 0.9 !important;
 }
 
 .table tr.text-muted:hover .btn-outline-primary,
@@ -90,7 +111,7 @@ table {
 
 .table-sm th,
 .table-sm td {
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
 }
 
 /* Links in tables */
@@ -105,7 +126,7 @@ table {
 /* Top Rated Books and Book Timeline Table Styles */
 .top-rated-books-table,
 .book-timeline-table {
-    color: #e1e1e1;
+    color: #f0f0f0;
 }
 
 .top-rated-books-table thead th,
@@ -113,6 +134,7 @@ table {
     background-color: #2c2c2c;
     color: #ffffff;
     border-color: #3a3a3a;
+    padding: 1rem 1.25rem;
 }
 
 .top-rated-books-table tr,
@@ -122,14 +144,14 @@ table {
 
 .top-rated-books-table .table-secondary,
 .book-timeline-table .table-secondary {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .top-rated-books-table .collapse-toggle,
 .book-timeline-table .collapse-toggle {
     background-color: #2c2c2c;
     border-color: #3a3a3a;
-    color: #e1e1e1;
+    color: #f0f0f0;
 }
 
 .top-rated-books-table .collapse-toggle:hover,
@@ -140,8 +162,8 @@ table {
 .top-rated-books-table .btn-outline-secondary,
 .book-timeline-table .btn-outline-secondary {
     background-color: #2c2c2c;
-    border-color: #3a3a3a;
-    color: #e1e1e1;
+    border-color: #4d4d4d;
+    color: #f0f0f0;
 }
 
 .top-rated-books-table .btn-outline-secondary:hover,
@@ -151,7 +173,7 @@ table {
 
 .top-rated-books-table .text-muted,
 .book-timeline-table .text-muted {
-    color: #9e9e9e !important;
+    color: #c0c0c0 !important;
 }
 
 /* Fairness Metrics Table Styling */
@@ -166,9 +188,9 @@ table {
 }
 
 .fairness-metrics thead th {
-    color: #e1e1e1 !important;
+    color: #f0f0f0 !important;
     border-bottom: 1px solid #3a3a3a !important;
-    padding: 0.75rem;
+    padding: 1rem 1.25rem;
     font-weight: 600;
 }
 
@@ -177,22 +199,22 @@ table {
 }
 
 .fairness-metrics tbody tr.text-under {
-    background-color: rgba(13, 202, 240, 0.1) !important;
-    color: #7dd3fc !important;
+    background-color: rgba(13, 202, 240, 0.15) !important;
+    color: #8dd8fc !important;
 }
 
 .fairness-metrics tbody tr.text-over {
-    background-color: rgba(255, 193, 7, 0.1) !important;
-    color: #ffc107 !important;
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    color: #ffd249 !important;
 }
 
 .fairness-metrics tbody tr.text-balanced {
-    background-color: rgba(25, 135, 84, 0.1) !important;
-    color: #198754 !important;
+    background-color: rgba(25, 135, 84, 0.15) !important;
+    color: #20c997 !important;
 }
 
 .fairness-metrics tbody td {
-    padding: 0.75rem;
+    padding: 1rem 1.25rem;
     vertical-align: middle;
     border-bottom: 1px solid #3a3a3a;
 }
@@ -217,6 +239,221 @@ table {
 }
 
 .fairness-metrics .text-recommendation {
-    color: #9e9e9e;
+    color: #c0c0c0;
     font-size: 0.875rem;
+}
+
+/* Progress Bar Styling for Group Members and Book Progress in Dark Mode */
+.group-members-progress-card .progress.group-members-progress,
+#bookDetailsAccordion .progress.progress-styled {
+    background-color: rgba(255, 255, 255, 0.15);
+    position: relative;
+    border-radius: 0.25rem;
+    margin: 0.75rem 0;
+    height: 1.75rem;
+    overflow: hidden;
+}
+
+.group-members-progress-card .progress.group-members-progress .progress-bar,
+#bookDetailsAccordion .progress.progress-styled .progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: width 0.3s ease;
+    background-color: rgba(13, 110, 253, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.group-members-progress-card .progress.group-members-progress .progress-bar::after,
+#bookDetailsAccordion .progress.progress-styled .progress-bar::after {
+    content: attr(data-progress);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.875rem;
+    color: #ffffff;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    opacity: 1;
+    z-index: 1;
+}
+
+.group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
+#bookDetailsAccordion .progress.progress-styled .progress-bar.bg-secondary {
+    background-color: rgba(108, 117, 125, 0.7);
+}
+
+/* Group Members Progress Card Styling */
+.group-members-progress-card {
+    border-color: #3a3a3a;
+    background-color: #1e1e1e;
+    margin-bottom: 1.5rem;
+}
+
+/* Card header styling */
+.group-members-progress-card .card-header {
+    padding: 1rem 1.5rem;
+    background-color: #2c2c2c;
+    border-bottom: 1px solid #3a3a3a;
+    border-bottom-width: 2px;
+    cursor: pointer;
+}
+
+.group-members-progress-card .card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 0;
+}
+
+.group-members-progress-card .card-header .badge {
+    font-size: 0.8rem;
+    padding: 0.35em 0.65em;
+    vertical-align: middle;
+}
+
+.group-members-progress-card .card-body {
+    padding: 0;
+}
+
+.group-members-progress-card .card-header .chevron-container {
+    background-color: #252525;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-members-progress-card .card-header .chevron-container .group-progress-chevron {
+    color: #c0c0c0;
+}
+
+/* Group Members Table Structure */
+.group-members-progress-card .card-body {
+    padding: 0;
+}
+
+.group-members-progress-card .table {
+    margin-bottom: 0;
+}
+
+/* Table Column Distribution */
+.group-members-progress-card .table th:nth-child(1),
+.group-members-progress-card .table td:nth-child(1) {
+    width: 20%;
+    min-width: 140px;
+    padding-left: 1.5rem;
+}
+
+.group-members-progress-card .table th:nth-child(2),
+.group-members-progress-card .table td:nth-child(2) {
+    width: 60%;
+}
+
+.group-members-progress-card .table th:nth-child(3),
+.group-members-progress-card .table td:nth-child(3) {
+    width: 20%;
+    min-width: 120px;
+    text-align: center;
+    padding-right: 1.5rem;
+}
+
+/* Table header styling */
+.group-members-progress-card .table thead {
+    background-color: #222222;
+}
+
+.group-members-progress-card .table thead th {
+    padding: 1rem 1.5rem;
+    background-color: #222222;
+    border-bottom: 2px solid #3a3a3a;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* Table row and cell styling */
+.group-members-progress-card .table tbody tr {
+    border-bottom: 1px solid #363636;
+    transition: background-color 0.2s ease;
+}
+
+.group-members-progress-card .table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.group-members-progress-card .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.group-members-progress-card .table td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+    color: #f0f0f0 !important;
+}
+
+/* Username styling */
+.group-members-progress-card .table td:first-child {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* Progress bar specific styling */
+.group-members-progress-card .progress.group-members-progress {
+    height: 1.5rem;
+    margin: 0;
+}
+
+/* Progress text styling */
+.group-members-progress-card .progress.group-members-progress::after {
+    content: attr(data-progress) "%";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+/* Status badges */
+.group-members-progress-card .badge {
+    padding: 0.5em 0.85em;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+/* Chevron animation */
+.group-progress-chevron {
+    transition: transform 0.3s ease;
+}
+
+.card-header[aria-expanded="true"] .group-progress-chevron {
+    transform: rotate(180deg);
+}
+
+/* Target the specific progress bar in home.html */
+.list-group-item .progress {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    height: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Override the general progress::after rule */
+.list-group-item .progress::after {
+    content: none;
 }

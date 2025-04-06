@@ -1,0 +1,11 @@
+<div class="book-cover-container mb-3">
+    {% if user_progress.edition and user_progress.edition.cover_image_url %}
+        <img src="{{ user_progress.edition.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
+    {% elif book.cover_image_url %}
+        <img src="{{ book.cover_image_url }}" class="img-fluid book-detail-image" alt="{{ book.title }}">
+    {% else %}
+        <div class="card-img-top-placeholder text-center">
+            <p class="text-muted">No cover available</p>
+        </div>
+    {% endif %}
+</div>

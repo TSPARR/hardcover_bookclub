@@ -43,7 +43,7 @@
                                                     <div class="book-entry p-2">
                                                         <div class="row align-items-center">
                                                             <div class="col">
-                                                                <a href="{% url 'book_detail' book_tuple.1.id %}" class="book-title">{{ book_tuple.1.title }}</a>
+                                                                <a href="{% url 'book_detail' book_tuple.1.id %}" class="book-title">{{ book_tuple.1.title|split:":"|first|trim }}</a>
                                                                 <small class="text-muted d-block book-author">{{ book_tuple.1.author }}</small>
                                                             </div>
                                                             <div class="col-auto">

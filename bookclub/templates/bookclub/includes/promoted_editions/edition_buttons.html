@@ -1,0 +1,29 @@
+{% if has_kavita %}
+<form method="post" action="{% url 'manage_promoted_editions' book.id %}" class="mb-2">
+    {% csrf_token %}
+    <input type="hidden" name="kavita_edition_id" value="{{ edition.id }}">
+    <button type="submit" class="btn btn-kavita w-100" 
+        {% if kavita_promoted and edition.id|stringformat:"s" == kavita_promoted.hardcover_edition_id %}disabled{% endif %}>
+        {% if kavita_promoted and edition.id|stringformat:"s" == kavita_promoted.hardcover_edition_id %}
+        <i class="bi bi-check-circle"></i> Current Kavita Edition
+        {% else %}
+        <i class="bi bi-book"></i> Set as Kavita Edition
+        {% endif %}
+    </button>
+</form>
+{% endif %}
+
+{% if has_plex %}
+<form method="post" action="{% url 'manage_promoted_editions' book.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="plex_edition_id" value="{{ edition.id }}">
+    <button type="submit" class="btn btn-plex w-100"
+        {% if plex_promoted and edition.id|stringformat:"s" == plex_promoted.hardcover_edition_id %}disabled{% endif %}>
+        {% if plex_promoted and edition.id|stringformat:"s" == plex_promoted.hardcover_edition_id %}
+        <i class="bi bi-check-circle"></i> Current Plex Edition
+        {% else %}
+        <i class="bi bi-headphones"></i> Set as Plex Edition
+        {% endif %}
+    </button>
+</form>
+{% endif %}

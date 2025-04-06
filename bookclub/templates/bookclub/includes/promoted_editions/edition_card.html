@@ -1,0 +1,66 @@
+<div class="card h-100 position-relative edition-card" data-format-id="{{ edition.reading_format_id }}">
+    {% if kavita_promoted and edition.id|stringformat:"s" == kavita_promoted.hardcover_edition_id %}
+    <span class="edition-promoted-badge badge bg-success">Kavita Edition</span>
+    {% elif plex_promoted and edition.id|stringformat:"s" == plex_promoted.hardcover_edition_id %}
+    <span class="edition-promoted-badge badge bg-warning text-dark">Plex Edition</span>
+    {% endif %}
+    
+    {% if edition.cover_image_url %}
+    <img src="{{ edition.cover_image_url }}" class="card-img-top" alt="{{ edition.title }}">
+    {% else %}
+    <div class="card-img-top-placeholder">No Cover Available</div>
+    {% endif %}
+
+    <div class="card-body">
+        <h5 class="card-title">{{ edition.title }}</h5>
+
+        <ul class="list-unstyled">
+            {% if edition.reading_format %}
+            <li>
+                <strong>Format:</strong> 
+                <span class="badge 
+                    {% if edition.reading_format == 'physical' %}bg-success{% endif %}
+                    {% if edition.reading_format == 'ebook' %}bg-info{% endif %}
+                    {% if edition.reading_format == 'audio' %}bg-warning text-dark{% endif %}
+                ">
+                    {{ edition.reading_format|title }}
+                </span>
+            </li>
+            {% endif %}
+
+            {% if edition.pages %}
+            <li><strong>Pages:</strong> {{ edition.pages }}</li>
+            {% endif %}
+
+            {% if edition.audio_duration_formatted or edition.audio_seconds %}
+            <li><strong>Duration:</strong> 
+                {% if edition.audio_duration_formatted %}
+                    {{ edition.audio_duration_formatted }}
+                {% else %}
+                    ~{{ edition.audio_seconds|floatformat:0|default:"0" }} seconds
+                {% endif %}
+            </li>
+            {% endif %}
+
+            {% if edition.publisher %}
+            <li><strong>Publisher:</strong> {{ edition.publisher.name }}</li>
+            {% endif %}
+
+            {% if edition.release_date_formatted %}
+            <li><strong>Published:</strong> {{ edition.release_date_formatted }}</li>
+            {% endif %}
+
+            {% if edition.isbn %}
+            <li><strong>ISBN:</strong> {{ edition.isbn }}</li>
+            {% endif %}
+
+            {% if edition.isbn13 %}
+            <li><strong>ISBN-13:</strong> {{ edition.isbn13 }}</li>
+            {% endif %}
+        </ul>
+
+        <div class="mt-auto">
+            {% include 'bookclub/includes/promoted_editions/edition_buttons.html' with edition=edition %}
+        </div>
+    </div>
+</div>

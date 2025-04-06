@@ -242,6 +242,11 @@ def book_detail(request, book_id):
 
     auto_sync_enabled = is_auto_sync_enabled(request, book_id)
 
+    user_progress_dict = {
+        progress.user.id: progress
+        for progress in book.user_progress.select_related("user").all()
+    }
+
     # Prepare the context with all required data
     context = {
         "book": book,
@@ -249,6 +254,7 @@ def book_detail(request, book_id):
         "form": form,
         "current_sort": sort_by,
         "user_progress": user_progress,
+        "user_progress_dict": user_progress_dict,
         "reaction_choices": reaction_choices,
         "kavita_promoted_edition": kavita_promoted_edition,
         "plex_promoted_edition": plex_promoted_edition,

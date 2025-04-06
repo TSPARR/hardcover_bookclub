@@ -1,0 +1,41 @@
+<form method="post" id="commentForm">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.text.label_tag }}
+        {{ form.text }}
+    </div>
+
+    <!-- Progress fields -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="comment_progress_type" class="form-label">Progress Type</label>
+            <select class="form-select" id="comment_progress_type" name="progress_type">
+                <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
+                    Page Number
+                </option>
+                <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
+                    Audio Timestamp
+                </option>
+                <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
+                    Percentage
+                </option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="comment_progress_value" class="form-label">Progress Value</label>
+            <input type="text" class="form-control" id="comment_progress_value" 
+                   name="progress_value" value="{{ user_progress.progress_value }}">
+            <div class="form-text" id="commentProgressHelp">
+                {% if user_progress.progress_type == 'page' %}
+                    Enter the page number you're commenting about.
+                {% elif user_progress.progress_type == 'audio' %}
+                    Enter the timestamp (e.g., "2h 30m").
+                {% else %}
+                    Enter a percentage (e.g., "75").
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Post Comment</button>
+</form>

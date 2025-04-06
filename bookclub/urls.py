@@ -36,6 +36,7 @@ from bookclub.views.invitation_views import (
 from bookclub.views.profile_views import profile_settings
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("", landing_page, name="landing_page"),

@@ -5,6 +5,7 @@ export const AccessibilityHelper = {
      * @returns {object} - AccessibilityHelper instance
      */
     init() {
+        this._setupGroupProgressCollapse();
         return this;
     },
     
@@ -53,6 +54,24 @@ export const AccessibilityHelper = {
                 modal.removeAttribute('aria-hidden');
                 originalHide.call(this);
             };
+        }
+    },
+    
+    /**
+     * Set up group progress collapse functionality
+     */
+    _setupGroupProgressCollapse() {
+        const collapseElement = document.getElementById('groupMembersProgressCollapse');
+        const chevronIcon = document.querySelector('.collapse-icon');
+        
+        if (collapseElement && chevronIcon) {
+            collapseElement.addEventListener('show.bs.collapse', function() {
+                chevronIcon.classList.add('collapsed');
+            });
+            
+            collapseElement.addEventListener('hide.bs.collapse', function() {
+                chevronIcon.classList.remove('collapsed');
+            });
         }
     }
 };
