@@ -457,3 +457,19 @@ table {
 .list-group-item .progress::after {
     content: none;
 }
+
+/* Dollar bet table styles - Dark Mode */
+
+.dark-theme .bets-table th {
+    background-color: #343a40;
+    color: #e9ecef;
+    border-color: #495057;
+}
+
+.dark-theme .bets-table td {
+    border-color: #495057;
+}
+
+.dark-theme .table-empty-state {
+    color: #adb5bd;
+}

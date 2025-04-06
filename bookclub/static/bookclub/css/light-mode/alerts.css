@@ -42,3 +42,52 @@
     background-color: #ffc107 !important;
     color: #000 !important;
 }
+
+/* Spoiler alert styles - Light Mode */
+
+/* Base spoiler warning */
+.spoiler-warning {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    background-color: #fff3cd;
+    border: 1px solid #ffecb5;
+    color: #664d03;
+    display: flex;
+    align-items: center;
+}
+
+.spoiler-warning i {
+    margin-right: 0.5rem;
+}
+
+.spoiler-warning .show-spoiler-btn {
+    margin-left: auto;
+    background-color: transparent;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+}
+
+.spoiler-warning .show-spoiler-btn:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.alert-permanent {
+    margin-bottom: 0;
+}
+
+/* Alert with icon layout */
+.alert-with-icon {
+    display: flex;
+    align-items: flex-start;
+}
+
+.alert-with-icon .alert-icon {
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.alert-with-icon .alert-content {
+    flex: 1;
+}

@@ -1,4 +1,4 @@
-/* Dark mode styles */
+/* Dark mode styles for dollar bets */
 
 .dark-theme .dollar-bets-card {
     background-color: #212529;
@@ -25,6 +25,7 @@
     background-color: #343a40;
 }
 
+/* Color-coded left borders - darker shades for dark mode */
 .dark-theme .open-bet {
     border-left: 4px solid #3d8bfd;
 }
@@ -47,18 +48,86 @@
     border-color: #495057;
 }
 
-.dark-theme .spoiler-warning {
-    background-color: #3a2f06;
-    border-color: #856404;
-    color: #f8f9fa;
+/* Bet form styling */
+.dark-theme .bet-form-card {
+    background-color: #212529;
+    border-color: #495057;
 }
 
-.dark-theme .show-spoiler-btn {
-    color: #f8f9fa;
-    border-color: #f8f9fa;
+.dark-theme .bet-form-header {
+    background-color: #343a40;
+    border-bottom: 1px solid #495057;
+    color: #e9ecef;
 }
 
-.dark-theme .show-spoiler-btn:hover {
-    background-color: #f8f9fa;
-    color: #343a40;
+.dark-theme .bet-form-body {
+    color: #e9ecef;
+}
+
+.dark-theme .form-helper-list {
+    color: #adb5bd;
+}
+
+/* Dollar bets table styling */
+.dark-theme .dollar-bets-table {
+    color: #e9ecef;
+}
+
+.dark-theme .dollar-bets-table thead {
+    background-color: #343a40;
+}
+
+.dark-theme .dollar-bets-table th {
+    border-color: #495057;
+}
+
+.dark-theme .dollar-bets-table td {
+    border-color: #495057;
+}
+
+.dark-theme .dollar-bets-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.075) !important;
+}
+
+.dark-theme .table-empty-state {
+    color: #adb5bd;
+}
+
+/* Resolve bet page styles */
+.dark-theme .bet-resolution-options .card {
+    background-color: #2b3035;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+.dark-theme .bet-resolution-options .card:hover {
+    background-color: #343a40;
+    border-color: #6c757d;
+}
+
+.dark-theme .bet-resolution-options .form-check-label {
+    color: #e9ecef;
+}
+
+.dark-theme .bet-resolution-options .form-check-input {
+    background-color: #495057;
+    border-color: #6c757d;
+}
+
+.dark-theme .bet-resolution-options .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Alert styling specific to bets */
+.dark-theme .bet-info-alert {
+    background-color: #0d3c61;
+    border-color: #0e4172;
+    color: #e9ecef;
+}
+
+.dark-theme .bet-warning-alert {
+    background-color: #664d03;
+    border-color: #7c5d03;
+    color: #e9ecef;
 }

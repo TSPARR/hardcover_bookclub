@@ -59,3 +59,26 @@
 .hardcover-sync-message.text-danger {
     color: #ff6b6b !important;
 }
+
+/* Spoiler alert styles - Dark Mode */
+
+/* Dark mode spoiler warning */
+.dark-theme .spoiler-warning {
+    background-color: #3a2f06;
+    border-color: #856404;
+    color: #f8f9fa;
+}
+
+.dark-theme .spoiler-warning .show-spoiler-btn {
+    color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+.dark-theme .spoiler-warning .show-spoiler-btn:hover {
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.dark-theme .spoiler-content {
+    background-color: rgba(255, 255, 255, 0.05);
+}

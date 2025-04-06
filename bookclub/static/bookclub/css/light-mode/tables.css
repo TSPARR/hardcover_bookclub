@@ -445,3 +445,26 @@
     content: none;
     /* Remove the percentage text */
 }
+
+/* Dollar bet table styles - Light Mode */
+
+/* Bet tables styling */
+.bets-table th {
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+
+.bets-table .actions-column {
+    width: 150px;
+    text-align: right;
+}
+
+.bets-table .status-column {
+    width: 130px;
+}
+
+/* Empty state within table */
+.table-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}

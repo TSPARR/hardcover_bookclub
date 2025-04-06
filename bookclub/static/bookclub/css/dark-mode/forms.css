@@ -112,3 +112,26 @@ input[name="hardcover_api_key"] {
     background-color: #0d6efd;
     border-color: #0d6efd;
 }
+
+/* Form styles for betting interface - Dark Mode */
+
+.dark-theme .form-helper-list {
+    color: #adb5bd;
+}
+
+/* Radio card options */
+.dark-theme .radio-card-options .card {
+    background-color: #2b3035;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+.dark-theme .radio-card-options .card:hover {
+    background-color: #343a40;
+    border-color: #3d8bfd;
+}
+
+.dark-theme .radio-card-options .form-check-input:checked ~ .card {
+    border-color: #3d8bfd;
+    background-color: rgba(61, 139, 253, 0.1);
+}
