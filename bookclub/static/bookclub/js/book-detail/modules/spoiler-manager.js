@@ -42,9 +42,35 @@ export const SpoilerManager = {
                 if (spoilerWarning && spoilerContent) {
                     spoilerWarning.style.display = 'none';
                     spoilerContent.style.display = 'block';
+                    
+                    // Initialize tooltips inside the revealed spoiler content
+                    this._initTooltipsInContent(spoilerContent);
                 }
             }
         });
+    },
+    
+    /**
+     * Initialize tooltips within revealed spoiler content
+     * @param {HTMLElement} content - The revealed spoiler content
+     */
+    _initTooltipsInContent(content) {
+        // Check if CommentReactions is available globally
+        if (window.CommentReactions) {
+            // Find reaction buttons within the revealed content
+            const reactionButtons = content.querySelectorAll('.reaction-btn[data-reaction-users]');
+            
+            // If Bootstrap is available
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                reactionButtons.forEach(button => {
+                    new bootstrap.Tooltip(button);
+                });
+            } 
+            // Otherwise, let CommentReactions handle with its internal methods
+            else if (window.CommentReactions._setupCustomHoverCards) {
+                window.CommentReactions._setupCustomHoverCards();
+            }
+        }
     },
     
     /**
@@ -70,6 +96,9 @@ export const SpoilerManager = {
                 if (show) {
                     spoilerWarning.style.display = 'none';
                     spoilerContent.style.display = 'block';
+                    
+                    // Initialize tooltips inside the revealed spoiler content
+                    this._initTooltipsInContent(spoilerContent);
                 } else {
                     spoilerWarning.style.display = 'block';
                     spoilerContent.style.display = 'none';
