@@ -116,19 +116,6 @@
     <!-- Common JS -->
     <script src="{% static 'bookclub/js/common.js' %}"></script>
 
-    <script>
-        // Check if service worker is registered
-        if ('serviceWorker' in navigator) {
-        // Unregister any existing service workers
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (let registration of registrations) {
-            registration.unregister();
-            console.log('Service worker unregistered');
-            }
-        });
-        }
-    </script>
-
     {% block extra_js %}{% endblock %}
 </body>
 
