@@ -9,6 +9,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Bookclub">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'bookclub/images/icon-192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'bookclub/images/icon-512.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'bookclub/images/icon-192.png' %}">
 
     <title>{% block title %}Book Club{% endblock %}</title>
 

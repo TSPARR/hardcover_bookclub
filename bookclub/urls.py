@@ -36,6 +36,7 @@ from bookclub.views.invitation_views import (
 from bookclub.views.profile_views import profile_settings
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("", landing_page, name="landing_page"),
@@ -152,5 +153,12 @@ urlpatterns = [
         "api/hardcover-progress/<str:hardcover_id>/",
         get_hardcover_progress,
         name="get_hardcover_progress",
+    ),
+    path(
+        "service-worker.js",
+        TemplateView.as_view(
+            template_name="service-worker.js", content_type="application/javascript"
+        ),
+        name="service-worker",
     ),
 ]
