@@ -1,5 +1,5 @@
 // Service worker for Bookclub PWA
-const CACHE_NAME = 'bookclub-v2';  // Increment version to force update
+const CACHE_NAME = 'bookclub-v3';  // Increment version to force update
 const urlsToCache = [
   '/static/bookclub/css/light-mode/light-mode.css',
   '/static/bookclub/css/dark-mode/dark-mode.css',
@@ -7,6 +7,10 @@ const urlsToCache = [
   '/static/bookclub/images/icon-192.png',
   '/static/bookclub/images/icon-512.png'
 ];
+
+// Special handling for root URL and auth redirects
+const ROOT_URL = self.location.origin + '/';
+const HOME_URL = self.location.origin + '/home/';
 
 // Install event - cache resources
 self.addEventListener('install', function(event) {
@@ -17,13 +21,13 @@ self.addEventListener('install', function(event) {
     caches.open(CACHE_NAME)
       .then(function(cache) {
         console.log('Opened cache');
-        // Use more robust Promise.allSettled to continue even if some resources fail
+        // Only cache static assets, not HTML pages
         return Promise.allSettled(
           urlsToCache.map(url => 
             fetch(url, { redirect: 'follow' })
               .then(response => {
                 if (!response.ok) {
-                  throw new Error(`Failed to cache ${url}: ${response.status} ${response.statusText}`);
+                  throw new Error(`Failed to cache ${url}`);
                 }
                 return cache.put(url, response);
               })
@@ -36,39 +40,54 @@ self.addEventListener('install', function(event) {
   );
 });
 
-// Fetch event - more selective caching strategy
+// Fetch event - with special handling for root URL
 self.addEventListener('fetch', function(event) {
-  // Only cache GET requests
-  if (event.request.method !== 'GET') {
-    return event.respondWith(fetch(event.request, { redirect: 'follow' }));
-  }
+  const requestUrl = new URL(event.request.url);
   
-  // Don't cache authentication or API endpoints
-  const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/accounts/') || 
-      url.pathname.startsWith('/admin/') || 
-      url.pathname.startsWith('/api/')) {
-    return event.respondWith(fetch(event.request, { redirect: 'follow' }));
-  }
-  
-  // For navigation requests (HTML pages), use a network-first approach
-  if (event.request.mode === 'navigate') {
-    return event.respondWith(
-      fetch(event.request, { redirect: 'follow' })
-        .catch(() => {
-          return caches.match(event.request)
-            .then(cachedResponse => {
-              if (cachedResponse) {
-                return cachedResponse;
-              }
-              // If no cached version, try the offline fallback
-              return caches.match('/');
-            });
-        })
+  // Special handling for root URL which redirects to login or home
+  if (requestUrl.href === ROOT_URL || requestUrl.pathname === '/') {
+    event.respondWith(
+      fetch(event.request.url, {
+        redirect: 'follow',
+        credentials: 'include'
+      })
     );
+    return;
   }
   
-  // For other resources (CSS, JS, images), use a cache-first approach
+  // Don't cache non-GET requests
+  if (event.request.method !== 'GET') {
+    event.respondWith(
+      fetch(event.request, { redirect: 'follow', credentials: 'include' })
+    );
+    return;
+  }
+  
+  // Don't cache authentication, admin, or API endpoints
+  if (requestUrl.pathname.startsWith('/accounts/') || 
+      requestUrl.pathname.startsWith('/admin/') || 
+      requestUrl.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(event.request, { redirect: 'follow', credentials: 'include' })
+    );
+    return;
+  }
+  
+  // For navigation requests (HTML pages)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request, { 
+        redirect: 'follow',
+        credentials: 'include'
+      })
+      .catch(() => {
+        return caches.match(HOME_URL) || caches.match('/');
+      })
+    );
+    return;
+  }
+  
+  // For static assets (CSS, JS, images)
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
@@ -77,26 +96,32 @@ self.addEventListener('fetch', function(event) {
           return response;
         }
         
-        // Clone the request because it's a one-time use
+        // Clone the request
         const fetchRequest = event.request.clone();
         
-        return fetch(fetchRequest, { redirect: 'follow' })
-          .then(function(response) {
-            // Don't cache non-successful responses, redirects, or non-basic responses
-            if (!response || !response.ok || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Clone the response because it's a one-time use
-            const responseToCache = response.clone();
-            
+        return fetch(fetchRequest, { 
+          redirect: 'follow',
+          credentials: 'include'
+        })
+        .then(function(response) {
+          // Don't cache non-successful responses
+          if (!response || !response.ok || response.type !== 'basic') {
+            return response;
+          }
+          
+          // Clone the response
+          const responseToCache = response.clone();
+          
+          // Only cache static assets
+          if (requestUrl.pathname.startsWith('/static/')) {
             caches.open(CACHE_NAME)
               .then(function(cache) {
                 cache.put(event.request, responseToCache);
               });
-              
-            return response;
-          });
+          }
+          
+          return response;
+        });
       })
   );
 });
@@ -105,9 +130,10 @@ self.addEventListener('fetch', function(event) {
 self.addEventListener('activate', function(event) {
   const cacheWhitelist = [CACHE_NAME];
   
-  // Take control of all clients as soon as it activates
+  // Take control of all clients
   event.waitUntil(clients.claim());
   
+  // Clean up old caches
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
