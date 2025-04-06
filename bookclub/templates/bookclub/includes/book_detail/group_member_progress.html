@@ -2,16 +2,18 @@
 {% with group_members=book.group.members.all %}
 <div class="card mb-4 group-members-progress-card">
     <div class="card-header d-flex justify-content-between align-items-center" 
-         data-bs-toggle="collapse" 
-         data-bs-target="#groupMembersProgressCollapse" 
-         aria-expanded="false" 
-         aria-controls="groupMembersProgressCollapse" 
-         role="button">
+        data-bs-toggle="collapse" 
+        data-bs-target="#groupMembersProgressCollapse" 
+        aria-expanded="false" 
+        aria-controls="groupMembersProgressCollapse" 
+        role="button">
         <h3 class="mb-0">
             Group Members' Progress 
             <span class="badge bg-secondary ms-2">{{ group_members.count }}</span>
         </h3>
-        <i class="bi bi-chevron-down group-progress-chevron"></i>
+        <div class="chevron-container">
+            <i class="bi bi-chevron-down group-progress-chevron"></i>
+        </div>
     </div>
     <div class="accordion-collapse collapse" id="groupMembersProgressCollapse">
         <div class="card-body">

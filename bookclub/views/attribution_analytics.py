@@ -73,8 +73,8 @@ def attribution_analytics(request, group_id):
         # Calculate aggregate ratings if we have any
         if ratings:
             book_ratings[book.id] = {
-                "avg_rating": round_to_nearest_half(mean(ratings)),
-                "median_rating": round_to_nearest_half(median(ratings)),
+                "avg_rating": mean(ratings),
+                "median_rating": median(ratings),
                 "count": len(ratings),
                 "ratings": ratings,  # Include all ratings for distribution analysis
             }
@@ -200,8 +200,8 @@ def attribution_analytics(request, group_id):
     group_rating_stats = None
     if all_ratings:
         group_rating_stats = {
-            "avg_rating": round_to_nearest_half(mean(all_ratings)),
-            "median_rating": round_to_nearest_half(median(all_ratings)),
+            "avg_rating": mean(all_ratings),
+            "median_rating": median(all_ratings),
             "count": len(all_ratings),
             "books_rated": len(book_ratings),
             "distribution": rating_distribution,
@@ -216,7 +216,7 @@ def attribution_analytics(request, group_id):
                 member_rating_stats.append(
                     {
                         "user": member,
-                        "avg_rating": round_to_nearest_half(mean(ratings)),
+                        "avg_rating": mean(ratings),
                         "count": len(ratings),
                     }
                 )
@@ -689,7 +689,3 @@ def annotate_fairness_metrics(fairness_metrics):
             metric["status"] = "balanced"
 
     return fairness_metrics
-
-
-def round_to_nearest_half(value):
-    return round(value * 2) / 2

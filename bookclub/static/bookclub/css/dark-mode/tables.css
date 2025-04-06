@@ -16,6 +16,7 @@
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
+/* Base Table Styles */
 table {
     color: #e1e1e1;
 }
@@ -288,59 +289,153 @@ table {
     background-color: rgba(108, 117, 125, 0.7);
 }
 
-/* Group Members Progress Table Specific Styling */
-.group-members-progress-card table {
-    margin-bottom: 0;
+/* Group Members Progress Card Styling */
+.group-members-progress-card {
+    border-color: #3a3a3a;
+    background-color: #1e1e1e;
+    margin-bottom: 1.5rem;
 }
 
-.group-members-progress-card table tr td {
-    padding: 1.25rem;
-    border-top: 1px solid #363636;
+/* Card header styling */
+.group-members-progress-card .card-header {
+    padding: 1rem 1.5rem;
+    background-color: #2c2c2c;
+    border-bottom: 1px solid #3a3a3a;
+    border-bottom-width: 2px;
+    cursor: pointer;
 }
 
-.group-members-progress-card table th {
-    padding: 1rem 1.25rem;
-    background-color: #2a2a2a;
-    font-weight: 600;
-    font-size: 1.05rem;
-}
-
-.group-members-progress-card .progress-wrapper {
-    width: 100%;
-    padding-right: 1rem;
-}
-
-.group-members-progress-card .status-column {
-    width: 150px;
-    text-align: center;
-}
-
-/* Card sizing and typography - improved for readability */
 .group-members-progress-card .card-header h3 {
     font-size: 1.1rem;
-    margin-bottom: 0;
+    font-weight: 600;
     color: #f0f0f0;
+    margin-bottom: 0;
 }
 
 .group-members-progress-card .card-header .badge {
     font-size: 0.8rem;
-    padding: 0.25em 0.5em;
+    padding: 0.35em 0.65em;
+    vertical-align: middle;
+}
+
+.group-members-progress-card .card-body {
+    padding: 0;
+}
+
+.group-members-progress-card .card-header .chevron-container {
+    background-color: #252525;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-members-progress-card .card-header .chevron-container .group-progress-chevron {
+    color: #c0c0c0;
+}
+
+/* Group Members Table Structure */
+.group-members-progress-card .card-body {
+    padding: 0;
 }
 
 .group-members-progress-card .table {
     margin-bottom: 0;
 }
 
-.group-members-progress-card .table th {
-    color: #f0f0f0 !important;
+/* Table Column Distribution */
+.group-members-progress-card .table th:nth-child(1),
+.group-members-progress-card .table td:nth-child(1) {
+    width: 20%;
+    min-width: 140px;
+    padding-left: 1.5rem;
+}
+
+.group-members-progress-card .table th:nth-child(2),
+.group-members-progress-card .table td:nth-child(2) {
+    width: 60%;
+}
+
+.group-members-progress-card .table th:nth-child(3),
+.group-members-progress-card .table td:nth-child(3) {
+    width: 20%;
+    min-width: 120px;
+    text-align: center;
+    padding-right: 1.5rem;
+}
+
+/* Table header styling */
+.group-members-progress-card .table thead {
+    background-color: #222222;
+}
+
+.group-members-progress-card .table thead th {
+    padding: 1rem 1.5rem;
+    background-color: #222222;
+    border-bottom: 2px solid #3a3a3a;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* Table row and cell styling */
+.group-members-progress-card .table tbody tr {
+    border-bottom: 1px solid #363636;
+    transition: background-color 0.2s ease;
+}
+
+.group-members-progress-card .table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.group-members-progress-card .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .group-members-progress-card .table td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
     color: #f0f0f0 !important;
-    font-size: 0.95rem;
 }
 
-/* Group Progress Chevron Styling */
+/* Username styling */
+.group-members-progress-card .table td:first-child {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* Progress bar specific styling */
+.group-members-progress-card .progress.group-members-progress {
+    height: 1.5rem;
+    margin: 0;
+}
+
+/* Progress text styling */
+.group-members-progress-card .progress.group-members-progress::after {
+    content: attr(data-progress) "%";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+/* Status badges */
+.group-members-progress-card .badge {
+    padding: 0.5em 0.85em;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+/* Chevron animation */
 .group-progress-chevron {
     transition: transform 0.3s ease;
 }
