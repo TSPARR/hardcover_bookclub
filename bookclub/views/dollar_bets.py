@@ -107,7 +107,7 @@ def accept_dollar_bet(request, bet_id):
 
 @login_required
 def resolve_dollar_bet(request, bet_id):
-    """View for admins to resolve a dollar bet (mark as won/lost)"""
+    """View for admins to resolve a dollar bet (mark as won/lost/inconclusive)"""
     bet = get_object_or_404(DollarBet, id=bet_id)
     group = bet.group
     book = bet.book
@@ -124,19 +124,31 @@ def resolve_dollar_bet(request, bet_id):
         return HttpResponseForbidden("Only accepted bets can be resolved")
 
     if request.method == "POST":
-        winner_id = request.POST.get("winner")
-        winner = get_object_or_404(User, id=winner_id)
+        resolution = request.POST.get("resolution")
 
-        # Validate winner is either proposer or accepter
-        if winner not in [bet.proposer, bet.accepter]:
-            return JsonResponse({"error": "Invalid winner"}, status=400)
+        if resolution == "inconclusive":
+            # Mark as inconclusive
+            bet.mark_inconclusive(request.user)
+        else:
+            # Regular win/loss resolution
+            winner_id = request.POST.get("winner")
+            if not winner_id:
+                return JsonResponse(
+                    {"error": "Winner must be specified for win/loss resolution"},
+                    status=400,
+                )
 
-        # If not already set as 'finished' level, upgrade spoiler level to 'finished'
-        # This ensures resolved bets are only visible to those who have completed the book
-        if bet.spoiler_level != "finished":
-            bet.spoiler_level = "finished"
+            winner = get_object_or_404(User, id=winner_id)
 
-        bet.resolve(winner, request.user)
+            # Validate winner is either proposer or accepter
+            if winner not in [bet.proposer, bet.accepter]:
+                return JsonResponse({"error": "Invalid winner"}, status=400)
+
+            # If not already set as 'finished' level, upgrade spoiler level
+            if bet.spoiler_level != "finished":
+                bet.spoiler_level = "finished"
+
+            bet.resolve(winner, request.user)
 
         # Redirect to book detail with bets tab active
         return redirect(f"/books/{book.id}/?tab=bets")
@@ -268,3 +280,30 @@ def admin_create_dollar_bet(request, book_id):
             "spoiler_levels": DollarBet.SPOILER_LEVEL_CHOICES,
         },
     )
+
+
+@login_required
+def delete_dollar_bet(request, bet_id):
+    """View to delete an open bet (replacing cancel)"""
+    bet = get_object_or_404(DollarBet, id=bet_id)
+    group = bet.group
+    book = bet.book
+
+    # Check if dollar bets are enabled for this group
+    if not group.is_dollar_bets_enabled():
+        return HttpResponseForbidden("Dollar bets are not enabled for this group")
+
+    # Only proposer can delete their bet (if open) or an admin
+    if bet.status != "open":
+        return HttpResponseForbidden("Only open bets can be deleted")
+
+    if request.user != bet.proposer and not group.is_admin(request.user):
+        return HttpResponseForbidden(
+            "Only the proposer or an admin can delete this bet"
+        )
+
+    # Perform the deletion
+    bet.delete()
+
+    # Redirect to book detail with bets tab active
+    return redirect(f"/books/{book.id}/?tab=bets")

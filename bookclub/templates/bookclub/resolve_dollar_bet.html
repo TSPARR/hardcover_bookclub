@@ -40,28 +40,47 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-4">
-                            <label class="form-label fs-5">Who won the bet?</label>
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="winner" 
-                                               id="proposer" value="{{ bet.proposer.id }}" required>
-                                        <label class="form-check-label" for="proposer">
-                                            <strong>{{ bet.proposer.username }}</strong> (The Proposer) - prediction was correct
-                                        </label>
+                            <label class="form-label fs-5">How would you like to resolve this bet?</label>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="resolution" id="resolveWinLoss" value="win_loss" checked>
+                                <label class="form-check-label" for="resolveWinLoss">
+                                    Declare a winner
+                                </label>
+                            </div>
+                            
+                            <div id="winnerSelectionSection">
+                                <!-- Winner selection cards - only shown when resolveWinLoss is selected -->
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="winner" 
+                                                id="proposer" value="{{ bet.proposer.id }}" required>
+                                            <label class="form-check-label" for="proposer">
+                                                <strong>{{ bet.proposer.username }}</strong> (The Proposer) - prediction was correct
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="winner" 
+                                                id="accepter" value="{{ bet.accepter.id }}">
+                                            <label class="form-check-label" for="accepter">
+                                                <strong>{{ bet.accepter.username }}</strong> (The Accepter) - prediction was incorrect
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="winner" 
-                                               id="accepter" value="{{ bet.accepter.id }}">
-                                        <label class="form-check-label" for="accepter">
-                                            <strong>{{ bet.accepter.username }}</strong> (The Accepter) - prediction was incorrect
-                                        </label>
-                                    </div>
-                                </div>
+                            
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="radio" name="resolution" id="resolveInconclusive" value="inconclusive">
+                                <label class="form-check-label" for="resolveInconclusive">
+                                    Mark as inconclusive (cannot be determined)
+                                </label>
+                                <div class="form-text ms-4">Use this when it's impossible to determine if the prediction was correct.</div>
                             </div>
                         </div>
                         
@@ -72,7 +91,7 @@
                                 </div>
                                 <div>
                                     <h5 class="alert-heading">Important Note</h5>
-                                    <p class="mb-0">Once a bet is resolved, it cannot be undone. Make sure you select the correct winner.</p>
+                                    <p class="mb-0">Once a bet is resolved, it cannot be undone. Make sure you select the correct resolution.</p>
                                 </div>
                             </div>
                         </div>
@@ -91,4 +110,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const resolveWinLoss = document.getElementById('resolveWinLoss');
+        const resolveInconclusive = document.getElementById('resolveInconclusive');
+        const winnerSelectionSection = document.getElementById('winnerSelectionSection');
+        
+        function updateFormVisibility() {
+            if (resolveWinLoss.checked) {
+                winnerSelectionSection.style.display = 'block';
+                document.querySelectorAll('input[name="winner"]').forEach(input => {
+                    input.required = true;
+                });
+            } else {
+                winnerSelectionSection.style.display = 'none';
+                document.querySelectorAll('input[name="winner"]').forEach(input => {
+                    input.required = false;
+                });
+            }
+        }
+        
+        resolveWinLoss.addEventListener('change', updateFormVisibility);
+        resolveInconclusive.addEventListener('change', updateFormVisibility);
+        
+        // Initial setup
+        updateFormVisibility();
+    });
+</script>
 {% endblock %}

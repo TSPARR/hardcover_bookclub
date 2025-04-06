@@ -136,3 +136,7 @@
     border-color: #ffecb5;
     color: #664d03;
 }
+
+.inconclusive-bet {
+    border-left: 4px solid #6c757d;
+}

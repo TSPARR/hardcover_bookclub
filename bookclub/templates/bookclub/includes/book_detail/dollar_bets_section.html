@@ -34,8 +34,13 @@
                                       <i class="bi bi-check-circle me-1"></i> Accept Bet
                                   </a>
                               {% else %}
-                                  <a href="{% url 'cancel_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm">
-                                      <i class="bi bi-x-circle me-1"></i> Cancel
+                                  <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm">
+                                      <i class="bi bi-trash me-1"></i> Delete
+                                  </a>
+                              {% endif %}
+                              {% if is_admin and request.user != bet.proposer %}
+                                  <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm ms-2">
+                                      <i class="bi bi-trash me-1"></i> Delete
                                   </a>
                               {% endif %}
                           </div>
@@ -69,18 +74,20 @@
           {% endif %}
       {% endwith %}
 
-      {% with resolved_bets=book.dollar_bets.all|filter_by_multiple_statuses:'won,lost' %}
+      {% with resolved_bets=book.dollar_bets.all|filter_by_multiple_statuses:'won,lost,inconclusive' %}
           {% if resolved_bets %}
               <h5 class="border-bottom pb-2 mb-3 section-title"><i class="bi bi-flag-fill me-2"></i>Resolved Bets</h5>
               <div class="list-group">
                   {% for bet in resolved_bets %}
-                      <div class="list-group-item list-group-item-action dollar-bet-item resolved-bet" data-spoiler-level="{{ bet.spoiler_level }}">
+                      <div class="list-group-item list-group-item-action dollar-bet-item resolved-bet {% if bet.status == 'inconclusive' %}inconclusive-bet{% endif %}" data-spoiler-level="{{ bet.spoiler_level }}">
                           <div class="d-flex w-100 justify-content-between">
                               <h5 class="mb-1">{{ bet.description }}</h5>
                               {% if bet.status == 'won' %}
                                   <span class="badge bg-success status-badge">Winner: {{ bet.winner.username }}</span>
-                              {% else %}
+                              {% elif bet.status == 'lost' %}
                                   <span class="badge bg-danger status-badge">Loser: {{ bet.proposer.username }}</span>
+                              {% elif bet.status == 'inconclusive' %}
+                                  <span class="badge bg-secondary status-badge">Inconclusive</span>
                               {% endif %}
                           </div>
                           <p class="mb-1">Between <strong class="bet-proposer">{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
@@ -92,26 +99,18 @@
       {% endwith %}
 
       {% with all_bets=book.dollar_bets.all %}
-        {% with active_bets=all_bets|exclude_status:'canceled' %}
-            {% if not all_bets or not active_bets %}
-                <div class="text-center py-5 empty-bets">
-                    <div class="empty-bets-icon">
-                        <i class="bi bi-currency-dollar"></i>
-                    </div>
-                    <h4 class="mt-3">No active bets!</h4>
-                    <p class="text-muted">
-                        {% if not all_bets %}
-                            Be the first to create a dollar bet for this book.
-                        {% else %}
-                            All bets have been canceled. Create a new bet!
-                        {% endif %}
-                    </p>
-                    <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary mt-2">
-                        Create Your First Bet
-                    </a>
-                </div>
-            {% endif %}
-        {% endwith %}
-    {% endwith %}
+          {% if not all_bets %}
+              <div class="text-center py-5 empty-bets">
+                  <div class="empty-bets-icon">
+                      <i class="bi bi-currency-dollar"></i>
+                  </div>
+                  <h4 class="mt-3">No bets yet!</h4>
+                  <p class="text-muted">Be the first to create a dollar bet for this book.</p>
+                  <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary mt-2">
+                      Create Your First Bet
+                  </a>
+              </div>
+          {% endif %}
+      {% endwith %}
   </div>
 </div>

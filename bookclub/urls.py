@@ -28,8 +28,8 @@ from bookclub.views.comment_utils import get_comment_reaction_users
 from bookclub.views.dollar_bets import (
     accept_dollar_bet,
     admin_create_dollar_bet,
-    cancel_dollar_bet,
     create_dollar_bet,
+    delete_dollar_bet,
     dollar_bets_group_list,
     dollar_bets_list,
     resolve_dollar_bet,
@@ -198,9 +198,9 @@ urlpatterns = [
         name="resolve_dollar_bet",
     ),
     path(
-        "dollar-bet/<int:bet_id>/cancel/",
-        cancel_dollar_bet,
-        name="cancel_dollar_bet",
+        "dollar-bet/<int:bet_id>/delete/",
+        delete_dollar_bet,
+        name="delete_dollar_bet",
     ),
     path(
         "group/<int:group_id>/dollar-bets/",

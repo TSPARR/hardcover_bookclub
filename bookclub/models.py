@@ -511,7 +511,7 @@ class DollarBet(models.Model):
         ("accepted", "Accepted"),
         ("won", "Won"),
         ("lost", "Lost"),
-        ("canceled", "Canceled"),
+        ("inconclusive", "Inconclusive"),
     ]
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="dollar_bets")
@@ -540,7 +540,7 @@ class DollarBet(models.Model):
         validators=[MinValueValidator(1.00), MaxValueValidator(1.00)],
     )
 
-    status = models.CharField(max_length=10, choices=BET_STATUS_CHOICES, default="open")
+    status = models.CharField(max_length=12, choices=BET_STATUS_CHOICES, default="open")
     winner = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -603,10 +603,12 @@ class DollarBet(models.Model):
         self.status = "accepted"
         self.save()
 
-    def cancel(self):
-        """Cancel a bet (only if still open)"""
-        if self.status != "open":
-            raise ValueError("Only open bets can be canceled")
+    def mark_inconclusive(self, resolved_by_user):
+        """Mark a bet as inconclusive (can't be determined)"""
+        if self.status != "accepted":
+            raise ValueError("Only accepted bets can be marked inconclusive")
 
-        self.status = "canceled"
+        self.status = "inconclusive"
+        self.resolved_at = timezone.now()
+        self.resolved_by = resolved_by_user
         self.save()
