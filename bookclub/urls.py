@@ -154,12 +154,4 @@ urlpatterns = [
         get_hardcover_progress,
         name="get_hardcover_progress",
     ),
-    path(
-        "service-worker.js",
-        TemplateView.as_view(
-            template_name="bookclub/service-worker.js",
-            content_type="application/javascript",
-        ),
-        name="service-worker",
-    ),
 ]
