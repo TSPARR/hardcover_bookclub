@@ -45,9 +45,13 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <!-- Updated Navbar with Icons and Better Styling -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">Book Club</a>
+            <a class="navbar-brand d-flex align-items-center fw-bold" href="{% url 'home' %}">
+                <i class="bi bi-book me-2"></i>
+                <span>Book Club</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -55,26 +59,34 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        <a class="nav-link px-3" href="{% url 'home' %}">
+                            <i class="bi bi-house-door me-1"></i> Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile_settings' %}">Settings</a>
+                        <a class="nav-link px-3" href="{% url 'profile_settings' %}">
+                            <i class="bi bi-gear me-1"></i> Settings
+                        </a>
                     </li>
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}" class="d-inline m-0 p-0">
                             {% csrf_token %}
-                            <button type="submit" class="btn nav-link" style="background: none; border: none; padding: 8px;">Logout</button>
+                            <button type="submit" class="btn nav-link px-3" style="background: none; border: none;">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
                         </form>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        <a class="nav-link px-3" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
                     </li>
                     {% endif %}
                     
-                    <!-- Dark mode toggle button directly in template -->
-                    <li class="nav-item">
-                        <button id="dark-mode-toggle" class="btn btn-sm ms-2 btn-dark" title="Toggle dark mode">
+                    <!-- Dark mode toggle button with improved styling -->
+                    <li class="nav-item ms-2">
+                        <button id="dark-mode-toggle" class="btn btn-sm btn-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" title="Toggle dark mode">
                             <i class="bi bi-moon-fill"></i>
                         </button>
                     </li>
