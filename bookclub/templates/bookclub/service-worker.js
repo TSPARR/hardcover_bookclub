@@ -1,147 +1,56 @@
-// Service worker for Bookclub PWA
-const CACHE_NAME = 'bookclub-v3';  // Increment version to force update
-const urlsToCache = [
-  '/static/bookclub/css/light-mode/light-mode.css',
-  '/static/bookclub/css/dark-mode/dark-mode.css',
-  '/static/bookclub/js/common.js',
-  '/static/bookclub/images/icon-192.png',
-  '/static/bookclub/images/icon-512.png'
-];
+// Minimal Service Worker for Bookclub PWA
+const CACHE_NAME = 'bookclub-v4';
 
-// Special handling for root URL and auth redirects
-const ROOT_URL = self.location.origin + '/';
-const HOME_URL = self.location.origin + '/home/';
-
-// Install event - cache resources
+// Install event
 self.addEventListener('install', function(event) {
-  // Activate the new service worker immediately
+  // Skip waiting and activate immediately
   self.skipWaiting();
-  
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Opened cache');
-        // Only cache static assets, not HTML pages
-        return Promise.allSettled(
-          urlsToCache.map(url => 
-            fetch(url, { redirect: 'follow' })
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error(`Failed to cache ${url}`);
-                }
-                return cache.put(url, response);
-              })
-              .catch(error => {
-                console.error(`Failed to cache ${url}:`, error);
-              })
-          )
-        );
-      })
-  );
+  console.log('Service worker installed');
 });
 
-// Fetch event - with special handling for root URL
+// Simple fetch event handler that just passes through all requests to the network
 self.addEventListener('fetch', function(event) {
   const requestUrl = new URL(event.request.url);
   
-  // Special handling for root URL which redirects to login or home
-  if (requestUrl.href === ROOT_URL || requestUrl.pathname === '/') {
-    event.respondWith(
-      fetch(event.request.url, {
-        redirect: 'follow',
-        credentials: 'include'
-      })
-    );
+  console.log('Fetch event for:', requestUrl.pathname);
+  
+  // For root URL or any navigation requests, use this specific approach
+  if (requestUrl.pathname === '/' || event.request.mode === 'navigate') {
+    console.log('Handling navigation request for:', requestUrl.pathname);
+    
+    // Handle it by creating a new request with redirect mode explicitly set to follow
+    const newRequest = new Request(event.request, {
+      redirect: 'follow',
+      // Preserve other request properties
+      method: event.request.method,
+      headers: event.request.headers,
+      credentials: 'include',
+      cache: 'no-store' // Bypass cache completely
+    });
+    
+    // Respond with the modified request
+    event.respondWith(fetch(newRequest));
     return;
   }
   
-  // Don't cache non-GET requests
-  if (event.request.method !== 'GET') {
-    event.respondWith(
-      fetch(event.request, { redirect: 'follow', credentials: 'include' })
-    );
-    return;
-  }
-  
-  // Don't cache authentication, admin, or API endpoints
-  if (requestUrl.pathname.startsWith('/accounts/') || 
-      requestUrl.pathname.startsWith('/admin/') || 
-      requestUrl.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(event.request, { redirect: 'follow', credentials: 'include' })
-    );
-    return;
-  }
-  
-  // For navigation requests (HTML pages)
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request, { 
-        redirect: 'follow',
-        credentials: 'include'
-      })
-      .catch(() => {
-        return caches.match(HOME_URL) || caches.match('/');
-      })
-    );
-    return;
-  }
-  
-  // For static assets (CSS, JS, images)
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        
-        // Clone the request
-        const fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest, { 
-          redirect: 'follow',
-          credentials: 'include'
-        })
-        .then(function(response) {
-          // Don't cache non-successful responses
-          if (!response || !response.ok || response.type !== 'basic') {
-            return response;
-          }
-          
-          // Clone the response
-          const responseToCache = response.clone();
-          
-          // Only cache static assets
-          if (requestUrl.pathname.startsWith('/static/')) {
-            caches.open(CACHE_NAME)
-              .then(function(cache) {
-                cache.put(event.request, responseToCache);
-              });
-          }
-          
-          return response;
-        });
-      })
-  );
+  // For all other requests, just pass through to the network
+  event.respondWith(fetch(event.request));
 });
 
-// Activate event - clean up old caches and take control
+// Activate event
 self.addEventListener('activate', function(event) {
-  const cacheWhitelist = [CACHE_NAME];
+  console.log('Service worker activated');
   
-  // Take control of all clients
+  // Take control of all clients immediately
   event.waitUntil(clients.claim());
   
-  // Clean up old caches
+  // Clear all caches to start fresh
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Deleting outdated cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+          console.log('Deleting cache:', cacheName);
+          return caches.delete(cacheName);
         })
       );
     })
