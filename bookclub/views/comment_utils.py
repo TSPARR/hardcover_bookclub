@@ -252,3 +252,43 @@ def handle_reply_to_comment(request, comment_id):
         )
         messages.error(request, f"An unexpected error occurred: {str(e)}")
         return redirect("home")
+
+
+def get_comment_reaction_users(request, comment_id):
+    """API endpoint to get users who reacted to a comment."""
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    try:
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        # Get all reactions for this comment with user information
+        reactions_data = {}
+
+        # Get user reactions
+        all_reactions = CommentReaction.objects.filter(comment=comment).select_related(
+            "user"
+        )
+
+        # Group reactions by type
+        for reaction in CommentReaction.REACTION_CHOICES:
+            reaction_code = reaction[0]
+
+            # Get users who reacted with this reaction
+            user_reactions = all_reactions.filter(reaction=reaction_code)
+
+            # Only include if there are reactions of this type
+            if user_reactions.exists():
+                reactions_data[reaction_code] = {
+                    "count": user_reactions.count(),
+                    "users": [r.user.username for r in user_reactions],
+                    "current_user_reacted": any(
+                        r.user.id == request.user.id for r in user_reactions
+                    ),
+                }
+
+        return JsonResponse({"success": True, "reactions": reactions_data})
+
+    except Exception as e:
+        logger.exception(f"Error getting reaction users: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)

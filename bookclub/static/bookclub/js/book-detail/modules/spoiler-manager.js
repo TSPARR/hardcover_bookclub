@@ -15,7 +15,6 @@ export const SpoilerManager = {
         this.showSpoilersToggle = document.getElementById('showSpoilersToggle');
         
         this._setupEventListeners();
-        this._setupIndividualSpoilerButtons();
         
         // Initial check for spoilers
         this._checkSpoilersOnLoad();
@@ -42,47 +41,9 @@ export const SpoilerManager = {
                 if (spoilerWarning && spoilerContent) {
                     spoilerWarning.style.display = 'none';
                     spoilerContent.style.display = 'block';
-                    
-                    // Initialize tooltips inside the revealed spoiler content
-                    this._initTooltipsInContent(spoilerContent);
                 }
             }
         });
-    },
-    
-    /**
-     * Initialize tooltips within revealed spoiler content
-     * @param {HTMLElement} content - The revealed spoiler content
-     */
-    _initTooltipsInContent(content) {
-        // Find reaction buttons within the revealed content
-        const reactionButtons = content.querySelectorAll('.reaction-btn');
-        
-        // If Bootstrap is available
-        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-            reactionButtons.forEach(button => {
-                // Dispose any existing tooltip
-                const oldTooltip = bootstrap.Tooltip.getInstance(button);
-                if (oldTooltip) {
-                    oldTooltip.dispose();
-                }
-                
-                // Create new tooltip
-                new bootstrap.Tooltip(button);
-            });
-        } 
-        
-        // Setup mobile-friendly tooltip alternative if CommentReactions is available
-        if (window.CommentReactions && window.CommentReactions._setupMobileTooltips) {
-            window.CommentReactions._setupMobileTooltips(content);
-        }
-    },
-    
-    /**
-     * Set up individual spoiler buttons that exist on page load
-     */
-    _setupIndividualSpoilerButtons() {
-        // This is now handled by event delegation in _setupEventListeners
     },
     
     /**
@@ -101,9 +62,6 @@ export const SpoilerManager = {
                 if (show) {
                     spoilerWarning.style.display = 'none';
                     spoilerContent.style.display = 'block';
-                    
-                    // Initialize tooltips inside the revealed spoiler content
-                    this._initTooltipsInContent(spoilerContent);
                 } else {
                     spoilerWarning.style.display = 'block';
                     spoilerContent.style.display = 'none';
@@ -255,6 +213,10 @@ export const SpoilerManager = {
                 cardBody.appendChild(spoilerWarning);
                 cardBody.appendChild(spoilerContent);
                 
+                // Clear any users panels that might have been cloned
+                const usersPanels = spoilerContent.querySelectorAll('.reaction-users-panel');
+                usersPanels.forEach(panel => panel.remove());
+                
             } catch (error) {
                 console.error('Error marking spoiler:', error);
             }
@@ -304,6 +266,11 @@ export const SpoilerManager = {
                 // Remove spoiler elements
                 if (spoilerWarning) spoilerWarning.remove();
                 if (spoilerContent) spoilerContent.remove();
+                
+                // Remove any users panels that might be open
+                const usersPanels = comment.querySelectorAll('.reaction-users-panel');
+                usersPanels.forEach(panel => panel.remove());
+                
             } catch (error) {
                 console.error('Error unmarking spoiler:', error);
             }

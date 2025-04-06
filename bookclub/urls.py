@@ -1,3 +1,7 @@
+from django.contrib.auth import views as auth_views
+from django.urls import path
+from django.views.generic import TemplateView
+
 from bookclub.views.api_views import get_hardcover_progress
 from bookclub.views.attribution_analytics import attribution_analytics
 from bookclub.views.auth_views import landing_page, register_with_invite
@@ -20,6 +24,7 @@ from bookclub.views.book_views import (
     update_book_progress,
     update_book_rating,
 )
+from bookclub.views.comment_utils import get_comment_reaction_users
 from bookclub.views.group_views import (
     add_group_member,
     create_group,
@@ -34,9 +39,6 @@ from bookclub.views.invitation_views import (
     revoke_invitation,
 )
 from bookclub.views.profile_views import profile_settings
-from django.contrib.auth import views as auth_views
-from django.urls import path
-from django.views.generic import TemplateView
 
 urlpatterns = [
     path("", landing_page, name="landing_page"),
@@ -153,5 +155,10 @@ urlpatterns = [
         "api/hardcover-progress/<str:hardcover_id>/",
         get_hardcover_progress,
         name="get_hardcover_progress",
+    ),
+    path(
+        "comments/<int:comment_id>/reaction-users/",
+        get_comment_reaction_users,
+        name="get_comment_reaction_users",
     ),
 ]
