@@ -9,8 +9,20 @@
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h2>Dollar Bets for "{{ book.title }}"</h2>
-                    <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">Create Dollar Bet</a>
+                    <div>
+                        <h2>Dollar Bets for "{{ book.title }}"</h2>
+                        <p class="text-muted mb-0">Place $1 wagers on predictions about what will happen in the book</p>
+                    </div>
+                    <div>
+                        {% if is_admin %}
+                            <a href="{% url 'admin_create_dollar_bet' book.id %}" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-shield me-1"></i> Admin: Create Bet
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Create Dollar Bet
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if bets %}
@@ -21,6 +33,7 @@
                                         <th>Bet</th>
                                         <th>Proposer</th>
                                         <th>Accepter</th>
+                                        <th>Spoiler Level</th>
                                         <th>Status</th>
                                         <th>Created</th>
                                         <th>Actions</th>
@@ -28,10 +41,19 @@
                                 </thead>
                                 <tbody>
                                     {% for bet in bets %}
-                                    <tr>
+                                    <tr class="dollar-bet-item" data-spoiler-level="{{ bet.spoiler_level }}">
                                         <td>{{ bet.description }}</td>
-                                        <td>{{ bet.proposer.username }}</td>
+                                        <td class="bet-proposer">{{ bet.proposer.username }}</td>
                                         <td>{{ bet.accepter.username|default:"Not accepted yet" }}</td>
+                                        <td>
+                                            {% if bet.spoiler_level == 'none' %}
+                                                <span class="badge bg-success">No Spoilers</span>
+                                            {% elif bet.spoiler_level == 'halfway' %}
+                                                <span class="badge bg-warning">Halfway</span>
+                                            {% elif bet.spoiler_level == 'finished' %}
+                                                <span class="badge bg-danger">Finished Book</span>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if bet.status == 'open' %}
                                                 <span class="badge bg-info">Open</span>
@@ -49,12 +71,18 @@
                                         <td>
                                             {% if bet.status == 'open' %}
                                                 {% if request.user != bet.proposer %}
-                                                    <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-sm btn-success">Accept Bet</a>
+                                                    <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-sm btn-success">
+                                                        <i class="bi bi-check-circle me-1"></i> Accept
+                                                    </a>
                                                 {% else %}
-                                                    <a href="{% url 'cancel_dollar_bet' bet.id %}" class="btn btn-sm btn-danger">Cancel Bet</a>
+                                                    <a href="{% url 'cancel_dollar_bet' bet.id %}" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-x-circle me-1"></i> Cancel
+                                                    </a>
                                                 {% endif %}
                                             {% elif bet.status == 'accepted' and is_admin %}
-                                                <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-sm btn-primary">Resolve Bet</a>
+                                                <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-flag me-1"></i> Resolve
+                                                </a>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -63,11 +91,146 @@
                             </table>
                         </div>
                     {% else %}
-                        <p>No dollar bets have been created for this book yet.</p>
+                        <div class="text-center py-5">
+                            <div class="empty-bets-icon">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <h4 class="mt-3">No bets yet!</h4>
+                            <p class="text-muted">Be the first to create a dollar bet for this book.</p>
+                            <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary mt-2">
+                                Create Your First Bet
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Light mode styles */
+    .card {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .empty-bets-icon {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+        display: inline-block;
+        padding: 1.5rem;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        border: 2px dashed #dee2e6;
+    }
+    
+    .table tr:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    /* Dark mode styles */
+    @media (prefers-color-scheme: dark) {
+        .card {
+            background-color: #212529;
+            border-color: #495057;
+        }
+        
+        .card-header {
+            background-color: #343a40;
+            border-bottom: 1px solid #495057;
+            color: #e9ecef;
+        }
+        
+        .card-body {
+            color: #e9ecef;
+        }
+        
+        .table {
+            color: #e9ecef;
+        }
+        
+        .table thead {
+            background-color: #343a40;
+            color: #e9ecef;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.075) !important;
+            color: #e9ecef;
+        }
+        
+        .text-muted {
+            color: #adb5bd !important;
+        }
+        
+        .empty-bets-icon {
+            color: #adb5bd;
+            background-color: #343a40;
+            border-color: #495057;
+        }
+        
+        .table {
+            border-color: #495057;
+        }
+        
+        .table td, .table th {
+            border-color: #495057;
+        }
+    }
+    
+    /* Theme class version */
+    .dark-theme .card {
+        background-color: #212529;
+        border-color: #495057;
+    }
+    
+    .dark-theme .card-header {
+        background-color: #343a40;
+        border-bottom: 1px solid #495057;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .card-body {
+        color: #e9ecef;
+    }
+    
+    .dark-theme .table {
+        color: #e9ecef;
+    }
+    
+    .dark-theme .table thead {
+        background-color: #343a40;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.075) !important;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    .dark-theme .empty-bets-icon {
+        color: #adb5bd;
+        background-color: #343a40;
+        border-color: #495057;
+    }
+    
+    .dark-theme .table {
+        border-color: #495057;
+    }
+    
+    .dark-theme .table td, .dark-theme .table th {
+        border-color: #495057;
+    }
+</style>
 {% endblock %}

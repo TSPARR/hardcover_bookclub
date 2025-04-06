@@ -20,6 +20,23 @@
                                       rows="3" required placeholder="Example: 'I bet Harry Potter will die in the final chapter'"></textarea>
                             <div class="form-text">Be specific about your prediction so it can be clearly judged later.</div>
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="spoiler_level" class="form-label">Spoiler Level</label>
+                            <select class="form-select" id="spoiler_level" name="spoiler_level">
+                                <option value="none">No Spoilers</option>
+                                <option value="halfway" selected>Halfway Through Book</option>
+                                <option value="finished">Finished Book</option>
+                            </select>
+                            <div class="form-text">
+                                <ul class="mb-0 small">
+                                    <li><strong>No Spoilers:</strong> Visible to all readers</li>
+                                    <li><strong>Halfway Through Book:</strong> Only visible to readers who are at least 50% through the book</li>
+                                    <li><strong>Finished Book:</strong> Only visible to readers who have completed the book</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Bet Amount</label>
                             <input type="text" class="form-control" value="$1.00" disabled>
@@ -35,4 +52,93 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Light mode */
+    .card {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+        .card {
+            background-color: #212529;
+            border-color: #495057;
+        }
+        
+        .card-header {
+            background-color: #343a40;
+            border-bottom: 1px solid #495057;
+            color: #e9ecef;
+        }
+        
+        .card-body {
+            color: #e9ecef;
+        }
+        
+        .form-control, .form-select {
+            background-color: #2b3035;
+            border-color: #495057;
+            color: #e9ecef;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: #343a40;
+            color: #e9ecef;
+            border-color: #86b7fe;
+        }
+        
+        .form-control:disabled, .form-select:disabled {
+            background-color: #495057;
+            color: #adb5bd;
+        }
+        
+        .form-text {
+            color: #adb5bd;
+        }
+    }
+    
+    /* Theme class version */
+    .dark-theme .card {
+        background-color: #212529;
+        border-color: #495057;
+    }
+    
+    .dark-theme .card-header {
+        background-color: #343a40;
+        border-bottom: 1px solid #495057;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .card-body {
+        color: #e9ecef;
+    }
+    
+    .dark-theme .form-control, .dark-theme .form-select {
+        background-color: #2b3035;
+        border-color: #495057;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .form-control:focus, .dark-theme .form-select:focus {
+        background-color: #343a40;
+        color: #e9ecef;
+        border-color: #86b7fe;
+    }
+    
+    .dark-theme .form-control:disabled, .dark-theme .form-select:disabled {
+        background-color: #495057;
+        color: #adb5bd;
+    }
+    
+    .dark-theme .form-text {
+        color: #adb5bd;
+    }
+</style>
 {% endblock %}

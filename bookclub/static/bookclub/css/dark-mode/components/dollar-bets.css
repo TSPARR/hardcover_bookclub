@@ -1,0 +1,64 @@
+/* Dark mode styles */
+
+.dark-theme .dollar-bets-card {
+    background-color: #212529;
+    border-color: #495057;
+}
+
+.dark-theme .dollar-bets-header {
+    background-color: #343a40;
+    border-bottom: 1px solid #495057;
+}
+
+.dark-theme .section-title {
+    color: #e9ecef;
+    border-bottom-color: #495057;
+}
+
+.dark-theme .dollar-bet-item {
+    background-color: #2b3035;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+.dark-theme .dollar-bet-item:hover {
+    background-color: #343a40;
+}
+
+.dark-theme .open-bet {
+    border-left: 4px solid #3d8bfd;
+}
+
+.dark-theme .active-bet {
+    border-left: 4px solid #ffca2c;
+}
+
+.dark-theme .resolved-bet {
+    border-left: 4px solid #adb5bd;
+}
+
+.dark-theme .text-muted {
+    color: #adb5bd !important;
+}
+
+.dark-theme .empty-bets-icon {
+    color: #adb5bd;
+    background-color: #343a40;
+    border-color: #495057;
+}
+
+.dark-theme .spoiler-warning {
+    background-color: #3a2f06;
+    border-color: #856404;
+    color: #f8f9fa;
+}
+
+.dark-theme .show-spoiler-btn {
+    color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+.dark-theme .show-spoiler-btn:hover {
+    background-color: #f8f9fa;
+    color: #343a40;
+}

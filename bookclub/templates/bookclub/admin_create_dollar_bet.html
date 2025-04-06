@@ -55,6 +55,22 @@
                         </div>
                         
                         <div class="mb-3">
+                            <label for="spoiler_level" class="form-label">Spoiler Level</label>
+                            <select class="form-select" id="spoiler_level" name="spoiler_level">
+                                {% for value, display in spoiler_levels %}
+                                    <option value="{{ value }}">{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                <ul class="mb-0 small">
+                                    <li><strong>No Spoilers:</strong> Visible to all readers</li>
+                                    <li><strong>Halfway Through Book:</strong> Only visible to readers who are at least 50% through the book</li>
+                                    <li><strong>Finished Book:</strong> Only visible to readers who have completed the book</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
                             <label class="form-label">Bet Amount</label>
                             <input type="text" class="form-control" value="$1.00" disabled>
                             <div class="form-text">All bets are fixed at $1</div>

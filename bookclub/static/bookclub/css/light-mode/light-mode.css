@@ -21,6 +21,7 @@
 @import 'components/reactions.css';
 @import 'components/analytics.css';
 @import 'components/group-members.css';
+@import 'components/dollar-bets.css';
 
 /* Add a class to the body for any body-level styling */
 body.light-mode {

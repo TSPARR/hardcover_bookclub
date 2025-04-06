@@ -560,6 +560,18 @@ class DollarBet(models.Model):
         related_name="resolved_dollar_bets",
     )
 
+    SPOILER_LEVEL_CHOICES = [
+        ("none", "No Spoilers"),
+        ("halfway", "Halfway Through Book"),
+        ("finished", "Finished Book"),
+    ]
+    spoiler_level = models.CharField(
+        max_length=10,
+        choices=SPOILER_LEVEL_CHOICES,
+        default="halfway",
+        help_text="When should this bet be visible to readers?",
+    )
+
     def __str__(self):
         return f"${self.amount} bet on {self.book.title}: {self.description[:30]}..."
 

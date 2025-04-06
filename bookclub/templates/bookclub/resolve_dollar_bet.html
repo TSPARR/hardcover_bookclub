@@ -9,38 +9,81 @@
         <div class="col-md-8 offset-md-2">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h2>Resolve Dollar Bet</h2>
+                    <h2><i class="bi bi-flag-fill me-2"></i>Resolve Dollar Bet</h2>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
-                        <strong>Bet: </strong> {{ bet.description }}
+                        <h4 class="alert-heading mb-3">Bet Details</h4>
+                        <p class="mb-3"><strong>Prediction: </strong> {{ bet.description }}</p>
                         <hr>
-                        <p><strong>Proposed by:</strong> {{ bet.proposer.username }}</p>
-                        <p><strong>Accepted by:</strong> {{ bet.accepter.username }}</p>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p><strong>Proposed by:</strong> {{ bet.proposer.username }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Accepted by:</strong> {{ bet.accepter.username }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Spoiler Level:</strong> 
+                                    {% if bet.spoiler_level == 'none' %}
+                                        <span class="badge bg-success">No Spoilers</span>
+                                    {% elif bet.spoiler_level == 'halfway' %}
+                                        <span class="badge bg-warning">Halfway</span>
+                                    {% elif bet.spoiler_level == 'finished' %}
+                                        <span class="badge bg-danger">Finished Book</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     
                     <form method="post">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">Who won the bet?</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="winner" 
-                                       id="proposer" value="{{ bet.proposer.id }}" required>
-                                <label class="form-check-label" for="proposer">
-                                    {{ bet.proposer.username }} (The Proposer) - prediction was correct
-                                </label>
+                        <div class="mb-4">
+                            <label class="form-label fs-5">Who won the bet?</label>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="winner" 
+                                               id="proposer" value="{{ bet.proposer.id }}" required>
+                                        <label class="form-check-label" for="proposer">
+                                            <strong>{{ bet.proposer.username }}</strong> (The Proposer) - prediction was correct
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="winner" 
-                                       id="accepter" value="{{ bet.accepter.id }}">
-                                <label class="form-check-label" for="accepter">
-                                    {{ bet.accepter.username }} (The Accepter) - prediction was incorrect
-                                </label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="winner" 
+                                               id="accepter" value="{{ bet.accepter.id }}">
+                                        <label class="form-check-label" for="accepter">
+                                            <strong>{{ bet.accepter.username }}</strong> (The Accepter) - prediction was incorrect
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'dollar_bets_list' bet.book.id %}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Resolve Bet</button>
+                        
+                        <div class="alert alert-warning">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                                </div>
+                                <div>
+                                    <h5 class="alert-heading">Important Note</h5>
+                                    <p class="mb-0">Once a bet is resolved, it cannot be undone. Make sure you select the correct winner.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'book_detail' bet.book.id %}?tab=bets" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Bets
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-flag-fill me-1"></i> Resolve Bet
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -48,4 +91,108 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Light mode */
+    .card {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+        .card {
+            background-color: #212529;
+            border-color: #495057;
+        }
+        
+        .card-header {
+            background-color: #343a40;
+            border-bottom: 1px solid #495057;
+            color: #e9ecef;
+        }
+        
+        .card-body {
+            color: #e9ecef;
+        }
+        
+        .alert-info {
+            background-color: #0d3c61;
+            border-color: #0e4172;
+            color: #e9ecef;
+        }
+        
+        .alert-warning {
+            background-color: #664d03;
+            border-color: #7c5d03;
+            color: #e9ecef;
+        }
+        
+        .form-check-label {
+            color: #e9ecef;
+        }
+        
+        .form-check-input {
+            background-color: #495057;
+            border-color: #6c757d;
+        }
+        
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    }
+    
+    /* Theme class version */
+    .dark-theme .card {
+        background-color: #212529;
+        border-color: #495057;
+    }
+    
+    .dark-theme .card-header {
+        background-color: #343a40;
+        border-bottom: 1px solid #495057;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .card-body {
+        color: #e9ecef;
+    }
+    
+    .dark-theme .alert-info {
+        background-color: #0d3c61;
+        border-color: #0e4172;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .alert-warning {
+        background-color: #664d03;
+        border-color: #7c5d03;
+        color: #e9ecef;
+    }
+    
+    .dark-theme .form-check-label {
+        color: #e9ecef;
+    }
+    
+    .dark-theme .form-check-input {
+        background-color: #495057;
+        border-color: #6c757d;
+    }
+    
+    .dark-theme .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>
 {% endblock %}

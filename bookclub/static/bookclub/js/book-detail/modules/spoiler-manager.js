@@ -44,6 +44,14 @@ export const SpoilerManager = {
                 }
             }
         });
+
+        // Listen for tab changes to check spoilers in newly displayed tabs
+        document.addEventListener('shown.bs.tab', (e) => {
+            // If the bets tab was just shown, check for spoilers there
+            if (e.target.id === 'bets-tab') {
+                this._checkSpoilersOnLoad();
+            }
+        });
     },
     
     /**
@@ -51,12 +59,14 @@ export const SpoilerManager = {
      * @param {boolean} show - Whether to show all spoilers
      */
     _toggleAllSpoilers(show) {
-        // Check both main comments and replies
-        const spoilerComments = document.querySelectorAll('.comment-card.spoiler-comment, .reply-card.spoiler-comment');
+        // Check comments, replies, and dollar bets
+        const spoilerElements = document.querySelectorAll(
+            '.comment-card.spoiler-comment, .reply-card.spoiler-comment, .dollar-bet-item.spoiler-bet'
+        );
         
-        spoilerComments.forEach(comment => {
-            const spoilerWarning = comment.querySelector('.spoiler-warning');
-            const spoilerContent = comment.querySelector('.spoiler-content');
+        spoilerElements.forEach(element => {
+            const spoilerWarning = element.querySelector('.spoiler-warning');
+            const spoilerContent = element.querySelector('.spoiler-content');
             
             if (spoilerWarning && spoilerContent) {
                 if (show) {
@@ -91,9 +101,10 @@ export const SpoilerManager = {
         
         const userProgressValue = parseFloat(userProgress.normalized_progress);
         
-        // Process all comments (both main and replies)
+        // Process all content types for spoilers
         this._processCommentCards(userProgressValue);
         this._processReplyCards(userProgressValue);
+        this._processDollarBets(userProgressValue);
     },
     
     /**
@@ -141,6 +152,46 @@ export const SpoilerManager = {
                 this._markAsSpoiler(reply);
             } else {
                 this._unmarkSpoiler(reply);
+            }
+        });
+    },
+
+    /**
+     * Process dollar bets for spoilers
+     * @param {number} userProgressValue - User's progress value
+     */
+    _processDollarBets(userProgressValue) {
+        document.querySelectorAll('.dollar-bet-item').forEach(bet => {
+            // Check if bet has a spoiler level attribute
+            let betSpoilerLevel = bet.dataset.spoilerLevel || 'halfway';
+            
+            // Get proposer username
+            const proposer = bet.querySelector('.bet-proposer')?.textContent.trim();
+            
+            // Skip if it's the user's own bet
+            if (proposer === this.username) return;
+            
+            let isSpoiler = false;
+
+            // Apply spoiler based on bet's spoiler level
+            if (betSpoilerLevel === 'finished' && userProgressValue < 100) {
+                // Only show "finished" bets to users who have completed the book
+                isSpoiler = true;
+            } else if (betSpoilerLevel === 'halfway' && userProgressValue < 50) {
+                // Only show "halfway" bets to users who are at least halfway through
+                isSpoiler = true;
+            }
+            
+            // Additionally, always hide resolved bets if they're ahead of user's progress
+            const isResolved = bet.classList.contains('resolved-bet');
+            if (isResolved && userProgressValue < 95) {
+                isSpoiler = true;
+            }
+            
+            if (isSpoiler) {
+                this._markBetAsSpoiler(bet);
+            } else {
+                this._unmarkBetSpoiler(bet);
             }
         });
     },
@@ -273,6 +324,82 @@ export const SpoilerManager = {
                 
             } catch (error) {
                 console.error('Error unmarking spoiler:', error);
+            }
+        }
+    },
+
+    /**
+     * Mark a dollar bet as a spoiler
+     * @param {HTMLElement} bet - Dollar bet element
+     */
+    _markBetAsSpoiler(bet) {
+        // Already marked
+        if (bet.classList.contains('spoiler-bet')) return;
+        
+        bet.classList.add('spoiler-bet');
+        
+        // Make sure the bet has spoiler warning and hidden content
+        if (!bet.querySelector('.spoiler-warning')) {
+            try {
+                // Save original content
+                const originalContent = bet.innerHTML;
+                
+                // Create spoiler warning with proper DOM elements
+                const spoilerWarning = document.createElement('div');
+                spoilerWarning.className = 'spoiler-warning alert alert-warning alert-permanent';
+                
+                const icon = document.createElement('i');
+                icon.className = 'bi bi-exclamation-triangle-fill';
+                spoilerWarning.appendChild(icon);
+                
+                spoilerWarning.appendChild(document.createTextNode(' This bet may contain spoilers for sections you haven\'t read yet. '));
+                
+                const showButton = document.createElement('button');
+                showButton.className = 'btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn';
+                showButton.textContent = 'Show Anyway';
+                spoilerWarning.appendChild(showButton);
+                
+                // Create spoiler content container
+                const spoilerContent = document.createElement('div');
+                spoilerContent.className = 'spoiler-content';
+                spoilerContent.style.display = 'none';
+                spoilerContent.innerHTML = originalContent;
+                
+                // Clear original content and add warning and hidden content
+                bet.innerHTML = '';
+                bet.appendChild(spoilerWarning);
+                bet.appendChild(spoilerContent);
+                
+            } catch (error) {
+                console.error('Error marking bet as spoiler:', error);
+            }
+        }
+    },
+    
+    /**
+     * Unmark a dollar bet as a spoiler
+     * @param {HTMLElement} bet - Dollar bet element
+     */
+    _unmarkBetSpoiler(bet) {
+        // Not marked
+        if (!bet.classList.contains('spoiler-bet')) return;
+        
+        bet.classList.remove('spoiler-bet');
+        
+        // If it had spoiler warning, remove it and restore content
+        const spoilerWarning = bet.querySelector('.spoiler-warning');
+        const spoilerContent = bet.querySelector('.spoiler-content');
+        
+        if (spoilerWarning && spoilerContent) {
+            try {
+                // Get the original content
+                const originalContent = spoilerContent.innerHTML;
+                
+                // Restore original content
+                bet.innerHTML = originalContent;
+                
+            } catch (error) {
+                console.error('Error unmarking bet spoiler:', error);
             }
         }
     }

@@ -50,6 +50,7 @@ def create_dollar_bet(request, book_id):
 
     if request.method == "POST":
         description = request.POST.get("description")
+        spoiler_level = request.POST.get("spoiler_level", "halfway")
 
         if not description:
             return JsonResponse({"error": "Description is required"}, status=400)
@@ -60,6 +61,7 @@ def create_dollar_bet(request, book_id):
             proposer=request.user,
             description=description,
             amount=1.00,  # Fixed at $1
+            spoiler_level=spoiler_level,
         )
 
         # Redirect to book detail with bets tab active
@@ -128,6 +130,11 @@ def resolve_dollar_bet(request, bet_id):
         # Validate winner is either proposer or accepter
         if winner not in [bet.proposer, bet.accepter]:
             return JsonResponse({"error": "Invalid winner"}, status=400)
+
+        # If not already set as 'finished' level, upgrade spoiler level to 'finished'
+        # This ensures resolved bets are only visible to those who have completed the book
+        if bet.spoiler_level != "finished":
+            bet.spoiler_level = "finished"
 
         bet.resolve(winner, request.user)
 
@@ -216,6 +223,7 @@ def admin_create_dollar_bet(request, book_id):
         description = request.POST.get("description")
         proposer_id = request.POST.get("proposer")
         accepter_id = request.POST.get("accepter")
+        spoiler_level = request.POST.get("spoiler_level", "halfway")
 
         if not description:
             messages.error(request, "Description is required")
@@ -241,7 +249,8 @@ def admin_create_dollar_bet(request, book_id):
             accepter=accepter,
             description=description,
             amount=1.00,
-            status="accepted",  # Set as accepted immediately
+            status="accepted",
+            spoiler_level=spoiler_level,
         )
 
         messages.success(
@@ -256,5 +265,6 @@ def admin_create_dollar_bet(request, book_id):
             "book": book,
             "group": group,
             "members": members,
+            "spoiler_levels": DollarBet.SPOILER_LEVEL_CHOICES,
         },
     )
