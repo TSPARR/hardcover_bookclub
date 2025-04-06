@@ -1,0 +1,41 @@
+{% if user_progress.edition %}
+<div class="alert alert-info alert-permanent">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <p class="mb-1">Tracking edition: <strong>{{ user_progress.edition }}</strong></p>
+            
+            {% if user_progress.edition.pages %}
+            <p class="mb-1">Pages: {{ user_progress.edition.pages }}</p>
+            {% endif %}
+            
+            {% if user_progress.edition.audio_seconds %}
+            <p class="mb-0">Duration: {{ user_progress.edition.audio_duration_formatted }}</p>
+            {% endif %}
+        </div>
+        
+        <a href="{% url 'select_edition' book.id %}" class="btn btn-sm btn-light">
+            Change Edition
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning alert-permanent">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <p class="mb-1">No specific edition selected. Using general book information.</p>
+            
+            {% if book.pages %}
+            <p class="mb-1">Pages: {{ book.pages }}</p>
+            {% endif %}
+            
+            {% if book.audio_seconds %}
+            <p class="mb-0">Audio Duration: {{ book.audio_seconds }} seconds</p>
+            {% endif %}
+        </div>
+        
+        <a href="{% url 'select_edition' book.id %}" class="btn btn-sm btn-light">
+            Select an Edition
+        </a>
+    </div>
+</div>
+{% endif %}

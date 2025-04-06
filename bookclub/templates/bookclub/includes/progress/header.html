@@ -1,0 +1,15 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>Update Reading Progress</h1>
+        <h3>{{ book.title }}</h3>
+        <p class="text-muted">By {{ book.author }}</p>
+        
+        {% if user_progress.hardcover_started_at %}
+        <p><strong>Started reading:</strong> {{ user_progress.hardcover_started_at|date:"F j, Y" }}</p>
+        {% endif %}
+        
+        {% if user_progress.hardcover_finished_at %}
+        <p><strong>Finished reading:</strong> {{ user_progress.hardcover_finished_at|date:"F j, Y" }}</p>
+        {% endif %}
+    </div>
+</div>

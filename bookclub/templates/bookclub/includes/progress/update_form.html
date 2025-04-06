@@ -1,0 +1,40 @@
+<form method="post" action="{% url 'set_manual_progress' book.id %}">
+    {% csrf_token %}
+    
+    <div class="form-group mb-3">
+        <label for="progress_type">Progress Type:</label>
+        <select class="form-select" id="progress_type" name="progress_type">
+            <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+            <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+            <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+        </select>
+    </div>
+    
+    <div class="form-group mb-3">
+        <label for="progress_value">Progress Value:</label>
+        <input type="text" class="form-control" id="progress_value" name="progress_value" 
+               value="{{ user_progress.progress_value }}" required>
+        <small class="form-text text-muted progress-help" id="percent-help">
+            Enter a percentage (e.g., "75" for 75%)
+        </small>
+        <small class="form-text text-muted progress-help" id="page-help" style="display: none;">
+            Enter a page number (e.g., "150")
+        </small>
+        <small class="form-text text-muted progress-help" id="audio-help" style="display: none;">
+            Enter time in format: "2h 30m" or "1:30:00"
+        </small>
+    </div>
+    
+    {% include 'bookclub/includes/progress/reading_status.html' %}
+    
+    {% if has_hardcover_key %}
+    {% include 'bookclub/includes/progress/hardcover_sync.html' %}
+    {% endif %}
+    
+    <button type="submit" class="btn btn-primary">
+        Update Progress
+    </button>
+    <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary ms-2">
+        Cancel
+    </a>
+</form>

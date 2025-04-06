@@ -36,3 +36,42 @@
 .confirmation-modal .modal-footer {
     border-top: none;
 }
+
+/* Specific styles for Quick Update modal */
+#progressUpdateModal .modal-header {
+    background-color: #2c2c2c;
+    color: #e1e1e1;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+#progressUpdateModal .modal-footer {
+    background-color: #2c2c2c;
+    color: #e1e1e1;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Add hover effect to the buttons in the modal footer */
+#progressUpdateModal .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+#progressUpdateModal .btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+#progressUpdateModal .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+#progressUpdateModal .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+/* Ensure the close button is visible in dark mode */
+#progressUpdateModal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}

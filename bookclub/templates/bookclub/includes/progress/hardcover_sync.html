@@ -1,0 +1,37 @@
+<div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="sync_to_hardcover" name="sync_to_hardcover">
+    <label class="form-check-label" for="sync_to_hardcover">
+        Also sync this progress to Hardcover
+    </label>
+    
+    {% if hardcover_read_id %}
+    <div class="form-text text-success">
+        <i class="bi bi-check-circle"></i> Hardcover reading record detected
+    </div>
+    
+    <div class="hardcover-sync-details mt-2 ps-4 border-start border-success">
+        <small>When syncing to Hardcover:</small>
+        <ul class="small">
+            {% if user_progress.edition %}
+                {% if user_progress.edition.reading_format_id == 2 %}
+                <li>Audio position will be calculated based on timestamp</li>
+                {% elif user_progress.edition.reading_format_id == 1 or user_progress.edition.reading_format_id == 4 %}
+                <li>Page progress will be sent to Hardcover</li>
+                {% else %}
+                <li>Progress percentage will be sent to Hardcover</li>
+                {% endif %}
+            {% else %}
+            <li>Progress percentage will be sent to Hardcover</li>
+            {% endif %}
+            
+            {% if user_progress.edition %}
+            <li>Using edition: {{ user_progress.edition.title }}</li>
+            {% endif %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="form-text">
+        <span class="text-info"><i class="bi bi-info-circle"></i> No existing Hardcover record found.</span> If you enable this option, a new reading record will be created on Hardcover with your current progress.
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,15 @@
+<div class="alert alert-warning alert-permanent mb-4">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-headphones me-2" style="font-size: 1.5rem;"></i>
+        <div>
+            <h5 class="mb-1">Plex Edition</h5>
+            {% if plex_promoted %}
+            <p class="mb-0">Currently promoting: <strong>{{ plex_promoted.title }}</strong>
+                {% if plex_promoted.reading_format %}({{ plex_promoted.reading_format }}){% endif %}
+            </p>
+            {% else %}
+            <p class="mb-0">No edition currently promoted for Plex.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
