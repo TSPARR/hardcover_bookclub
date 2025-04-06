@@ -1,0 +1,73 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+
+{% block title %}Dollar Bets for {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2>Dollar Bets for "{{ book.title }}"</h2>
+                    <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">Create Dollar Bet</a>
+                </div>
+                <div class="card-body">
+                    {% if bets %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Bet</th>
+                                        <th>Proposer</th>
+                                        <th>Accepter</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for bet in bets %}
+                                    <tr>
+                                        <td>{{ bet.description }}</td>
+                                        <td>{{ bet.proposer.username }}</td>
+                                        <td>{{ bet.accepter.username|default:"Not accepted yet" }}</td>
+                                        <td>
+                                            {% if bet.status == 'open' %}
+                                                <span class="badge bg-info">Open</span>
+                                            {% elif bet.status == 'accepted' %}
+                                                <span class="badge bg-warning">Accepted</span>
+                                            {% elif bet.status == 'won' %}
+                                                <span class="badge bg-success">Won by {{ bet.winner.username }}</span>
+                                            {% elif bet.status == 'lost' %}
+                                                <span class="badge bg-danger">Lost by {{ bet.proposer.username }}</span>
+                                            {% elif bet.status == 'canceled' %}
+                                                <span class="badge bg-secondary">Canceled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ bet.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if bet.status == 'open' %}
+                                                {% if request.user != bet.proposer %}
+                                                    <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-sm btn-success">Accept Bet</a>
+                                                {% else %}
+                                                    <a href="{% url 'cancel_dollar_bet' bet.id %}" class="btn btn-sm btn-danger">Cancel Bet</a>
+                                                {% endif %}
+                                            {% elif bet.status == 'accepted' and is_admin %}
+                                                <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-sm btn-primary">Resolve Bet</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p>No dollar bets have been created for this book yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

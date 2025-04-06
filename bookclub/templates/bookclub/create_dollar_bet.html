@@ -1,0 +1,38 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+
+{% block title %}Create Dollar Bet for {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Create a $1 Bet for "{{ book.title }}"</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="description" class="form-label">What are you betting on?</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3" required placeholder="Example: 'I bet Harry Potter will die in the final chapter'"></textarea>
+                            <div class="form-text">Be specific about your prediction so it can be clearly judged later.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bet Amount</label>
+                            <input type="text" class="form-control" value="$1.00" disabled>
+                            <div class="form-text">All bets are fixed at $1</div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Bet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

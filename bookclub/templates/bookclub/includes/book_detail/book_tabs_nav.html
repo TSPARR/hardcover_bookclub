@@ -1,0 +1,21 @@
+{% load bookclub_extras %}
+<ul class="nav nav-tabs mb-4" id="bookDetailTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">Book Details</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="discussion-tab" data-bs-toggle="tab" data-bs-target="#discussion" type="button" role="tab" aria-controls="discussion" aria-selected="false">Discussion</button>
+    </li>
+    {% if has_dollar_bets_enabled %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="bets-tab" data-bs-toggle="tab" data-bs-target="#bets" type="button" role="tab" aria-controls="bets" aria-selected="false">
+        Dollar Bets
+        {% with open_bets=book.dollar_bets.all|filter_by_status:'open' %}
+          {% if open_bets_count > 0 %}
+            <span class="badge rounded-pill bg-primary ms-1">{{ open_bets_count }}</span>
+          {% endif %}
+        {% endwith %}
+      </button>
+    </li>
+    {% endif %}
+  </ul>

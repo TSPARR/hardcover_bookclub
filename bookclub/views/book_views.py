@@ -247,6 +247,10 @@ def book_detail(request, book_id):
         for progress in book.user_progress.select_related("user").all()
     }
 
+    has_dollar_bets_enabled = (
+        hasattr(group, "is_dollar_bets_enabled") and group.is_dollar_bets_enabled
+    )
+
     # Prepare the context with all required data
     context = {
         "book": book,
@@ -264,6 +268,7 @@ def book_detail(request, book_id):
         "edition_pages": edition_pages,
         "edition_audio_seconds": edition_audio_seconds,
         "autoSyncEnabled": auto_sync_enabled,
+        "has_dollar_bets_enabled": has_dollar_bets_enabled,
     }
 
     return render(request, "bookclub/book_detail.html", context)

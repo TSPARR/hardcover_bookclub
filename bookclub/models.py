@@ -2,6 +2,7 @@ import re
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
@@ -19,6 +20,10 @@ class BookGroup(models.Model):
     admins = models.ManyToManyField(User, related_name="administered_groups")
     is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    enable_dollar_bets = models.BooleanField(
+        default=False,
+        help_text="Enable $1 betting for predictions about books in this group",
+    )
 
     def __str__(self):
         return self.name
@@ -30,6 +35,11 @@ class BookGroup(models.Model):
     def is_member(self, user):
         """Check if a user is a member of this group."""
         return self.members.filter(id=user.id).exists()
+
+    def is_dollar_bets_enabled(self):
+        """Check if dollar bets are enabled for this group"""
+        # Both the site-wide setting and the group setting must be enabled
+        return settings.ENABLE_DOLLAR_BETS and self.enable_dollar_bets
 
 
 class Book(models.Model):
@@ -493,3 +503,98 @@ class MemberStartingPoint(models.Model):
 
     def __str__(self):
         return f"{self.member.username} in {self.group.name} starting with '{self.starting_book.title}'"
+
+
+class DollarBet(models.Model):
+    BET_STATUS_CHOICES = [
+        ("open", "Open"),
+        ("accepted", "Accepted"),
+        ("won", "Won"),
+        ("lost", "Lost"),
+        ("canceled", "Canceled"),
+    ]
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="dollar_bets")
+    group = models.ForeignKey(
+        BookGroup, on_delete=models.CASCADE, related_name="dollar_bets"
+    )
+
+    proposer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="proposed_dollar_bets"
+    )
+    accepter = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="accepted_dollar_bets",
+        null=True,
+        blank=True,
+    )
+
+    description = models.TextField(
+        help_text="What the bet is about (e.g., 'Character X will die')"
+    )
+    amount = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=1.00,
+        validators=[MinValueValidator(1.00), MaxValueValidator(1.00)],
+    )
+
+    status = models.CharField(max_length=10, choices=BET_STATUS_CHOICES, default="open")
+    winner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="won_dollar_bets",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="resolved_dollar_bets",
+    )
+
+    def __str__(self):
+        return f"${self.amount} bet on {self.book.title}: {self.description[:30]}..."
+
+    def resolve(self, winner_user, resolved_by_user):
+        """Resolve the bet by setting a winner"""
+        # Ensure the bet is in 'accepted' status
+        if self.status != "accepted":
+            raise ValueError("Only accepted bets can be resolved")
+
+        # Ensure the winner is either the proposer or accepter
+        if winner_user not in [self.proposer, self.accepter]:
+            raise ValueError("Winner must be either the proposer or accepter")
+
+        self.winner = winner_user
+        self.status = "won" if winner_user == self.proposer else "lost"
+        self.resolved_at = timezone.now()
+        self.resolved_by = resolved_by_user
+        self.save()
+
+    def accept(self, user):
+        """Accept an open bet"""
+        if self.status != "open" and self.accepter is None:
+            raise ValueError("Only open bets can be accepted")
+
+        if self.proposer == user:
+            raise ValueError("Cannot accept your own bet")
+
+        self.accepter = user
+        self.status = "accepted"
+        self.save()
+
+    def cancel(self):
+        """Cancel a bet (only if still open)"""
+        if self.status != "open":
+            raise ValueError("Only open bets can be canceled")
+
+        self.status = "canceled"
+        self.save()

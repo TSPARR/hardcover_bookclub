@@ -189,3 +189,18 @@ def books_with_ratings(book_sequence):
         result.append((rating_value, rating_groups[rating_value]))
 
     return result
+
+
+@register.filter
+def filter_by_status(queryset, status):
+    """Filter a queryset by status"""
+    return queryset.filter(status=status)
+
+
+@register.filter
+def filter_by_multiple_statuses(queryset, statuses):
+    """Filter a queryset by multiple status values
+    Usage: queryset|filter_by_multiple_statuses:'won,lost'
+    """
+    status_list = statuses.split(",")
+    return queryset.filter(status__in=status_list)

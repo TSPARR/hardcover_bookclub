@@ -87,6 +87,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "bookclub.context_processors.bookclub_settings",
             ],
         },
     },
@@ -232,3 +233,5 @@ PLEX_BASE_URL = os.environ.get("PLEX_BASE_URL", "")
 PLEX_TOKEN = os.environ.get("PLEX_TOKEN", "")
 PLEX_LIBRARY_NAME = os.environ.get("PLEX_LIBRARY_NAME", "")
 PLEX_ENABLED = bool(PLEX_BASE_URL and PLEX_TOKEN and PLEX_LIBRARY_NAME)
+
+ENABLE_DOLLAR_BETS = os.environ.get("ENABLE_DOLLAR_BETS", "False") == "True"

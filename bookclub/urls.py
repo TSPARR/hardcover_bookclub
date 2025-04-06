@@ -25,6 +25,15 @@ from bookclub.views.book_views import (
     update_book_rating,
 )
 from bookclub.views.comment_utils import get_comment_reaction_users
+from bookclub.views.dollar_bets import (
+    accept_dollar_bet,
+    admin_create_dollar_bet,
+    cancel_dollar_bet,
+    create_dollar_bet,
+    dollar_bets_group_list,
+    dollar_bets_list,
+    resolve_dollar_bet,
+)
 from bookclub.views.group_views import (
     add_group_member,
     create_group,
@@ -32,6 +41,7 @@ from bookclub.views.group_views import (
     home,
     manage_group_members,
     manage_member_starting_points,
+    update_group_settings,
 )
 from bookclub.views.invitation_views import (
     create_invitation,
@@ -79,6 +89,11 @@ urlpatterns = [
     ),
     path(
         "groups/<int:group_id>/members/add/", add_group_member, name="add_group_member"
+    ),
+    path(
+        "group/<int:group_id>/settings/update/",
+        update_group_settings,
+        name="update_group_settings",
     ),
     # Book related URLs
     path("books/<int:book_id>/", book_detail, name="book_detail"),
@@ -160,5 +175,41 @@ urlpatterns = [
         "comments/<int:comment_id>/reaction-users/",
         get_comment_reaction_users,
         name="get_comment_reaction_users",
+    ),
+    # Dollar Bets
+    path(
+        "book/<int:book_id>/dollar-bets/",
+        dollar_bets_list,
+        name="dollar_bets_list",
+    ),
+    path(
+        "book/<int:book_id>/dollar-bets/create/",
+        create_dollar_bet,
+        name="create_dollar_bet",
+    ),
+    path(
+        "dollar-bet/<int:bet_id>/accept/",
+        accept_dollar_bet,
+        name="accept_dollar_bet",
+    ),
+    path(
+        "dollar-bet/<int:bet_id>/resolve/",
+        resolve_dollar_bet,
+        name="resolve_dollar_bet",
+    ),
+    path(
+        "dollar-bet/<int:bet_id>/cancel/",
+        cancel_dollar_bet,
+        name="cancel_dollar_bet",
+    ),
+    path(
+        "group/<int:group_id>/dollar-bets/",
+        dollar_bets_group_list,
+        name="dollar_bets_group_list",
+    ),
+    path(
+        "book/<int:book_id>/dollar-bets/admin-create/",
+        admin_create_dollar_bet,
+        name="admin_create_dollar_bet",
     ),
 ]

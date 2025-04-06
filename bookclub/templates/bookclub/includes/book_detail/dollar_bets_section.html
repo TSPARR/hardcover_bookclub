@@ -1,0 +1,105 @@
+{% load bookclub_extras %}
+<div class="card">
+    <div class="card-header dollar-bets-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4><i class="bi bi-currency-dollar me-2"></i>Place Your Bets</h4>
+            <div>
+                {% if is_admin %}
+                    <a href="{% url 'admin_create_dollar_bet' book.id %}" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-shield me-1"></i> Admin: Create Bet
+                    </a>
+                {% endif %}
+                <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Create New Bet
+                </a>
+            </div>
+        </div>
+        <p class="text-muted mt-2 mb-0">Predict what will happen in the book and bet a dollar with other members!</p>
+    </div>
+    <div class="card-body">
+      {% with open_bets=book.dollar_bets.all|filter_by_status:'open' %}
+        {% if open_bets %}
+          <h5 class="border-bottom pb-2 mb-3">Open Bets</h5>
+          <div class="list-group mb-4">
+            {% for bet in open_bets %}
+              <div class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">{{ bet.description }}</h5>
+                  <small class="text-muted">{{ bet.created_at|timesince }} ago</small>
+                </div>
+                <p class="mb-1">Proposed by: <strong>{{ bet.proposer.username }}</strong></p>
+                <div class="d-flex justify-content-end mt-2">
+                  {% if request.user != bet.proposer %}
+                    <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-success btn-sm">
+                      <i class="bi bi-check-circle me-1"></i> Accept Bet
+                    </a>
+                  {% else %}
+                    <a href="{% url 'cancel_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm">
+                      <i class="bi bi-x-circle me-1"></i> Cancel
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+  
+      {% with active_bets=book.dollar_bets.all|filter_by_status:'accepted' %}
+        {% if active_bets %}
+          <h5 class="border-bottom pb-2 mb-3">Active Bets</h5>
+          <div class="list-group mb-4">
+            {% for bet in active_bets %}
+              <div class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">{{ bet.description }}</h5>
+                  <span class="badge bg-warning">In Progress</span>
+                </div>
+                <p class="mb-1">Between <strong>{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+                {% if is_admin %}
+                  <div class="d-flex justify-content-end mt-2">
+                    <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-primary btn-sm">
+                      <i class="bi bi-flag me-1"></i> Resolve Bet
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+  
+      {% with resolved_bets=book.dollar_bets.all|filter_by_multiple_statuses:'won,lost' %}
+        {% if resolved_bets %}
+          <h5 class="border-bottom pb-2 mb-3">Resolved Bets</h5>
+          <div class="list-group">
+            {% for bet in resolved_bets %}
+              <div class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">{{ bet.description }}</h5>
+                  {% if bet.status == 'won' %}
+                    <span class="badge bg-success">Winner: {{ bet.winner.username }}</span>
+                  {% else %}
+                    <span class="badge bg-danger">Loser: {{ bet.proposer.username }}</span>
+                  {% endif %}
+                </div>
+                <p class="mb-1">Between <strong>{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+                <small class="text-muted">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+  
+      {% if not book.dollar_bets.all %}
+        <div class="text-center py-5">
+          <i class="bi bi-currency-dollar" style="font-size: 3rem; color: #6c757d;"></i>
+          <h4 class="mt-3">No bets yet!</h4>
+          <p class="text-muted">Be the first to create a dollar bet for this book.</p>
+          <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary mt-2">
+            Create Your First Bet
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>

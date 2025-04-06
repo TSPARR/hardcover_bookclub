@@ -1,0 +1,23 @@
+{% if is_admin and ENABLE_DOLLAR_BETS %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h3 class="h5 mb-0"><i class="bi bi-gear me-2"></i>Group Settings</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'update_group_settings' group.id %}">
+            {% csrf_token %}
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableDollarBets" 
+                    name="enable_dollar_bets" {% if group.enable_dollar_bets %}checked{% endif %}>
+                <label class="form-check-label" for="enableDollarBets">
+                    Enable Dollar Bets
+                </label>
+                <div class="form-text">
+                    When enabled, members can place $1 bets on book predictions
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm mt-3">Save Settings</button>
+        </form>
+    </div>
+</div>
+{% endif %}
