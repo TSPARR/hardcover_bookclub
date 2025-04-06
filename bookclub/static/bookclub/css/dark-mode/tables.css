@@ -443,3 +443,17 @@ table {
 .card-header[aria-expanded="true"] .group-progress-chevron {
     transform: rotate(180deg);
 }
+
+/* Target the specific progress bar in home.html */
+.list-group-item .progress {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    height: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Override the general progress::after rule */
+.list-group-item .progress::after {
+    content: none;
+}
