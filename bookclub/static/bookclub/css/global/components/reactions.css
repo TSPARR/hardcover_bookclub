@@ -47,19 +47,29 @@
     color: white;
 }
 
+/* Animation for panel appearance */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===========================
+ * Reaction Options Panel
+ * =========================== */
 /* Reaction panel styling */
 .reaction-panel {
     display: none; /* Hidden by default */
     flex-wrap: wrap;
     gap: 0.25rem;
     margin-top: 0.5rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+    position: relative;
+    z-index: 1050;
     animation: fadeIn 0.2s ease-in-out;
-}
-
-/* Animation for panel appearance */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }
 
 /* Reaction option buttons */
@@ -68,23 +78,29 @@
     padding: 0.25rem 0.5rem;
     font-size: 1rem;
     transition: transform 0.2s ease;
+    margin: 0.25rem;
 }
 
 .reaction-option:hover {
     transform: scale(1.1);
 }
 
-/* Reaction users panel */
+/* ===========================
+ * Reaction Users Panel - Horizontal Drawer
+ * =========================== */
 .reaction-users-panel {
     display: none; /* Hidden by default */
     flex-direction: column;
-    position: absolute;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
     z-index: 1050;
-    padding: 0;
-    margin-top: 0.25rem;
-    min-width: 180px;
-    max-width: 300px;
     animation: fadeIn 0.2s ease-in-out;
+    position: relative; /* Changed from absolute to relative for horizontal drawer */
 }
 
 /* Header for reaction users panel */
@@ -94,6 +110,10 @@
     align-items: center;
     padding: 0.75rem 1rem;
     font-weight: bold;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
 }
 
 /* Close button for users panel */
@@ -106,24 +126,47 @@
     margin: -0.25rem -0.5rem;
     cursor: pointer;
     border-radius: 0.25rem;
+    color: #6c757d;
 }
 
-/* User list container */
+/* User list container - horizontal */
 .reaction-users-list {
-    max-height: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+    max-height: 120px;
     overflow-y: auto;
-    padding: 0.5rem 0;
 }
 
-/* Individual user item */
+/* Individual user item - pill badges */
 .reaction-user-item {
-    padding: 0.5rem 1rem;
+    display: inline-block;
+    background-color: #f1f3f5;
+    border-radius: 1rem;
+    padding: 0.25rem 0.75rem;
+    margin: 0.25rem;
+    font-size: 0.875rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: background-color 0.15s;
 }
 
+/* Add a semi-transparent backdrop for modals on mobile */
+.mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040; /* Just below the panel */
+    display: none;
+}
+
+/* ===========================
+ * Z-index fixes
+ * =========================== */
 /* Fix for reaction dropdown visibility */
 .dropdown-menu.reaction-picker {
     z-index: 9999 !important;
@@ -157,6 +200,9 @@
     z-index: 1200 !important;
 }
 
+/* ===========================
+ * Mobile styles
+ * =========================== */
 @media (max-width: 767px) {
     /* Make reaction buttons even more tappable on mobile */
     .reaction-btn {
@@ -173,7 +219,7 @@
         position: relative;
     }
     
-    /* Adjust users panel for mobile */
+    /* Mobile bottom sheet for reaction users panel */
     .reaction-users-panel {
         position: fixed;
         top: auto;
@@ -183,10 +229,14 @@
         max-width: 100%;
         width: 100%;
         border-radius: 1rem 1rem 0 0;
+        margin: 0;
+        z-index: 1100; /* Ensure it's above all other content */
+        box-shadow: 0 -0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
     
     .reaction-users-header {
         padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
     }
     
     .close-users-panel {
@@ -195,13 +245,40 @@
         font-size: 1.75rem;
     }
     
+    /* Make the user list more touch-friendly on mobile */
     .reaction-users-list {
-        max-height: 40vh;
-        padding: 0.5rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        max-height: 40vh; /* Limit height to 40% of viewport */
+        padding: 0.75rem;
+        overflow-y: auto;
+        justify-content: flex-start;
     }
     
+    /* Larger touch targets for user pills on mobile */
     .reaction-user-item {
-        padding: 0.75rem 1.25rem;
+        display: inline-block;
+        background-color: #f1f3f5;
+        border-radius: 2rem; /* Slightly larger radius */
+        padding: 0.5rem 0.75rem;
+        margin: 0.35rem;
+        font-size: 1rem; /* Larger font */
+    }
+    
+    /* Reaction panel styling for mobile */
+    .reaction-panel {
+        display: none;
+        width: 100%;
+        padding: 0.75rem;
+        justify-content: center;
+    }
+    
+    /* Larger touch targets for reaction options on mobile */
+    .reaction-option {
+        min-width: 3rem;
+        min-height: 2.5rem;
+        padding: 0.5rem 0.75rem;
+        margin: 0.35rem;
         font-size: 1.1rem;
     }
 }

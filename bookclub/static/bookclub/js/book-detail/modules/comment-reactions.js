@@ -9,7 +9,25 @@ export const CommentReactions = {
     init() {
         this._setupEventListeners();
         this._initializeReactionButtons();
+        this._setupResizeHandler();
         return this;
+    },
+    
+    /**
+     * Set up resize event handler to adjust panel positions on viewport changes
+     */
+    _setupResizeHandler() {
+        // Throttle the resize event to avoid performance issues
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Hide all panels on resize to prevent positioning issues
+                document.querySelectorAll('.reaction-panel, .reaction-users-panel, .mobile-backdrop').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+            }, 250);
+        });
     },
     
     /**
@@ -173,6 +191,14 @@ export const CommentReactions = {
                 const panel = e.target.closest('.reaction-users-panel');
                 if (panel) {
                     panel.style.display = 'none';
+                    
+                    // Also hide the backdrop if it exists
+                    if (panel.id) {
+                        const backdrop = document.querySelector(`.mobile-backdrop[data-for-panel="${panel.id}"]`);
+                        if (backdrop) {
+                            backdrop.style.display = 'none';
+                        }
+                    }
                 }
             }
         });
@@ -241,14 +267,14 @@ export const CommentReactions = {
                 <button class="close-users-panel" aria-label="Close">&times;</button>
             `;
             
-            // Create user list
+            // Create user list as a horizontal wrapping list with pill badges
             const userList = document.createElement('div');
             userList.className = 'reaction-users-list';
             
-            // Add users
+            // Add users as pill badges
             const userArray = users.split(', ');
             userArray.forEach(username => {
-                const userItem = document.createElement('div');
+                const userItem = document.createElement('span');
                 userItem.className = 'reaction-user-item';
                 userItem.textContent = username;
                 userList.appendChild(userItem);
@@ -258,8 +284,35 @@ export const CommentReactions = {
             usersPanel.appendChild(header);
             usersPanel.appendChild(userList);
             
-            // Insert after the button
-            button.parentNode.insertBefore(usersPanel, button.nextSibling);
+            // Check if we're on mobile
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                // For mobile, we append to body for the bottom sheet
+                document.body.appendChild(usersPanel);
+                
+                // Create backdrop for mobile
+                const backdrop = document.createElement('div');
+                backdrop.className = 'mobile-backdrop';
+                backdrop.dataset.forPanel = usersPanel.id = `reaction-users-panel-${Date.now()}`;
+                
+                // Close panel when backdrop is clicked
+                backdrop.addEventListener('click', () => {
+                    usersPanel.style.display = 'none';
+                    backdrop.style.display = 'none';
+                });
+                
+                document.body.appendChild(backdrop);
+            } else {
+                // For desktop, we insert inside the existing-reactions div
+                const reactionsContainer = button.closest('.existing-reactions');
+                if (reactionsContainer) {
+                    reactionsContainer.appendChild(usersPanel);
+                } else {
+                    // Fallback to inserting after the button
+                    button.parentNode.insertBefore(usersPanel, button.nextSibling);
+                }
+            }
         }
         
         // Toggle visibility
@@ -272,8 +325,31 @@ export const CommentReactions = {
             }
         });
         
+        // Hide all backdrops
+        document.querySelectorAll('.mobile-backdrop').forEach(backdrop => {
+            backdrop.style.display = 'none';
+        });
+        
         // Toggle this panel
         usersPanel.style.display = isVisible ? 'none' : 'flex';
+        
+        // Show backdrop if on mobile and panel is visible
+        if (!isVisible && window.innerWidth < 768) {
+            const backdrop = document.querySelector(`.mobile-backdrop[data-for-panel="${usersPanel.id}"]`);
+            if (backdrop) {
+                backdrop.style.display = 'block';
+            }
+        }
+        
+        // Add animation class to enhance appearance
+        if (!isVisible) {
+            // Remove and re-add for animation to work on repeated opens
+            usersPanel.classList.remove('fadeIn');
+            // Use setTimeout to ensure the class is applied after the display change
+            setTimeout(() => {
+                usersPanel.classList.add('fadeIn');
+            }, 10);
+        }
     },
     
     /**

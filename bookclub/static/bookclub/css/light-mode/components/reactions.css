@@ -1,6 +1,23 @@
 /* ===========================
  * Light Mode Reactions Styles
  * =========================== */
+
+/* Reaction button styling */
+.light-mode .reaction-btn {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.light-mode .reaction-btn:hover {
+    background-color: #e9ecef;
+}
+
+.light-mode .reaction-btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
 /* Make it more obvious the count is clickable */
 .light-mode .reaction-count:hover {
     background-color: rgba(0, 0, 0, 0.1);
@@ -9,6 +26,30 @@
 /* Add visual indicator for mobile taps */
 .light-mode .reaction-count:active {
     background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Add subtle indicator to show it's interactive */
+.light-mode .reaction-count::after {
+    background-color: currentColor;
+    opacity: 0.5;
+}
+
+/* Reaction panel styling */
+.light-mode .reaction-panel {
+    background-color: #fff;
+    border-color: #dee2e6;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Reaction option buttons */
+.light-mode .reaction-option {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.light-mode .reaction-option:hover {
+    background-color: #e9ecef;
+    transform: scale(1.1);
 }
 
 /* Reaction users panel */
@@ -35,12 +76,25 @@
     background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Individual user item */
-.light-mode .reaction-user-item:hover {
-    background-color: #f8f9fa;
+/* User list and items */
+.light-mode .reaction-users-list {
+    background-color: #fff;
 }
 
-/* Adjust users panel for mobile */
+.light-mode .reaction-user-item {
+    background-color: #f1f3f5;
+    border-radius: 1rem;
+}
+
+.light-mode .reaction-user-item:hover {
+    background-color: #e9ecef;
+}
+
+/* Light mode mobile-specific styles */
+.light-mode .mobile-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 @media (max-width: 767px) {
     .light-mode .reaction-users-panel {
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
