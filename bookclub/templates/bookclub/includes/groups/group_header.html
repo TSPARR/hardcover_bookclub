@@ -1,8 +1,7 @@
-<!-- includes/group_header.html -->
 <div class="card shadow-sm mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+            <div class="mb-3 mb-md-0">
                 <h1 class="mb-2">{{ group.name }}</h1>
                 <p class="lead mb-3">{{ group.description }}</p>
                 
@@ -15,25 +14,29 @@
                 </div>
             </div>
             
-            <div class="d-flex flex-column align-items-end">
-                <a href="{% url 'home' %}" class="btn btn-secondary mb-2">Back to Groups</a>
-                
-                <a href="{% url 'attribution_analytics' group.id %}" class="btn btn-outline-info mb-2">
-                    <i class="bi bi-graph-up"></i> Book Pick Analytics
-                </a>
-                
-                {% if is_admin %}
-                <div class="mt-2">
-                    <a href="{% url 'manage_group_members' group.id %}" class="btn btn-sm btn-outline-primary me-1">
-                        <i class="bi bi-people"></i> Manage Members
+            <div class="d-flex flex-column align-items-stretch align-items-md-end w-100 w-md-auto">
+                <div class="d-flex flex-wrap justify-content-start justify-content-md-end gap-2 mb-2">
+                    <a href="{% url 'home' %}" class="btn btn-secondary flex-grow-1 flex-md-grow-0">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Groups
                     </a>
                     
-                    <a href="{% url 'manage_invitations' group.id %}" class="btn btn-sm btn-outline-success me-1">
-                        <i class="bi bi-envelope"></i> Invitations
+                    <a href="{% url 'attribution_analytics' group.id %}" class="btn btn-outline-info flex-grow-1 flex-md-grow-0">
+                        <i class="bi bi-graph-up me-1"></i>Book Pick Analytics
+                    </a>
+                </div>
+                
+                {% if is_admin %}
+                <div class="d-flex flex-wrap justify-content-start justify-content-md-end gap-2">
+                    <a href="{% url 'manage_group_members' group.id %}" class="btn btn-sm btn-outline-primary flex-grow-1 flex-md-grow-0">
+                        <i class="bi bi-people me-1"></i>Manage Members
+                    </a>
+                    
+                    <a href="{% url 'manage_invitations' group.id %}" class="btn btn-sm btn-outline-success flex-grow-1 flex-md-grow-0">
+                        <i class="bi bi-envelope me-1"></i>Invitations
                     </a>
 
-                    <a href="{% url 'manage_member_starting_points' group.id %}" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-calendar-date"></i> Starting Points
+                    <a href="{% url 'manage_member_starting_points' group.id %}" class="btn btn-sm btn-outline-secondary flex-grow-1 flex-md-grow-0">
+                        <i class="bi bi-calendar-date me-1"></i>Starting Points
                     </a>
                 </div>
                 {% endif %}
