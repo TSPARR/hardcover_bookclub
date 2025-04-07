@@ -5,97 +5,77 @@ export const SortManager = {
     init(bookId) {
         this.bookId = bookId;
         
-        // Defer setup to ensure DOM is fully loaded
-        this._deferSetup();
+        // Setup dropdown event listeners for saving sort options
+        this._setupDropdownListeners();
+        
+        // Set up event listener for tab changes
+        this._setupTabListener();
         
         return this;
     },
     
     /**
-     * Defer setup to ensure DOM elements are available
+     * Set up event listeners for dropdown items
      */
-    _deferSetup() {
-        // Use mutation observer as a backup to catch dynamically loaded elements
-        const observer = new MutationObserver((mutations, obs) => {
-            const sortDropdown = document.getElementById('sortDropdown');
-            if (sortDropdown) {
-                this._setupSortDropdown(sortDropdown);
-                obs.disconnect();
-            }
-        });
-        
-        // Start observing the entire document
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-        
-        // Fallback timeout in case mutation observer fails
-        setTimeout(() => {
-            const sortDropdown = document.getElementById('sortDropdown');
-            if (sortDropdown) {
-                this._setupSortDropdown(sortDropdown);
-            } else {
-                console.warn('[SortManager] Could not find sort dropdown element after timeout');
-            }
-        }, 2000);
-    },
-    
-    /**
-     * Set up the sort dropdown element
-     * @param {HTMLElement} sortDropdown - The sort dropdown button
-     */
-    _setupSortDropdown(sortDropdown) {
-        // Try to retrieve saved sort option from localStorage
-        const savedSortOption = this._getSavedSortOption();
-        const currentSortOption = this._getCurrentSortFromURL();
-        
-        
-        // Add event listeners to dropdown items
+    _setupDropdownListeners() {
         const dropdownItems = document.querySelectorAll('.dropdown-item[data-sort-option]');
         dropdownItems.forEach(item => {
             item.addEventListener('click', (e) => {
-                e.preventDefault();
                 const sortOption = item.dataset.sortOption;
-                
-                // Save to localStorage
                 this._saveSortOption(sortOption);
-                
-                // Trigger navigation
-                window.location.href = item.getAttribute('href');
             });
         });
-        
-        // Only redirect if no current sort option is set
-        if (!currentSortOption && savedSortOption) {
+    },
+    
+    /**
+     * Set up listener for tab changes
+     */
+    _setupTabListener() {
+        // Listen for Bootstrap tab change events
+        document.addEventListener('shown.bs.tab', (event) => {
             
-            // Find the corresponding dropdown item
-            const savedItem = document.querySelector(`.dropdown-item[data-sort-option="${savedSortOption}"]`);
-            if (savedItem) {
-                
-                // Construct URL with saved sort option
-                const url = new URL(window.location.href);
-                url.searchParams.set('sort', savedSortOption);
-                url.searchParams.set('tab', 'discussion');
-                
-                // Reload the page with the new sort option
-                window.location.href = url.toString();
+            // Check if discussion tab was selected
+            if (event.target.id === 'discussion-tab') {
+                this._handleDiscussionTabActivation();
             }
+        });
+        
+        // Fallback for direct URL navigation
+        this._checkInitialTabState();
+    },
+    
+    /**
+     * Check initial tab state on page load
+     */
+    _checkInitialTabState() {
+        const url = new URL(window.location.href);
+        const tabParam = url.searchParams.get('tab');
+        const discussionTab = document.getElementById('discussion-tab');
+                
+        if ((tabParam === 'discussion') || 
+            (discussionTab && discussionTab.classList.contains('active'))) {
+            this._handleDiscussionTabActivation();
         }
     },
     
     /**
-     * Get the display text for a sort option
-     * @param {string} sortOption - The sort option
-     * @returns {string} The display text
+     * Handle activation of discussion tab
      */
-    _getSortText(sortOption) {
-        switch (sortOption) {
-            case 'date_desc': return 'Newest First';
-            case 'date_asc': return 'Oldest First';
-            case 'progress_desc': return 'Most Progress First';
-            case 'progress_asc': return 'Least Progress First';
-            default: return 'Sort';
+    _handleDiscussionTabActivation() {
+        const savedSortOption = this._getSavedSortOption();
+        const currentSortOption = this._getCurrentSortFromURL();
+        
+        // Only redirect if no current sort option is set and we have a saved option
+        if (!currentSortOption && savedSortOption) {
+            console.log('[SortManager] Redirecting to saved sort:', savedSortOption);
+            
+            // Construct URL with saved sort option
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', savedSortOption);
+            url.searchParams.set('tab', 'discussion');
+            
+            // Reload the page with the new sort option
+            window.location.href = url.toString();
         }
     },
     

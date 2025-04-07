@@ -27,8 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const sortManager = SortManager.init(bookId);
         const tabManager = TabManager.init();
         
-        // Make the modules communicate with each other
-        
         // When progress updates, check spoilers
         progressTracker.onProgressUpdated = (newProgress) => {
             spoilerManager.checkSpoilers(newProgress);
@@ -46,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set up validation for progress fields
         progressTracker._setupProgressValidation();
         
-        // Expose modules to window for cross-module access (for functions that need direct access)
+        // Expose modules to window for cross-module access
         window.ProgressTracker = progressTracker;
         window.HardcoverSync = hardcoverSync;
         window.SpoilerManager = spoilerManager;
