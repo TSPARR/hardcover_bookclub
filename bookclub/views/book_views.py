@@ -908,15 +908,24 @@ def edit_comment(request, comment_id):
             comment.save()
             messages.success(request, "Your comment has been updated.")
             return redirect(
-                f"{reverse('book_detail', args=[book.id])}?tab=discussion#comment-{comment.id}"
+                get_redirect_url_with_params(
+                    request,
+                    "book_detail",
+                    {"book_id": book.id},
+                    f"comment-{comment.id}",
+                )
             )
     else:
         form = CommentForm(instance=comment)
 
-    return redirect(
-        get_redirect_url_with_params(
-            request, "book_detail", {"book_id": book.id}, f"comment-{comment.id}"
-        )
+    return render(
+        request,
+        "bookclub/edit_comment.html",
+        {
+            "form": form,
+            "comment": comment,
+            "book": book,
+        },
     )
 
 
