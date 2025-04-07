@@ -12,7 +12,9 @@
     background-color: rgba(13, 110, 253, 0.7);
 }
 
-.dark-mode .progress::after {
+/* Only apply percentage display to specific progress bars */
+.dark-mode .progress.progress-styled::after,
+.dark-mode .progress.group-members-progress::after {
     content: attr(data-progress) "%";
     position: absolute;
     top: 50%;
@@ -134,12 +136,6 @@
 .dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar {
     background-color: rgba(13, 110, 253, 0.7);
     color: #fff;
-}
-
-.dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar::after,
-.dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar::after {
-    color: #ffffff;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
 .dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
