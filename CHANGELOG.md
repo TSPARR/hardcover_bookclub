@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.3.0
+- Added optional Dollar Bets feature to allow fun wagers on what will happen in the book
+- Major CSS overhaul to make it easier to adjust the site to be mobile responsive
+
 ## Release 0.2.0
 - Add ability for web page to be a PWA
 - Remember comment sorting
