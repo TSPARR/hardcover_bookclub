@@ -396,7 +396,7 @@ def process_hardcover_edition_data(book, comment, hardcover_data, user_progress,
 
 def get_redirect_url_with_params(request, view_name, kwargs=None, anchor=None):
     """
-    Build a redirect URL that preserves relevant query parameters like tab and sort.
+    Build a redirect URL for the discussion tab that preserves relevant query parameters.
 
     Args:
         request: The current request
@@ -407,25 +407,19 @@ def get_redirect_url_with_params(request, view_name, kwargs=None, anchor=None):
     Returns:
         String with the full redirect URL
     """
-
     # Get the base URL
     redirect_url = reverse(view_name, kwargs=kwargs)
 
-    # Get parameters to preserve
-    params = []
-    tab = request.GET.get("tab")
+    # Always use discussion tab
+    params = ["tab=discussion"]
+
+    # Add sort parameter if it exists in the request
     sort = request.GET.get("sort")
-
-    if tab:
-        params.append(f"tab={tab}")
-
-    # Only include sort parameter when we're on the discussion tab
-    if sort and (tab == "discussion" or "discussion" in request.POST.get("tab", "")):
+    if sort:
         params.append(f"sort={sort}")
 
     # Add parameters to URL
-    if params:
-        redirect_url += "?" + "&".join(params)
+    redirect_url += "?" + "&".join(params)
 
     # Add fragment identifier if provided
     if anchor:
