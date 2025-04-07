@@ -20,7 +20,7 @@ export const SortManager = {
         // Set up event listeners for the sort dropdown
         this._setupSortDropdown();
         
-        // Apply any sort preference from localStorage
+        // Apply any sort preference from localStorage, but only if we're on the discussion tab
         this._applySavedSortPreference();
         
         return this;
@@ -70,25 +70,24 @@ export const SortManager = {
     },
     
     /**
-     * Apply any saved sort preference
+     * Apply any saved sort preference, but only if already on discussion tab
      */
     _applySavedSortPreference() {
-        // Get the saved preference
-        const savedSort = Storage.get(this.storageKey);
+        // Check if we're already on the discussion tab
+        const currentUrl = new URL(window.location.href);
+        const currentTab = currentUrl.searchParams.get('tab');
         
-        // Check if we're not already using the saved sort
-        if (savedSort) {
-            const currentUrl = new URL(window.location.href);
+        // Only apply saved sort if we're already on the discussion tab
+        if (currentTab === 'discussion') {
+            // Get the saved preference
+            const savedSort = Storage.get(this.storageKey);
             const currentSort = currentUrl.searchParams.get('sort');
             
             // If URL doesn't have a sort parameter or it's different from saved preference
-            if (!currentSort && savedSort) {
-                // Create a clean URL with only the sort and tab parameters
-                const newUrl = new URL(window.location.origin + window.location.pathname);
-                newUrl.searchParams.set('sort', savedSort);
-                newUrl.searchParams.set('tab', 'discussion');
-                
-                window.location.href = newUrl.toString();
+            if (savedSort && !currentSort) {
+                // Apply the saved sort but keep the tab parameter
+                currentUrl.searchParams.set('sort', savedSort);
+                window.location.href = currentUrl.toString();
             }
         }
     }
