@@ -1,6 +1,6 @@
 <!-- includes/book_reorder_form.html -->
 {% load bookclub_extras %}
-<form method="post" id="reorderForm" class="d-none">
+<form method="post">
     {% csrf_token %}
     <input type="hidden" name="book_order" id="bookOrderInput" value="">
     

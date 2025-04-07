@@ -112,7 +112,7 @@
                             {% if group.active_book %}
                             <div class="d-flex align-items-center">
                                 <span class="badge bg-success me-2">Active Book</span>
-                                <span class="text-truncate">{{ group.active_book.title|split:":"|first|trim }}</span>
+                                <span class="text-truncate d-inline-block" style="max-width: 85%;">{{ group.active_book.title|split:":"|first|trim }}</span>
                             </div>
                             {% else %}
                             <span class="text-muted">No active book</span>
@@ -120,8 +120,8 @@
                         </div>
                         
                         <div class="col-md-2 text-md-end">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-secondary me-2">{{ group.members.count }} Members</span>
+                            <div class="d-flex justify-content-md-end align-items-center">
+                                <span class="badge bg-secondary me-2">{{ group.members.count }} <span class="members-text">Members</span></span>
                                 <a href="{% url 'group_detail' group.id %}" class="btn btn-sm btn-outline-primary">
                                     View
                                 </a>

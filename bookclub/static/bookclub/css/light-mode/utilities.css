@@ -1,166 +1,203 @@
-/* Utility classes - Light Mode */
-
-/* Spacing utilities */
-.mt-auto {
-    margin-top: auto !important;
-}
-
-.mb-auto {
-    margin-bottom: auto !important;
-}
-
-.ms-auto {
-    margin-left: auto !important;
-}
-
-.me-auto {
-    margin-right: auto !important;
-}
-
-/* Text utilities */
-.text-muted {
+/* ===========================
+ * Light Mode Utility Styles
+ * =========================== */
+/* Text utilities - Light Mode */
+.light-mode .text-muted {
     color: #6c757d !important;
 }
 
-.text-primary {
+.light-mode .text-primary {
     color: #0d6efd !important;
 }
 
-.text-success {
+.light-mode .text-success {
     color: #198754 !important;
 }
 
-.text-warning {
+.light-mode .text-warning {
     color: #ffc107 !important;
 }
 
-.text-danger {
+.light-mode .text-danger {
     color: #dc3545 !important;
 }
 
-.text-info {
+.light-mode .text-info {
     color: #0dcaf0 !important;
 }
 
-/* Truncate text with ellipsis */
-.text-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Background utilities */
-.bg-light {
+/* Background utilities - Light Mode */
+.light-mode .bg-light {
     background-color: #f8f9fa !important;
 }
 
-.bg-dark {
+.light-mode .bg-dark {
     background-color: #212529 !important;
 }
 
-.bg-primary {
+.light-mode .bg-primary {
     background-color: #0d6efd !important;
 }
 
-.bg-secondary {
+.light-mode .bg-secondary {
     background-color: #6c757d !important;
 }
 
-/* Border utilities */
-.border {
+/* Border utilities - Light Mode */
+.light-mode .border {
     border: 1px solid #dee2e6 !important;
 }
 
-.border-top {
+.light-mode .border-top {
     border-top: 1px solid #dee2e6 !important;
 }
 
-.border-bottom {
+.light-mode .border-bottom {
     border-bottom: 1px solid #dee2e6 !important;
 }
 
-.border-primary {
+.light-mode .border-primary {
     border-color: #0d6efd !important;
 }
 
-.border-secondary {
+.light-mode .border-secondary {
     border-color: #6c757d !important;
 }
 
-/* Rounded corners */
-.rounded {
-    border-radius: 0.375rem !important;
-}
-
-.rounded-circle {
-    border-radius: 50% !important;
-}
-
-.rounded-pill {
-    border-radius: 50rem !important;
-}
-
-/* Shadows */
-.shadow {
+/* Shadows - Light Mode */
+.light-mode .shadow {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
-.shadow-sm {
+.light-mode .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
-.shadow-lg {
+.light-mode .shadow-lg {
     box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
 }
 
-/* Display utilities */
-.d-none {
-    display: none !important;
+/* Progress indicator - Light Mode */
+.light-mode .progress {
+    background-color: #e9ecef;
 }
 
-.d-block {
-    display: block !important;
+.light-mode .progress-bar {
+    background-color: #0d6efd;
 }
 
-.d-flex {
-    display: flex !important;
+.light-mode .progress .bg-success {
+    background-color: #198754 !important;
 }
 
-.d-inline {
-    display: inline !important;
+.light-mode .progress-indicator .info {
+    color: #6c757d;
 }
 
-.d-inline-block {
-    display: inline-block !important;
+.light-mode .progress-indicator .d-flex {
+    color: #212529;
 }
 
-/* Position utilities */
-.position-relative {
-    position: relative !important;
+/* Pagination styles - Light Mode */
+.light-mode .pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #ffffff;
 }
 
-.position-absolute {
-    position: absolute !important;
+.light-mode .pagination .page-item.disabled .page-link {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
 }
 
-.position-fixed {
-    position: fixed !important;
+.light-mode .page-link {
+    background-color: #ffffff;
+    border-color: #dee2e6;
+    color: #0d6efd;
 }
 
-/* Overflow utilities */
-.overflow-hidden {
-    overflow: hidden !important;
+.light-mode .pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #0a58ca;
 }
 
-.overflow-auto {
-    overflow: auto !important;
+/* Tooltip styling - Light Mode */
+.light-mode .tooltip-inner {
+    background-color: #000;
+    color: #fff;
 }
 
-/* Z-index utilities */
-.z-index-1 {
-    z-index: 1 !important;
+.light-mode #clearRating {
+    color: #6c757d;
+    border-color: #dee2e6;
 }
 
-.z-index-2 {
-    z-index: 2 !important;
+.light-mode #clearRating:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Accordion styling - Light Mode */
+.light-mode .accordion-button:not(.collapsed) {
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.light-mode .accordion-button {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.light-mode .accordion-button:after {
+    filter: none;
+}
+
+.light-mode .accordion-item {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .accordion-body {
+    background-color: #ffffff;
+    color: #212529;
+}
+
+/* Collapse toggle - Light Mode */
+.light-mode .collapse-toggle {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #212529;
+}
+
+.light-mode .collapse-toggle:hover {
+    background-color: #e9ecef;
+}
+
+.light-mode .collapse-toggle .bi-chevron-right {
+    color: #212529;
+}
+
+.light-mode .collapse-toggle[aria-expanded="true"] .bi-chevron-right {
+    transform: rotate(90deg);
+}
+
+/* Sync info - Light Mode */
+.light-mode .sync-info {
+    color: #6c757d !important;
+}
+
+/* Jumbotron styling - Light Mode */
+.light-mode .jumbotron {
+    padding: 4rem 2rem;
+    margin-bottom: 2rem;
+    background-color: #e9ecef;
+    border-radius: 0.3rem;
+}
+
+.light-mode .display-4 {
+    font-size: 3.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+    color: #212529;
 }

@@ -1,0 +1,39 @@
+/* ===========================
+ * Global Form Styles
+ * =========================== */
+ .form-control {
+    border-radius: 0.25rem;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Form validation */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Helper lists in forms */
+.form-helper-list {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.form-helper-list li {
+    margin-bottom: 0.25rem;
+}
+
+.form-helper-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* API key field styling - non-color specific */
+#id_hardcover_api_key,
+input[name="hardcover_api_key"] {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+}

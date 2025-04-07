@@ -236,7 +236,7 @@ def book_detail(request, book_id):
                 return redirect(
                     f"{reverse('book_detail', args=[book.id])}#comment-{comment.parent.id}"
                 )
-            return redirect("book_detail", book_id=book.id)
+            return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
     else:
         form = CommentForm()
 
@@ -892,7 +892,9 @@ def edit_comment(request, comment_id):
 
             comment.save()
             messages.success(request, "Your comment has been updated.")
-            return redirect("book_detail", book_id=book.id)
+            return redirect(
+                f"{reverse('book_detail', args=[book.id])}?tab=discussion#comment-{comment.id}"
+            )
     else:
         form = CommentForm(instance=comment)
 
@@ -921,7 +923,7 @@ def delete_comment(request, comment_id):
     if request.method == "POST":
         comment.delete()
         messages.success(request, "Your comment has been deleted.")
-        return redirect("book_detail", book_id=book.id)
+        return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
     return render(
         request,

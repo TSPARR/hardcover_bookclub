@@ -1,0 +1,142 @@
+/* ===========================
+ * Global Utility Styles
+ * =========================== */
+/* Spacing utilities */
+.mt-auto {
+    margin-top: auto !important;
+}
+
+.mb-auto {
+    margin-bottom: auto !important;
+}
+
+.ms-auto {
+    margin-left: auto !important;
+}
+
+.me-auto {
+    margin-right: auto !important;
+}
+
+/* Truncate text with ellipsis */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Rounded corners */
+.rounded {
+    border-radius: 0.375rem !important;
+}
+
+.rounded-circle {
+    border-radius: 50% !important;
+}
+
+.rounded-pill {
+    border-radius: 50rem !important;
+}
+
+/* Display utilities */
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.d-inline {
+    display: inline !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+/* Position utilities */
+.position-relative {
+    position: relative !important;
+}
+
+.position-absolute {
+    position: absolute !important;
+}
+
+.position-fixed {
+    position: fixed !important;
+}
+
+/* Overflow utilities */
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+.overflow-auto {
+    overflow: auto !important;
+}
+
+/* Z-index utilities */
+.z-index-1 {
+    z-index: 1 !important;
+}
+
+.z-index-2 {
+    z-index: 2 !important;
+}
+
+/* Progress indicator structure */
+.progress {
+    border-radius: 0.25rem;
+    height: 1.5rem;
+}
+
+.progress-bar {
+    color: white;
+    text-align: center;
+    line-height: 1.5rem;
+    font-weight: bold;
+    transition: width 0.6s ease;
+}
+
+.progress-indicator {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.progress-indicator .progress {
+    height: 8px;
+    margin-bottom: 0.25rem;
+}
+
+.progress-indicator .info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+}
+
+.progress-indicator .badge {
+    font-weight: 600;
+}
+
+/* ===========================
+ * Responsive Styles
+ * =========================== */
+@media (max-width: 767.98px) {
+    .book-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}

@@ -44,9 +44,10 @@ export const SortManager = {
                 // Save the user's preference
                 this._saveSortPreference(sortOption);
                 
-                // Navigate to the URL without reloading the page if possible
-                const currentUrl = new URL(window.location.href);
+                // Create a clean URL with only the sort and tab parameters
+                const currentUrl = new URL(window.location.origin + window.location.pathname);
                 currentUrl.searchParams.set('sort', sortOption);
+                currentUrl.searchParams.set('tab', 'discussion');
                 
                 // Update dropdown button text
                 const sortDropdownButton = document.getElementById('sortDropdown');
@@ -54,7 +55,7 @@ export const SortManager = {
                     sortDropdownButton.textContent = 'Sort by: ' + option.textContent;
                 }
                 
-                // Navigate to the new URL
+                // Navigate to the new URL without any fragment identifier
                 window.location.href = currentUrl.toString();
             });
         });
@@ -82,9 +83,12 @@ export const SortManager = {
             
             // If URL doesn't have a sort parameter or it's different from saved preference
             if (!currentSort && savedSort) {
-                // Update the URL with the saved preference
-                currentUrl.searchParams.set('sort', savedSort);
-                window.location.href = currentUrl.toString();
+                // Create a clean URL with only the sort and tab parameters
+                const newUrl = new URL(window.location.origin + window.location.pathname);
+                newUrl.searchParams.set('sort', savedSort);
+                newUrl.searchParams.set('tab', 'discussion');
+                
+                window.location.href = newUrl.toString();
             }
         }
     }

@@ -1,6 +1,7 @@
-/* Dark Mode Table Styles */
-
-/* Base Progress Bar Styles */
+/* ===========================
+ * Dark Mode Table Styles
+ * =========================== */
+/* Base Progress Bar Styles - Dark Mode */
 .dark-mode .progress {
     background-color: rgba(255, 255, 255, 0.15);
     height: 1.75rem;
@@ -16,12 +17,12 @@
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
-/* Base Table Styles */
-table {
+/* Base Table Styles - Dark Mode */
+.dark-mode table {
     color: #e1e1e1;
 }
 
-.table {
+.dark-mode .table {
     color: #f0f0f0;
     border-color: #3a3a3a;
     --bs-table-color: #f0f0f0 !important;
@@ -35,386 +36,159 @@ table {
     --bs-table-hover-bg: rgba(13, 110, 253, 0.25) !important;
 }
 
-.table th,
-.table td {
-    padding: 1rem 1.25rem;
+.dark-mode .table th,
+.dark-mode .table td {
     border-color: #3a3a3a !important;
-    vertical-align: middle;
 }
 
-.table-striped tbody tr:nth-of-type(odd) {
+.dark-mode .table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(255, 255, 255, 0.08);
 }
 
-.table-hover tbody tr:hover {
+.dark-mode .table-hover tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.12);
     --bs-table-accent-bg: var(--bs-table-hover-bg) !important;
 }
 
-.table thead th {
+.dark-mode .table thead th {
     color: #ffffff !important;
     background-color: #2c2c2c !important;
     border-color: #3a3a3a !important;
-    padding: 1rem 1.25rem;
     font-weight: 600;
 }
 
-/* Table text styling */
-.table tr.text-muted {
+/* Table text styling - Dark Mode */
+.dark-mode .table tr.text-muted {
     color: #c0c0c0 !important;
 }
 
-.table tr.text-muted td {
+.dark-mode .table tr.text-muted td {
     color: #c0c0c0 !important;
 }
 
-.table tr.text-muted:hover td {
+.dark-mode .table tr.text-muted:hover td {
     color: #ffffff !important;
 }
 
-.table .badge {
+.dark-mode .table .badge {
     color: #ffffff !important;
 }
 
-.table tr.text-muted .badge {
+.dark-mode .table tr.text-muted .badge {
     opacity: 0.9 !important;
 }
 
-.table tr.text-muted:hover .badge {
+.dark-mode .table tr.text-muted:hover .badge {
     opacity: 1 !important;
 }
 
-.badge.bg-warning.text-dark {
+.dark-mode .badge.bg-warning.text-dark {
     color: #000000 !important;
 }
 
-/* Button styling in tables */
-.table tr.text-muted .btn-outline-primary,
-.table tr.text-muted .btn-outline-danger {
+/* Button styling in tables - Dark Mode */
+.dark-mode .table tr.text-muted .btn-outline-primary,
+.dark-mode .table tr.text-muted .btn-outline-danger {
     opacity: 0.9 !important;
 }
 
-.table tr.text-muted:hover .btn-outline-primary,
-.table tr.text-muted:hover .btn-outline-danger {
+.dark-mode .table tr.text-muted:hover .btn-outline-primary,
+.dark-mode .table tr.text-muted:hover .btn-outline-danger {
     opacity: 1 !important;
 }
 
-/* Table bordered styles */
-.table-bordered {
+/* Table bordered styles - Dark Mode */
+.dark-mode .table-bordered {
     border-color: #3a3a3a;
 }
 
-.table-bordered th,
-.table-bordered td {
+.dark-mode .table-bordered th,
+.dark-mode .table-bordered td {
     border-color: #3a3a3a;
 }
 
-.table-sm th,
-.table-sm td {
-    padding: 0.5rem 0.75rem;
-}
-
-/* Links in tables */
-.table a {
+/* Links in tables - Dark Mode */
+.dark-mode .table a {
     color: #6ea8fe;
 }
 
-.table a:hover {
+.dark-mode .table a:hover {
     color: #8abbff;
 }
 
-/* Top Rated Books and Book Timeline Table Styles */
-.top-rated-books-table,
-.book-timeline-table {
-    color: #f0f0f0;
-}
-
-.top-rated-books-table thead th,
-.book-timeline-table thead th {
-    background-color: #2c2c2c;
-    color: #ffffff;
-    border-color: #3a3a3a;
-    padding: 1rem 1.25rem;
-}
-
-.top-rated-books-table tr,
-.book-timeline-table tr {
-    border-color: #3a3a3a;
-}
-
-.top-rated-books-table .table-secondary,
-.book-timeline-table .table-secondary {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-.top-rated-books-table .collapse-toggle,
-.book-timeline-table .collapse-toggle {
-    background-color: #2c2c2c;
-    border-color: #3a3a3a;
-    color: #f0f0f0;
-}
-
-.top-rated-books-table .collapse-toggle:hover,
-.book-timeline-table .collapse-toggle:hover {
-    background-color: #3a3a3a;
-}
-
-.top-rated-books-table .btn-outline-secondary,
-.book-timeline-table .btn-outline-secondary {
-    background-color: #2c2c2c;
-    border-color: #4d4d4d;
-    color: #f0f0f0;
-}
-
-.top-rated-books-table .btn-outline-secondary:hover,
-.book-timeline-table .btn-outline-secondary:hover {
-    background-color: #3a3a3a;
-}
-
-.top-rated-books-table .text-muted,
-.book-timeline-table .text-muted {
-    color: #c0c0c0 !important;
-}
-
-/* Fairness Metrics Table Styling */
-.fairness-metrics {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.fairness-metrics thead {
-    background-color: transparent;
-}
-
-.fairness-metrics thead th {
-    color: #f0f0f0 !important;
-    border-bottom: 1px solid #3a3a3a !important;
-    padding: 1rem 1.25rem;
-    font-weight: 600;
-}
-
-.fairness-metrics tbody tr {
-    transition: background-color 0.2s ease;
-}
-
-.fairness-metrics tbody tr.text-under {
-    background-color: rgba(13, 202, 240, 0.15) !important;
-    color: #8dd8fc !important;
-}
-
-.fairness-metrics tbody tr.text-over {
-    background-color: rgba(255, 193, 7, 0.15) !important;
-    color: #ffd249 !important;
-}
-
-.fairness-metrics tbody tr.text-balanced {
-    background-color: rgba(25, 135, 84, 0.15) !important;
-    color: #20c997 !important;
-}
-
-.fairness-metrics tbody td {
-    padding: 1rem 1.25rem;
-    vertical-align: middle;
-    border-bottom: 1px solid #3a3a3a;
-}
-
-.fairness-metrics .badge {
-    font-weight: 600;
-}
-
-.fairness-metrics .badge.bg-under {
-    background-color: #0dcaf0 !important;
-    color: #000 !important;
-}
-
-.fairness-metrics .badge.bg-over {
-    background-color: #ffc107 !important;
-    color: #000 !important;
-}
-
-.fairness-metrics .badge.bg-balanced {
-    background-color: #198754 !important;
-    color: #fff !important;
-}
-
-.fairness-metrics .text-recommendation {
-    color: #c0c0c0;
-    font-size: 0.875rem;
-}
-
-/* Progress Bar Styling for Group Members and Book Progress in Dark Mode */
-.group-members-progress-card .progress.group-members-progress,
-#bookDetailsAccordion .progress.progress-styled {
+/* Progress Bar Styling for Group Members - Dark Mode */
+.dark-mode .group-members-progress-card .progress.group-members-progress,
+.dark-mode #bookDetailsAccordion .progress.progress-styled {
     background-color: rgba(255, 255, 255, 0.15);
-    position: relative;
-    border-radius: 0.25rem;
-    margin: 0.75rem 0;
-    height: 1.75rem;
-    overflow: hidden;
 }
 
-.group-members-progress-card .progress.group-members-progress .progress-bar,
-#bookDetailsAccordion .progress.progress-styled .progress-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transition: width 0.3s ease;
+.dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar,
+.dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar {
     background-color: rgba(13, 110, 253, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: #fff;
-    font-weight: bold;
 }
 
-.group-members-progress-card .progress.group-members-progress .progress-bar::after,
-#bookDetailsAccordion .progress.progress-styled .progress-bar::after {
-    content: attr(data-progress);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 0.875rem;
+.dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar::after,
+.dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar::after {
     color: #ffffff;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
-    white-space: nowrap;
-    opacity: 1;
-    z-index: 1;
 }
 
-.group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
-#bookDetailsAccordion .progress.progress-styled .progress-bar.bg-secondary {
+.dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
+.dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar.bg-secondary {
     background-color: rgba(108, 117, 125, 0.7);
 }
 
-/* Group Members Progress Card Styling */
-.group-members-progress-card {
+/* Group Members Progress Card Styling - Dark Mode */
+.dark-mode .group-members-progress-card {
     border-color: #3a3a3a;
     background-color: #1e1e1e;
-    margin-bottom: 1.5rem;
 }
 
-/* Card header styling */
-.group-members-progress-card .card-header {
-    padding: 1rem 1.5rem;
+/* Card header styling - Dark Mode */
+.dark-mode .group-members-progress-card .card-header {
     background-color: #2c2c2c;
     border-bottom: 1px solid #3a3a3a;
-    border-bottom-width: 2px;
-    cursor: pointer;
 }
 
-.group-members-progress-card .card-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
+.dark-mode .group-members-progress-card .card-header h3 {
     color: #f0f0f0;
-    margin-bottom: 0;
 }
 
-.group-members-progress-card .card-header .badge {
-    font-size: 0.8rem;
-    padding: 0.35em 0.65em;
-    vertical-align: middle;
-}
-
-.group-members-progress-card .card-body {
-    padding: 0;
-}
-
-.group-members-progress-card .card-header .chevron-container {
+.dark-mode .group-members-progress-card .card-header .chevron-container {
     background-color: #252525;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.group-members-progress-card .card-header .chevron-container .group-progress-chevron {
+.dark-mode .group-members-progress-card .card-header .chevron-container .group-progress-chevron {
     color: #c0c0c0;
 }
 
-/* Group Members Table Structure */
-.group-members-progress-card .card-body {
-    padding: 0;
-}
-
-.group-members-progress-card .table {
-    margin-bottom: 0;
-}
-
-/* Table Column Distribution */
-.group-members-progress-card .table th:nth-child(1),
-.group-members-progress-card .table td:nth-child(1) {
-    width: 20%;
-    min-width: 140px;
-    padding-left: 1.5rem;
-}
-
-.group-members-progress-card .table th:nth-child(2),
-.group-members-progress-card .table td:nth-child(2) {
-    width: 60%;
-}
-
-.group-members-progress-card .table th:nth-child(3),
-.group-members-progress-card .table td:nth-child(3) {
-    width: 20%;
-    min-width: 120px;
-    text-align: center;
-    padding-right: 1.5rem;
-}
-
-/* Table header styling */
-.group-members-progress-card .table thead {
+/* Table header styling - Dark Mode */
+.dark-mode .group-members-progress-card .table thead {
     background-color: #222222;
 }
 
-.group-members-progress-card .table thead th {
-    padding: 1rem 1.5rem;
+.dark-mode .group-members-progress-card .table thead th {
     background-color: #222222;
     border-bottom: 2px solid #3a3a3a;
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-align: center;
     color: #ffffff;
 }
 
-/* Table row and cell styling */
-.group-members-progress-card .table tbody tr {
+/* Table row and cell styling - Dark Mode */
+.dark-mode .group-members-progress-card .table tbody tr {
     border-bottom: 1px solid #363636;
-    transition: background-color 0.2s ease;
 }
 
-.group-members-progress-card .table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.group-members-progress-card .table tbody tr:hover {
+.dark-mode .group-members-progress-card .table tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.group-members-progress-card .table td {
-    padding: 1.25rem 1.5rem;
-    vertical-align: middle;
+.dark-mode .group-members-progress-card .table td {
     color: #f0f0f0 !important;
 }
 
-/* Username styling */
-.group-members-progress-card .table td:first-child {
-    font-weight: 500;
-    letter-spacing: 0.01em;
-}
-
-/* Progress bar specific styling */
-.group-members-progress-card .progress.group-members-progress {
-    height: 1.5rem;
-    margin: 0;
-}
-
-/* Progress text styling */
-.group-members-progress-card .progress.group-members-progress::after {
+/* Progress text styling - Dark Mode */
+.dark-mode .group-members-progress-card .progress.group-members-progress::after {
     content: attr(data-progress) "%";
     position: absolute;
     top: 50%;
@@ -427,49 +201,288 @@ table {
     z-index: 1;
 }
 
-/* Status badges */
-.group-members-progress-card .badge {
-    padding: 0.5em 0.85em;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border-radius: 4px;
+/* Top Rated Books and Book Timeline Table Styles - Dark Mode */
+.dark-mode .top-rated-books-table,
+.dark-mode .book-timeline-table {
+    color: #f0f0f0;
 }
 
-/* Chevron animation */
-.group-progress-chevron {
-    transition: transform 0.3s ease;
+.dark-mode .top-rated-books-table thead th,
+.dark-mode .book-timeline-table thead th {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border-color: #3a3a3a;
 }
 
-.card-header[aria-expanded="true"] .group-progress-chevron {
-    transform: rotate(180deg);
+.dark-mode .top-rated-books-table tr,
+.dark-mode .book-timeline-table tr {
+    border-color: #3a3a3a;
 }
 
-/* Target the specific progress bar in home.html */
-.list-group-item .progress {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 0.25rem;
-    height: 8px;
-    position: relative;
-    overflow: hidden;
+.dark-mode .top-rated-books-table .table-secondary,
+.dark-mode .book-timeline-table .table-secondary {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Override the general progress::after rule */
-.list-group-item .progress::after {
-    content: none;
+.dark-mode .top-rated-books-table .collapse-toggle,
+.dark-mode .book-timeline-table .collapse-toggle {
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+    color: #f0f0f0;
+}
+
+.dark-mode .top-rated-books-table .collapse-toggle:hover,
+.dark-mode .book-timeline-table .collapse-toggle:hover {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .top-rated-books-table .btn-outline-secondary,
+.dark-mode .book-timeline-table .btn-outline-secondary {
+    background-color: #2c2c2c;
+    border-color: #4d4d4d;
+    color: #f0f0f0;
+}
+
+.dark-mode .top-rated-books-table .btn-outline-secondary:hover,
+.dark-mode .book-timeline-table .btn-outline-secondary:hover {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .top-rated-books-table .text-muted,
+.dark-mode .book-timeline-table .text-muted {
+    color: #c0c0c0 !important;
+}
+
+/* Fairness Metrics Table Styling - Dark Mode */
+.dark-mode .fairness-metrics {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.dark-mode .fairness-metrics thead {
+    background-color: transparent;
+}
+
+.dark-mode .fairness-metrics thead th {
+    color: #f0f0f0 !important;
+    border-bottom: 1px solid #3a3a3a !important;
+}
+
+.dark-mode .fairness-metrics tbody tr.text-under {
+    background-color: rgba(13, 202, 240, 0.15) !important;
+    color: #8dd8fc !important;
+}
+
+.dark-mode .fairness-metrics tbody tr.text-over {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    color: #ffd249 !important;
+}
+
+.dark-mode .fairness-metrics tbody tr.text-balanced {
+    background-color: rgba(25, 135, 84, 0.15) !important;
+    color: #20c997 !important;
+}
+
+.dark-mode .fairness-metrics tbody td {
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.dark-mode .fairness-metrics .badge.bg-under {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.dark-mode .fairness-metrics .badge.bg-over {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.dark-mode .fairness-metrics .badge.bg-balanced {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+.dark-mode .fairness-metrics .text-recommendation {
+    color: #c0c0c0;
 }
 
 /* Dollar bet table styles - Dark Mode */
-
-.dark-theme .bets-table th {
+.dark-mode .bets-table th {
     background-color: #343a40;
     color: #e9ecef;
     border-color: #495057;
 }
 
-.dark-theme .bets-table td {
+.dark-mode .bets-table td {
     border-color: #495057;
 }
 
-.dark-theme .table-empty-state {
+.dark-mode .table-empty-state {
     color: #adb5bd;
+}
+
+/* Mobile toggle button for previous books - Dark Mode */
+.dark-mode .btn-previous-books-toggle {
+    color: #adb5bd;
+    border-color: #4d4d4d;
+    background-color: #2c2c2c;
+}
+
+.dark-mode .btn-previous-books-toggle:hover {
+    background-color: #4d4d4d;
+    color: #fff;
+}
+
+.dark-mode .btn-previous-books-toggle:focus {
+    box-shadow: 0 0 0 0.25rem rgba(173, 181, 189, 0.25);
+}
+
+.dark-mode .badge-book-count {
+    background-color: #343a40;
+    color: #e9ecef;
+}
+
+/* Previous Books Table Improvements */
+
+/* Card and border styling */
+.dark-mode .previous-books-desktop .card-header.bg-white {
+    background-color: #2c2c2c !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Text styling */
+.dark-mode .previous-books-desktop .book-author {
+    font-size: 0.875rem;
+    color: #b0b0b0;
+}
+
+/* Table styling */
+.dark-mode .previous-books-desktop table th {
+    background-color: #222222;
+    color: #ffffff;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.dark-mode .previous-books-desktop table td {
+    border-top: 1px solid #3a3a3a;
+    color: #e1e1e1;
+}
+
+/* Button styling */
+.dark-mode .previous-books-desktop .btn-outline-primary {
+    color: #6ea8fe;
+    border-color: #6ea8fe;
+}
+
+.dark-mode .previous-books-desktop .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #ffffff;
+}
+
+/* Toggle button styling */
+.dark-mode .btn-previous-books-toggle {
+    background-color: #2c2c2c;
+    border-color: #4d4d4d;
+    color: #e1e1e1;
+}
+
+.dark-mode .btn-previous-books-toggle:hover {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .badge-book-count {
+    background-color: #343a40;
+    color: #e9ecef;
+}
+
+/* Table hover effect */
+.dark-mode .previous-books-desktop tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode #reorderForm {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.dark-mode #sortableBooks li {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode #sortableBooks li:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode #sortableBooks .handle {
+    color: #adb5bd;
+}
+
+.dark-mode #sortableBooks .book-author {
+    color: #adb5bd;
+}
+
+/* Dark mode styles for mobile reorder form */
+@media (max-width: 767px) {
+    .dark-mode #reorderForm {
+        background-color: #1e1e1e;
+    }
+
+    .dark-mode #sortableBooks li {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .dark-mode #sortableBooks li .handle {
+        color: #adb5bd;
+    }
+
+    .dark-mode #sortableBooks li .book-number {
+        background-color: #495057 !important;
+    }
+
+    .dark-mode #sortableBooks li strong {
+        color: #e1e1e1;
+    }
+
+    .dark-mode #sortableBooks li small.text-muted {
+        color: #adb5bd !important;
+    }
+
+    .dark-mode #sortableBooks li .bg-light {
+        background-color: #343a40 !important;
+    }
+
+    .dark-mode #sortableBooks li .text-muted {
+        color: #adb5bd !important;
+    }
+
+    .dark-mode #reorderForm .alert-info {
+        background-color: rgba(23, 162, 184, 0.15);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #8ed8e6;
+    }
+
+    .dark-mode #sortableBooks li .badge.bg-secondary {
+        background-color: #495057 !important;
+    }
+
+    .dark-mode #sortableBooks li .badge.bg-info {
+        background-color: #0dcaf0 !important;
+        color: #000 !important;
+    }
+
+    .dark-mode #sortableBooks li .badge.bg-primary {
+        background-color: #0d6efd !important;
+    }
+
+    .dark-mode #sortableBooks li .btn-outline-primary {
+        color: #6ea8fe;
+        border-color: #6ea8fe;
+    }
+
+    .dark-mode #sortableBooks li .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: #fff;
+    }
 }

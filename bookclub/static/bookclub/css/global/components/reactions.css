@@ -1,0 +1,207 @@
+/* ===========================
+ * Global Reactions Styles
+ * =========================== */
+/* Fix comment reaction buttons */
+.reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+    min-width: 4rem;   /* Ensure minimum width for better touch targets */
+    min-height: 2.25rem; /* Ensure minimum height for better touch targets */
+    padding: 0.4rem 0.75rem; /* Increased padding for better touch target */
+    position: relative;
+}
+
+/* Make reaction counts look clickable */
+.reaction-count {
+    margin-left: 0.25rem;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    padding: 0.25rem 0.5rem; /* Add padding to increase clickable area */
+    margin: -0.25rem -0.5rem; /* Negative margin to offset padding */
+    margin-left: 0; /* Reset left margin */
+    border-radius: 0.25rem; /* Rounded corners for hover effect */
+    transition: background-color 0.2s;
+}
+
+/* Add subtle indicator to show it's interactive */
+.reaction-count::after {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    right: 0.25rem;
+    bottom: 0.15rem;
+    height: 1px;
+    background-color: currentColor;
+    opacity: 0.5;
+}
+
+/* Active reaction */
+.reaction-btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+/* Reaction panel styling */
+.reaction-panel {
+    display: none; /* Hidden by default */
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Animation for panel appearance */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Reaction option buttons */
+.reaction-option {
+    min-width: 2.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.reaction-option:hover {
+    transform: scale(1.1);
+}
+
+/* Reaction users panel */
+.reaction-users-panel {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    position: absolute;
+    z-index: 1050;
+    padding: 0;
+    margin-top: 0.25rem;
+    min-width: 180px;
+    max-width: 300px;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Header for reaction users panel */
+.reaction-users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+}
+
+/* Close button for users panel */
+.close-users-panel {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 0.8;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+}
+
+/* User list container */
+.reaction-users-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+/* Individual user item */
+.reaction-user-item {
+    padding: 0.5rem 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.15s;
+}
+
+/* Fix for reaction dropdown visibility */
+.dropdown-menu.reaction-picker {
+    z-index: 9999 !important;
+}
+
+/* For dropdown items to be visible and interactive */
+.dropdown-item.reaction-option {
+    z-index: 10000 !important;
+    position: relative !important;
+}
+
+/* Specific fix for reply dropdown visibility */
+.replies .dropdown-menu.reaction-picker {
+    position: fixed !important; /* This changes positioning to be relative to viewport */
+    z-index: 20000 !important; /* Super high z-index */
+}
+
+/* Ensure reply dropdowns have proper z-index stacking */
+.replies .dropdown {
+    position: static !important; /* Makes the fixed positioning work */
+}
+
+/* Make dropdown items clickable */
+.dropdown-menu.reaction-picker .dropdown-item {
+    position: relative !important;
+    z-index: 20001 !important;
+}
+
+/* Fix for the reply reactions container */
+.replies .comment-reactions {
+    z-index: 1200 !important;
+}
+
+@media (max-width: 767px) {
+    /* Make reaction buttons even more tappable on mobile */
+    .reaction-btn {
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.75rem;
+        min-height: 2.5rem;
+    }
+    
+    /* Make reaction counts more tappable */
+    .reaction-count {
+        padding: 0.5rem 0.75rem;
+        margin: -0.5rem -0.75rem;
+        margin-left: 0;
+        position: relative;
+    }
+    
+    /* Adjust users panel for mobile */
+    .reaction-users-panel {
+        position: fixed;
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-width: 100%;
+        width: 100%;
+        border-radius: 1rem 1rem 0 0;
+    }
+    
+    .reaction-users-header {
+        padding: 1rem;
+    }
+    
+    .close-users-panel {
+        padding: 0.5rem 0.75rem;
+        margin: -0.5rem -0.75rem;
+        font-size: 1.75rem;
+    }
+    
+    .reaction-users-list {
+        max-height: 40vh;
+        padding: 0.5rem 0;
+    }
+    
+    .reaction-user-item {
+        padding: 0.75rem 1.25rem;
+        font-size: 1.1rem;
+    }
+}

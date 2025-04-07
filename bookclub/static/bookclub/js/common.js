@@ -100,6 +100,8 @@ function setupDarkMode() {
         // Update document classes
         document.documentElement.classList.add('dark-mode');
         document.documentElement.classList.remove('light-mode');
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
         
         // Update the media attribute to always load the dark stylesheet
         darkModeStylesheet.setAttribute('media', 'all');
@@ -119,6 +121,8 @@ function setupDarkMode() {
         // Update document classes
         document.documentElement.classList.remove('dark-mode');
         document.documentElement.classList.add('light-mode');
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
         
         // Update the media attribute to never load the dark stylesheet
         darkModeStylesheet.setAttribute('media', 'not all');

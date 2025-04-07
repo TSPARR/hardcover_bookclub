@@ -1,4 +1,6 @@
-/* Base styles for all modes */
+/* ===========================
+ * Global Star Rating Styles
+ * =========================== */
 .rating-display.rating-stars {
     display: inline-flex;
     align-items: center;

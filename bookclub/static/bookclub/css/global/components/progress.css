@@ -1,0 +1,119 @@
+/* ===========================
+ * Global Progress Styles
+ * =========================== */
+/* Edition info structure */
+.edition-info {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+}
+
+.edition-info h6 {
+    margin-bottom: 0.5rem;
+}
+
+.edition-cover {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.edition-cover img {
+    max-height: 150px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.quick-edition-selection {
+    margin-bottom: 1.5rem;
+}
+
+.quick-edition-selection .card-header {
+    font-weight: 600;
+}
+
+.quick-edition-selection .btn {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.edition-selector {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+/* Edition promoted badge structure */
+.edition-promoted-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* Edition card cover image structure */
+.edition-card .card-img-top {
+    max-height: 200px;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+/* Progress indicator structure */
+.progress {
+    border-radius: 0.25rem;
+    height: 1.5rem;
+}
+
+.progress-bar {
+    text-align: center;
+    line-height: 1.5rem;
+    font-weight: bold;
+    transition: width 0.6s ease;
+}
+
+.progress-indicator {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.progress-indicator .progress {
+    height: 8px;
+    margin-bottom: 0.25rem;
+}
+
+.progress-indicator .info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+}
+
+.progress-indicator .badge {
+    font-weight: 600;
+}
+
+/* Progress details text structure */
+.progress-details,
+#hardcoverSyncModalBody .progress-details {
+    margin-top: 6px;
+}
+
+.progress-percentage,
+#hardcoverSyncModalBody .progress-percentage {
+    font-weight: bold;
+}
+
+/* Comment progress structure */
+.comment-progress {
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.comment-progress .text-muted {
+    font-size: 0.875rem;
+}
+
+.comment-progress .badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}

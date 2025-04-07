@@ -23,14 +23,14 @@
                   </button>
                   <ul class="dropdown-menu" aria-labelledby="sortDropdown">
                       <li><a class="dropdown-item {% if current_sort == 'date_desc' %}active{% endif %}"
-                          href="?sort=date_desc" data-sort-option="date_desc">Newest First</a></li>
+                          href="?sort=date_desc&tab=discussion" data-sort-option="date_desc">Newest First</a></li>
                       <li><a class="dropdown-item {% if current_sort == 'date_asc' %}active{% endif %}"
-                          href="?sort=date_asc" data-sort-option="date_asc">Oldest First</a></li>
+                          href="?sort=date_asc&tab=discussion" data-sort-option="date_asc">Oldest First</a></li>
                       <li><hr class="dropdown-divider"></li>
                       <li><a class="dropdown-item {% if current_sort == 'progress_desc' %}active{% endif %}"
-                          href="?sort=progress_desc" data-sort-option="progress_desc">Most Progress First</a></li>
+                          href="?sort=progress_desc&tab=discussion" data-sort-option="progress_desc">Most Progress First</a></li>
                       <li><a class="dropdown-item {% if current_sort == 'progress_asc' %}active{% endif %}"
-                          href="?sort=progress_asc" data-sort-option="progress_asc">Least Progress First</a></li>
+                          href="?sort=progress_asc&tab=discussion" data-sort-option="progress_asc">Least Progress First</a></li>
                   </ul>
               </div>
           </div>

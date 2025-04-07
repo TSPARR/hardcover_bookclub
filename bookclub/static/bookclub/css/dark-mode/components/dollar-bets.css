@@ -1,137 +1,138 @@
-/* Dark mode styles for dollar bets */
-
-.dark-theme .dollar-bets-card {
+/* ===========================
+ * Dark Mode Dollar Bets Styles
+ * =========================== */
+.dark-mode .dollar-bets-card {
     background-color: #212529;
     border-color: #495057;
 }
 
-.dark-theme .dollar-bets-header {
+.dark-mode .dollar-bets-header {
     background-color: #343a40;
     border-bottom: 1px solid #495057;
 }
 
-.dark-theme .section-title {
+.dark-mode .section-title {
     color: #e9ecef;
     border-bottom-color: #495057;
 }
 
-.dark-theme .dollar-bet-item {
+.dark-mode .dollar-bet-item {
     background-color: #2b3035;
     border-color: #495057;
     color: #e9ecef;
 }
 
-.dark-theme .dollar-bet-item:hover {
+.dark-mode .dollar-bet-item:hover {
     background-color: #343a40;
 }
 
 /* Color-coded left borders - darker shades for dark mode */
-.dark-theme .open-bet {
-    border-left: 4px solid #3d8bfd;
+.dark-mode .open-bet {
+    border-left-color: #3d8bfd;
 }
 
-.dark-theme .active-bet {
-    border-left: 4px solid #ffca2c;
+.dark-mode .active-bet {
+    border-left-color: #ffca2c;
 }
 
-.dark-theme .resolved-bet {
-    border-left: 4px solid #adb5bd;
+.dark-mode .resolved-bet {
+    border-left-color: #adb5bd;
 }
 
-.dark-theme .text-muted {
+.dark-mode .inconclusive-bet {
+    border-left-color: #adb5bd;
+}
+
+.dark-mode .text-muted {
     color: #adb5bd !important;
 }
 
-.dark-theme .empty-bets-icon {
+.dark-mode .empty-bets-icon {
     color: #adb5bd;
     background-color: #343a40;
     border-color: #495057;
 }
 
 /* Bet form styling */
-.dark-theme .bet-form-card {
+.dark-mode .bet-form-card {
     background-color: #212529;
     border-color: #495057;
 }
 
-.dark-theme .bet-form-header {
+.dark-mode .bet-form-header {
     background-color: #343a40;
     border-bottom: 1px solid #495057;
     color: #e9ecef;
 }
 
-.dark-theme .bet-form-body {
+.dark-mode .bet-form-body {
     color: #e9ecef;
 }
 
-.dark-theme .form-helper-list {
+.dark-mode .form-helper-list {
     color: #adb5bd;
 }
 
 /* Dollar bets table styling */
-.dark-theme .dollar-bets-table {
+.dark-mode .dollar-bets-table {
     color: #e9ecef;
 }
 
-.dark-theme .dollar-bets-table thead {
+.dark-mode .dollar-bets-table thead {
     background-color: #343a40;
 }
 
-.dark-theme .dollar-bets-table th {
+.dark-mode .dollar-bets-table th {
     border-color: #495057;
 }
 
-.dark-theme .dollar-bets-table td {
+.dark-mode .dollar-bets-table td {
     border-color: #495057;
 }
 
-.dark-theme .dollar-bets-table tbody tr:hover {
+.dark-mode .dollar-bets-table tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.075) !important;
 }
 
-.dark-theme .table-empty-state {
+.dark-mode .table-empty-state {
     color: #adb5bd;
 }
 
 /* Resolve bet page styles */
-.dark-theme .bet-resolution-options .card {
+.dark-mode .bet-resolution-options .card {
     background-color: #2b3035;
     border-color: #495057;
     color: #e9ecef;
 }
 
-.dark-theme .bet-resolution-options .card:hover {
+.dark-mode .bet-resolution-options .card:hover {
     background-color: #343a40;
     border-color: #6c757d;
 }
 
-.dark-theme .bet-resolution-options .form-check-label {
+.dark-mode .bet-resolution-options .form-check-label {
     color: #e9ecef;
 }
 
-.dark-theme .bet-resolution-options .form-check-input {
+.dark-mode .bet-resolution-options .form-check-input {
     background-color: #495057;
     border-color: #6c757d;
 }
 
-.dark-theme .bet-resolution-options .form-check-input:checked {
+.dark-mode .bet-resolution-options .form-check-input:checked {
     background-color: #0d6efd;
     border-color: #0d6efd;
 }
 
 /* Alert styling specific to bets */
-.dark-theme .bet-info-alert {
+.dark-mode .bet-info-alert {
     background-color: #0d3c61;
     border-color: #0e4172;
     color: #e9ecef;
 }
 
-.dark-theme .bet-warning-alert {
+.dark-mode .bet-warning-alert {
     background-color: #664d03;
     border-color: #7c5d03;
     color: #e9ecef;
-}
-
-.dark-theme .inconclusive-bet {
-    border-left: 4px solid #adb5bd;
 }

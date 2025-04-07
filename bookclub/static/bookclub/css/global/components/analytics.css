@@ -1,0 +1,98 @@
+/* ===========================
+ * Global Analytics Styles
+ * =========================== */
+/* Chart container structure */
+.chart-container {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-container .chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.chart-container .chart-subtitle {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+/* Book sequence styles */
+.book-sequence .badge {
+    font-weight: normal;
+}
+
+/* Fairness metrics badge */
+.fairness-metrics .badge {
+    font-weight: 600;
+}
+
+/* Collapse toggle button structure */
+.collapse-toggle .bi-chevron-right {
+    transition: transform 0.3s ease;
+}
+
+.collapse-toggle[aria-expanded="true"] .bi-chevron-right {
+    transform: rotate(90deg);
+}
+
+/* Book list structure */
+.book-entry:last-child {
+    border-bottom: none;
+}
+
+/* Toggle rows button structure */
+.toggle-rows .bi {
+    transition: transform 0.3s ease;
+}
+
+.toggle-rows[data-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Book expand button structure */
+.book-expand-btn {
+    background-color: transparent;
+    border: none;
+    padding: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.book-expand-btn .bi-chevron-right {
+    transition: transform 0.3s ease;
+}
+
+.book-expand-btn[aria-expanded="true"] .bi-chevron-right {
+    transform: rotate(90deg);
+}
+
+/* Member ratings container structure */
+.member-ratings-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+}
+
+/* Individual member rating items */
+.member-rating-item {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.member-comment {
+    font-size: 0.85rem;
+}
+
+/* Ratings list structure */
+.member-ratings-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Scrollbar structure */
+.member-ratings-list::-webkit-scrollbar {
+    width: 6px;
+}

@@ -1,51 +1,58 @@
-/* Main Styles for Book Club Application */
-
-/* ===== Base Styles ===== */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
+/* ===========================
+ * Light Mode Base Styles
+ * =========================== */
+ .light-mode body {
     color: #333;
     background-color: #f8f9fa;
 }
 
-.container {
-    padding-bottom: 2rem;
+.light-mode h1,
+.light-mode h2,
+.light-mode h3,
+.light-mode h4,
+.light-mode h5,
+.light-mode h6 {
+    color: #333;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    margin-bottom: 1rem;
-    font-weight: 600;
+.light-mode a {
+    color: #0d6efd;
 }
 
-/* ===== Utilities ===== */
-.mr-2 {
-    margin-right: 0.5rem;
+.light-mode a:hover {
+    color: #0a58ca;
 }
 
-/* ===== Responsive adjustments ===== */
-@media (max-width: 767.98px) {
-    .book-card {
-        margin-bottom: 1.5rem;
-    }
-
-    .jumbotron {
-        padding: 2rem 1rem;
-    }
-
-    .display-4 {
-        font-size: 2.5rem;
-    }
+/* Selection color - Light Mode */
+.light-mode ::selection {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #212529;
 }
 
-/* ===== Accessibility ===== */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
-    }
+/* Badge styles - Light Mode */
+.light-mode .badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.light-mode .badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+.light-mode .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.light-mode .badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.light-mode .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.light-mode .badge.bg-light.text-dark {
+    background-color: #f8f9fa !important;
+    color: #000000 !important;
 }

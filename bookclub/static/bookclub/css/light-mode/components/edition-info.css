@@ -1,54 +1,51 @@
-/* Reaction components */
-
-/* Fix comment reaction buttons */
-.reaction-btn {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 0.5rem;
-    transition: all 0.2s;
+/* ===========================
+ * Light Mode Edition Info Styles
+ * =========================== */
+/* Edition info styling for light mode */
+.light-mode .edition-info {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.reaction-count {
-    margin-left: 0.25rem;
-    font-weight: bold;
+.light-mode .edition-info h6 {
+    color: #555555;
 }
 
-/* Active reaction */
-.reaction-btn.active {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-    color: white;
+.light-mode .edition-details p {
+    color: #333333;
 }
 
-/* Reaction panel styling */
-.reaction-panel {
-    display: none;
-    /* Hidden by default */
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-    animation: fadeIn 0.2s ease-in-out;
+/* Quick Edition Selection light mode */
+.light-mode .quick-edition-selection .card-header {
+    color: #212529;
 }
 
-/* Animation for panel appearance */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+/* Hardcover, Kavita, and Plex sync sections for light mode */
+.light-mode .hardcover-progress-container .hardcover-progress-option,
+.light-mode #hardcoverSyncModalBody .progress-option {
+    background-color: #f8f9fa !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #333333 !important;
 }
 
-/* Reaction option buttons */
-.reaction-option {
-    min-width: 2.5rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 1rem;
-    transition: transform 0.2s ease;
+.light-mode .hardcover-progress-container .hardcover-progress-option:hover,
+.light-mode #hardcoverSyncModalBody .progress-option:hover {
+    background-color: #e9ecef !important;
 }
 
-.reaction-option:hover {
-    transform: scale(1.1);
+.light-mode .hardcover-progress-container .card,
+.light-mode #hardcoverSyncModal .card {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.125) !important;
+}
+
+.light-mode .hardcover-progress-container h3,
+.light-mode #hardcoverSyncModal h3,
+.light-mode .hardcover-progress-container .book-title,
+.light-mode #hardcoverSyncModal .book-title {
+    color: #212529 !important;
+}
+
+.light-mode .hardcover-progress-container .page-info,
+.light-mode #hardcoverSyncModal .page-info {
+    color: #6c757d !important;
 }

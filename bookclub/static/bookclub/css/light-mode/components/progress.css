@@ -1,76 +1,89 @@
-/* Edition info components */
-
-.edition-info {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
+/* ===========================
+ * Light Mode Progress Styles
+ * =========================== */
+/* Edition info - Light Mode */
+.light-mode .edition-info {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.edition-info h6 {
-    margin-bottom: 0.5rem;
+.light-mode .edition-info h6 {
     color: #495057;
 }
 
-.edition-cover {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.edition-cover img {
-    max-height: 150px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-.quick-edition-selection {
-    margin-bottom: 1.5rem;
-}
-
-.quick-edition-selection .card-header {
-    font-weight: 600;
-}
-
-.quick-edition-selection .btn {
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.edition-selector {
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-radius: 0.25rem;
-}
-
-.edition-selector.kavita {
+/* Edition selector - Light Mode */
+.light-mode .edition-selector.kavita {
     background-color: rgba(25, 135, 84, 0.1);
     border: 1px solid rgba(25, 135, 84, 0.2);
 }
 
-.edition-selector.plex {
+.light-mode .edition-selector.plex {
     background-color: rgba(204, 123, 25, 0.1);
     border: 1px solid rgba(204, 123, 25, 0.2);
 }
 
-/* Edition promoted badge */
-.edition-promoted-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-}
-
-/* Edition card cover image */
-.edition-card .card-img-top {
-    max-height: 200px;
-    object-fit: contain;
-    padding: 1rem;
-}
-
-/* Edition card cover placeholder */
-.edition-card .card-img-top-placeholder {
+/* Edition card cover placeholder - Light Mode */
+.light-mode .edition-card .card-img-top-placeholder {
     text-align: center;
     padding: 3rem 1rem;
     background-color: #f8f9fa;
+}
+
+/* Progress indicator styles - Light Mode */
+.light-mode .progress {
+    background-color: #e9ecef;
+}
+
+.light-mode .progress-bar {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.light-mode .progress-indicator .info {
+    color: #6c757d;
+}
+
+.light-mode .progress-indicator .d-flex {
+    color: #212529;
+}
+
+/* Progress details text - Light Mode */
+.light-mode .progress-details,
+.light-mode #hardcoverSyncModalBody .progress-details {
+    color: #6c757d !important;
+}
+
+.light-mode .progress-percentage,
+.light-mode #hardcoverSyncModalBody .progress-percentage {
+    color: #0d6efd !important;
+}
+
+/* Help text for progress inputs - Light Mode */
+.light-mode #commentProgressHelp,
+.light-mode #progressHelp {
+    color: #6c757d;
+}
+
+/* Progress container card styling - Light Mode */
+.light-mode .hardcover-progress-container .progress,
+.light-mode #hardcoverSyncModal .progress {
+    background-color: #e9ecef !important;
+}
+
+/* Comment progress styles - Light Mode */
+.light-mode .comment-progress {
+    color: #495057;
+}
+
+.light-mode .comment-progress .text-muted {
+    color: #6c757d;
+}
+
+/* Next picker badge styling - Light Mode */
+.light-mode span.badge.bg-light.text-dark.p-2 {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+.light-mode span.badge.bg-light.text-dark.p-2 strong {
+    color: #000000;
 }

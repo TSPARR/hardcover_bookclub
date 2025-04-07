@@ -1,0 +1,31 @@
+/* ===========================
+ * Global Group Member Styles
+ * =========================== */
+/* Group Members Progress Styles - structural elements */
+.group-members-progress-card .card-header h3 {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.group-members-progress-card .card-header .badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.4em;
+}
+
+.group-members-progress-card .table {
+    margin-bottom: 0;
+}
+
+.group-members-progress-card .table th,
+.group-members-progress-card .table td {
+    padding: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.group-progress-chevron {
+    transition: transform 0.3s ease;
+}
+
+.card-header[aria-expanded="true"] .group-progress-chevron {
+    transform: rotate(180deg);
+}

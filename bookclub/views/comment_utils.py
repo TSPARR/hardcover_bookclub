@@ -221,7 +221,7 @@ def handle_reply_to_comment(request, comment_id):
                     logger.debug(f"Reply saved successfully with ID: {reply.id}")
 
                     messages.success(request, "Your reply has been posted.")
-                    redirect_url = f"{reverse('book_detail', args=[book.id])}#comment-{parent_comment.id}"
+                    redirect_url = f"{reverse('book_detail', args=[book.id])}?tab=discussion#comment-{parent_comment.id}"
                     logger.debug(f"Redirecting to: {redirect_url}")
                     return redirect(redirect_url)
                 except Exception as e:

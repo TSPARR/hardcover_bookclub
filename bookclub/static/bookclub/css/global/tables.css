@@ -1,0 +1,632 @@
+/* ===========================
+ * Global Table Styles
+ * =========================== */
+/* Base Progress Bar Structure */
+.progress {
+    border-radius: 0.25rem;
+    height: 1.5rem;
+    position: relative;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Table Structure */
+.table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-bottom: 1rem;
+}
+
+.table th,
+.table td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+}
+
+/* Group Members Progress Card Structure */
+.group-members-progress-card .progress.group-members-progress,
+#bookDetailsAccordion .progress.progress-styled {
+    position: relative;
+    border-radius: 0.25rem;
+    margin: 0.75rem 0;
+    overflow: hidden;
+    height: 1.75rem;
+}
+
+.group-members-progress-card .progress.group-members-progress .progress-bar,
+#bookDetailsAccordion .progress.progress-styled .progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.group-members-progress-card .progress.group-members-progress .progress-bar::after,
+#bookDetailsAccordion .progress.progress-styled .progress-bar::after {
+    content: attr(data-progress);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Group Members Progress Card Structure */
+.group-members-progress-card {
+    margin-bottom: 1.5rem;
+}
+
+/* Card header structure */
+.group-members-progress-card .card-header {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border-bottom-width: 2px;
+}
+
+.group-members-progress-card .card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.group-members-progress-card .card-header .badge {
+    font-size: 0.8rem;
+    padding: 0.35em 0.65em;
+    vertical-align: middle;
+}
+
+.group-members-progress-card .card-header .chevron-container {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Group Members Table Structure */
+.group-members-progress-card .card-body {
+    padding: 0;
+}
+
+.group-members-progress-card .table {
+    margin-bottom: 0;
+}
+
+/* Table Column Distribution */
+.group-members-progress-card .table th:nth-child(1),
+.group-members-progress-card .table td:nth-child(1) {
+    width: 20%;
+    min-width: 140px;
+    padding-left: 1.5rem;
+}
+
+.group-members-progress-card .table th:nth-child(2),
+.group-members-progress-card .table td:nth-child(2) {
+    width: 60%;
+}
+
+.group-members-progress-card .table th:nth-child(3),
+.group-members-progress-card .table td:nth-child(3) {
+    width: 20%;
+    min-width: 120px;
+    text-align: center;
+    padding-right: 1.5rem;
+}
+
+/* Table row and cell structure */
+.group-members-progress-card .table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.group-members-progress-card .table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.group-members-progress-card .table td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+}
+
+/* Username styling */
+.group-members-progress-card .table td:first-child {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* Progress bar specific structure */
+.group-members-progress-card .progress.group-members-progress {
+    height: 1.5rem;
+    margin: 0;
+}
+
+/* Status badges */
+.group-members-progress-card .badge {
+    padding: 0.5em 0.85em;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+/* Fairness Metrics Table Structure */
+.fairness-metrics {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.fairness-metrics thead th {
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+.fairness-metrics tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.fairness-metrics tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.fairness-metrics .badge {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.fairness-metrics .text-recommendation {
+    font-size: 0.875rem;
+}
+
+/* Chevron animation */
+.group-progress-chevron {
+    transition: transform 0.3s ease;
+}
+
+.card-header[aria-expanded="true"] .group-progress-chevron {
+    transform: rotate(180deg);
+}
+
+/* Target the specific progress bar in home.html */
+.list-group-item .progress {
+    height: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Override the general progress::after rule */
+.list-group-item .progress::after {
+    content: none;
+}
+
+/* Previous books visibility structure */
+.previous-books-desktop {
+    display: block;
+}
+
+.previous-books-mobile {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .previous-books-desktop {
+        display: none !important;
+    }
+
+    .previous-books-mobile {
+        display: block !important;
+    }
+}
+
+/* Collapse button structure */
+.btn-previous-books-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+}
+
+.collapse-indicator {
+    transition: transform 0.3s ease;
+}
+
+[aria-expanded="true"] .collapse-indicator {
+    transform: rotate(180deg);
+}
+
+/* Collapse specifics */
+#previousBooksCollapse {
+    transition: height 0.35s ease;
+}
+
+#previousBooksCollapse.collapsing {
+    height: 0;
+    overflow: hidden;
+}
+
+/* Empty state structure */
+.empty-previous-books {
+    padding: 2rem 1rem;
+    text-align: center;
+    border-radius: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+/* Previous Books Table Improvements */
+
+/* Main container improvements */
+.previous-books-container {
+    margin-bottom: 2rem;
+}
+
+/* Better toggle button styling */
+.btn-previous-books-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.btn-previous-books-toggle .badge-book-count {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    border-radius: 50rem;
+}
+
+/* Desktop table view improvements */
+.previous-books-desktop .card-body {
+    padding: 0;
+    /* Remove default padding to allow table to extend fully */
+}
+
+.previous-books-desktop table {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+/* Add proper spacing in table cells */
+.previous-books-desktop table th,
+.previous-books-desktop table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+/* Column width distribution for desktop - more flexible approach */
+.previous-books-desktop table th:nth-child(1),
+.previous-books-desktop table td:nth-child(1) {
+    width: 5%;
+    /* Order number column */
+    min-width: 40px;
+}
+
+.previous-books-desktop table th:nth-child(2),
+.previous-books-desktop table td:nth-child(2) {
+    width: 15%;
+    /* Cover image column */
+    min-width: 100px;
+}
+
+.previous-books-desktop table th:nth-child(3),
+.previous-books-desktop table td:nth-child(3) {
+    width: 30%;
+    /* Book title and author column */
+}
+
+.previous-books-desktop table th:nth-child(4),
+.previous-books-desktop table td:nth-child(4) {
+    width: 15%;
+    /* Picked By column */
+}
+
+.previous-books-desktop table th:nth-child(5),
+.previous-books-desktop table td:nth-child(5) {
+    width: 15%;
+    /* Status/Rating column */
+}
+
+.previous-books-desktop table th:nth-child(6),
+.previous-books-desktop table td:nth-child(6) {
+    width: 10%;
+    /* Progress column */
+}
+
+.previous-books-desktop table th:nth-child(7),
+.previous-books-desktop table td:nth-child(7) {
+    width: 10%;
+    /* Actions column */
+    text-align: right;
+}
+
+/* Book title styling */
+.previous-books-desktop .book-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+/* Card header improvements */
+.previous-books-desktop .card-header {
+    padding: 1rem 1.25rem;
+}
+
+/* Book image styling */
+.previous-books-desktop .book-cover-img {
+    max-height: 75px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 0.25rem;
+}
+
+/* Ensure consistent height for rows */
+.previous-books-desktop tbody tr {
+    height: 100px;
+    /* Consistent height for all rows */
+}
+
+/* Improve hover states */
+.previous-books-desktop tbody tr:hover {
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* Ensure responsive behavior */
+@media (min-width: 992px) {
+    .previous-books-desktop table {
+        table-layout: auto;
+        /* Auto layout for more natural column distribution */
+    }
+
+    .previous-books-container {
+        max-width: 100%;
+    }
+}
+
+/* Add spacing when reorder form is visible */
+#reorderForm,
+#mobileReorderForm {
+    padding: 1rem;
+}
+
+/* Improved sortable functionality styling */
+#sortableBooks {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sortableBooks li {
+    padding: 0.75rem 1rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+}
+
+#sortableBooks .handle {
+    cursor: grab;
+    margin-right: 0.75rem;
+    color: #6c757d;
+}
+
+#sortableBooks .book-number {
+    display: inline-block;
+    min-width: 1.5rem;
+    text-align: center;
+    margin-right: 0.75rem;
+    font-weight: 600;
+}
+
+/* Mobile specific styles for reorder */
+.book-item-mobile {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+}
+
+/* Mobile toggle button */
+.mobile-edit-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Ensure reorder form is properly styled when visible */
+#reorderForm {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    transition: display 0.2s ease;
+}
+
+#reorderForm.d-none {
+    display: none;
+}
+
+/* Style the sortable list items */
+#sortableBooks {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sortableBooks li {
+    padding: 0.75rem 1rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+#sortableBooks li:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#sortableBooks .handle {
+    cursor: grab;
+    margin-right: 0.75rem;
+    color: #6c757d;
+}
+
+#sortableBooks .book-number {
+    display: inline-block;
+    min-width: 1.5rem;
+    text-align: center;
+    margin-right: 0.75rem;
+    font-weight: 600;
+}
+
+#sortableBooks .book-info {
+    flex-grow: 1;
+}
+
+#sortableBooks .book-title {
+    font-weight: 600;
+    display: block;
+}
+
+#sortableBooks .book-author {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Form buttons container */
+.reorder-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* Ensure form inputs are visible */
+#bookOrderInput {
+    width: 100%;
+}
+
+/* Mobile specific styles for reorder form */
+@media (max-width: 767px) {
+
+    /* Container adjustments */
+    #reorderForm {
+        padding: 0.75rem;
+        overflow-x: hidden;
+    }
+
+    /* Adjust list item layout for mobile */
+    #sortableBooks li {
+        padding: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    /* Handle and number column */
+    #sortableBooks li .handle {
+        font-size: 1rem;
+    }
+
+    #sortableBooks li .book-number {
+        min-width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+    }
+
+    /* Force flex column on smaller screens for book info */
+    #sortableBooks li .d-flex.justify-content-between {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Adjust book info display */
+    #sortableBooks li strong {
+        font-size: 0.9rem;
+        display: block;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    #sortableBooks li small {
+        font-size: 0.8rem;
+    }
+
+    /* Fix badge display */
+    #sortableBooks li .badge {
+        font-size: 0.7rem;
+        margin-top: 0.25rem;
+        white-space: normal;
+        text-align: center;
+        display: inline-block;
+    }
+
+    /* Stack buttons on small screens */
+    #sortableBooks li .d-flex.align-items-center:last-child {
+        margin-top: 0.5rem;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* Ensure buttons are properly sized */
+    #sortableBooks li .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Action buttons at bottom of form */
+    #reorderForm>div:last-child {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+
+    #reorderForm>div:last-child .btn {
+        width: 48%;
+    }
+
+    /* Ensure alert message is readable */
+    #reorderForm .alert {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+}
+
+/* Additional styles to ensure content stays contained on very small screens */
+@media (max-width: 480px) {
+
+    /* Further simplify the book list items */
+    #sortableBooks li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #sortableBooks li .d-flex.align-items-center {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Make book cover smaller */
+    #sortableBooks li .me-3[style*="width: 40px"] {
+        width: 30px !important;
+        height: 45px !important;
+        min-width: 30px;
+    }
+
+    /* Improve text wrapping */
+    #sortableBooks li div:not(.d-flex) {
+        width: 100%;
+        word-break: break-word;
+    }
+}

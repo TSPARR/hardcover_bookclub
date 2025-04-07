@@ -1,142 +1,89 @@
-/* Light mode styles for dollar bets */
-
+/* ===========================
+ * Light Mode Dollar Bets Styles
+ * =========================== */
 /* Dollar bets cards */
-.dollar-bets-card {
+.light-mode .dollar-bets-card {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border-radius: 0.5rem;
-    overflow: hidden;
 }
 
-.dollar-bets-header {
+.light-mode .dollar-bets-header {
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
 }
 
-.section-title {
+.light-mode .section-title {
     color: #495057;
 }
 
 /* Individual bet item styling */
-.dollar-bet-item {
-    transition: all 0.2s ease;
-    border-radius: 0.375rem;
-    margin-bottom: 0.5rem;
-}
-
-.dollar-bet-item:hover {
+.light-mode .dollar-bet-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
 }
 
 /* Color-coded left borders */
-.open-bet {
-    border-left: 4px solid #0d6efd;
+.light-mode .open-bet {
+    border-left-color: #0d6efd;
 }
 
-.active-bet {
-    border-left: 4px solid #ffc107;
+.light-mode .active-bet {
+    border-left-color: #ffc107;
 }
 
-.resolved-bet {
-    border-left: 4px solid #6c757d;
+.light-mode .resolved-bet {
+    border-left-color: #6c757d;
 }
 
-.status-badge {
-    font-size: 0.75rem;
-    font-weight: normal;
+.light-mode .inconclusive-bet {
+    border-left-color: #6c757d;
 }
 
 /* Empty state styling */
-.empty-bets-icon {
-    font-size: 3rem;
+.light-mode .empty-bets-icon {
     color: #6c757d;
-    margin-bottom: 1rem;
-    display: inline-block;
-    padding: 1.5rem;
-    border-radius: 50%;
     background-color: #f8f9fa;
     border: 2px dashed #dee2e6;
 }
 
 /* Bet form styling */
-.bet-form-card {
-    border-radius: 0.5rem;
+.light-mode .bet-form-card {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-.bet-form-header {
+.light-mode .bet-form-header {
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
     padding: 1rem;
 }
 
-/* Form helper lists */
-.form-helper-list {
-    margin-bottom: 0;
-    padding-left: 1.5rem;
-}
-
-.form-helper-list li {
-    margin-bottom: 0.25rem;
-}
-
-.form-helper-list li:last-child {
-    margin-bottom: 0;
-}
-
 /* Dollar bets table styling */
-.dollar-bets-table th {
+.light-mode .dollar-bets-table th {
     background-color: #f8f9fa;
 }
 
-.dollar-bets-table tbody tr:hover {
+.light-mode .dollar-bets-table tbody tr:hover {
     background-color: rgba(0, 0, 0, 0.03);
 }
 
-.dollar-bets-table .actions-column {
-    width: 150px;
-    text-align: right;
-}
-
-.dollar-bets-table .status-column {
-    width: 130px;
-}
-
-/* Table empty state */
-.table-empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-}
-
 /* Resolve bet page styles */
-.bet-resolution-options .card {
+.light-mode .bet-resolution-options .card {
     border: 1px solid #dee2e6;
-    margin-bottom: 1rem;
-    transition: all 0.2s ease;
 }
 
-.bet-resolution-options .card:hover {
+.light-mode .bet-resolution-options .card:hover {
     border-color: #adb5bd;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-.bet-resolution-options .form-check-input:checked + .form-check-label {
-    font-weight: 500;
-}
-
 /* Alert styling specific to bets */
-.bet-info-alert {
+.light-mode .bet-info-alert {
     background-color: #cff4fc;
     border-color: #b6effb;
     color: #055160;
 }
 
-.bet-warning-alert {
+.light-mode .bet-warning-alert {
     background-color: #fff3cd;
     border-color: #ffecb5;
     color: #664d03;
-}
-
-.inconclusive-bet {
-    border-left: 4px solid #6c757d;
 }
