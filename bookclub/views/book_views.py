@@ -34,6 +34,7 @@ from .book_utils import (
     convert_progress_to_pages,
     convert_progress_to_seconds,
     create_or_update_book_edition,
+    get_redirect_url_with_params,
     link_progress_to_edition,
     parse_audio_progress,
     process_hardcover_edition_data,
@@ -234,9 +235,23 @@ def book_detail(request, book_id):
             # If this is a reply, redirect to the parent comment
             if comment.parent:
                 return redirect(
-                    f"{reverse('book_detail', args=[book.id])}#comment-{comment.parent.id}"
+                    get_redirect_url_with_params(
+                        request,
+                        "book_detail",
+                        {"book_id": book.id},
+                        f"comment-{comment.parent.id}",
+                    )
                 )
-            return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
+
+            # For regular comments, preserve tab and sort
+            return redirect(
+                get_redirect_url_with_params(
+                    request,
+                    "book_detail",
+                    {"book_id": book.id},
+                    f"comment-{comment.id}",
+                )
+            )
     else:
         form = CommentForm()
 
@@ -898,14 +913,10 @@ def edit_comment(request, comment_id):
     else:
         form = CommentForm(instance=comment)
 
-    return render(
-        request,
-        "bookclub/edit_comment.html",
-        {
-            "form": form,
-            "comment": comment,
-            "book": book,
-        },
+    return redirect(
+        get_redirect_url_with_params(
+            request, "book_detail", {"book_id": book.id}, f"comment-{comment.id}"
+        )
     )
 
 
@@ -925,13 +936,8 @@ def delete_comment(request, comment_id):
         messages.success(request, "Your comment has been deleted.")
         return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
-    return render(
-        request,
-        "bookclub/delete_comment.html",
-        {
-            "comment": comment,
-            "book": book,
-        },
+    return redirect(
+        get_redirect_url_with_params(request, "book_detail", {"book_id": book.id})
     )
 
 

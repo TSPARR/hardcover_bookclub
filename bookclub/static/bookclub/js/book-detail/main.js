@@ -6,6 +6,7 @@ import { CommentReactions } from './modules/comment-reactions.js';
 import { AccessibilityHelper } from './modules/accessibility.js';
 import { RatingManager } from './modules/rating-manager.js';
 import { SortManager } from './modules/sort-manager.js';
+import { TabManager } from './modules/tab-manager.js';
 
 // Initialize all modules when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const accessibilityHelper = AccessibilityHelper.init();
         const ratingManager = RatingManager.init(bookId);
         const sortManager = SortManager.init(bookId);
+        const tabManager = TabManager.init();
         
         // Make the modules communicate with each other
         
@@ -51,5 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.RatingManager = ratingManager;
         window.AccessibilityHelper = accessibilityHelper;
         window.SortManager = sortManager;
+        window.TabManager = tabManager;
     }
 });

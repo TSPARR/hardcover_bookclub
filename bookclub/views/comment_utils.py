@@ -6,13 +6,11 @@ import json
 import logging
 
 from django.contrib import messages
-from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 
 from ..models import Comment, CommentReaction
-from .book_utils import _get_progress_value_for_sorting
+from .book_utils import _get_progress_value_for_sorting, get_redirect_url_with_params
 
 logger = logging.getLogger(__name__)
 
@@ -221,7 +219,12 @@ def handle_reply_to_comment(request, comment_id):
                     logger.debug(f"Reply saved successfully with ID: {reply.id}")
 
                     messages.success(request, "Your reply has been posted.")
-                    redirect_url = f"{reverse('book_detail', args=[book.id])}?tab=discussion#comment-{parent_comment.id}"
+                    redirect_url = get_redirect_url_with_params(
+                        request,
+                        "book_detail",
+                        {"book_id": book.id},
+                        f"comment-{parent_comment.id}",
+                    )
                     logger.debug(f"Redirecting to: {redirect_url}")
                     return redirect(redirect_url)
                 except Exception as e:
