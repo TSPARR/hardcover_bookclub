@@ -1,7 +1,8 @@
+{% load bookclub_extras %}
 <div class="row mb-4">
     <div class="col-md-9">
         <h2>Update Reading Progress</h2>
-        <h4 class="text-muted">{{ book.title }}</h4>
+        <h4 class="text-muted">{{ book.title|split:":"|first|trim }}</h4>
         <p class="mb-0">By {{ book.author }}</p>
         
         {% if user_progress.hardcover_started_at %}

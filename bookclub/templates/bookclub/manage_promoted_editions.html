@@ -2,7 +2,7 @@
 {% load static %}
 {% load bookclub_extras %}
 
-{% block title %}Manage Promoted Editions - {{ book.title }}{% endblock %}
+{% block title %}Manage Promoted Editions - {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block content %}
 <div class="container my-4">

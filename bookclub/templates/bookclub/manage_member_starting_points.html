@@ -89,7 +89,7 @@
                         <select class="form-select" id="bookSelect" name="book_id" required>
                             <option value="">-- Select book --</option>
                             {% for book in books %}
-                            <option value="{{ book.id }}">{{ book.title }}</option>
+                            <option value="{{ book.id }}">{{ book.title|split:":"|first|trim }}</option>
                             {% endfor %}
                         </select>
                         <div class="form-text">

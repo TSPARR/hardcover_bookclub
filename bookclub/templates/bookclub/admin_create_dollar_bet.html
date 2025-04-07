@@ -1,7 +1,8 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
-{% block title %}Admin Create Dollar Bet for {{ book.title }}{% endblock %}
+{% block title %}Admin Create Dollar Bet for {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -10,7 +11,7 @@
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2><i class="bi bi-currency-dollar me-2"></i>Admin: Create Dollar Bet</h2>
-                    <p class="mb-0">Book: {{ book.title }}</p>
+                    <p class="mb-0">Book: {{ book.title|split:":"|first|trim }}</p>
                 </div>
                 <div class="card-body">
                     {% if messages %}

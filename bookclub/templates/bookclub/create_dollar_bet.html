@@ -1,7 +1,8 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
-{% block title %}Create Dollar Bet for {{ book.title }}{% endblock %}
+{% block title %}Create Dollar Bet for {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -9,7 +10,7 @@
         <div class="col-md-8 offset-md-2">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h2>Create a $1 Bet for "{{ book.title }}"</h2>
+                    <h2>Create a $1 Bet for "{{ book.title|split:":"|first|trim }}"</h2>
                 </div>
                 <div class="card-body">
                     <form method="post">

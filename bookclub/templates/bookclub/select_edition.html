@@ -1,7 +1,8 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
-{% block title %}Select Edition - {{ book.title }}{% endblock %}
+{% block title %}Select Edition - {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -16,7 +17,7 @@
 <div class="container my-4">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1>Select Edition for "{{ book.title }}"</h1>
+            <h1>Select Edition for "{{ book.title|split:":"|first|trim }}"</h1>
             <p class="text-muted">By {{ book.author }}</p>
 
             {% if current_edition %}

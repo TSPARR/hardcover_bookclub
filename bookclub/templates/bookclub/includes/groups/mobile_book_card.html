@@ -7,7 +7,7 @@
                 <div class="row g-0">
                     <div class="col-3 mobile-cover-container">
                         {% if book.cover_image_url %}
-                        <img src="{{ book.cover_image_url }}" class="mobile-book-cover rounded" alt="{{ book.title }}">
+                        <img src="{{ book.cover_image_url }}" class="mobile-book-cover rounded" alt="{{ book.title|split:":"|first|trim }}">
                         {% else %}
                         <div class="mobile-book-cover-placeholder rounded">
                             <i class="bi bi-book"></i>
@@ -17,7 +17,7 @@
                     <div class="col-9 ps-3 py-2">
                         <div class="d-flex align-items-start mb-1">
                             <span class="book-number-badge">{{ book.order }}</span>
-                            <h5 class="book-title mb-0">{{ book.title }}</h5>
+                            <h5 class="book-title mb-0">{{ book.title|split:":"|first|trim }}</h5>
                         </div>
                         <p class="book-author mb-1">{{ book.author }}</p>
                         
@@ -73,7 +73,7 @@
                     {% if is_admin %}
                     <button type="button" class="btn btn-sm btn-outline-secondary edit-attribution" 
                             data-book-id="{{ book.id }}"
-                            data-book-title="{{ book.title }}"
+                            data-book-title="{{ book.title|split:":"|first|trim }}"
                             data-picked-by="{{ book.picked_by.id|default:'' }}"
                             data-collective="{{ book.is_collective_pick|yesno:'true,false' }}"
                             data-bs-toggle="modal" data-bs-target="#attributionModal">

@@ -1,4 +1,3 @@
-<!-- includes/book_reorder_form.html -->
 {% load bookclub_extras %}
 <form method="post">
     {% csrf_token %}
@@ -25,10 +24,10 @@
                     {% with prog=book_progress|get_item:book.id %}
                         {% if prog.progress and prog.progress.selected_edition and prog.progress.selected_edition.cover_image_url %}
                             <img src="{{ prog.progress.selected_edition.cover_image_url }}" class="img-fluid" 
-                                style="max-height: 60px; max-width: 40px; object-fit: cover;" alt="{{ book.title }}">
+                                style="max-height: 60px; max-width: 40px; object-fit: cover;" alt="{{ book.title|split:":"|first|trim }}">
                         {% elif book.cover_image_url %}
                             <img src="{{ book.cover_image_url }}" class="img-fluid" 
-                                style="max-height: 60px; max-width: 40px; object-fit: cover;" alt="{{ book.title }}">
+                                style="max-height: 60px; max-width: 40px; object-fit: cover;" alt="{{ book.title|split:":"|first|trim }}">
                         {% else %}
                             <div class="bg-light d-flex justify-content-center align-items-center h-100 w-100">
                                 <span class="text-muted small">No cover</span>
@@ -37,7 +36,7 @@
                     {% endwith %}
                 </div>
                 <div>
-                    <strong>{{ book.title }}</strong>
+                    <strong>{{ book.title|split:":"|first|trim }}</strong>
                     <small class="d-block text-muted">{{ book.author }}</small>
                 </div>
             </div>
@@ -56,7 +55,7 @@
                 <button type="button" class="btn btn-sm btn-outline-primary edit-attribution" 
                     data-bs-toggle="modal" data-bs-target="#attributionModal" 
                     data-book-id="{{ book.id }}" 
-                    data-book-title="{{ book.title }}"
+                    data-book-title="{{ book.title|split:":"|first|trim }}"
                     data-picked-by="{% if book.picked_by %}{{ book.picked_by.id }}{% endif %}"
                     data-collective="{% if book.is_collective_pick %}true{% else %}false{% endif %}">
                     <i class="bi bi-pencil"></i>
