@@ -5,6 +5,7 @@ Book-specific utility functions for views.
 import logging
 from datetime import datetime
 
+from django.urls import reverse
 from django.utils import timezone
 
 from ..models import BookEdition
