@@ -1,3 +1,4 @@
+{% load bookclub_extras %}
 <div class="card mb-4">
     <div class="card-header">
         <h6 class="mb-0">Hardcover Integration</h6>
@@ -30,7 +31,7 @@
                     {% endif %}
                     
                     {% if user_progress.edition %}
-                    <li>Using edition: {{ user_progress.edition.title }}</li>
+                    <li>Using edition: {{ user_progress.edition.title|split:":"|first|trim }}</li>
                     {% endif %}
                 </ul>
             </div>
