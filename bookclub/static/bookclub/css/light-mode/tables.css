@@ -322,7 +322,8 @@
 }
 
 /* Fix for progress bar showing literal % in light mode */
-.light-mode .list-group-item .progress::after {
+.light-mode .list-group-item .progress::after,
+.light-mode .card-body .progress::after {
     content: none !important;
 }
   

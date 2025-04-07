@@ -1,23 +1,30 @@
-<div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" id="started_reading" name="started_reading"
-           {% if user_progress.hardcover_started_at %}checked disabled{% endif %}>
-    <label class="form-check-label" for="started_reading">
-        {% if user_progress.hardcover_started_at %}
-        Started reading on {{ user_progress.hardcover_started_at|date:"F j, Y" }}
-        {% else %}
-        Mark as started reading today
-        {% endif %}
-    </label>
-</div>
-
-<div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" id="finished_reading" name="finished_reading"
-           {% if user_progress.hardcover_finished_at %}checked disabled{% endif %}>
-    <label class="form-check-label" for="finished_reading">
-        {% if user_progress.hardcover_finished_at %}
-        Finished reading on {{ user_progress.hardcover_finished_at|date:"F j, Y" }}
-        {% else %}
-        Mark as finished reading today
-        {% endif %}
-    </label>
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">Reading Status</h6>
+    </div>
+    <div class="card-body">
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="started_reading" name="started_reading"
+                   {% if user_progress.hardcover_started_at %}checked disabled{% endif %}>
+            <label class="form-check-label" for="started_reading">
+                {% if user_progress.hardcover_started_at %}
+                Started reading on {{ user_progress.hardcover_started_at|date:"F j, Y" }}
+                {% else %}
+                Mark as started reading today
+                {% endif %}
+            </label>
+        </div>
+        
+        <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" id="finished_reading" name="finished_reading"
+                   {% if user_progress.hardcover_finished_at %}checked disabled{% endif %}>
+            <label class="form-check-label" for="finished_reading">
+                {% if user_progress.hardcover_finished_at %}
+                Finished reading on {{ user_progress.hardcover_finished_at|date:"F j, Y" }}
+                {% else %}
+                Mark as finished reading today
+                {% endif %}
+            </label>
+        </div>
+    </div>
 </div>

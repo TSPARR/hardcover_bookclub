@@ -13,16 +13,91 @@
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container py-4">
+    <!-- Book Header Section - Using existing include -->
     {% include 'bookclub/includes/progress/header.html' %}
     
-    {% include 'bookclub/includes/progress/edition_info.html' %}
-    
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Update Progress</h5>
+        <!-- Left Column - Book Cover and Info -->
+        <div class="col-md-3 mb-4">
+            <!-- Book Cover -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body text-center p-3">
+                    {% if user_progress.edition and user_progress.edition.cover_image_url %}
+                    <img src="{{ user_progress.edition.cover_image_url }}" class="img-fluid rounded" alt="{{ book.title }}">
+                    {% elif book.cover_image_url %}
+                    <img src="{{ book.cover_image_url }}" class="img-fluid rounded" alt="{{ book.title }}">
+                    {% else %}
+                    <div class="bg-light d-flex justify-content-center align-items-center rounded" style="min-height: 200px;">
+                        <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Current Progress Card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-bookmark me-2"></i>Current Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_progress %}
+                    <div class="mb-3">
+                        <div class="small text-muted mb-1">Progress</div>
+                        <div class="progress mb-2" style="height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ user_progress.normalized_progress|default:0 }}%;" 
+                                 aria-valuenow="{{ user_progress.normalized_progress|default:0 }}" 
+                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="small text-center">{{ user_progress.normalized_progress|default:0|floatformat:1 }}% complete</div>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <div class="small text-muted mb-1">Current Position</div>
+                        <p class="mb-0 fw-bold">
+                            {% if user_progress.progress_type == 'page' %}
+                            Page {{ user_progress.progress_value }} of 
+                            {% if user_progress.edition and user_progress.edition.pages %}
+                            {{ user_progress.edition.pages }}
+                            {% else %}
+                            {{ book.pages|default:'unknown' }}
+                            {% endif %}
+                            {% elif user_progress.progress_type == 'audio' %}
+                            {{ user_progress.progress_value }} of 
+                            {% if user_progress.edition and user_progress.edition.audio_duration_formatted %}
+                            {{ user_progress.edition.audio_duration_formatted }}
+                            {% else %}
+                            {{ book.audio_seconds|default:'unknown' }} seconds
+                            {% endif %}
+                            {% else %}
+                            {{ user_progress.progress_value }}% complete
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No progress recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Edition Info and Update Form -->
+        <div class="col-md-9">
+            <!-- Edition Info - Using existing include -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-book me-2"></i>Edition Information</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% include 'bookclub/includes/progress/edition_info.html' %}
+                </div>
+            </div>
+            
+            <!-- Update Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Update Progress</h5>
                 </div>
                 <div class="card-body">
                     {% include 'bookclub/includes/progress/update_form.html' %}
