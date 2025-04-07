@@ -307,12 +307,6 @@ export const ProgressTracker = {
         
         console.log('Saving progress:', data); // Debug log
         
-        // Show a loading indicator in the progress bar
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) {
-            progressBar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
-        }
-        
         // Send update to server
         fetch(`/books/${this.bookId}/update-progress/`, {
             method: 'POST',
@@ -365,24 +359,89 @@ export const ProgressTracker = {
     _updateProgressDisplay(progressData) {
         if (!progressData) return;
         
-        console.log('Updating progress display:', progressData); // Debug log
-        
-        // Update progress bar
-        const progressBar = document.querySelector('.progress-bar');
+        // Get current username from the meta tag
+        const currentUsername = document.querySelector('meta[name="current-username"]')?.content;
+
+        // Update the current user's progress bar in book details accordion
+        const progressBar = document.querySelector('#bookDetailsAccordion .progress-bar');
         if (progressBar) {
             // Make sure we're working with a number
             const normalizedProgress = parseFloat(progressData.normalized_progress);
             
-            console.log('Setting progress bar to:', normalizedProgress); // Debug log
-            
             // Directly set all properties
             progressBar.style.width = `${normalizedProgress}%`;
             progressBar.setAttribute('aria-valuenow', normalizedProgress);
-            progressBar.textContent = `${normalizedProgress.toFixed(1)}%`;
+            
+            // Update the data-progress attribute on the parent progress container
+            const progressContainer = progressBar.closest('.progress');
+            if (progressContainer) {
+                progressContainer.setAttribute('data-progress', normalizedProgress.toFixed(2));
+            }
         }
         
-        // Update progress text
-        const progressText = document.querySelector('.card-body .d-flex div');
+        // Also update the current user's progress in the group members table if it exists
+        if (currentUsername) {
+            // Find the progress bar in the group members table that belongs to the current user
+            const groupMembersTable = document.querySelector('.group-members-progress-card table');
+            if (groupMembersTable) {
+                // Each row in the table corresponds to a group member
+                const rows = groupMembersTable.querySelectorAll('tbody tr');
+                
+                // Loop through each row to find the current user
+                rows.forEach(row => {
+                    const usernameCell = row.querySelector('td:first-child');
+                    const username = usernameCell?.textContent.trim();
+                    
+                    // If we found the current user's row
+                    if (username === currentUsername) {
+                        const normalizedProgress = parseFloat(progressData.normalized_progress);
+                        
+                        // Get the progress bar in this row
+                        const memberProgressBar = row.querySelector('.progress-bar');
+                        const memberProgressContainer = row.querySelector('.progress');
+                        
+                        if (memberProgressBar && memberProgressContainer) {
+                            // Update the width of the progress bar
+                            memberProgressBar.style.width = `${normalizedProgress}%`;
+                            
+                            // Update the data-progress attribute
+                            memberProgressContainer.setAttribute('data-progress', normalizedProgress.toFixed(2));
+                            
+                            // If the progress is 0, make sure we're using the secondary style
+                            if (normalizedProgress === 0) {
+                                memberProgressBar.classList.add('bg-secondary');
+                            } else {
+                                memberProgressBar.classList.remove('bg-secondary');
+                            }
+                            
+                            // Update the status badge
+                            const statusBadge = row.querySelector('.badge');
+                            if (statusBadge) {
+                                // Remove existing classes
+                                statusBadge.classList.remove('bg-secondary', 'bg-primary', 'bg-success');
+                                
+                                // Set appropriate class and text based on progress
+                                if (normalizedProgress >= 100) {
+                                    statusBadge.classList.add('bg-success');
+                                    statusBadge.textContent = 'Finished';
+                                } else if (normalizedProgress > 0) {
+                                    statusBadge.classList.add('bg-primary');
+                                    statusBadge.textContent = 'In Progress';
+                                } else {
+                                    statusBadge.classList.add('bg-secondary');
+                                    statusBadge.textContent = 'Not Started';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Update progress text outside the bar
+        const progressText = document.querySelector('.accordion-body .d-flex div') || 
+                            document.querySelector('.card-body .d-flex div');
+                            
         if (progressText) {
             let text = '';
             if (progressData.progress_type === 'page') {

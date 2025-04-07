@@ -14,6 +14,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'bookclub/images/icon-192.png' %}">
     <link rel="icon" type="image/png" sizes="512x512" href="{% static 'bookclub/images/icon-512.png' %}">
     <link rel="apple-touch-icon" href="{% static 'bookclub/images/icon-192.png' %}">
+    <meta name="current-username" content="{{ request.user.username }}">
 
     <title>{% block title %}Book Club{% endblock %}</title>
 

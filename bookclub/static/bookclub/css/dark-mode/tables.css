@@ -5,6 +5,7 @@
 .dark-mode .progress {
     background-color: rgba(255, 255, 255, 0.15);
     height: 1.75rem;
+    position: relative;
 }
 
 .dark-mode .progress-bar {
@@ -12,9 +13,16 @@
 }
 
 .dark-mode .progress::after {
+    content: attr(data-progress) "%";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: #ffffff;
     font-weight: bold;
+    font-size: 0.875rem;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+    z-index: 1;
 }
 
 /* Base Table Styles - Dark Mode */
