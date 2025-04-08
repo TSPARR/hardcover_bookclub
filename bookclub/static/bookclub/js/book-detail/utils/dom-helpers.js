@@ -95,8 +95,6 @@ export const DomHelpers = {
         // Ensure we have a number and normalize it between 0-100
         const normalizedPercentage = Math.min(Math.max(0, parseFloat(percentage) || 0), 100);
         
-        console.log('DomHelpers: Updating progress bar to', normalizedPercentage); // Debug log
-        
         // Update all properties directly
         progressBar.style.width = `${normalizedPercentage}%`;
         progressBar.textContent = `${normalizedPercentage.toFixed(1)}%`;

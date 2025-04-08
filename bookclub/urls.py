@@ -1,4 +1,9 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth import views as auth_views
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.http import HttpResponse
 from django.urls import path
 from django.views.generic import TemplateView
 
@@ -48,7 +53,35 @@ from bookclub.views.invitation_views import (
     manage_invitations,
     revoke_invitation,
 )
-from bookclub.views.profile_views import profile_settings
+from bookclub.views.profile_views import (
+    get_vapid_public_key,
+    profile_settings,
+    push_subscribe,
+    push_unsubscribe,
+    test_push_notification,
+)
+
+
+def serve_service_worker(request):
+    # Path to the service worker file - fix the path to match your directory structure
+    sw_path = os.path.join(
+        settings.BASE_DIR, "bookclub", "static", "push-service-worker.js"
+    )
+
+    # Read the file content
+    try:
+        with open(sw_path, "r") as file:
+            content = file.read()
+    except FileNotFoundError:
+        return HttpResponse(f"Service worker not found at {sw_path}", status=404)
+
+    # Serve with correct content type and cache control headers
+    response = HttpResponse(content, content_type="application/javascript")
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
+
 
 urlpatterns = [
     path("", landing_page, name="landing_page"),
@@ -211,5 +244,30 @@ urlpatterns = [
         "book/<int:book_id>/dollar-bets/admin-create/",
         admin_create_dollar_bet,
         name="admin_create_dollar_bet",
+    ),
+    # Dedicated URL for service worker with minimal scope
+    path(
+        "push-service-worker.js",
+        serve_service_worker,
+        name="bookclub/push-service-worker",
+    ),
+    # Create a placeholder push route for the service worker scope
+    path(
+        "push/",
+        TemplateView.as_view(template_name="push_placeholder.html"),
+        name="push-placeholder",
+    ),
+    # API endpoints
+    path(
+        "api/push/vapid-public-key/",
+        get_vapid_public_key,
+        name="vapid-public-key",
+    ),
+    path("api/push/subscribe/", push_subscribe, name="push-subscribe"),
+    path("api/push/unsubscribe/", push_unsubscribe, name="push-unsubscribe"),
+    path(
+        "api/push/test/",
+        test_push_notification,
+        name="test-push-notification",
     ),
 ]

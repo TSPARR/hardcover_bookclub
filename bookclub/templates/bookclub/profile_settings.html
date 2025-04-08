@@ -33,6 +33,19 @@
                 </form>
             </div>
         </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="id_enable_notifications" name="enable_notifications" {% if form.enable_notifications.value %}checked{% endif %}>
+            <label class="form-check-label" for="id_enable_notifications">Enable Push Notifications</label>
+            <div class="form-text">{{ form.enable_notifications.help_text }}</div>
+        </div>
+
+        <div class="mb-3 mt-2" id="notification-test-container" style="display: none;">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="test-notification-button">
+                <i class="bi bi-bell me-1"></i> Test Notifications
+            </button>
+            <small class="form-text text-muted ms-2">Send a test notification to verify your settings.</small>
+        </div>
         
         <!-- Developer information section -->
         <div class="card mt-3">

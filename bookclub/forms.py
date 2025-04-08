@@ -96,16 +96,20 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 
-class ApiKeyForm(forms.ModelForm):
+class ProfileSettingsForm(forms.ModelForm):
     hardcover_api_key = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 3, "cols": 40}),
         required=False,
         help_text="Paste your Hardcover API bearer token here. It will be stored securely.",
     )
+    enable_notifications = forms.BooleanField(
+        required=False,
+        help_text="Receive notifications for new comments, book progress updates, and group activities.",
+    )
 
     class Meta:
         model = UserProfile
-        fields = ["hardcover_api_key"]
+        fields = ["hardcover_api_key", "enable_notifications"]
 
 
 class GroupForm(forms.ModelForm):

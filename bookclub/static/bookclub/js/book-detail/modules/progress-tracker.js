@@ -305,8 +305,6 @@ export const ProgressTracker = {
             };
         }
         
-        console.log('Saving progress:', data); // Debug log
-        
         // Send update to server
         fetch(`/books/${this.bookId}/update-progress/`, {
             method: 'POST',
@@ -318,9 +316,7 @@ export const ProgressTracker = {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                console.log('Progress update successful:', data.progress); // Debug log
-                
+            if (data.success) {                
                 // Force update the progress display with the new data
                 this._updateProgressDisplay(data.progress);
                 
@@ -470,10 +466,6 @@ export const ProgressTracker = {
      * @param {object} progressData - Local progress data
      */
     updateProgressFromSync(syncData, progressData) {
-        // Log incoming data for debugging
-        console.log('Sync Data:', syncData);
-        console.log('Progress Data:', progressData);
-
         // If progressData is undefined, create a basic object
         if (!progressData) {
             progressData = {

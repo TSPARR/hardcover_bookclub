@@ -468,6 +468,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     hardcover_api_key = encrypt(models.TextField(blank=True, null=True))
     can_create_groups = models.BooleanField(default=False)
+    enable_notifications = models.BooleanField(default=False)
+    push_subscription = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username}'s profile"
