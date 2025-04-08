@@ -149,10 +149,13 @@ class CommentAdmin(admin.ModelAdmin):
     ]
     list_filter = ["progress_type", "book", "user"]
     search_fields = ["text", "user__username", "book__title"]
-    readonly_fields = ["created_at", "get_normalized_progress"]
+    readonly_fields = ["created_at"]  # Remove get_normalized_progress from readonly
 
     def get_normalized_progress(self, obj):
         """Calculate normalized progress for admin display"""
+        if obj.hardcover_percent is not None:
+            return f"{obj.hardcover_percent:.1f}%"
+
         return f"{_get_progress_value_for_sorting(obj):.1f}%"
 
     get_normalized_progress.short_description = "Normalized Progress"
@@ -161,7 +164,13 @@ class CommentAdmin(admin.ModelAdmin):
         (None, {"fields": ("user", "book", "text", "parent")}),
         (
             "Progress",
-            {"fields": ("progress_type", "progress_value", "get_normalized_progress")},
+            {
+                "fields": (
+                    "progress_type",
+                    "progress_value",
+                    "hardcover_percent",
+                )  # Use hardcover_percent instead
+            },
         ),
         (
             "Hardcover Data",
@@ -169,7 +178,6 @@ class CommentAdmin(admin.ModelAdmin):
                 "fields": (
                     "hardcover_started_at",
                     "hardcover_finished_at",
-                    "hardcover_percent",
                     "hardcover_current_page",
                     "hardcover_current_position",
                     "hardcover_reading_format",
