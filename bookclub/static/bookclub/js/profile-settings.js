@@ -60,11 +60,22 @@ function clearBrowserCache() {
     console.log('Cache clearing initiated');
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async function() {
-    // Initialize push notification UI elements
-    await initNotificationUI();
-});
+// Initialize when DOM is ready - using a self-executing function to ensure it only runs once
+(function() {
+    // Ensure this initialization only happens once
+    if (window.notificationUIInitialized) {
+        console.log('Notification UI already initialized, skipping...');
+        return;
+    }
+    
+    // Set flag to prevent duplicate initialization
+    window.notificationUIInitialized = true;
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Initialize notification UI elements
+        await initNotificationUI();
+    });
+})();
 
 // Initialize push notification UI elements
 async function initNotificationUI() {
@@ -103,8 +114,15 @@ async function initNotificationUI() {
     // Update test button visibility based on checkbox state
     testContainer.style.display = notificationCheckbox.checked ? 'block' : 'none';
     
+    // Remove any existing listeners to prevent duplicates
+    const newNotificationCheckbox = notificationCheckbox.cloneNode(true);
+    notificationCheckbox.parentNode.replaceChild(newNotificationCheckbox, notificationCheckbox);
+    
+    // Get reference to the new element
+    const updatedNotificationCheckbox = document.getElementById('id_enable_notifications');
+    
     // Toggle subscription when checkbox changes
-    notificationCheckbox.addEventListener('change', async function() {
+    updatedNotificationCheckbox.addEventListener('change', async function() {
         if (this.checked) {
             const success = await window.subscribeToPushNotifications();
             this.checked = !!success;
@@ -115,12 +133,19 @@ async function initNotificationUI() {
         }
     });
     
-    // Add test notification button handler
-    testButton.addEventListener('click', async function() {
+    // Remove any existing listeners to prevent duplicates
+    const newTestButton = testButton.cloneNode(true);
+    testButton.parentNode.replaceChild(newTestButton, testButton);
+    
+    // Get reference to the new button
+    const updatedTestButton = document.getElementById('test-notification-button');
+    
+    // Add test notification button handler (only once)
+    updatedTestButton.addEventListener('click', async function() {
         const button = this;
         const originalText = button.innerHTML;
         
-        // Disable button and show loading state
+        // Disable button to prevent multiple clicks
         button.disabled = true;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
         
@@ -150,4 +175,6 @@ async function initNotificationUI() {
             button.innerHTML = originalText;
         }
     });
+    
+    console.log('Notification UI initialized successfully');
 }
