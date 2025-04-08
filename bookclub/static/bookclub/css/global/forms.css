@@ -1,0 +1,71 @@
+/* ===========================
+ * Global Form Styles
+ * =========================== */
+ .form-control {
+    border-radius: 0.25rem;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Form validation */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Helper lists in forms */
+.form-helper-list {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.form-helper-list li {
+    margin-bottom: 0.25rem;
+}
+
+.form-helper-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* API key field styling - non-color specific */
+#id_hardcover_api_key,
+input[name="hardcover_api_key"] {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    width: 100%;            /* Ensure the input takes full width of its container */
+    box-sizing: border-box;  /* Include padding in width calculation */
+    word-break: break-all;   /* Break long strings at any character */
+    white-space: normal;     /* Allow text to wrap */
+    line-height: 1.5;        /* Improve readability of wrapped text */
+}
+
+/* Make card and form responsive on mobile */
+@media (max-width: 767.98px) {
+    .card {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .card-footer {
+        padding: 0.75rem 1rem;
+        word-wrap: break-word;  /* Allow text to wrap properly */
+    }
+    
+    /* Adjust form layout on small screens */
+    form .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Ensure API key link doesn't overflow */
+    .card-footer a {
+        word-break: break-all;  /* Break long URLs */
+    }
+}

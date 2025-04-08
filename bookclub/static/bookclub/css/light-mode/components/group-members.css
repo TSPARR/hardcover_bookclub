@@ -1,28 +1,43 @@
-/* Group Members Progress Styles */
-.group-members-progress-card .card-header h3 {
-    font-size: 1rem;
-    margin-bottom: 0;
+/* ===========================
+ * Light Mode Group Members Styles
+ * =========================== */
+.light-mode .group-members-progress-card {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.125);
 }
 
-.group-members-progress-card .card-header .badge {
-    font-size: 0.75rem;
-    padding: 0.25em 0.4em;
+.light-mode .group-members-progress-card .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.group-members-progress-card .table {
-    margin-bottom: 0;
+.light-mode .group-members-progress-card .card-header h3 {
+    color: #212529;
 }
 
-.group-members-progress-card .table th,
-.group-members-progress-card .table td {
-    padding: 0.25rem;
-    font-size: 0.875rem;
+.light-mode .group-members-progress-card .table {
+    color: #212529;
 }
 
-.group-progress-chevron {
-    transition: transform 0.3s ease;
+.light-mode .group-members-progress-card .table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
 }
 
-.card-header[aria-expanded="true"] .group-progress-chevron {
-    transform: rotate(180deg);
+.light-mode .group-members-progress-card .table td {
+    border-top: 1px solid #dee2e6;
+}
+
+.light-mode .group-members-progress-card .badge-primary {
+    background-color: #0d6efd;
+    color: #ffffff;
+}
+
+.light-mode .group-members-progress-card .badge-success {
+    background-color: #198754;
+    color: #ffffff;
+}
+
+.light-mode .group-progress-chevron {
+    color: #6c757d;
 }

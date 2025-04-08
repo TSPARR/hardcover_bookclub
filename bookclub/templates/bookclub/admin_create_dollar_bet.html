@@ -1,0 +1,95 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+{% load bookclub_extras %}
+
+{% block title %}Admin Create Dollar Bet for {{ book.title|split:":"|first|trim }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2><i class="bi bi-currency-dollar me-2"></i>Admin: Create Dollar Bet</h2>
+                    <p class="mb-0">Book: {{ book.title|split:":"|first|trim }}</p>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Bet Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                    rows="3" required placeholder="What is this bet about?"></textarea>
+                            <div class="form-text">Be specific about the prediction so it can be clearly judged later.</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="proposer" class="form-label">Proposer</label>
+                                <select class="form-select" id="proposer" name="proposer" required>
+                                    <option value="" selected disabled>Select proposer</option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}">{{ member.username }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">The member who proposed the bet</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="accepter" class="form-label">Accepter</label>
+                                <select class="form-select" id="accepter" name="accepter" required>
+                                    <option value="" selected disabled>Select accepter</option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}">{{ member.username }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">The member who accepted the bet</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="spoiler_level" class="form-label">Spoiler Level</label>
+                            <select class="form-select" id="spoiler_level" name="spoiler_level">
+                                {% for value, display in spoiler_levels %}
+                                    <option value="{{ value }}">{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">
+                                <ul class="mb-0 small">
+                                    <li><strong>No Spoilers:</strong> Visible to all readers</li>
+                                    <li><strong>Halfway Through Book:</strong> Only visible to readers who are at least 50% through the book</li>
+                                    <li><strong>Finished Book:</strong> Only visible to readers who have completed the book</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Bet Amount</label>
+                            <input type="text" class="form-control" value="$1.00" disabled>
+                            <div class="form-text">All bets are fixed at $1</div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong> This bet will be created with an "Accepted" status automatically.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Bet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

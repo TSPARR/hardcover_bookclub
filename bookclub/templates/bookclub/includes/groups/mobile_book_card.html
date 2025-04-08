@@ -1,28 +1,29 @@
-<!-- includes/mobile_book_card.html -->
 {% load bookclub_extras %}
-<div class="col">
-    <div class="card shadow-sm h-100">
-        <div class="card-body p-0">
-            <div class="list-group-item py-2 px-3">
+<div class="card mobile-book-card shadow-sm">
+    <div class="card-body p-0">
+        <div class="mobile-book-content">
+            <!-- Book header with cover image and title -->
+            <div class="mobile-book-header">
                 <div class="row g-0">
-                    <div class="col-3">
+                    <div class="col-3 mobile-cover-container">
                         {% if book.cover_image_url %}
-                        <img src="{{ book.cover_image_url }}" class="img-fluid rounded" 
-                            style="width: 100%; max-height: 100px; object-fit: contain;" alt="{{ book.title }}">
+                        <img src="{{ book.cover_image_url }}" class="mobile-book-cover rounded" alt="{{ book.title|split:":"|first|trim }}">
                         {% else %}
-                        <div class="bg-light d-flex justify-content-center align-items-center rounded" 
-                            style="height: 100px; width: 100%;">
-                            <i class="bi bi-book text-muted"></i>
+                        <div class="mobile-book-cover-placeholder rounded">
+                            <i class="bi bi-book"></i>
                         </div>
                         {% endif %}
                     </div>
-                    <div class="col-9 ps-3">
-                        <h5 class="card-title">{{ book.title }}</h5>
-                        <p class="card-text small mb-1">{{ book.author }}</p>
-
+                    <div class="col-9 ps-3 py-2">
+                        <div class="d-flex align-items-start mb-1">
+                            <h5 class="book-title mb-0">{{ book.title|split:":"|first|trim }}</h5>
+                        </div>
+                        <p class="book-author mb-1">{{ book.author }}</p>
+                        
+                        <!-- Star rating if available -->
                         {% with prog=book_progress|get_item:book.id %}
                             {% if prog.progress.effective_rating %}
-                                <div class="small mb-2">
+                                <div class="mobile-book-rating mb-2">
                                     {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
                                     {% if prog.progress.hardcover_rating %}
                                     <span class="text-muted small d-block">Hardcover</span>
@@ -32,47 +33,74 @@
                                 </div>
                             {% endif %}
                         {% endwith %}
-                        
-                        <div class="mb-2">
-                            {% if book.is_collective_pick %}
-                            <span class="badge bg-info text-dark">Group Pick</span>
-                            {% elif book.picked_by %}
-                            <span class="badge bg-secondary">Picked by: {{ book.picked_by.username }}</span>
-                            {% endif %}
-                            
-                            {% with prog=book_progress|get_item:book.id %}
-                            <span class="badge {{ prog.status_class }} ms-1">{{ prog.status }}</span>
-                            {% if prog.progress and prog.progress.normalized_progress > 0 %}
-                                <span class="ms-1">{{ prog.progress.normalized_progress }}%</span>
-                            {% endif %}
-                            {% endwith %}
-                        </div>
-                        
-                        <div class="mt-2 d-flex flex-wrap gap-1">
-                            <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View</a>
-                            
-                            {% if is_admin %}
-                            <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
-                                <i class="bi bi-star"></i>
-                            </a>
-                            
-                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    Set Active
-                                </button>
-                            </form>
-                            
-                            <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('Are you sure you want to remove this book?')">
-                                    Remove
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Book details section -->
+            <div class="mobile-book-details px-3 py-2">
+                <div class="mobile-book-badges mb-2">
+                    {% if book.is_collective_pick %}
+                    <span class="badge bg-info text-dark">Group Pick</span>
+                    {% elif book.picked_by %}
+                    <span class="badge bg-secondary">Picked by: {{ book.picked_by.username }}</span>
+                    {% endif %}
+                    
+                    {% with prog=book_progress|get_item:book.id %}
+                    <span class="badge {{ prog.status_class }} ms-1">{{ prog.status }}</span>
+                    {% endwith %}
+                </div>
+                
+                <!-- Progress section with progress bar -->
+                {% with prog=book_progress|get_item:book.id %}
+                {% if prog.progress and prog.progress.normalized_progress > 0 %}
+                <div class="book-progress-section">
+                    <div class="progress group-members-progress" data-progress="{{ prog.progress.normalized_progress|floatformat:0 }}">
+                        <div class="progress-bar" role="progressbar" style="width: {{ prog.progress.normalized_progress }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="mobile-book-actions px-3 py-2">
+                <div class="d-flex flex-wrap">
+                    <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View Details</a>
+                    
+                    {% if is_admin %}
+                    <button type="button" class="btn btn-sm btn-outline-secondary edit-attribution" 
+                            data-book-id="{{ book.id }}"
+                            data-book-title="{{ book.title|split:":"|first|trim }}"
+                            data-picked-by="{{ book.picked_by.id|default:'' }}"
+                            data-collective="{{ book.is_collective_pick|yesno:'true,false' }}"
+                            data-bs-toggle="modal" data-bs-target="#attributionModal">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>
+                    
+                    <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-star"></i> Editions
+                    </a>
+                    
+                    <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            Set Active
+                        </button>
+                    </form>
+                    
+                    <!-- Place Remove button on its own row -->
+                    <div class="w-100" style="margin-top: 0.4rem;"></div>
+                    
+                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" style="flex-basis: 100%; max-width: 100%;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Are you sure you want to remove this book?')" 
+                            style="width: 100%; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+                            Remove
+                        </button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

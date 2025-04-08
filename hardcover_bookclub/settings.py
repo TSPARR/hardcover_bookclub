@@ -87,6 +87,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "bookclub.context_processors.bookclub_settings",
             ],
         },
     },
@@ -232,3 +233,13 @@ PLEX_BASE_URL = os.environ.get("PLEX_BASE_URL", "")
 PLEX_TOKEN = os.environ.get("PLEX_TOKEN", "")
 PLEX_LIBRARY_NAME = os.environ.get("PLEX_LIBRARY_NAME", "")
 PLEX_ENABLED = bool(PLEX_BASE_URL and PLEX_TOKEN and PLEX_LIBRARY_NAME)
+
+ENABLE_DOLLAR_BETS = os.environ.get("ENABLE_DOLLAR_BETS", "False") == "True"
+
+# Push Notification Settings (using Web Push VAPID)
+VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "")
+VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "")
+VAPID_CONTACT_EMAIL = os.environ.get("VAPID_CONTACT_EMAIL", "your-email@example.com")
+PUSH_NOTIFICATIONS_ENABLED = bool(
+    VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY and VAPID_CONTACT_EMAIL
+)

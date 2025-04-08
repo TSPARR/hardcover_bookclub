@@ -1,152 +1,194 @@
-/* Dark Mode Button Styles */
-
-.btn {
-    border-radius: 0.25rem;
-    font-weight: 500;
-    padding: 0.375rem 1rem;
-    transition: all 0.2s;
-}
-
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
-}
-
-.btn-success {
-    background-color: #198754;
-    border-color: #198754;
-}
-
-.btn-success:hover {
-    background-color: #157347;
-    border-color: #146c43;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-    background-color: #5c636a;
-    border-color: #565e64;
-}
-
-/* Fix close button appearance */
-.btn-close {
+/* ===========================
+ * Dark Mode Button Styles
+ * =========================== */
+/* Close button - Dark Mode */
+.dark-mode .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* Outline buttons */
-.btn-outline-primary {
+/* Outline buttons - Dark Mode */
+.dark-mode .btn-outline-primary {
     color: #6ea8fe;
     border-color: #6ea8fe;
 }
 
-.btn-outline-primary:hover {
+.dark-mode .btn-outline-primary:hover {
     background-color: #0d6efd;
     color: #ffffff;
     border-color: #0d6efd;
 }
 
-/* Modal footer button styling */
-.modal-footer .btn-secondary {
+/* Modal footer buttons - Dark Mode */
+.dark-mode .modal-footer .btn-secondary {
     background-color: #6c757d !important;
     border-color: #6c757d !important;
     color: #ffffff !important;
 }
 
-.modal-footer .btn-primary {
+.dark-mode .modal-footer .btn-primary {
     background-color: #0d6efd !important;
     border-color: #0d6efd !important;
 }
 
-/* Dark mode external link buttons */
-.hardcover-btn {
+/* External service link buttons - Dark Mode */
+.dark-mode .hardcover-btn {
     border-color: #31d2f2;
     color: #31d2f2;
     background-color: transparent;
 }
 
-.hardcover-btn:hover {
+.dark-mode .hardcover-btn:hover {
     background-color: rgba(49, 210, 242, 0.15);
+    color: #31d2f2;
+    border-color: #31d2f2;
 }
 
-.kavita-btn {
+.dark-mode .kavita-btn {
     border-color: #adb5bd;
     color: #adb5bd;
     background-color: transparent;
 }
 
-.kavita-btn:hover {
+.dark-mode .kavita-btn:hover {
     background-color: rgba(173, 181, 189, 0.15);
+    color: #adb5bd;
+    border-color: #adb5bd;
 }
 
-.plex-btn {
+.dark-mode .plex-btn {
     border-color: #e68a1e;
     color: #e68a1e;
     background-color: transparent;
 }
 
-.plex-btn:hover {
+.dark-mode .plex-btn:hover {
     background-color: rgba(230, 138, 30, 0.15);
+    color: #e68a1e;
+    border-color: #e68a1e;
 }
 
-/* Quick Edition Selection buttons */
-.quick-edition-selection .btn-kavita {
-    background-color: #198754;
-    border-color: #198754;
-    color: white;
-}
-
-.quick-edition-selection .btn-kavita:hover {
-    background-color: #157347;
-    border-color: #146c43;
-    color: white;
-}
-
-.quick-edition-selection .btn-plex {
-    background-color: #cc7b19;
-    border-color: #cc7b19;
-    color: white;
-}
-
-.quick-edition-selection .btn-plex:hover {
-    background-color: #b36d16;
-    border-color: #a66414;
-    color: white;
-}
-
-.btn-editions {
+/* Edition management buttons - Dark Mode */
+.dark-mode .btn-editions {
     color: #31d2f2;
     border-color: #31d2f2;
     background-color: transparent;
 }
 
-.btn-editions:hover {
+.dark-mode .btn-editions:hover {
     background-color: rgba(49, 210, 242, 0.15);
     color: #31d2f2;
     border-color: #31d2f2;
 }
 
-/* Spoiler button styling */
-.spoiler-warning .show-spoiler-btn {
+/* Filled service buttons - Dark Mode */
+.dark-mode .btn-kavita {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.dark-mode .btn-kavita:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    color: white;
+}
+
+.dark-mode .btn-kavita i {
+    font-size: 1.1rem;
+}
+
+.dark-mode .btn-plex {
+    background-color: #cc7b19;
+    border-color: #cc7b19;
+    color: white;
+}
+
+.dark-mode .btn-plex:hover {
+    background-color: #b36d16;
+    border-color: #a66414;
+    color: white;
+}
+
+.dark-mode .btn-plex i {
+    font-size: 1.1rem;
+}
+
+/* Spoiler button styling - Dark Mode */
+.dark-mode .spoiler-warning .show-spoiler-btn {
     color: #fff3cd;
     border-color: #fff3cd;
     background-color: rgba(255, 243, 205, 0.1);
 }
 
-.spoiler-warning .show-spoiler-btn:hover {
+.dark-mode .spoiler-warning .show-spoiler-btn:hover {
     background-color: #664d03;
     color: #fff3cd;
     border-color: #fff3cd;
 }
 
-.spoiler-warning .show-spoiler-btn:focus {
+.dark-mode .spoiler-warning .show-spoiler-btn:focus {
     box-shadow: 0 0 0 0.25rem rgba(255, 243, 205, 0.5);
+}
+
+/* Dark Mode Primary Button Colors - excluding modal buttons which already have specific styles */
+.dark-mode .btn-primary:not(.modal-footer .btn-primary) {
+    background-color: #2b8afe; /* Brighter blue */
+    border-color: #2b8afe;
+    color: #ffffff;
+}
+
+.dark-mode .btn-primary:not(.modal-footer .btn-primary):hover {
+    background-color: #3a94ff; /* Even brighter on hover */
+    border-color: #3a94ff;
+}
+
+/* Dark Mode Secondary Button Colors */
+.dark-mode .btn-secondary {
+    background-color: #5a6268; /* Lighter gray */
+    border-color: #5a6268;
+    color: #ffffff;
+}
+
+.dark-mode .btn-secondary:hover {
+    background-color: #6c757d; /* Even lighter on hover */
+    border-color: #6c757d;
+}
+
+/* Dark Mode Info Button Colors */
+.dark-mode .btn-info {
+    background-color: #0dcaf0; /* Brighter teal */
+    border-color: #0dcaf0;
+    color: #000000; /* Black text for contrast */
+    font-weight: 500; /* Slightly bolder text */
+}
+
+.dark-mode .btn-info:hover {
+    background-color: #31d2f2; /* Even brighter on hover */
+    border-color: #31d2f2;
+    color: #000000;
+}
+
+/* Dark Mode Small Buttons Improvements */
+.dark-mode .btn-sm.btn-primary {
+    font-weight: 500;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2); /* Subtle text shadow for better contrast */
+}
+
+/* Create Group Button Specific */
+.dark-mode .card-header .btn-sm.btn-primary {
+    background-color: #2b8afe;
+    border-color: #2b8afe;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.dark-mode .card-header .btn-sm.btn-primary:hover {
+    background-color: #3a94ff;
+    border-color: #3a94ff;
+}
+
+/* Continue Button Specific */
+.dark-mode .btn-sm.btn-primary:not(.card-header .btn-sm.btn-primary) {
+    background-color: #2b8afe;
+    border-color: #2b8afe;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }

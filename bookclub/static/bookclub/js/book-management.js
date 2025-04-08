@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize edit mode toggle in the group detail page
 function initEditModeToggle() {
+    // Desktop edit mode toggle
     const toggleEditModeBtn = document.getElementById('toggleEditMode');
     const cancelEditBtn = document.getElementById('cancelEdit');
     const reorderForm = document.getElementById('reorderForm');
@@ -26,10 +27,34 @@ function initEditModeToggle() {
         });
         
         if (cancelEditBtn) {
-            cancelEditBtn.addEventListener('click', function() {
+            cancelEditBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent form submission
                 reorderForm.classList.add('d-none');
                 readOnlyBooks.classList.remove('d-none');
                 toggleEditModeBtn.classList.remove('d-none');
+            });
+        }
+    }
+    
+    // Mobile edit mode toggle
+    const mobileToggleBtn = document.getElementById('mobileToggleEditMode');
+    const mobileCancelBtn = document.getElementById('mobileCancelEdit');
+    const mobileReorderForm = document.getElementById('mobileReorderForm');
+    const mobileReadOnlyBooks = document.getElementById('mobileReadOnlyBooks');
+    
+    if (mobileToggleBtn && mobileReorderForm && mobileReadOnlyBooks) {
+        mobileToggleBtn.addEventListener('click', function() {
+            mobileReorderForm.classList.remove('d-none');
+            mobileReadOnlyBooks.classList.add('d-none');
+            mobileToggleBtn.classList.add('d-none');
+        });
+        
+        if (mobileCancelBtn) {
+            mobileCancelBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent form submission
+                mobileReorderForm.classList.add('d-none');
+                mobileReadOnlyBooks.classList.remove('d-none');
+                mobileToggleBtn.classList.remove('d-none');
             });
         }
     }

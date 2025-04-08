@@ -1,6 +1,7 @@
+{% load bookclub_extras %}
 <div class="row mb-4">
     <div class="col-md-12">
-        <h1>Manage Promoted Editions for "{{ book.title }}"</h1>
+        <h1>Manage Promoted Editions for "{{ book.title|split:":"|first|trim }}"</h1>
         <p class="text-muted">By {{ book.author }}</p>
 
         <div class="alert alert-info alert-permanent">

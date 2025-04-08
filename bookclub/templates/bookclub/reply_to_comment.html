@@ -1,7 +1,8 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
-{% block title %}Reply - {{ book.title }}{% endblock %}
+{% block title %}Reply - {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -10,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2>Reply to Comment</h2>
-                    <p class="text-muted mb-0">Book: {{ book.title }}</p>
+                    <p class="text-muted mb-0">Book: {{ book.title|split:":"|first|trim }}</p>
                 </div>
                 <div class="card-body">
                     <!-- Original comment -->

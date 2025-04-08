@@ -1,6 +1,7 @@
 {% extends 'bookclub/base.html' %}
+{% load bookclub_extras %}
 
-{% block title %}Delete Comment - {{ book.title }}{% endblock %}
+{% block title %}Delete Comment - {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block content %}
 <div class="container py-4">

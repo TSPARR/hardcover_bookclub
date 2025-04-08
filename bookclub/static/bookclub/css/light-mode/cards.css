@@ -1,56 +1,34 @@
-/* Card components */
-
-.card {
-    border-radius: 0.5rem;
+/* ===========================
+ * Light Mode Card Styles
+ * =========================== */
+ .light-mode .card {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 1.5rem;
     border: 1px solid rgba(0, 0, 0, 0.125);
+    /* Default light background from browser/framework */
 }
 
-.card:hover {
-    transform: translateY(-3px);
+.light-mode .card:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
+.light-mode .card-header {
     background-color: rgba(0, 0, 0, 0.03);
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-    font-weight: 500;
+    /* Default dark text color from browser/framework */
 }
 
-.card-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.card-subtitle {
-    margin-top: -0.25rem;
-    margin-bottom: 0.75rem;
-}
-
-.card-body {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.card-text {
-    flex-grow: 1;
-}
-
-/* Accordion styling for book details */
-.accordion-button:not(.collapsed) {
+/* Light mode accordion styling */
+.light-mode .accordion-button:not(.collapsed) {
     color: #0d6efd;
     background-color: rgba(13, 110, 253, 0.1);
     box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.125);
 }
 
-.accordion-button:focus {
+.light-mode .accordion-button:focus {
     border-color: #86b7fe;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.accordion-body {
+.light-mode .accordion-body {
     padding: 1rem;
 }

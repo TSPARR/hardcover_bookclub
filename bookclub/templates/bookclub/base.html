@@ -14,6 +14,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'bookclub/images/icon-192.png' %}">
     <link rel="icon" type="image/png" sizes="512x512" href="{% static 'bookclub/images/icon-512.png' %}">
     <link rel="apple-touch-icon" href="{% static 'bookclub/images/icon-192.png' %}">
+    <meta name="current-username" content="{{ request.user.username }}">
 
     <title>{% block title %}Book Club{% endblock %}</title>
 
@@ -22,10 +23,13 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
-    <!-- Light Mode CSS (default) -->
+    <!-- Global CSS (always loaded) -->
+    <link rel="stylesheet" href="{% static 'bookclub/css/global.css' %}">
+        
+    <!-- Light Mode CSS (default theme) -->
     <link rel="stylesheet" href="{% static 'bookclub/css/light-mode/light-mode.css' %}">
-    
-    <!-- Dark Mode CSS (preloaded with media query to prevent flash) -->
+        
+    <!-- Dark Mode CSS (loaded conditionally) -->
     <link rel="stylesheet" href="{% static 'bookclub/css/dark-mode/dark-mode.css' %}" media="(prefers-color-scheme: dark)">
     
     <!-- Theme-specific elements visibility -->

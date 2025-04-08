@@ -5,6 +5,7 @@ Book-specific utility functions for views.
 import logging
 from datetime import datetime
 
+from django.urls import reverse
 from django.utils import timezone
 
 from ..models import BookEdition
@@ -391,3 +392,37 @@ def process_hardcover_edition_data(book, comment, hardcover_data, user_progress,
     except Exception as e:
         logger.exception(f"Error processing Hardcover edition data: {str(e)}")
         return False
+
+
+def get_redirect_url_with_params(request, view_name, kwargs=None, anchor=None):
+    """
+    Build a redirect URL for the discussion tab that preserves relevant query parameters.
+
+    Args:
+        request: The current request
+        view_name: Name of the view to redirect to
+        kwargs: Additional kwargs for the reverse function
+        anchor: Optional anchor fragment for the URL
+
+    Returns:
+        String with the full redirect URL
+    """
+    # Get the base URL
+    redirect_url = reverse(view_name, kwargs=kwargs)
+
+    # Always use discussion tab
+    params = ["tab=discussion"]
+
+    # Add sort parameter if it exists in the request
+    sort = request.GET.get("sort")
+    if sort:
+        params.append(f"sort={sort}")
+
+    # Add parameters to URL
+    redirect_url += "?" + "&".join(params)
+
+    # Add fragment identifier if provided
+    if anchor:
+        redirect_url += f"#{anchor}"
+
+    return redirect_url

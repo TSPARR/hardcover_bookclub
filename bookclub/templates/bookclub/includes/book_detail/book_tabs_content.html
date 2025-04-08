@@ -1,0 +1,59 @@
+<div class="tab-content" id="bookDetailTabsContent">
+  <!-- Book Details Tab -->
+  <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+    {% include "bookclub/includes/book_detail/book_header_section.html" %}
+    {% include "bookclub/includes/book_detail/group_member_progress.html" %}
+  </div>
+  
+  <!-- Discussion Tab -->
+  <div class="tab-pane fade" id="discussion" role="tabpanel" aria-labelledby="discussion-tab">
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <h3 class="mb-0">Discussion</h3>
+          
+          <div class="d-flex align-items-center gap-3 mt-2 mt-md-0">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="showSpoilersToggle" checked>
+              <label class="form-check-label" for="showSpoilersToggle">
+                Show all comments
+              </label>
+            </div>
+
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                      id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Sort by:
+                {% if current_sort == 'date_desc' %}Newest First
+                {% elif current_sort == 'date_asc' %}Oldest First
+                {% elif current_sort == 'progress_desc' %}Most Progress First
+                {% elif current_sort == 'progress_asc' %}Least Progress First
+                {% endif %}
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                <!-- Sorting options -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        {% include "bookclub/includes/book_detail/comment_form.html" %}
+
+        <!-- Comments List -->
+        {% for comment in comments %}
+          {% include "bookclub/includes/book_detail/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices %}
+        {% empty %}
+          <p>No comments yet. Be the first to start the discussion!</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Dollar Bets Tab (only if enabled) -->
+  {% if group.is_dollar_bets_enabled %}
+  <div class="tab-pane fade" id="bets" role="tabpanel" aria-labelledby="bets-tab">
+    {% include "bookclub/includes/book_detail/dollar_bets_section.html" %}
+  </div>
+  {% endif %}
+</div>

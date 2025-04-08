@@ -6,6 +6,7 @@ import { CommentReactions } from './modules/comment-reactions.js';
 import { AccessibilityHelper } from './modules/accessibility.js';
 import { RatingManager } from './modules/rating-manager.js';
 import { SortManager } from './modules/sort-manager.js';
+import { TabManager } from './modules/tab-manager.js';
 
 // Initialize all modules when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,8 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const accessibilityHelper = AccessibilityHelper.init();
         const ratingManager = RatingManager.init(bookId);
         const sortManager = SortManager.init(bookId);
-        
-        // Make the modules communicate with each other
+        const tabManager = TabManager.init();
         
         // When progress updates, check spoilers
         progressTracker.onProgressUpdated = (newProgress) => {
@@ -44,12 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set up validation for progress fields
         progressTracker._setupProgressValidation();
         
-        // Expose modules to window for cross-module access (for functions that need direct access)
+        // Expose modules to window for cross-module access
         window.ProgressTracker = progressTracker;
         window.HardcoverSync = hardcoverSync;
         window.SpoilerManager = spoilerManager;
         window.RatingManager = ratingManager;
         window.AccessibilityHelper = accessibilityHelper;
         window.SortManager = sortManager;
+        window.TabManager = tabManager;
     }
 });

@@ -1,101 +1,102 @@
-/* Reaction components */
+/* ===========================
+ * Light Mode Reactions Styles
+ * =========================== */
 
-/* Fix comment reaction buttons */
-.reaction-btn {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 0.5rem;
-    transition: all 0.2s;
+/* Reaction button styling */
+.light-mode .reaction-btn {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
 }
 
-.reaction-count {
-    margin-left: 0.25rem;
-    font-weight: bold;
+.light-mode .reaction-btn:hover {
+    background-color: #e9ecef;
 }
 
-/* Active reaction */
-.reaction-btn.active {
+.light-mode .reaction-btn.active {
     background-color: #0d6efd;
     border-color: #0d6efd;
     color: white;
 }
 
-/* Reaction panel styling */
-.reaction-panel {
-    display: none;
-    /* Hidden by default */
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-    animation: fadeIn 0.2s ease-in-out;
+/* Make it more obvious the count is clickable */
+.light-mode .reaction-count:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Animation for panel appearance */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
+/* Add visual indicator for mobile taps */
+.light-mode .reaction-count:active {
+    background-color: rgba(0, 0, 0, 0.15);
+}
 
-    to {
-        opacity: 1;
-    }
+/* Add subtle indicator to show it's interactive */
+.light-mode .reaction-count::after {
+    background-color: currentColor;
+    opacity: 0.5;
+}
+
+/* Reaction panel styling */
+.light-mode .reaction-panel {
+    background-color: #fff;
+    border-color: #dee2e6;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 /* Reaction option buttons */
-.reaction-option {
-    min-width: 2.5rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 1rem;
-    transition: transform 0.2s ease;
+.light-mode .reaction-option {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
 }
 
-.reaction-option:hover {
+.light-mode .reaction-option:hover {
+    background-color: #e9ecef;
     transform: scale(1.1);
 }
 
-/* Styles for reaction tooltips and hover cards */
-
-/* Bootstrap tooltip customization */
-.reaction-tooltip {
-    font-size: 0.875rem;
-    max-width: 250px;
-}
-
-/* Custom hover card for non-Bootstrap fallback */
-.reaction-hover-card {
-    position: fixed;
-    background-color: #343a40;
-    color: #fff;
-    padding: 0.5rem;
+/* Reaction users panel */
+.light-mode .reaction-users-panel {
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 0.25rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1070;
-    font-size: 0.875rem;
-    max-width: 250px;
-    text-align: center;
-    pointer-events: none;
 }
 
-.reaction-hover-card:after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #343a40;
+/* Header for reaction users panel */
+.light-mode .reaction-users-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
-/* Dark mode tooltip adaptations */
-body.dark-mode .reaction-hover-card {
-    background-color: #212529;
-    color: #e1e1e1;
-    border: 1px solid #495057;
+/* Close button for users panel */
+.light-mode .close-users-panel {
+    color: #6c757d;
 }
 
-body.dark-mode .reaction-hover-card:after {
-    border-top-color: #212529;
+.light-mode .close-users-panel:hover {
+    color: #343a40;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* User list and items */
+.light-mode .reaction-users-list {
+    background-color: #fff;
+}
+
+.light-mode .reaction-user-item {
+    background-color: #f1f3f5;
+    border-radius: 1rem;
+}
+
+.light-mode .reaction-user-item:hover {
+    background-color: #e9ecef;
+}
+
+/* Light mode mobile-specific styles */
+.light-mode .mobile-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 767px) {
+    .light-mode .reaction-users-panel {
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
 }

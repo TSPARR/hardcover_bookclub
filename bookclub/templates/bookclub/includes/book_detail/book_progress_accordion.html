@@ -1,3 +1,4 @@
+{% load bookclub_extras %}
 <div class="accordion mb-3" id="bookDetailsAccordion">
     <!-- Progress Section -->
     <div class="accordion-item">
@@ -111,7 +112,7 @@
         <div id="collapseEditionInfo" class="accordion-collapse collapse" 
              aria-labelledby="headingEditionInfo">
             <div class="accordion-body">
-                <h6 class="mb-3">{{ user_progress.edition.title }}</h6>
+                <h6 class="mb-3">{{ user_progress.edition.title|split:":"|first|trim }}</h6>
                 
                 <div class="edition-details">
                     {% if user_progress.edition.reading_format %}

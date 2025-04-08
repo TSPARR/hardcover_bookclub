@@ -305,14 +305,6 @@ export const ProgressTracker = {
             };
         }
         
-        console.log('Saving progress:', data); // Debug log
-        
-        // Show a loading indicator in the progress bar
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) {
-            progressBar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
-        }
-        
         // Send update to server
         fetch(`/books/${this.bookId}/update-progress/`, {
             method: 'POST',
@@ -324,9 +316,7 @@ export const ProgressTracker = {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                console.log('Progress update successful:', data.progress); // Debug log
-                
+            if (data.success) {                
                 // Force update the progress display with the new data
                 this._updateProgressDisplay(data.progress);
                 
@@ -365,32 +355,97 @@ export const ProgressTracker = {
     _updateProgressDisplay(progressData) {
         if (!progressData) return;
         
-        console.log('Updating progress display:', progressData); // Debug log
-        
-        // Update progress bar
-        const progressBar = document.querySelector('.progress-bar');
+        // Get current username from the meta tag
+        const currentUsername = document.querySelector('meta[name="current-username"]')?.content;
+
+        // Format normalized progress to 2 decimal places
+        const normalizedProgress = parseFloat(progressData.normalized_progress).toFixed(2);
+
+        // Update the current user's progress bar in book details accordion
+        const progressBar = document.querySelector('#bookDetailsAccordion .progress-bar');
         if (progressBar) {
-            // Make sure we're working with a number
-            const normalizedProgress = parseFloat(progressData.normalized_progress);
-            
-            console.log('Setting progress bar to:', normalizedProgress); // Debug log
-            
             // Directly set all properties
             progressBar.style.width = `${normalizedProgress}%`;
             progressBar.setAttribute('aria-valuenow', normalizedProgress);
-            progressBar.textContent = `${normalizedProgress.toFixed(1)}%`;
+            
+            // Update the data-progress attribute on the parent progress container
+            const progressContainer = progressBar.closest('.progress');
+            if (progressContainer) {
+                progressContainer.setAttribute('data-progress', normalizedProgress);
+            }
         }
         
-        // Update progress text
-        const progressText = document.querySelector('.card-body .d-flex div');
+        // Also update the current user's progress in the group members table if it exists
+        if (currentUsername) {
+            // Find the progress bar in the group members table that belongs to the current user
+            const groupMembersTable = document.querySelector('.group-members-progress-card table');
+            if (groupMembersTable) {
+                // Each row in the table corresponds to a group member
+                const rows = groupMembersTable.querySelectorAll('tbody tr');
+                
+                // Loop through each row to find the current user
+                rows.forEach(row => {
+                    const usernameCell = row.querySelector('td:first-child');
+                    const username = usernameCell?.textContent.trim();
+                    
+                    // If we found the current user's row
+                    if (username === currentUsername) {
+                        // Get the progress bar in this row
+                        const memberProgressBar = row.querySelector('.progress-bar');
+                        const memberProgressContainer = row.querySelector('.progress');
+                        
+                        if (memberProgressBar && memberProgressContainer) {
+                            // Update the width of the progress bar
+                            memberProgressBar.style.width = `${normalizedProgress}%`;
+                            
+                            // Update the data-progress attribute
+                            memberProgressContainer.setAttribute('data-progress', normalizedProgress);
+                            
+                            // If the progress is 0, make sure we're using the secondary style
+                            if (parseFloat(normalizedProgress) === 0) {
+                                memberProgressBar.classList.add('bg-secondary');
+                            } else {
+                                memberProgressBar.classList.remove('bg-secondary');
+                            }
+                            
+                            // Update the status badge
+                            const statusBadge = row.querySelector('.badge');
+                            if (statusBadge) {
+                                // Remove existing classes
+                                statusBadge.classList.remove('bg-secondary', 'bg-primary', 'bg-success');
+                                
+                                // Set appropriate class and text based on progress
+                                if (parseFloat(normalizedProgress) >= 100) {
+                                    statusBadge.classList.add('bg-success');
+                                    statusBadge.textContent = 'Finished';
+                                } else if (parseFloat(normalizedProgress) > 0) {
+                                    statusBadge.classList.add('bg-primary');
+                                    statusBadge.textContent = 'In Progress';
+                                } else {
+                                    statusBadge.classList.add('bg-secondary');
+                                    statusBadge.textContent = 'Not Started';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Update progress text outside the bar
+        const progressText = document.querySelector('.accordion-body .d-flex div') || 
+                            document.querySelector('.card-body .d-flex div');
+                                
         if (progressText) {
             let text = '';
             if (progressData.progress_type === 'page') {
                 text = `Page ${progressData.progress_value}`;
             } else if (progressData.progress_type === 'audio') {
-                text = `Audio: ${progressData.progress_value}`;
+                text = progressData.progress_value; // Just show the formatted time without "Audio:" prefix
             } else {
-                text = `${progressData.progress_value}% complete`;
+                // Format percentage to 2 decimal places
+                const formattedPercentage = parseFloat(progressData.progress_value).toFixed(2);
+                text = `${formattedPercentage}% complete`;
             }
             progressText.textContent = text;
         }
@@ -406,29 +461,43 @@ export const ProgressTracker = {
     },
     
     /**
-     * Update progress UI from Hardcover sync data
-     * @param {object} syncData - Hardcover sync data
-     * @param {object} progressData - Local progress data
-     */
+    *Update progress UI from Hardcover sync data
+    * @param {object} syncData - Hardcover sync data
+    * @param {object} progressData - Local progress data
+    */
     updateProgressFromSync(syncData, progressData) {
-        // Log incoming data for debugging
-        console.log('Sync Data:', syncData);
-        console.log('Progress Data:', progressData);
-
         // If progressData is undefined, create a basic object
         if (!progressData) {
             progressData = {
                 normalized_progress: syncData.progress || 0,
-                progress_type: syncData.reading_format || 'percent',
-                progress_value: syncData.progress || '0'
+                progress_type: syncData.reading_format === 'audio' ? 'audio' : 
+                            (syncData.current_page ? 'page' : 'percent'),
+                progress_value: syncData.reading_format === 'audio' && syncData.current_position ? 
+                            this._formatAudioTime(syncData.current_position) :
+                            (syncData.current_page || parseFloat(syncData.progress || 0).toFixed(2))
             };
         }
 
-        // Ensure normalized_progress exists
+        // Ensure normalized_progress exists and is properly formatted
         if (progressData.normalized_progress === undefined) {
             progressData.normalized_progress = progressData.progress || 
                                             syncData.progress || 
                                             0;
+        }
+        
+        // Make sure normalized_progress is a number and format it to 2 decimal places
+        progressData.normalized_progress = parseFloat(progressData.normalized_progress).toFixed(2);
+
+        // Prioritize showing page numbers for books
+        if (syncData.reading_format !== 'audio' && syncData.current_page) {
+            progressData.progress_type = 'page';
+            progressData.progress_value = syncData.current_page;
+        }
+        
+        // Prioritize showing audio timestamps for audiobooks
+        if (syncData.reading_format === 'audio' && syncData.current_position) {
+            progressData.progress_type = 'audio';
+            progressData.progress_value = this._formatAudioTime(syncData.current_position);
         }
 
         // Update UI with new progress
@@ -494,6 +563,24 @@ export const ProgressTracker = {
         Storage.updateLastSyncTime(this.bookId);
         if (this.lastSyncTimeEl) {
             this.lastSyncTimeEl.textContent = new Date().toLocaleString();
+        }
+    },
+
+    /**
+     * Format audio time from seconds to human readable format
+     * @param {number} seconds - Time in seconds
+     * @returns {string} - Formatted time (e.g., "2h 30m")
+     */
+    _formatAudioTime(seconds) {
+        if (!seconds) return '0m';
+        
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+        } else {
+            return `${minutes}m`;
         }
     },
     

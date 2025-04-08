@@ -1,17 +1,15 @@
-<!-- includes/book_list_table.html -->
 {% load bookclub_extras %}
 <table class="table table-hover">
     <thead>
         <tr>
             <th width="5%">#</th>
-            <th width="25%">Book</th>
-            <th width="20%">Author</th>
+            <th width="20%">Book</th>
+            <th width="15%">Author</th>
             <th width="15%">Picked By</th>
-            <th width="10%">Status</th>
-            <th width="10%">Rating</th>
+            <th width="15%">Rating</th>
             <th width="15%">Your Progress</th>
             {% if is_admin %}
-            <th width="10%">Actions</th>
+            <th width="15%">Actions</th>
             {% endif %}
         </tr>
     </thead>
@@ -31,19 +29,18 @@
                 {% endif %}
             </td>
             <td>
-                {% if book.is_active %}
-                <span class="badge bg-primary">Active</span>
-                {% endif %}
-            </td>
-            <td>
                 {% with prog=book_progress|get_item:book.id %}
                     {% if prog.progress.effective_rating %}
-                        {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
-                        {% if prog.progress.hardcover_rating %}
-                        <span class="text-muted small d-block">Hardcover</span>
-                        {% elif prog.progress.local_rating %}
-                        <span class="text-muted small d-block">Local</span>
-                        {% endif %}
+                        <div class="rating-container">
+                            <div class="rating-stars">
+                                {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
+                            </div>
+                            {% if prog.progress.hardcover_rating %}
+                            <span class="text-muted small d-block">Hardcover</span>
+                            {% elif prog.progress.local_rating %}
+                            <span class="text-muted small d-block">Local</span>
+                            {% endif %}
+                        </div>
                     {% else %}
                         <span class="text-muted small">-</span>
                     {% endif %}
@@ -51,10 +48,12 @@
             </td>
             <td>
                 {% with prog=book_progress|get_item:book.id %}
-                    <span class="badge {{ prog.status_class }}">{{ prog.status }}</span>
-                    {% if prog.progress and prog.progress.normalized_progress > 0 %}
-                        <span class="ms-1">{{ prog.progress.normalized_progress }}%</span>
-                    {% endif %}
+                    <div class="progress-container">
+                        <span class="progress-badge badge {{ prog.status_class }}">{{ prog.status }}</span>
+                        {% if prog.progress and prog.progress.normalized_progress > 0 %}
+                            <span class="progress-value">{{ prog.progress.normalized_progress }}%</span>
+                        {% endif %}
+                    </div>
                 {% endwith %}
             </td>
             {% if is_admin %}

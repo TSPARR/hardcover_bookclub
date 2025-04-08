@@ -12,10 +12,14 @@
         <!-- Left Sidebar - Members Section -->
         <div class="col-md-3 mb-4">
             {% include "bookclub/includes/groups/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
+            
+            <!-- Dollar Bets Settings (Admin only) -->
+            {% include "bookclub/includes/groups/group_dollar_bets_settings.html" with group=group is_admin=is_admin %}
         </div>
         
-        <!-- Main Content - Books Section -->
+        <!-- Main Content - Books and Bets Sections -->
         <div class="col-md-9">
+            <!-- Books Section -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h3 class="h5 mb-0"><i class="bi bi-book me-2"></i>Books</h3>

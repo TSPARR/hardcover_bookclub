@@ -27,6 +27,7 @@ from ..models import (
     User,
     UserBookProgress,
 )
+from ..notifications import send_push_notification
 from ..plex_api import update_plex_info_for_book
 from ..utils.storage import is_auto_sync_enabled
 from .book_utils import (
@@ -34,6 +35,7 @@ from .book_utils import (
     convert_progress_to_pages,
     convert_progress_to_seconds,
     create_or_update_book_edition,
+    get_redirect_url_with_params,
     link_progress_to_edition,
     parse_audio_progress,
     process_hardcover_edition_data,
@@ -234,9 +236,23 @@ def book_detail(request, book_id):
             # If this is a reply, redirect to the parent comment
             if comment.parent:
                 return redirect(
-                    f"{reverse('book_detail', args=[book.id])}#comment-{comment.parent.id}"
+                    get_redirect_url_with_params(
+                        request,
+                        "book_detail",
+                        {"book_id": book.id},
+                        f"comment-{comment.parent.id}",
+                    )
                 )
-            return redirect("book_detail", book_id=book.id)
+
+            # For regular comments, preserve tab and sort
+            return redirect(
+                get_redirect_url_with_params(
+                    request,
+                    "book_detail",
+                    {"book_id": book.id},
+                    f"comment-{comment.id}",
+                )
+            )
     else:
         form = CommentForm()
 
@@ -246,6 +262,10 @@ def book_detail(request, book_id):
         progress.user.id: progress
         for progress in book.user_progress.select_related("user").all()
     }
+
+    has_dollar_bets_enabled = (
+        hasattr(group, "is_dollar_bets_enabled") and group.is_dollar_bets_enabled
+    )
 
     # Prepare the context with all required data
     context = {
@@ -264,6 +284,7 @@ def book_detail(request, book_id):
         "edition_pages": edition_pages,
         "edition_audio_seconds": edition_audio_seconds,
         "autoSyncEnabled": auto_sync_enabled,
+        "has_dollar_bets_enabled": has_dollar_bets_enabled,
     }
 
     return render(request, "bookclub/book_detail.html", context)
@@ -490,6 +511,16 @@ def add_book_to_group(request, group_id, hardcover_id):
         set_active = request.POST.get("set_active") == "on"
         if set_active:
             book.set_active()
+            for member in group.members.all():
+                send_push_notification(
+                    user=member,
+                    title=f"New Active Book in {group.name}",
+                    body=f"'{book.title}' by {book.author} is now the active book.",
+                    url=request.build_absolute_uri(
+                        reverse("book_detail", args=[book.id])
+                    ),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                )
 
         messages.success(request, f"'{book.title}' has been added to the group.")
         return redirect("group_detail", group_id=group.id)
@@ -860,6 +891,17 @@ def toggle_book_active(request, group_id, book_id):
         book.set_active()
         messages.success(request, f"'{book.title}' is now set as the active book.")
 
+        # Only notify when book becomes active, not when deactivated
+        for member in group.members.all():
+            # Send to all members including the user who made the change
+            send_push_notification(
+                user=member,
+                title=f"New Active Book in {group.name}",
+                body=f"'{book.title}' by {book.author} is now the active book.",
+                url=request.build_absolute_uri(reverse("book_detail", args=[book.id])),
+                icon=book.cover_image_url if book.cover_image_url else None,
+            )
+
     return redirect("group_detail", group_id=group.id)
 
 
@@ -887,7 +929,14 @@ def edit_comment(request, comment_id):
 
             comment.save()
             messages.success(request, "Your comment has been updated.")
-            return redirect("book_detail", book_id=book.id)
+            return redirect(
+                get_redirect_url_with_params(
+                    request,
+                    "book_detail",
+                    {"book_id": book.id},
+                    f"comment-{comment.id}",
+                )
+            )
     else:
         form = CommentForm(instance=comment)
 
@@ -916,15 +965,10 @@ def delete_comment(request, comment_id):
     if request.method == "POST":
         comment.delete()
         messages.success(request, "Your comment has been deleted.")
-        return redirect("book_detail", book_id=book.id)
+        return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
-    return render(
-        request,
-        "bookclub/delete_comment.html",
-        {
-            "comment": comment,
-            "book": book,
-        },
+    return redirect(
+        get_redirect_url_with_params(request, "book_detail", {"book_id": book.id})
     )
 
 

@@ -6,13 +6,11 @@ import json
 import logging
 
 from django.contrib import messages
-from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 
 from ..models import Comment, CommentReaction
-from .book_utils import _get_progress_value_for_sorting
+from .book_utils import _get_progress_value_for_sorting, get_redirect_url_with_params
 
 logger = logging.getLogger(__name__)
 
@@ -221,7 +219,12 @@ def handle_reply_to_comment(request, comment_id):
                     logger.debug(f"Reply saved successfully with ID: {reply.id}")
 
                     messages.success(request, "Your reply has been posted.")
-                    redirect_url = f"{reverse('book_detail', args=[book.id])}#comment-{parent_comment.id}"
+                    redirect_url = get_redirect_url_with_params(
+                        request,
+                        "book_detail",
+                        {"book_id": book.id},
+                        f"comment-{parent_comment.id}",
+                    )
                     logger.debug(f"Redirecting to: {redirect_url}")
                     return redirect(redirect_url)
                 except Exception as e:
@@ -252,3 +255,43 @@ def handle_reply_to_comment(request, comment_id):
         )
         messages.error(request, f"An unexpected error occurred: {str(e)}")
         return redirect("home")
+
+
+def get_comment_reaction_users(request, comment_id):
+    """API endpoint to get users who reacted to a comment."""
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    try:
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        # Get all reactions for this comment with user information
+        reactions_data = {}
+
+        # Get user reactions
+        all_reactions = CommentReaction.objects.filter(comment=comment).select_related(
+            "user"
+        )
+
+        # Group reactions by type
+        for reaction in CommentReaction.REACTION_CHOICES:
+            reaction_code = reaction[0]
+
+            # Get users who reacted with this reaction
+            user_reactions = all_reactions.filter(reaction=reaction_code)
+
+            # Only include if there are reactions of this type
+            if user_reactions.exists():
+                reactions_data[reaction_code] = {
+                    "count": user_reactions.count(),
+                    "users": [r.user.username for r in user_reactions],
+                    "current_user_reacted": any(
+                        r.user.id == request.user.id for r in user_reactions
+                    ),
+                }
+
+        return JsonResponse({"success": True, "reactions": reactions_data})
+
+    except Exception as e:
+        logger.exception(f"Error getting reaction users: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)

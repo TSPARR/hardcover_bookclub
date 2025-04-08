@@ -189,3 +189,42 @@ def books_with_ratings(book_sequence):
         result.append((rating_value, rating_groups[rating_value]))
 
     return result
+
+
+@register.filter
+def filter_by_status(queryset, status):
+    """Filter a queryset by status"""
+    return queryset.filter(status=status)
+
+
+@register.filter
+def filter_by_multiple_statuses(queryset, statuses):
+    """Filter a queryset by multiple status values
+    Usage: queryset|filter_by_multiple_statuses:'won,lost'
+    """
+    status_list = statuses.split(",")
+    return queryset.filter(status__in=status_list)
+
+
+@register.filter
+def exclude_status(queryset, status):
+    """Filter a queryset to exclude items with the given status"""
+    return queryset.exclude(status=status)
+
+
+@register.filter
+def to_float(value):
+    """Converts a value to a float"""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return ""
+
+
+@register.filter
+def subtract(value, arg):
+    """Subtracts arg from value"""
+    try:
+        return float(value) - float(arg)
+    except (ValueError, TypeError):
+        return ""

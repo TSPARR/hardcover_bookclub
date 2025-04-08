@@ -55,11 +55,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Dark Mode Implementation
     setupDarkMode();
+    
+    // Register service worker for push notifications (available globally)
+    initServiceWorker();
 });
 
-function setupDarkMode() {
-    console.log('Setting up dark mode functionality');
-    
+function setupDarkMode() {    
     // Get reference to the dark mode stylesheet
     const darkModeStylesheet = document.querySelector('link[href*="dark-mode.css"]');
     
@@ -100,6 +101,8 @@ function setupDarkMode() {
         // Update document classes
         document.documentElement.classList.add('dark-mode');
         document.documentElement.classList.remove('light-mode');
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
         
         // Update the media attribute to always load the dark stylesheet
         darkModeStylesheet.setAttribute('media', 'all');
@@ -110,15 +113,15 @@ function setupDarkMode() {
         darkModeToggle.classList.add('btn-light');
         
         // Save preference
-        localStorage.setItem('darkMode', 'true');
-        
-        console.log('Dark mode enabled');
+        localStorage.setItem('darkMode', 'true');    
     }
 
     function disableDarkMode() {
         // Update document classes
         document.documentElement.classList.remove('dark-mode');
         document.documentElement.classList.add('light-mode');
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
         
         // Update the media attribute to never load the dark stylesheet
         darkModeStylesheet.setAttribute('media', 'not all');
@@ -130,8 +133,6 @@ function setupDarkMode() {
         
         // Save preference
         localStorage.setItem('darkMode', 'false');
-        
-        console.log('Dark mode disabled');
     }
 
     // Listen for system preference changes
@@ -170,3 +171,217 @@ function copyInviteLink(link) {
 
 // Make the function available globally
 window.copyInviteLink = copyInviteLink;
+
+// Helper function to get CSRF token
+function getCsrfToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    
+    return cookieValue;
+}
+
+// Helper function to check if push notifications are supported in browser
+function arePushNotificationsSupported() {
+    return 'serviceWorker' in navigator && 'PushManager' in window;
+}
+
+// Helper function to convert base64 to Uint8Array (for VAPID keys)
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+    
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+// Initialize service worker for push notifications (runs on every page)
+async function initServiceWorker() {
+    // Don't proceed if push notifications aren't supported
+    if (!arePushNotificationsSupported()) {
+        console.log('Push notifications not supported in this browser');
+        return;
+    }
+    
+    try {
+        // Check if service worker is already registered
+        const existingRegistration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        
+        if (!existingRegistration) {
+            // Register service worker if not already registered
+            const registration = await navigator.serviceWorker.register('/push-service-worker.js');
+            console.log('Service worker registered:', registration.scope);
+        } else {
+            console.log('Service worker already registered');
+        }
+    } catch (error) {
+        console.error('Service worker registration failed:', error);
+    }
+}
+
+// Check if push notifications are available on the server
+async function checkPushNotificationsAvailable() {
+    try {
+        const response = await fetch('/api/push/vapid-public-key/');
+        return response.ok;
+    } catch (error) {
+        console.error('Error checking push notifications availability:', error);
+        return false;
+    }
+}
+
+// Get the current push notification subscription if one exists
+async function getCurrentPushSubscription() {
+    if (!arePushNotificationsSupported()) {
+        return null;
+    }
+    
+    try {
+        const registration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        if (!registration) {
+            return null;
+        }
+        
+        const subscription = await registration.pushManager.getSubscription();
+        return subscription;
+    } catch (error) {
+        console.error('Error getting push subscription:', error);
+        return null;
+    }
+}
+
+// Subscribe to push notifications
+async function subscribeToPushNotifications() {
+    if (!arePushNotificationsSupported()) {
+        alert('Push notifications are not supported in your browser.');
+        return null;
+    }
+    
+    try {
+        // Request permission if needed
+        if (Notification.permission !== 'granted') {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                alert('Notification permission denied. Please enable notifications in your browser settings.');
+                return null;
+            }
+        }
+        
+        // Get service worker registration
+        let registration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        
+        if (!registration) {
+            registration = await navigator.serviceWorker.register('/push-service-worker.js');
+            console.log('Service worker registered:', registration.scope);
+        }
+        
+        // Get VAPID public key
+        const response = await fetch('/api/push/vapid-public-key/');
+        if (!response.ok) {
+            throw new Error('Failed to get VAPID public key');
+        }
+        
+        const vapidPublicKey = await response.text();
+        const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+        
+        // Get existing subscription or create a new one
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedVapidKey
+            });
+            
+            console.log('Created new push subscription');
+        }
+        
+        // Send subscription to server
+        await sendSubscriptionToServer(subscription);
+        
+        return subscription;
+    } catch (error) {
+        console.error('Error subscribing to push notifications:', error);
+        alert('Failed to subscribe to push notifications. Check console for details.');
+        return null;
+    }
+}
+
+// Unsubscribe from push notifications
+async function unsubscribeFromPushNotifications() {
+    try {
+        const registration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        if (!registration) {
+            return true;
+        }
+        
+        const subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+            return true;
+        }
+        
+        // Store the endpoint for server unsubscription
+        const endpoint = subscription.endpoint;
+        
+        // Unsubscribe locally
+        await subscription.unsubscribe();
+        console.log('Unsubscribed from push notifications locally');
+        
+        // Inform server
+        await fetch('/api/push/unsubscribe/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ endpoint: endpoint })
+        });
+        
+        return true;
+    } catch (error) {
+        console.error('Error unsubscribing from push notifications:', error);
+        return false;
+    }
+}
+
+// Send subscription to server
+async function sendSubscriptionToServer(subscription) {
+    try {
+        const response = await fetch('/api/push/subscribe/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(subscription)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save subscription on server');
+        }
+        
+        console.log('Subscription saved on server');
+        return await response.json();
+    } catch (error) {
+        console.error('Error sending subscription to server:', error);
+        throw error;
+    }
+}
+
+// Make these functions available globally
+window.getCsrfToken = getCsrfToken;
+window.arePushNotificationsSupported = arePushNotificationsSupported;
+window.urlBase64ToUint8Array = urlBase64ToUint8Array;
+window.checkPushNotificationsAvailable = checkPushNotificationsAvailable;
+window.getCurrentPushSubscription = getCurrentPushSubscription;
+window.subscribeToPushNotifications = subscribeToPushNotifications;
+window.unsubscribeFromPushNotifications = unsubscribeFromPushNotifications;
+window.sendSubscriptionToServer = sendSubscriptionToServer;

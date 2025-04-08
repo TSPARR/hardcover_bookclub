@@ -1,15 +1,22 @@
+{% load bookclub_extras %}
 <div class="row mb-4">
-    <div class="col-md-12">
-        <h1>Update Reading Progress</h1>
-        <h3>{{ book.title }}</h3>
-        <p class="text-muted">By {{ book.author }}</p>
+    <div class="col-md-9">
+        <h2>Update Reading Progress</h2>
+        <h4 class="text-muted">{{ book.title|split:":"|first|trim }}</h4>
+        <p class="mb-0">By {{ book.author }}</p>
         
         {% if user_progress.hardcover_started_at %}
-        <p><strong>Started reading:</strong> {{ user_progress.hardcover_started_at|date:"F j, Y" }}</p>
+        <p class="mb-1 mt-2"><span class="badge bg-info text-dark">Started:</span> {{ user_progress.hardcover_started_at|date:"F j, Y" }}</p>
         {% endif %}
         
         {% if user_progress.hardcover_finished_at %}
-        <p><strong>Finished reading:</strong> {{ user_progress.hardcover_finished_at|date:"F j, Y" }}</p>
+        <p class="mb-0"><span class="badge bg-success">Finished:</span> {{ user_progress.hardcover_finished_at|date:"F j, Y" }}</p>
         {% endif %}
+    </div>
+    
+    <div class="col-md-3 text-md-end">
+        <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Book
+        </a>
     </div>
 </div>

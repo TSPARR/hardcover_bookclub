@@ -1,0 +1,133 @@
+/* ===========================
+ * Global Navigation Styles
+ * =========================== */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Ensure dropdowns work properly in all themes */
+.dropdown {
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+.dropdown-backdrop {
+    z-index: 990 !important;
+}
+
+/* Global Navigation Link Improvements */
+.navbar-nav .nav-link {
+    padding: 0.5rem 1rem;
+    /* Even padding for better centering */
+    position: relative;
+    /* For potential hover effects */
+    border-radius: 4px;
+    /* Slight rounding */
+    transition: all 0.2s ease;
+    /* Smooth transitions */
+    margin: 0 2px;
+    /* Add some spacing between items */
+    display: flex;
+    align-items: center;
+    /* Center the icon and text vertically */
+}
+
+/* Make the icons aligned properly with text */
+.navbar-nav .nav-link i {
+    margin-right: 0.35rem;
+    /* Consistent spacing for icons */
+    font-size: 1rem;
+    /* Consistent icon size */
+    display: inline-flex;
+    /* Better alignment */
+    vertical-align: -0.125em;
+    /* Slight adjustment to align with text */
+}
+
+/* Style for the logout button that looks like a nav-link */
+.navbar-nav .nav-item .btn.nav-link {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin: 0 2px;
+    display: flex;
+    align-items: center;
+}
+
+/* Fix vertical alignment for the entire navbar */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    /* Center all items vertically */
+}
+
+/* Dark mode toggle button base styles */
+#dark-mode-toggle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+/* Fix for sort dropdown in mobile view - more specific selectors */
+@media (max-width: 767px) {
+    /* Target the discussion header specifically */
+    .card .card-header h3 + .d-flex.align-items-center,
+    #discussion .card-header .d-flex.align-items-center.gap-3 {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch !important;
+      margin-top: 0.75rem;
+    }
+    
+    /* Target the toggle switch container */
+    .form-check.form-switch {
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+    
+    /* Target the dropdown more specifically */
+    .card-header .dropdown,
+    #discussion .dropdown {
+      width: 100%;
+      display: block;
+    }
+    
+    /* Make dropdown button full width with stronger selector */
+    .card-header .dropdown .btn.dropdown-toggle,
+    #discussion .dropdown .btn.dropdown-toggle {
+      width: 100% !important;
+      text-align: left;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    
+    /* Dropdown menu positioning */
+    .card-header .dropdown-menu,
+    #discussion .dropdown-menu {
+      width: 100%;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: 100% !important;
+      transform: none !important;
+    }
+    
+    /* Add specific styling for the sort button */
+    #sortDropdown {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: space-between !important;
+    }
+  }

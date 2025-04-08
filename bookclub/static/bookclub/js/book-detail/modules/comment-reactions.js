@@ -8,20 +8,123 @@ export const CommentReactions = {
      */
     init() {
         this._setupEventListeners();
-        this._initializeTooltips();
+        this._initializeReactionButtons();
+        this._setupResizeHandler();
         return this;
+    },
+    
+    /**
+     * Set up resize event handler to adjust panel positions on viewport changes
+     */
+    _setupResizeHandler() {
+        // Throttle the resize event to avoid performance issues
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Hide all panels on resize to prevent positioning issues
+                document.querySelectorAll('.reaction-panel, .reaction-users-panel, .mobile-backdrop').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+            }, 250);
+        });
+    },
+    
+    /**
+     * Initialize existing reaction buttons with user data
+     * This fetches user data for all reaction buttons on page load
+     */
+    _initializeReactionButtons() {
+        // Find all reaction buttons
+        const reactionButtons = document.querySelectorAll('.reaction-btn');
+        
+        // Group reaction buttons by comment ID to minimize API calls
+        const commentMap = new Map();
+        
+        reactionButtons.forEach(button => {
+            const commentId = button.dataset.commentId;
+            if (!commentId) return;
+            
+            if (!commentMap.has(commentId)) {
+                commentMap.set(commentId, []);
+            }
+            
+            commentMap.get(commentId).push(button);
+        });
+        
+        // For each comment, fetch reaction data
+        commentMap.forEach((buttons, commentId) => {
+            this._fetchReactionUsers(commentId)
+                .then(data => {
+                    if (data && data.success && data.reactions) {
+                        // Update each button with user data
+                        buttons.forEach(button => {
+                            const reaction = button.dataset.reaction;
+                            if (reaction && data.reactions[reaction]) {
+                                const info = data.reactions[reaction];
+                                
+                                // Set user data for tooltips
+                                if (info.users && info.users.length) {
+                                    const usernames = info.users.join(', ');
+                                    button.dataset.reactionUsers = usernames;
+                                    button.setAttribute('aria-label', `${reaction} reaction - click count to see who reacted`);
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching reaction users:', error);
+                });
+        });
+    },
+    
+    /**
+     * Fetch reaction users for a specific comment
+     * @param {string} commentId - Comment ID
+     * @returns {Promise} - Promise resolving to reaction data
+     */
+    _fetchReactionUsers(commentId) {
+        return fetch(`/comments/${commentId}/reaction-users/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            // If endpoint not found, create a fallback response
+            if (response.status === 404) {
+                // This happens if the endpoint doesn't exist yet
+                // We'll use a workaround to get the data
+                return this._toggleReaction(commentId, null, true);
+            }
+            return response.json();
+        });
     },
     
     /**
      * Set up event listeners for reactions
      */
     _setupEventListeners() {
-        // Event delegation for reaction buttons
+        // Event delegation for all reaction-related interactions
         document.addEventListener('click', (e) => {
             // Handle clicking existing reaction buttons
             if (e.target.classList.contains('reaction-btn') || e.target.closest('.reaction-btn')) {
                 const button = e.target.classList.contains('reaction-btn') ? 
                               e.target : e.target.closest('.reaction-btn');
+                
+                // Check if we're showing users or toggling the reaction
+                const isCountClick = e.target.classList.contains('reaction-count') || 
+                                   e.target.closest('.reaction-count');
+                                   
+                if (isCountClick) {
+                    // Toggle showing reaction users
+                    this._toggleReactionUsers(button);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
                 
                 const commentId = button.dataset.commentId;
                 const reaction = button.dataset.reaction;
@@ -61,7 +164,7 @@ export const CommentReactions = {
                     
                     // Close other open panels
                     if (!isVisible) {
-                        document.querySelectorAll('.reaction-panel').forEach(p => {
+                        document.querySelectorAll('.reaction-panel, .reaction-users-panel').forEach(p => {
                             if (p !== panel && p.style.display === 'flex') {
                                 p.style.display = 'none';
                             }
@@ -70,92 +173,217 @@ export const CommentReactions = {
                 }
             }
             
-            // Close reaction panels when clicking elsewhere
+            // Handle clicking outside to close panels
             if (!e.target.classList.contains('add-reaction-btn') && 
                 !e.target.closest('.add-reaction-btn') &&
                 !e.target.classList.contains('reaction-option') && 
-                !e.target.closest('.reaction-panel')) {
-                document.querySelectorAll('.reaction-panel').forEach(panel => {
+                !e.target.closest('.reaction-panel') && 
+                !e.target.classList.contains('reaction-count') &&
+                !e.target.closest('.reaction-users-panel')) {
+                
+                document.querySelectorAll('.reaction-panel, .reaction-users-panel').forEach(panel => {
                     panel.style.display = 'none';
                 });
+            }
+            
+            // Handle close button in users panel
+            if (e.target.classList.contains('close-users-panel')) {
+                const panel = e.target.closest('.reaction-users-panel');
+                if (panel) {
+                    panel.style.display = 'none';
+                    
+                    // Also hide the backdrop if it exists
+                    if (panel.id) {
+                        const backdrop = document.querySelector(`.mobile-backdrop[data-for-panel="${panel.id}"]`);
+                        if (backdrop) {
+                            backdrop.style.display = 'none';
+                        }
+                    }
+                }
             }
         });
     },
     
     /**
-     * Initialize tooltips for reaction buttons
-     * This method uses Bootstrap tooltips if available
+     * Toggle showing reaction users
+     * @param {HTMLElement} button - The reaction button element
      */
-    _initializeTooltips() {
-        // Check if Bootstrap's tooltip object exists
-        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-            // Initialize tooltips on all reaction buttons
-            document.querySelectorAll('.reaction-btn[data-reaction-users]').forEach(button => {
-                new bootstrap.Tooltip(button);
-            });
-        } else {
-            // Fallback to simple hover card if Bootstrap tooltips aren't available
-            this._setupCustomHoverCards();
+    _toggleReactionUsers(button) {
+        // If the button doesn't have user data yet, try to fetch it first
+        if (!button.dataset.reactionUsers) {
+            const commentId = button.dataset.commentId;
+            const reaction = button.dataset.reaction;
+            
+            if (!commentId || !reaction) return;
+            
+            // Make a read-only API call to get users for this reaction
+            this._fetchReactionUsers(commentId)
+                .then(data => {
+                    if (data && data.success && data.reactions && data.reactions[reaction]) {
+                        const info = data.reactions[reaction];
+                        if (info.users && info.users.length) {
+                            const usernames = info.users.join(', ');
+                            button.dataset.reactionUsers = usernames;
+                            
+                            // Now that we have the data, show the panel
+                            this._createAndShowUsersPanel(button);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching reaction users:', error);
+                });
+            
+            return;
         }
+        
+        this._createAndShowUsersPanel(button);
     },
     
     /**
-     * Set up custom hover cards for browsers without Bootstrap
+     * Create and show the users panel for a reaction button
+     * @param {HTMLElement} button - The reaction button element
      */
-    _setupCustomHoverCards() {
-        // Create a tooltip element once and reuse it
-        let hoverCard = document.createElement('div');
-        hoverCard.className = 'reaction-hover-card';
-        hoverCard.style.display = 'none';
-        document.body.appendChild(hoverCard);
-        
-        // Add event listeners to reaction buttons
-        document.querySelectorAll('.reaction-btn[data-reaction-users]').forEach(button => {
-            // Show hover card on mouseenter
-            button.addEventListener('mouseenter', (e) => {
-                const users = e.target.dataset.reactionUsers;
-                if (users) {
-                    // Position the hover card
-                    const rect = e.target.getBoundingClientRect();
-                    hoverCard.innerHTML = `<strong>Reacted by:</strong><br>${users}`;
-                    hoverCard.style.top = `${rect.top - hoverCard.offsetHeight - 5}px`;
-                    hoverCard.style.left = `${rect.left + (rect.width / 2) - (hoverCard.offsetWidth / 2)}px`;
-                    hoverCard.style.display = 'block';
-                }
+    _createAndShowUsersPanel(button) {
+        // Find or create the users panel
+        let usersPanel = button.nextElementSibling;
+        if (!usersPanel || !usersPanel.classList.contains('reaction-users-panel')) {
+            // Get users from data attribute
+            const users = button.dataset.reactionUsers;
+            const reaction = button.dataset.reaction;
+            
+            if (!users) return;
+            
+            // Create panel if it doesn't exist
+            usersPanel = document.createElement('div');
+            usersPanel.className = 'reaction-users-panel';
+            usersPanel.style.display = 'none';
+            
+            // Create header with reaction info
+            const header = document.createElement('div');
+            header.className = 'reaction-users-header';
+            header.innerHTML = `
+                <span>${reaction} reactions</span>
+                <button class="close-users-panel" aria-label="Close">&times;</button>
+            `;
+            
+            // Create user list as a horizontal wrapping list with pill badges
+            const userList = document.createElement('div');
+            userList.className = 'reaction-users-list';
+            
+            // Add users as pill badges
+            const userArray = users.split(', ');
+            userArray.forEach(username => {
+                const userItem = document.createElement('span');
+                userItem.className = 'reaction-user-item';
+                userItem.textContent = username;
+                userList.appendChild(userItem);
             });
             
-            // Hide hover card on mouseleave
-            button.addEventListener('mouseleave', () => {
-                hoverCard.style.display = 'none';
-            });
+            // Assemble panel
+            usersPanel.appendChild(header);
+            usersPanel.appendChild(userList);
+            
+            // Check if we're on mobile
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                // For mobile, we append to body for the bottom sheet
+                document.body.appendChild(usersPanel);
+                
+                // Create backdrop for mobile
+                const backdrop = document.createElement('div');
+                backdrop.className = 'mobile-backdrop';
+                backdrop.dataset.forPanel = usersPanel.id = `reaction-users-panel-${Date.now()}`;
+                
+                // Close panel when backdrop is clicked
+                backdrop.addEventListener('click', () => {
+                    usersPanel.style.display = 'none';
+                    backdrop.style.display = 'none';
+                });
+                
+                document.body.appendChild(backdrop);
+            } else {
+                // For desktop, we insert inside the existing-reactions div
+                const reactionsContainer = button.closest('.existing-reactions');
+                if (reactionsContainer) {
+                    reactionsContainer.appendChild(usersPanel);
+                } else {
+                    // Fallback to inserting after the button
+                    button.parentNode.insertBefore(usersPanel, button.nextSibling);
+                }
+            }
+        }
+        
+        // Toggle visibility
+        const isVisible = usersPanel.style.display === 'flex';
+        
+        // Hide all other panels first
+        document.querySelectorAll('.reaction-panel, .reaction-users-panel').forEach(panel => {
+            if (panel !== usersPanel) {
+                panel.style.display = 'none';
+            }
         });
+        
+        // Hide all backdrops
+        document.querySelectorAll('.mobile-backdrop').forEach(backdrop => {
+            backdrop.style.display = 'none';
+        });
+        
+        // Toggle this panel
+        usersPanel.style.display = isVisible ? 'none' : 'flex';
+        
+        // Show backdrop if on mobile and panel is visible
+        if (!isVisible && window.innerWidth < 768) {
+            const backdrop = document.querySelector(`.mobile-backdrop[data-for-panel="${usersPanel.id}"]`);
+            if (backdrop) {
+                backdrop.style.display = 'block';
+            }
+        }
+        
+        // Add animation class to enhance appearance
+        if (!isVisible) {
+            // Remove and re-add for animation to work on repeated opens
+            usersPanel.classList.remove('fadeIn');
+            // Use setTimeout to ensure the class is applied after the display change
+            setTimeout(() => {
+                usersPanel.classList.add('fadeIn');
+            }, 10);
+        }
     },
     
     /**
      * Toggle a reaction on a comment
      * @param {string} commentId - Comment ID
-     * @param {string} reaction - Reaction type
+     * @param {string} reaction - Reaction type (null for read-only)
+     * @param {boolean} readOnly - If true, only fetch data without toggling
+     * @returns {Promise} - Promise resolving to reaction data
      */
-    _toggleReaction(commentId, reaction) {
-        fetch(`/comments/${commentId}/reaction/`, {
-            method: 'POST',
+    _toggleReaction(commentId, reaction, readOnly = false) {
+        const endpoint = `/comments/${commentId}/reaction/`;
+        const method = readOnly ? 'GET' : 'POST';
+        const body = reaction && !readOnly ? JSON.stringify({ reaction }) : undefined;
+        
+        return fetch(endpoint, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': DomHelpers.getCsrfToken()
+                'X-CSRFToken': DomHelpers.getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({
-                reaction: reaction
-            })
+            body: body
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                // Update UI
+            if (data.success && !readOnly) {
+                // Update UI only if not in read-only mode
                 this._updateReactionsUI(commentId, data);
             }
+            return data;
         })
         .catch(error => {
             console.error('Error toggling reaction:', error);
+            throw error;
         });
     },
     
@@ -167,6 +395,10 @@ export const CommentReactions = {
     _updateReactionsUI(commentId, data) {
         const reactionsContainer = document.querySelector(`[data-comment-id="${commentId}"] .existing-reactions`);
         if (!reactionsContainer) return;
+        
+        // Remove any open users panels
+        const openPanels = reactionsContainer.querySelectorAll('.reaction-users-panel');
+        openPanels.forEach(panel => panel.remove());
         
         // Clear existing reactions
         reactionsContainer.innerHTML = '';
@@ -181,14 +413,11 @@ export const CommentReactions = {
                 button.dataset.commentId = commentId;
                 button.dataset.reaction = reaction;
                 
-                // Set user data for tooltips
+                // Set user data for the panel
                 if (info.users && info.users.length) {
                     const usernames = info.users.join(', ');
                     button.dataset.reactionUsers = usernames;
-                    button.setAttribute('data-bs-toggle', 'tooltip');
-                    button.setAttribute('data-bs-custom-class', 'reaction-tooltip');
-                    button.setAttribute('data-bs-placement', 'top');
-                    button.setAttribute('data-bs-title', `Reacted by: ${usernames}`);
+                    button.setAttribute('aria-label', `${reaction} reaction - click count to see who reacted`);
                 }
                 
                 // Add text node first
@@ -198,6 +427,8 @@ export const CommentReactions = {
                 const countSpan = document.createElement('span');
                 countSpan.className = 'reaction-count';
                 countSpan.textContent = info.count;
+                countSpan.setAttribute('role', 'button');
+                countSpan.setAttribute('aria-label', 'Show who reacted');
                 
                 // Add span to button
                 button.appendChild(countSpan);
@@ -230,8 +461,5 @@ export const CommentReactions = {
                 reactionsContainer.appendChild(button);
             }
         }
-        
-        // Reinitialize tooltips for the new buttons
-        this._initializeTooltips();
     }
 };

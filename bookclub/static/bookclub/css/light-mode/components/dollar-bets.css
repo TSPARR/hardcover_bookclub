@@ -1,0 +1,89 @@
+/* ===========================
+ * Light Mode Dollar Bets Styles
+ * =========================== */
+/* Dollar bets cards */
+.light-mode .dollar-bets-card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.light-mode .dollar-bets-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.light-mode .section-title {
+    color: #495057;
+}
+
+/* Individual bet item styling */
+.light-mode .dollar-bet-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
+}
+
+/* Color-coded left borders */
+.light-mode .open-bet {
+    border-left-color: #0d6efd;
+}
+
+.light-mode .active-bet {
+    border-left-color: #ffc107;
+}
+
+.light-mode .resolved-bet {
+    border-left-color: #6c757d;
+}
+
+.light-mode .inconclusive-bet {
+    border-left-color: #6c757d;
+}
+
+/* Empty state styling */
+.light-mode .empty-bets-icon {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+}
+
+/* Bet form styling */
+.light-mode .bet-form-card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.light-mode .bet-form-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+/* Dollar bets table styling */
+.light-mode .dollar-bets-table th {
+    background-color: #f8f9fa;
+}
+
+.light-mode .dollar-bets-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Resolve bet page styles */
+.light-mode .bet-resolution-options .card {
+    border: 1px solid #dee2e6;
+}
+
+.light-mode .bet-resolution-options .card:hover {
+    border-color: #adb5bd;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Alert styling specific to bets */
+.light-mode .bet-info-alert {
+    background-color: #cff4fc;
+    border-color: #b6effb;
+    color: #055160;
+}
+
+.light-mode .bet-warning-alert {
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+    color: #664d03;
+}

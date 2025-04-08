@@ -1,9 +1,6 @@
-/* Dark Mode - Main Import File */
+/* Dark Mode - Theme Overrides */
 
-/* Base styles */
-@import 'base.css';
-
-/* Layout and UI components */
+/* Import any dark-mode specific overrides */
 @import 'navigation.css';
 @import 'cards.css';
 @import 'forms.css';
@@ -13,15 +10,21 @@
 @import 'modals.css';
 @import 'utilities.css';
 @import 'comments.css';
+@import 'base.css';
 
-/* Feature-specific components */
+/* Feature-specific overrides */
 @import 'components/book-cards.css';
 @import 'components/edition-info.css';
 @import 'components/progress.css';
 @import 'components/reactions.css';
 @import 'components/analytics.css';
+@import 'components/dollar-bets.css';
+@import 'components/star_ratings.css';
+@import 'components/group-members.css';
+@import 'components/comments.css';
 
-/* Add a class to the body for any body-level styling */
+/* Apply dark mode styling */
+html.dark-mode,
 body.dark-mode {
     color: #e1e1e1;
     background-color: #121212;

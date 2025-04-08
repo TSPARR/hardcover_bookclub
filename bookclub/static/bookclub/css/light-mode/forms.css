@@ -1,25 +1,29 @@
-/* Form components */
-
-.form-control {
-    border-radius: 0.25rem;
-}
-
-.input-group .btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-/* Form validation */
-.text-danger {
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-}
-
-/* Form Controls */
-.form-control:focus,
-.form-select:focus,
-.btn:focus,
-.form-check-input:focus {
+/* ===========================
+ * Light Mode Form Styles
+ * =========================== */
+/* Form Controls in Light Mode */
+.light-mode .form-control:focus,
+.light-mode .form-select:focus,
+.light-mode .btn:focus,
+.light-mode .form-check-input:focus {
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     border-color: #86b7fe;
+}
+
+/* Radio card options - Light Mode */
+.light-mode .radio-card-options .card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+    margin-bottom: 0.75rem;
+}
+
+.light-mode .radio-card-options .card:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.1);
+}
+
+.light-mode .radio-card-options .form-check-input:checked ~ .card {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
 }

@@ -1,31 +1,30 @@
-/* Dark Mode Navigation Styles */
-
-.navbar {
+/* ===========================
+ * Dark Mode Navigation Styles
+ * =========================== */
+ .dark-mode .navbar {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     background-color: #1e1e1e;
 }
 
-.navbar-brand {
-    font-weight: 700;
-    letter-spacing: 0.5px;
+.dark-mode .navbar-brand {
     color: #ffffff;
 }
 
-.navbar-nav .nav-link {
+.dark-mode .navbar-nav .nav-link {
     color: #b0b0b0;
 }
 
-.navbar-nav .nav-link:hover,
-.navbar-nav .nav-link:focus {
+.dark-mode .navbar-nav .nav-link:hover,
+.dark-mode .navbar-nav .nav-link:focus {
     color: #ffffff;
 }
 
-.navbar-toggler {
+.dark-mode .navbar-toggler {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Dropdown menu styles for navbar */
-.dropdown-menu {
+/* Dark mode dropdown styling */
+.dark-mode .dropdown-menu {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.05);
     background-color: #2c2c2c;
@@ -33,31 +32,60 @@
     z-index: 9999 !important;
 }
 
-.dropdown-item {
+.dark-mode .dropdown-item {
     color: #e1e1e1;
 }
 
-.dropdown-item.active,
-.dropdown-item:active {
+.dark-mode .dropdown-item.active,
+.dark-mode .dropdown-item:active {
     background-color: #0d6efd;
     color: white;
 }
 
-.dropdown-item:hover {
+.dark-mode .dropdown-item:hover {
     background-color: rgba(13, 110, 253, 0.2);
     color: #ffffff;
 }
 
-.dropdown-divider {
+.dark-mode .dropdown-divider {
     border-top-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Fix Z-index issues */
-.dropdown {
-    position: relative !important;
-    z-index: 5 !important;
+/* Dark Mode Navigation Colors */
+.dark-mode .navbar {
+    background: linear-gradient(to right, #1a1a1a, #252525) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.dropdown-backdrop {
-    z-index: 990 !important;
+.dark-mode .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85); /* Brighter than current #b0b0b0 */
+}
+
+.dark-mode .navbar-nav .nav-link:hover,
+.dark-mode .navbar-nav .nav-link:focus {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle highlight on hover */
+}
+
+/* Style for the logout button color */
+.dark-mode .navbar-nav .nav-item .btn.nav-link {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.dark-mode .navbar-nav .nav-item .btn.nav-link:hover,
+.dark-mode .navbar-nav .nav-item .btn.nav-link:focus {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode toggle button color */
+.dark-mode #dark-mode-toggle {
+    background-color: #383838;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    color: #ffdc63; /* Yellow for the moon icon */
+}
+
+.dark-mode #dark-mode-toggle:hover {
+    background-color: #454545;
 }

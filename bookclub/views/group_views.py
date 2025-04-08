@@ -4,8 +4,10 @@ Group-related views for managing book groups.
 
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import GroupForm
@@ -464,3 +466,25 @@ def manage_member_starting_points(request, group_id):
             "starting_points_dict": starting_points_dict,
         },
     )
+
+
+@login_required
+def update_group_settings(request, group_id):
+    """Handle updates to group settings including dollar bets toggle"""
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is an admin of the group
+    if not group.is_admin(request.user):
+        return HttpResponseForbidden("Only group admins can update settings")
+
+    if request.method == "POST":
+        # Update dollar bets setting if the site-wide setting is enabled
+        if settings.ENABLE_DOLLAR_BETS:
+            group.enable_dollar_bets = "enable_dollar_bets" in request.POST
+            group.save()
+
+        # Redirect back to the group detail page
+        return redirect("group_detail", group_id=group.id)
+
+    # If not a POST request, redirect to group detail
+    return redirect("group_detail", group_id=group.id)

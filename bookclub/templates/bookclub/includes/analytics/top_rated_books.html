@@ -29,7 +29,7 @@
                                                 <i class="bi bi-chevron-right"></i>
                                             </button>
                                             <div class="rating-summary">
-                                                {% include "bookclub/includes/star_rating.html" with rating=rating_value small=True %}
+                                                {% include "bookclub/includes/star_rating.html" with rating=rating_value|floatformat:2 small=True %}
                                                 <small class="text-muted ms-2">({{ books|length }} book{{ books|length|pluralize }})</small>
                                             </div>
                                         </div>
@@ -48,7 +48,7 @@
                                                             </div>
                                                             <div class="col-auto">
                                                                 <div class="book-rating">
-                                                                    {% include "bookclub/includes/star_rating.html" with rating=book_tuple.3.avg_rating small=True %}
+                                                                    {% include "bookclub/includes/star_rating.html" with rating=book_tuple.3.avg_rating|floatformat:2 small=True %}
                                                                     <small class="text-muted">({{ book_tuple.3.count }})</small>
                                                                 </div>
                                                             </div>

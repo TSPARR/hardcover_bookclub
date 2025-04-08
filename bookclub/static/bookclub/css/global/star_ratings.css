@@ -1,0 +1,61 @@
+/* ===========================
+ * Global Star Rating Styles
+ * =========================== */
+.rating-display.rating-stars {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    height: 1em;
+}
+
+.rating-display.rating-stars .star-container {
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.15em; /* Slightly increased from 0.1em */
+    line-height: 1;
+}
+
+.rating-display.rating-stars .star-container i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 1em;
+    line-height: 1;
+}
+
+.rating-display.rating-stars .star-container.star-partial {
+    overflow: hidden !important;
+    border-radius: 2px; /* Slight rounding of corners */
+}
+
+.rating-display.rating-stars .star-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    z-index: 3; /* Increased from 2 */
+}
+
+.rating-display.rating-stars .star-overlay i {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.rating-display.rating-stars .rating-value {
+    margin-left: 0.25rem;
+    line-height: 1;
+}
+
+/* Small star modifications */
+.rating-display.rating-stars.small .star-container {
+    font-size: 0.8em;
+}
+
+/* Helpful animation when hovering over ratings */
+.rating-display.rating-stars:hover .star-container.star-partial .star-overlay {
+    transition: border-color 0.2s ease;
+}

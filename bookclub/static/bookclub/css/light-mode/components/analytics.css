@@ -1,23 +1,356 @@
-/* Analytics components - Light Mode */
-
-/* Charts and data visualization */
-.chart-container {
+/* ===========================
+ * Light Mode Analytics Styles
+ * =========================== */
+/* Chart container - Light Mode */
+.light-mode .chart-container {
     background-color: #fff;
-    border-radius: 0.5rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
 }
 
-.chart-container .chart-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
+.light-mode .chart-container .chart-title {
     color: #333;
 }
 
-.chart-container .chart-subtitle {
-    font-size: 0.875rem;
+.light-mode .chart-container .chart-subtitle {
     color: #6c757d;
-    margin-bottom: 1rem;
+}
+
+/* Lead text - Light Mode */
+.light-mode .container .lead {
+    color: #6c757d;
+}
+
+/* Quick stats cards - Light Mode */
+.light-mode .card.bg-light {
+    background-color: #f8f9fa !important;
+    border-color: rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .card.bg-light .display-4 {
+    color: #212529;
+}
+
+.light-mode .card.bg-light .text-muted {
+    color: #6c757d !important;
+}
+
+/* Fairness Metrics Table - Light Mode */
+.light-mode .fairness-metrics {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.light-mode .fairness-metrics thead {
+    background-color: transparent;
+}
+
+.light-mode .fairness-metrics thead th {
+    color: #333333 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+.light-mode .fairness-metrics tbody tr.text-under {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    color: #0a96b2 !important;
+}
+
+.light-mode .fairness-metrics tbody tr.text-over {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #cc9a00 !important;
+}
+
+.light-mode .fairness-metrics tbody tr.text-balanced {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+    color: #0f6848 !important;
+}
+
+.light-mode .fairness-metrics tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.light-mode .fairness-metrics .badge.bg-under {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.light-mode .fairness-metrics .badge.bg-over {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.light-mode .fairness-metrics .badge.bg-balanced {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+.light-mode .fairness-metrics .text-recommendation {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Table borders - Light Mode */
+.light-mode .table-bordered {
+    border-color: #dee2e6;
+}
+
+.light-mode .table-bordered th,
+.light-mode .table-bordered td {
+    border-color: #dee2e6;
+}
+
+/* Empty state styling - Light Mode */
+.light-mode .text-center .bi-people-fill {
+    color: #e5e5e5 !important;
+}
+
+/* Top Rated Books and Book Timeline Table - Light Mode */
+.light-mode .top-rated-books-table,
+.light-mode .book-timeline-table {
+    color: #333333;
+    background-color: #ffffff;
+}
+
+.light-mode .top-rated-books-table thead th,
+.light-mode .book-timeline-table thead th {
+    background-color: #f8f9fa !important;
+    color: #333333;
+    border-color: #dee2e6;
+}
+
+/* Rating group header - Light Mode */
+.light-mode .rating-group-header {
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6;
+}
+
+.light-mode .rating-group-content {
+    background-color: transparent !important;
+    border: none;
+}
+
+/* Collapse toggle button - Light Mode */
+.light-mode .collapse-toggle {
+    background-color: #f0f0f0 !important;
+    border-color: #d0d0d0 !important;
+    color: #333333;
+}
+
+.light-mode .collapse-toggle:hover {
+    background-color: #e0e0e0 !important;
+}
+
+.light-mode .collapse-toggle .bi-chevron-right {
+    color: #555555;
+}
+
+.light-mode .btn-outline-secondary {
+    background-color: transparent !important;
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+}
+
+.light-mode .btn-outline-secondary:hover {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+/* Book list - Light Mode */
+.light-mode .book-list {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.light-mode .book-entry {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .book-entry:hover {
+    background-color: #f0f0f0;
+}
+
+/* Book title and author - Light Mode */
+.light-mode .book-title {
+    color: #0d6efd;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.light-mode .book-title:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+.light-mode .book-author {
+    color: #6c757d !important;
+    font-size: 0.875rem;
+}
+
+/* Book picker - Light Mode */
+.light-mode .book-picker .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.light-mode .book-picker .badge.bg-light.text-dark {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+.light-mode .picker-name {
+    color: #333333;
+}
+
+/* Rating summary - Light Mode */
+.light-mode .rating-summary {
+    color: #333333;
+}
+
+.light-mode .rating-summary small.text-muted {
+    color: #6c757d !important;
+}
+
+/* No ratings row - Light Mode */
+.light-mode .no-ratings-row .alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+/* "Show More" button - Light Mode */
+.light-mode .toggle-rows {
+    background-color: #f0f0f0 !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+    margin: 0.5rem 0;
+}
+
+.light-mode .toggle-rows:hover {
+    background-color: #e0e0e0 !important;
+}
+
+/* Card container - Light Mode */
+.light-mode .card.shadow-sm {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.125) !important;
+}
+
+/* Book Timeline Table Rows - Light Mode */
+.light-mode .book-timeline-table tbody tr {
+    border-color: #dee2e6;
+    background-color: #ffffff !important;
+}
+
+.light-mode .book-timeline-table tbody tr:nth-child(odd) {
+    background-color: #f8f9fa !important;
+}
+
+.light-mode .book-timeline-table tbody tr:hover {
+    background-color: #f0f0f0 !important;
+}
+
+/* Links in Timeline Table - Light Mode */
+.light-mode .book-timeline-table a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.light-mode .book-timeline-table a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+/* Text styling - Light Mode */
+.light-mode .book-timeline-table .text-muted {
+    color: #6c757d !important;
+}
+
+/* Badges - Light Mode */
+.light-mode .book-timeline-table .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.light-mode .book-timeline-table .badge.bg-light.text-dark {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+.light-mode .book-timeline-table .badge.bg-warning.text-dark {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+}
+
+/* Star ratings - Light Mode */
+.light-mode .book-timeline-table .rating-stars .bi-star-fill {
+    color: #f59f00 !important;
+}
+
+.light-mode .book-timeline-table .rating-stars .bi-star {
+    color: #ced4da !important;
+}
+
+/* Streak icons - Light Mode */
+.light-mode .book-timeline-table .bi-lightning,
+.light-mode .book-timeline-table .bi-lightning-charge-fill {
+    color: #495057 !important;
+}
+
+/* Show More/Less button row - Light Mode */
+.light-mode .book-timeline-table .toggle-row {
+    background-color: #f8f9fa !important;
+}
+
+/* Book expand button - Light Mode */
+.light-mode .book-expand-btn {
+    color: #0d6efd;
+}
+
+.light-mode .book-expand-btn:hover {
+    color: #0a58ca;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+/* Member ratings container - Light Mode */
+.light-mode .member-ratings-container {
+    background-color: #f8f9fa;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .member-ratings-title {
+    color: #212529;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Individual member rating items - Light Mode */
+.light-mode .member-rating-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .member-name {
+    color: #333333;
+    font-weight: 500;
+}
+
+.light-mode .member-comment {
+    color: #6c757d !important;
+}
+
+/* Scrollbar styling - Light Mode */
+.light-mode .member-ratings-list::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.light-mode .member-ratings-list::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 3px;
+}
+
+.light-mode .member-ratings-list::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
 }

@@ -1,0 +1,28 @@
+/* ===========================
+ * Global Modal Styles
+ * =========================== */
+ .modal-content {
+    border-radius: 0.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Special modal styles */
+.confirmation-modal .modal-header {
+    border-bottom: none;
+}
+
+.confirmation-modal .modal-footer {
+    border-top: none;
+}
+
+/* Ensure modals appear above dropdowns */
+.modal {
+    z-index: 10500 !important;
+}
+
+.modal-backdrop {
+    z-index: 10490 !important;
+}

@@ -1,40 +1,28 @@
-/* Dark Mode Edition Info Styles */
-
-/* Edition info section */
-.edition-info {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
+/* ===========================
+ * Dark Mode Edition Info Styles
+ * =========================== */
+/* Edition info styling for dark mode */
+.dark-mode .edition-info {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.edition-info h6 {
+.dark-mode .edition-info h6 {
     margin-bottom: 0.5rem;
     color: #b0b0b0;
 }
 
-.edition-cover {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.edition-cover img {
-    max-height: 150px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-.edition-details p {
+.dark-mode .edition-details p {
     color: #e1e1e1;
 }
 
 /* Quick Edition Selection dark mode */
-.quick-edition-selection .card-header {
+.dark-mode .quick-edition-selection .card-header {
     color: #ffffff;
 }
 
-/* Hardcover, Kavita, and Plex sync sections */
-.hardcover-progress-container .hardcover-progress-option,
-#hardcoverSyncModalBody .progress-option {
+/* Hardcover, Kavita, and Plex sync sections for dark mode */
+.dark-mode .hardcover-progress-container .hardcover-progress-option,
+.dark-mode #hardcoverSyncModalBody .progress-option {
     background-color: #2c2c2c !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: #e1e1e1 !important;
@@ -45,42 +33,42 @@
     transition: all 0.2s ease;
 }
 
-.hardcover-progress-container .hardcover-progress-option:hover,
-#hardcoverSyncModalBody .progress-option:hover {
+.dark-mode .hardcover-progress-container .hardcover-progress-option:hover,
+.dark-mode #hardcoverSyncModalBody .progress-option:hover {
     background-color: #3a3a3a !important;
     border-color: rgba(13, 110, 253, 0.5) !important;
     box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
 }
 
-.hardcover-progress-container .hardcover-progress-option.selected,
-#hardcoverSyncModalBody .progress-option.selected {
+.dark-mode .hardcover-progress-container .hardcover-progress-option.selected,
+.dark-mode #hardcoverSyncModalBody .progress-option.selected {
     background-color: rgba(13, 110, 253, 0.25) !important;
     border-color: #0d6efd !important;
     box-shadow: 0 0 0 1px #0d6efd;
 }
 
-.hardcover-progress-container .card,
-#hardcoverSyncModal .card {
+.dark-mode .hardcover-progress-container .card,
+.dark-mode #hardcoverSyncModal .card {
     background-color: #2c2c2c !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.hardcover-progress-container h3,
-#hardcoverSyncModal h3,
-.hardcover-progress-container .book-title,
-#hardcoverSyncModal .book-title {
+.dark-mode .hardcover-progress-container h3,
+.dark-mode #hardcoverSyncModal h3,
+.dark-mode .hardcover-progress-container .book-title,
+.dark-mode #hardcoverSyncModal .book-title {
     color: #ffffff !important;
 }
 
-.hardcover-progress-container .page-info,
-#hardcoverSyncModal .page-info {
+.dark-mode .hardcover-progress-container .page-info,
+.dark-mode #hardcoverSyncModal .page-info {
     color: #b0b0b0 !important;
 }
 
-/* Badge styling for finished books */
-.hardcover-progress-container .badge-success,
-#hardcoverSyncModal .badge-success,
-.finished-badge {
+/* Badge styling for dark mode */
+.dark-mode .hardcover-progress-container .badge-success,
+.dark-mode #hardcoverSyncModal .badge-success,
+.dark-mode .finished-badge {
     background-color: #198754 !important;
     color: white !important;
 }

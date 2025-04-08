@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Apply to specific tables
-    toggleTableRows('top-rated-books-table');
+    toggleTableRows('top-rated-books-table', 5);
     toggleTableRows('book-timeline-table', 10); // Show first 10 book rows
     
     // Initial installation of collapse handlers

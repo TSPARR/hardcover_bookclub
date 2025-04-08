@@ -1,19 +1,15 @@
-/* Light Mode - Main Import File */
+/* Light Mode - Theme Overrides */
 
-/* Base styles */
-@import 'base.css';
-
-/* Layout and UI components */
-@import 'navigation.css';
+/* Import any light-mode specific overrides */
+@import 'buttons.css';
 @import 'cards.css';
 @import 'forms.css';
-@import 'buttons.css';
 @import 'alerts.css';
 @import 'tables.css';
 @import 'modals.css';
 @import 'utilities.css';
 
-/* Feature-specific components */
+/* Feature-specific overrides */
 @import 'components/book-cards.css';
 @import 'components/edition-info.css';
 @import 'components/progress.css';
@@ -21,8 +17,11 @@
 @import 'components/reactions.css';
 @import 'components/analytics.css';
 @import 'components/group-members.css';
+@import 'components/dollar-bets.css';
+@import 'components/star_ratings.css';
 
 /* Add a class to the body for any body-level styling */
+html.light-mode,
 body.light-mode {
     color: #333;
     background-color: #f8f9fa;
