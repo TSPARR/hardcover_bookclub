@@ -2,22 +2,17 @@ from django.contrib import admin
 
 from .models import (
     Book,
-    BookEdition,
     BookGroup,
     Comment,
-    CommentReaction,
-    DollarBet,
     GroupInvitation,
-    MemberStartingPoint,
     UserBookProgress,
     UserProfile,
 )
-from .views.book_utils import _get_progress_value_for_sorting
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "can_create_groups", "enable_notifications")
-    list_filter = ("can_create_groups", "enable_notifications")
+    list_display = ("user", "can_create_groups")
+    list_filter = ("can_create_groups",)
     search_fields = ("user__username",)
     actions = ["grant_group_creation", "revoke_group_creation"]
 
@@ -39,15 +34,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 class BookGroupAdmin(admin.ModelAdmin):
-    list_display = (
-        "name",
-        "created_at",
-        "is_public",
-        "enable_dollar_bets",
-        "member_count",
-        "book_count",
-    )
-    list_filter = ("is_public", "enable_dollar_bets", "created_at")
+    list_display = ("name", "created_at", "is_public", "member_count", "book_count")
+    list_filter = ("is_public", "created_at")
     search_fields = ("name", "description")
     filter_horizontal = ("members", "admins")
 
@@ -78,7 +66,7 @@ class GroupInvitationAdmin(admin.ModelAdmin):
 
 
 class BookAdmin(admin.ModelAdmin):
-    list_display = ["title", "author", "group", "is_active", "pages", "audio_seconds"]
+    list_display = ["title", "author", "group", "is_active"]
     search_fields = ["title", "author"]
     list_filter = ["group", "is_active"]
     readonly_fields = ["hardcover_id", "created_at"]
@@ -102,13 +90,7 @@ class BookAdmin(admin.ModelAdmin):
         (
             "External Services",
             {
-                "fields": (
-                    "hardcover_id",
-                    "cover_image_url",
-                    "url",
-                    "kavita_url",
-                    "plex_url",
-                ),
+                "fields": ("hardcover_id", "cover_image_url", "url", "kavita_url"),
                 "classes": ("collapse",),
             },
         ),
@@ -120,167 +102,6 @@ class BookAdmin(admin.ModelAdmin):
             },
         ),
     )
-
-
-class BookEditionAdmin(admin.ModelAdmin):
-    list_display = [
-        "title",
-        "book",
-        "reading_format",
-        "pages",
-        "audio_seconds",
-        "is_kavita_promoted",
-        "is_plex_promoted",
-    ]
-    list_filter = ["reading_format_id", "is_kavita_promoted", "is_plex_promoted"]
-    search_fields = ["title", "book__title", "publisher"]
-    raw_id_fields = ["book"]
-
-
-class CommentAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "user",
-        "book",
-        "progress_type",
-        "progress_value",
-        "get_normalized_progress",
-        "created_at",
-    ]
-    list_filter = ["progress_type", "book", "user"]
-    search_fields = ["text", "user__username", "book__title"]
-    readonly_fields = ["created_at"]
-
-    def get_normalized_progress(self, obj):
-        """Calculate normalized progress for admin display"""
-        # Use _get_progress_value_for_sorting to get the numeric value
-        progress_value = _get_progress_value_for_sorting(obj)
-
-        # Return a string representation that sorts correctly
-        return f"{progress_value:.1f}"
-
-    # Make this sortable in the admin
-    get_normalized_progress.admin_order_field = "normalized_progress"
-    get_normalized_progress.short_description = "Normalized Progress"
-
-    fieldsets = (
-        (None, {"fields": ("user", "book", "text", "parent")}),
-        (
-            "Progress",
-            {
-                "fields": (
-                    "progress_type",
-                    "progress_value",
-                    "hardcover_percent",
-                )  # Use hardcover_percent instead
-            },
-        ),
-        (
-            "Hardcover Data",
-            {
-                "fields": (
-                    "hardcover_started_at",
-                    "hardcover_finished_at",
-                    "hardcover_current_page",
-                    "hardcover_current_position",
-                    "hardcover_reading_format",
-                    "hardcover_edition_id",
-                ),
-                "classes": ("collapse",),
-            },
-        ),
-    )
-
-
-class UserBookProgressAdmin(admin.ModelAdmin):
-    list_display = [
-        "user",
-        "book",
-        "edition",
-        "progress_type",
-        "progress_value",
-        "normalized_progress",
-        "last_updated",
-    ]
-    list_filter = ["progress_type", "user", "book"]
-    search_fields = ["user__username", "book__title"]
-    raw_id_fields = ["user", "book", "edition"]
-
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    "user",
-                    "book",
-                    "edition",
-                    "progress_type",
-                    "progress_value",
-                    "normalized_progress",
-                    "last_updated",
-                )
-            },
-        ),
-        (
-            "Rating",
-            {
-                "fields": ("local_rating", "hardcover_rating", "effective_rating"),
-                "classes": ("collapse",),
-            },
-        ),
-        (
-            "Hardcover Data",
-            {
-                "fields": (
-                    "hardcover_started_at",
-                    "hardcover_finished_at",
-                    "hardcover_percent",
-                    "hardcover_current_page",
-                    "hardcover_current_position",
-                    "hardcover_reading_format",
-                    "hardcover_edition_id",
-                    "hardcover_read_id",
-                ),
-                "classes": ("collapse",),
-            },
-        ),
-    )
-
-    readonly_fields = ["last_updated", "normalized_progress", "effective_rating"]
-
-
-class MemberStartingPointAdmin(admin.ModelAdmin):
-    list_display = ["member", "group", "starting_book", "set_by", "created_at"]
-    list_filter = ["group"]
-    search_fields = ["member__username", "group__name", "starting_book__title"]
-    raw_id_fields = ["member", "group", "starting_book", "set_by"]
-
-
-class DollarBetAdmin(admin.ModelAdmin):
-    list_display = [
-        "description",
-        "book",
-        "proposer",
-        "accepter",
-        "status",
-        "amount",
-        "created_at",
-    ]
-    list_filter = ["status", "book", "spoiler_level"]
-    search_fields = [
-        "description",
-        "proposer__username",
-        "accepter__username",
-        "book__title",
-    ]
-    raw_id_fields = ["book", "group", "proposer", "accepter", "winner", "resolved_by"]
-
-
-class CommentReactionAdmin(admin.ModelAdmin):
-    list_display = ["comment", "user", "reaction", "created_at"]
-    list_filter = ["reaction"]
-    search_fields = ["comment__text", "user__username"]
-    raw_id_fields = ["comment", "user"]
 
 
 # Register models with try/except pattern to handle already registered models
@@ -309,37 +130,13 @@ except admin.sites.NotRegistered:
 admin.site.register(Book, BookAdmin)
 
 try:
-    admin.site.unregister(BookEdition)
-except admin.sites.NotRegistered:
-    pass
-admin.site.register(BookEdition, BookEditionAdmin)
-
-try:
     admin.site.unregister(Comment)
 except admin.sites.NotRegistered:
     pass
-admin.site.register(Comment, CommentAdmin)
-
-try:
-    admin.site.unregister(CommentReaction)
-except admin.sites.NotRegistered:
-    pass
-admin.site.register(CommentReaction, CommentReactionAdmin)
+admin.site.register(Comment)
 
 try:
     admin.site.unregister(UserBookProgress)
 except admin.sites.NotRegistered:
     pass
-admin.site.register(UserBookProgress, UserBookProgressAdmin)
-
-try:
-    admin.site.unregister(MemberStartingPoint)
-except admin.sites.NotRegistered:
-    pass
-admin.site.register(MemberStartingPoint, MemberStartingPointAdmin)
-
-try:
-    admin.site.unregister(DollarBet)
-except admin.sites.NotRegistered:
-    pass
-admin.site.register(DollarBet, DollarBetAdmin)
+admin.site.register(UserBookProgress)
