@@ -14,7 +14,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
-from ..forms import ProfileSettingsForm
+from ..forms import ProfileSettingsForm, NotificationPreferencesForm
 from ..hardcover_api import HardcoverAPI
 from ..notifications import is_push_enabled, send_push_notification
 
@@ -28,6 +28,14 @@ VAPID_PUBLIC_KEY = getattr(settings, "VAPID_PUBLIC_KEY", "")
 def profile_settings(request):
     if request.method == "POST":
         form = ProfileSettingsForm(request.POST, instance=request.user.profile)
+        notification_form = NotificationPreferencesForm(
+            request.POST, user=request.user, push_enabled=is_push_enabled()
+        )
+
+        api_key_valid = True
+        api_key_message = None
+
+        # Process main profile form with API key
         if form.is_valid():
             api_key = form.cleaned_data["hardcover_api_key"]
 
@@ -57,28 +65,60 @@ def profile_settings(request):
                         and "data" in data
                         and "me" in data["data"]
                     ):
-                        form.save()
-                        messages.success(
-                            request,
-                            "Your profile settings have been updated successfully.",
-                        )
+                        # API key is valid - save will happen below
+                        pass
                     else:
-                        messages.error(
-                            request, "Invalid API key. Please check and try again."
-                        )
+                        api_key_valid = False
+                        api_key_message = "Invalid API key. Please check and try again."
                 except Exception as e:
-                    messages.error(request, f"Could not validate API key: {str(e)}")
-            else:
-                # No API key provided, just save the form (will clear existing key)
-                form.save()
-                messages.success(request, "Your profile settings have been updated.")
+                    api_key_valid = False
+                    api_key_message = f"Could not validate API key: {str(e)}"
 
-            return redirect("profile_settings")
+        # Determine if we should save the forms
+        should_save_api_key = form.is_valid() and (
+            api_key_valid or not form.cleaned_data["hardcover_api_key"]
+        )
+        should_save_notifications = notification_form.is_valid()
+
+        # Save the forms if appropriate
+        if should_save_api_key:
+            form.save()
+
+        if should_save_notifications:
+            notification_form.save()
+
+        # Display appropriate messages
+        if not api_key_valid and api_key_message:
+            messages.error(request, api_key_message)
+        elif should_save_api_key or should_save_notifications:
+            # Only show one success message if any form was saved
+            messages.success(
+                request, "Your profile settings have been updated successfully."
+            )
+
+        return redirect("profile_settings")
     else:
+        # GET request - initialize forms
         form = ProfileSettingsForm(instance=request.user.profile)
+
+        # Initialize notification form with current preferences
+        initial_data = {
+            "enable_notifications": request.user.profile.enable_notifications,
+        }
+
+        # Add notification preferences
+        preferences = request.user.profile.notification_preferences or {}
+        initial_data["notify_new_active_books"] = preferences.get(
+            "new_active_books", False
+        )
+
+        notification_form = NotificationPreferencesForm(
+            initial=initial_data, user=request.user, push_enabled=is_push_enabled()
+        )
 
     context = {
         "form": form,
+        "notification_form": notification_form,
         "push_notifications_enabled": is_push_enabled(),
     }
 

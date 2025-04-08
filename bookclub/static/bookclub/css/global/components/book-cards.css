@@ -178,11 +178,11 @@
         display: flex;
         flex-direction: row;
     }
-    
+
     .mobile-book-header {
         width: 40%;
     }
-    
+
     .mobile-book-details,
     .mobile-book-actions {
         width: 60%;
@@ -194,13 +194,151 @@
     .mobile-book-card .book-title {
         font-size: 1rem;
     }
-    
+
     .mobile-book-badges .badge {
         font-size: 0.75rem;
     }
-    
+
     .mobile-book-actions .btn {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Base improvements for the active book card at all screen sizes */
+.card.border-primary.shadow-sm.active-book-card {
+    overflow: hidden;
+}
+
+.card.border-primary.shadow-sm.active-book-card .card-body .list-group-item {
+    padding: 1rem;
+}
+
+/* Button spacing and organization specifically for active book cards */
+.card.border-primary.shadow-sm.active-book-card .btn-sm {
+    margin-bottom: 0.5rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 767px) {
+
+    /* Adjust the book cover column */
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .col-4.book-cover-container {
+        padding-right: 0.5rem;
+        max-height: 180px;
+    }
+
+    /* Better image handling */
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-cover,
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-cover-placeholder {
+        width: 100%;
+        max-height: 150px;
+        object-fit: contain;
+    }
+
+    /* Better title handling */
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Better author text handling */
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .author-name {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Progress bar adjustments */
+    .card.border-primary.shadow-sm.active-book-card .progress {
+        margin-top: 0.5rem;
+    }
+
+    /* Better button organization */
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .primary-action,
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin-top: 1rem !important;
+    }
+
+    /* Make Continue Reading button prominent */
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .continue-reading-btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Style the admin buttons in a grid */
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Special handling for smaller buttons */
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .editions-btn,
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .refresh-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+    }
+
+    /* Danger button (Remove) should be full width and at bottom */
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .remove-btn {
+        grid-column: 1 / span 2;
+        margin-top: 0.5rem;
+    }
+
+    /* Fix for extremely small screens (iPhone SE, etc) */
+    @media (max-width: 375px) {
+        .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .card.border-primary.shadow-sm.active-book-card .reading-progress .remove-btn {
+            grid-column: auto;
+        }
+    }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 991px) {
+
+    /* Adjust layout for tablet view */
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-content-row {
+        flex-wrap: wrap;
+    }
+
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-info,
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .reading-progress {
+        width: 100%;
+    }
+
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .reading-progress {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .reading-progress>div {
+        margin-right: 1rem;
+    }
+
+    /* Button layout for tablets */
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .primary-action,
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .card.border-primary.shadow-sm.active-book-card .reading-progress .remove-btn {
+        margin-left: auto;
     }
 }

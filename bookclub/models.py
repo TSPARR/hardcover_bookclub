@@ -471,8 +471,27 @@ class UserProfile(models.Model):
     enable_notifications = models.BooleanField(default=False)
     push_subscription = models.TextField(blank=True, null=True)
 
+    notification_preferences = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="User's notification preferences for different types of notifications",
+    )
+
     def __str__(self):
         return f"{self.user.username}'s profile"
+
+    def get_notification_preference(self, notification_type):
+        """Get a specific notification preference"""
+        if not self.notification_preferences:
+            return False
+        return self.notification_preferences.get(notification_type, False)
+
+    def set_notification_preference(self, notification_type, enabled):
+        """Set a specific notification preference"""
+        if not self.notification_preferences:
+            self.notification_preferences = {}
+        self.notification_preferences[notification_type] = enabled
+        self.save(update_fields=["notification_preferences"])
 
 
 @receiver(post_save, sender=User)

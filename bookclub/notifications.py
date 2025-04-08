@@ -12,6 +12,12 @@ VAPID_CLAIMS = {
     "sub": f"mailto:{getattr(settings, 'VAPID_CONTACT_EMAIL', 'your-email@example.com')}"
 }
 
+# Define notification types
+NOTIFICATION_TYPES = {
+    "new_active_books": "New Active Books",
+    # Add more notification types as needed
+}
+
 
 def is_push_enabled():
     """
@@ -20,7 +26,9 @@ def is_push_enabled():
     return getattr(settings, "PUSH_NOTIFICATIONS_ENABLED", False)
 
 
-def send_push_notification(user, title, body, url=None, icon=None):
+def send_push_notification(
+    user, title, body, url=None, icon=None, notification_type=None
+):
     """
     Send a push notification to a user
 
@@ -30,6 +38,7 @@ def send_push_notification(user, title, body, url=None, icon=None):
         body: Body text of the notification
         url: URL to open when notification is clicked
         icon: URL to the notification icon
+        notification_type: Type of notification (from NOTIFICATION_TYPES)
     """
     # First check if push notifications are enabled globally
     if not is_push_enabled():
@@ -39,7 +48,7 @@ def send_push_notification(user, title, body, url=None, icon=None):
     try:
         user_profile = user.profile
 
-        # Check if user has enabled notifications
+        # Check if user has enabled notifications globally
         if not user_profile.enable_notifications:
             logger.info(f"Notifications not enabled for user {user.username}")
             return False
@@ -47,6 +56,18 @@ def send_push_notification(user, title, body, url=None, icon=None):
         if not user_profile.push_subscription:
             logger.info(f"No push subscription for user {user.username}")
             return False
+
+        # Check for specific notification type preference if provided
+        if notification_type:
+            # Get preferences, defaulting to empty dict if None
+            preferences = user_profile.notification_preferences or {}
+
+            # Check if this specific notification type is enabled
+            if not preferences.get(notification_type, False):
+                logger.info(
+                    f"User {user.username} has opted out of {notification_type} notifications"
+                )
+                return False
 
         # Prepare the notification data
         data = {
@@ -68,7 +89,9 @@ def send_push_notification(user, title, body, url=None, icon=None):
             return False
 
         # Log that we're sending a notification
-        logger.info(f"Sending push notification to {user.username}: {title}")
+        logger.info(
+            f"Sending push notification to {user.username}: {title} (type: {notification_type or 'general'})"
+        )
 
         # Send the notification
         webpush(

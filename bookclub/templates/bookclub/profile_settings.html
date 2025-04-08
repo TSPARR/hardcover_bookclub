@@ -6,65 +6,16 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-
-                    <div class="mb-3">
-                        <label for="{{ form.hardcover_api_key.id_for_label }}" class="form-label">Hardcover API
-                            Key</label>
-                        {{ form.hardcover_api_key }}
-                        {% if form.hardcover_api_key.errors %}
-                        <div class="text-danger">{{ form.hardcover_api_key.errors }}</div>
-                        {% endif %}
-                        <div class="form-text">{{ form.hardcover_api_key.help_text }}</div>
-                    </div>
-
-                    {% if push_notifications_enabled %}
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="id_enable_notifications" name="enable_notifications" {% if form.enable_notifications.value %}checked{% endif %}>
-                        <label class="form-check-label" for="id_enable_notifications">Enable Push Notifications</label>
-                        <div class="form-text">{{ form.enable_notifications.help_text }}</div>
-                    </div>
-
-                    <div class="mb-3 mt-2" id="notification-test-container" style="display: none;">
-                        <button type="button" class="btn btn-outline-primary btn-sm" id="test-notification-button">
-                            <i class="bi bi-bell me-1"></i> Test Notifications
-                        </button>
-                        <small class="form-text text-muted ms-2">Send a test notification to verify your settings.</small>
-                    </div>
-                    {% endif %}
-
-                    <div class="card-footer text-muted mb-3">
-                        <small>
-                            To obtain your Hardcover API Key, please visit
-                            <a href="https://hardcover.app/account/api"
-                                target="_blank">https://hardcover.app/account/api</a>
-                            and grab the bearer token to put into this field.
-                        </small>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
-            </div>
-        </div>
+        <!-- API Key Settings -->
+        {% include "bookclub/includes/profile/api_settings.html" %}
         
-        <!-- Developer information section -->
-        <div class="card mt-3">
-            <div class="card-header">
-                <h4>Developer Options</h4>
-            </div>
-            <div class="card-body">
-                <p>If you're experiencing issues with styles or scripts not updating:</p>
-                <button class="btn btn-warning" onclick="clearBrowserCache()">
-                    <i class="bi bi-arrow-clockwise me-1"></i> Clear Browser Cache
-                </button>
-                <p class="mt-2 small text-muted">
-                    This will refresh all CSS and JavaScript files by forcing the browser to load the latest versions.
-                </p>
-            </div>
-        </div>
+        <!-- Notification Settings -->
+        {% if push_notifications_enabled %}
+            {% include "bookclub/includes/profile/notification_settings.html" %}
+        {% endif %}
+        
+        <!-- Developer Options -->
+        {% include "bookclub/includes/profile/developer_options.html" %}
     </div>
 </div>
 

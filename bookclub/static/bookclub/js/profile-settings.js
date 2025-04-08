@@ -60,6 +60,27 @@ function clearBrowserCache() {
     console.log('Cache clearing initiated');
 }
 
+// Function to toggle notification options visibility
+function toggleNotificationOptions(enabled) {
+    const optionsDiv = document.getElementById('notification-options');
+    const testContainer = document.getElementById('notification-test-container');
+    
+    if (optionsDiv) {
+        optionsDiv.style.display = enabled ? 'block' : 'none';
+    }
+    
+    if (testContainer) {
+        testContainer.style.display = enabled ? 'block' : 'none';
+    }
+    
+    // If notifications are disabled, uncheck all option checkboxes
+    if (!enabled) {
+        document.querySelectorAll('#notification-options input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+}
+
 // Initialize when DOM is ready - using a self-executing function to ensure it only runs once
 (function() {
     // Ensure this initialization only happens once
@@ -74,8 +95,28 @@ function clearBrowserCache() {
     document.addEventListener('DOMContentLoaded', async function() {
         // Initialize notification UI elements
         await initNotificationUI();
+        
+        // Initialize the notification options toggle function
+        initNotificationOptions();
     });
 })();
+
+// Initialize notification options toggle
+function initNotificationOptions() {
+    const notificationCheckbox = document.getElementById('id_enable_notifications');
+    const notificationOptions = document.getElementById('notification-options');
+    const testContainer = document.getElementById('notification-test-container');
+    
+    if (notificationCheckbox && notificationOptions && testContainer) {
+        // Ensure initial state is correct
+        toggleNotificationOptions(notificationCheckbox.checked);
+        
+        // Toggle notification options when main checkbox changes
+        notificationCheckbox.addEventListener('change', function() {
+            toggleNotificationOptions(this.checked);
+        });
+    }
+}
 
 // Initialize push notification UI elements
 async function initNotificationUI() {
@@ -95,6 +136,12 @@ async function initNotificationUI() {
         notificationCheckbox.checked = false;
         notificationCheckbox.closest('.form-check').style.display = 'none';
         testContainer.style.display = 'none';
+        
+        // Also hide notification options
+        const notificationOptions = document.getElementById('notification-options');
+        if (notificationOptions) {
+            notificationOptions.style.display = 'none';
+        }
         return;
     }
     
@@ -104,6 +151,12 @@ async function initNotificationUI() {
         console.log('Push notifications not available on server');
         notificationCheckbox.closest('.form-check').style.display = 'none';
         testContainer.style.display = 'none';
+        
+        // Also hide notification options
+        const notificationOptions = document.getElementById('notification-options');
+        if (notificationOptions) {
+            notificationOptions.style.display = 'none';
+        }
         return;
     }
     
@@ -111,8 +164,8 @@ async function initNotificationUI() {
     const subscription = await window.getCurrentPushSubscription();
     notificationCheckbox.checked = !!subscription;
     
-    // Update test button visibility based on checkbox state
-    testContainer.style.display = notificationCheckbox.checked ? 'block' : 'none';
+    // Update visibility based on checkbox state
+    toggleNotificationOptions(notificationCheckbox.checked);
     
     // Remove any existing listeners to prevent duplicates
     const newNotificationCheckbox = notificationCheckbox.cloneNode(true);
@@ -126,10 +179,10 @@ async function initNotificationUI() {
         if (this.checked) {
             const success = await window.subscribeToPushNotifications();
             this.checked = !!success;
-            testContainer.style.display = this.checked ? 'block' : 'none';
+            toggleNotificationOptions(this.checked);
         } else {
             await window.unsubscribeFromPushNotifications();
-            testContainer.style.display = 'none';
+            toggleNotificationOptions(false);
         }
     });
     

@@ -520,6 +520,7 @@ def add_book_to_group(request, group_id, hardcover_id):
                         reverse("book_detail", args=[book.id])
                     ),
                     icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="new_active_books",
                 )
 
         messages.success(request, f"'{book.title}' has been added to the group.")
@@ -900,6 +901,7 @@ def toggle_book_active(request, group_id, book_id):
                 body=f"'{book.title}' by {book.author} is now the active book.",
                 url=request.build_absolute_uri(reverse("book_detail", args=[book.id])),
                 icon=book.cover_image_url if book.cover_image_url else None,
+                notification_type="new_active_books",
             )
 
     return redirect("group_detail", group_id=group.id)
