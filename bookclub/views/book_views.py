@@ -511,6 +511,16 @@ def add_book_to_group(request, group_id, hardcover_id):
         set_active = request.POST.get("set_active") == "on"
         if set_active:
             book.set_active()
+            for member in group.members.all():
+                send_push_notification(
+                    user=member,
+                    title=f"New Active Book in {group.name}",
+                    body=f"'{book.title}' by {book.author} is now the active book.",
+                    url=request.build_absolute_uri(
+                        reverse("book_detail", args=[book.id])
+                    ),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                )
 
         messages.success(request, f"'{book.title}' has been added to the group.")
         return redirect("group_detail", group_id=group.id)
