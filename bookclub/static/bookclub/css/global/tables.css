@@ -263,8 +263,9 @@
     margin-top: 0.75rem;
 }
 
-/* Previous Books Table Improvements */
-
+/* ===========================
+ * Previous Books Table Styles
+ * =========================== */
 /* Main container improvements */
 .previous-books-container {
     margin-bottom: 2rem;
@@ -290,12 +291,19 @@
 /* Desktop table view improvements */
 .previous-books-desktop .card-body {
     padding: 0;
-    /* Remove default padding to allow table to extend fully */
+}
+
+.previous-books-desktop #readOnlyBooks {
+    width: 100%;
+    overflow-x: visible;
+    /* Only allow scrolling if absolutely needed */
 }
 
 .previous-books-desktop table {
     margin-bottom: 0;
     width: 100%;
+    max-width: 100%;
+    table-layout: auto;
 }
 
 /* Add proper spacing in table cells */
@@ -305,50 +313,76 @@
     vertical-align: middle;
 }
 
-/* Column width distribution for desktop - more flexible approach */
+/* Column width distribution for desktop - optimized layout */
 .previous-books-desktop table th:nth-child(1),
 .previous-books-desktop table td:nth-child(1) {
     width: 5%;
-    /* Order number column */
     min-width: 40px;
 }
 
 .previous-books-desktop table th:nth-child(2),
 .previous-books-desktop table td:nth-child(2) {
-    width: 15%;
-    /* Cover image column */
-    min-width: 100px;
+    width: 20%;
 }
 
 .previous-books-desktop table th:nth-child(3),
 .previous-books-desktop table td:nth-child(3) {
-    width: 30%;
-    /* Book title and author column */
+    width: 15%;
 }
 
 .previous-books-desktop table th:nth-child(4),
 .previous-books-desktop table td:nth-child(4) {
     width: 15%;
-    /* Picked By column */
 }
 
+/* Remove Status column as it's not needed for Previous Books */
 .previous-books-desktop table th:nth-child(5),
 .previous-books-desktop table td:nth-child(5) {
-    width: 15%;
-    /* Status/Rating column */
+    display: none;
 }
 
-.previous-books-desktop table th:nth-child(6),
-.previous-books-desktop table td:nth-child(6) {
-    width: 10%;
-    /* Progress column */
+/* Style for stacked rating display */
+.previous-books-desktop .rating-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-.previous-books-desktop table th:nth-child(7),
-.previous-books-desktop table td:nth-child(7) {
-    width: 10%;
-    /* Actions column */
-    text-align: right;
+.previous-books-desktop .rating-stars {
+    margin-bottom: 0.25rem;
+}
+
+.previous-books-desktop .rating-value {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Style for stacked progress display */
+.previous-books-desktop .progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.previous-books-desktop .progress-badge {
+    margin-bottom: 0.25rem;
+}
+
+.previous-books-desktop .progress-value {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Ensure proper button spacing and alignment in desktop view */
+.previous-books-desktop table td:last-child .btn {
+    margin: 0.15rem;
+}
+
+/* Make the table header sticky for better usability */
+.previous-books-desktop table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 /* Book title styling */
@@ -374,7 +408,6 @@
 /* Ensure consistent height for rows */
 .previous-books-desktop tbody tr {
     height: 100px;
-    /* Consistent height for all rows */
 }
 
 /* Improve hover states */
@@ -382,18 +415,9 @@
     transition: background-color 0.15s ease-in-out;
 }
 
-/* Ensure responsive behavior */
-@media (min-width: 992px) {
-    .previous-books-desktop table {
-        table-layout: auto;
-        /* Auto layout for more natural column distribution */
-    }
-
-    .previous-books-container {
-        max-width: 100%;
-    }
-}
-
+/* ===========================
+ * Book Reordering Form Styles
+ * =========================== */
 /* Add spacing when reorder form is visible */
 #reorderForm,
 #mobileReorderForm {
@@ -431,13 +455,6 @@
     font-weight: 600;
 }
 
-/* Mobile specific styles for reorder */
-.book-item-mobile {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-}
-
 /* Mobile toggle button */
 .mobile-edit-btn {
     padding: 0.25rem 0.5rem;
@@ -456,42 +473,7 @@
     display: none;
 }
 
-/* Style the sortable list items */
-#sortableBooks {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#sortableBooks li {
-    padding: 0.75rem 1rem;
-    background-color: rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    margin-bottom: 0.5rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
-}
-
-#sortableBooks li:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-#sortableBooks .handle {
-    cursor: grab;
-    margin-right: 0.75rem;
-    color: #6c757d;
-}
-
-#sortableBooks .book-number {
-    display: inline-block;
-    min-width: 1.5rem;
-    text-align: center;
-    margin-right: 0.75rem;
-    font-weight: 600;
-}
-
+/* Additional styling for sortable items */
 #sortableBooks .book-info {
     flex-grow: 1;
 }
@@ -519,6 +501,96 @@
     width: 100%;
 }
 
+/* ===========================
+ * Mobile Book Actions Styles
+ * =========================== */
+/* Improve mobile book actions layout */
+.mobile-book-actions .d-flex.flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    /* Reduced from 0.5rem for tighter spacing */
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+/* Make all buttons have consistent size and alignment */
+.mobile-book-actions .btn,
+.mobile-book-actions form.d-inline .btn {
+    margin-bottom: 0.25rem;
+    /* Reduced from 0.5rem */
+    flex-basis: calc(50% - 0.125rem);
+    /* Adjusted for tighter gap */
+    max-width: calc(50% - 0.125rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+}
+
+/* Fix inline forms in the flex container */
+.mobile-book-actions form.d-inline {
+    display: flex !important;
+    flex-basis: calc(50% - 0.125rem);
+    /* Adjusted for tighter gap */
+    max-width: calc(50% - 0.125rem);
+    margin-bottom: 0.35rem;
+    /* Reduced from 0.5rem */
+}
+
+.mobile-book-actions form.d-inline .btn {
+    width: 100%;
+    flex-basis: 100%;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+
+/* Add more space before the Remove button */
+.mobile-book-actions .w-100 {
+    margin-top: 0.25rem;
+}
+
+/* Make Remove button stand out more */
+.mobile-book-actions .btn-outline-danger {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+/* Mobile book progress bar styling */
+.mobile-book-card .book-progress-section {
+    margin-bottom: 0.75rem;
+}
+
+.mobile-book-card .progress.group-members-progress {
+    height: 1.25rem;
+    margin: 0.5rem 0;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+.mobile-book-card .progress.group-members-progress .progress-bar {
+    transition: width 0.3s ease;
+    background-color: #0d6efd;
+}
+
+.mobile-book-card .progress.group-members-progress[data-progress]::after,
+.group-members-progress-card .progress.group-members-progress[data-progress]::after {
+    content: attr(data-progress) "%";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.875rem;
+    font-weight: 600;
+    z-index: 1;
+}
+
+/* ===========================
+ * Responsive Adjustments
+ * =========================== */
 /* Mobile specific styles for reorder form */
 @media (max-width: 767px) {
 
@@ -603,7 +675,7 @@
     }
 }
 
-/* Additional styles to ensure content stays contained on very small screens */
+/* Responsive adjustments for very small screens */
 @media (max-width: 480px) {
 
     /* Further simplify the book list items */
@@ -628,5 +700,13 @@
     #sortableBooks li div:not(.d-flex) {
         width: 100%;
         word-break: break-word;
+    }
+
+    /* Stack buttons vertically on very small screens */
+    .mobile-book-actions .btn,
+    .mobile-book-actions form.d-inline,
+    .mobile-book-actions form.d-inline .btn {
+        flex-basis: 100%;
+        max-width: 100%;
     }
 }

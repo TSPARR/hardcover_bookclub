@@ -36,9 +36,7 @@
                     
                     <!-- Read-only book list without table-responsive wrapper -->
                     <div id="readOnlyBooks">
-                        <div class="table-responsive">
-                            {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
-                        </div>
+                        {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
                     </div>
                 </div>
             </div>

@@ -16,7 +16,6 @@
                     </div>
                     <div class="col-9 ps-3 py-2">
                         <div class="d-flex align-items-start mb-1">
-                            <span class="book-number-badge">{{ book.order }}</span>
                             <h5 class="book-title mb-0">{{ book.title|split:":"|first|trim }}</h5>
                         </div>
                         <p class="book-author mb-1">{{ book.author }}</p>
@@ -52,14 +51,13 @@
                     {% endwith %}
                 </div>
                 
-                <!-- Progress section -->
+                <!-- Progress section with progress bar -->
                 {% with prog=book_progress|get_item:book.id %}
                 {% if prog.progress and prog.progress.normalized_progress > 0 %}
                 <div class="book-progress-section">
-                    <div class="progress mobile-book-progress">
+                    <div class="progress group-members-progress" data-progress="{{ prog.progress.normalized_progress|floatformat:0 }}">
                         <div class="progress-bar" role="progressbar" style="width: {{ prog.progress.normalized_progress }}%"></div>
                     </div>
-                    <div class="mobile-progress-text">{{ prog.progress.normalized_progress }}% Complete</div>
                 </div>
                 {% endif %}
                 {% endwith %}
@@ -67,7 +65,7 @@
             
             <!-- Action buttons -->
             <div class="mobile-book-actions px-3 py-2">
-                <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-wrap">
                     <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-primary">View Details</a>
                     
                     {% if is_admin %}
@@ -91,10 +89,14 @@
                         </button>
                     </form>
                     
-                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
+                    <!-- Place Remove button on its own row -->
+                    <div class="w-100" style="margin-top: 0.4rem;"></div>
+                    
+                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" style="flex-basis: 100%; max-width: 100%;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Are you sure you want to remove this book?')">
+                            onclick="return confirm('Are you sure you want to remove this book?')" 
+                            style="width: 100%; padding-top: 0.5rem; padding-bottom: 0.5rem;">
                             Remove
                         </button>
                     </form>
