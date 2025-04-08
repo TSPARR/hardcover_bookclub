@@ -21,6 +21,7 @@
                         <div class="form-text">{{ form.hardcover_api_key.help_text }}</div>
                     </div>
 
+                    {% if push_notifications_enabled %}
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="id_enable_notifications" name="enable_notifications" {% if form.enable_notifications.value %}checked{% endif %}>
                         <label class="form-check-label" for="id_enable_notifications">Enable Push Notifications</label>
@@ -33,6 +34,7 @@
                         </button>
                         <small class="form-text text-muted ms-2">Send a test notification to verify your settings.</small>
                     </div>
+                    {% endif %}
 
                     <div class="card-footer text-muted mb-3">
                         <small>
@@ -67,6 +69,8 @@
 </div>
 
 {% block extra_js %}
+{% if push_notifications_enabled %}
 <script src="{% static 'bookclub/js/profile-settings.js' %}"></script>
+{% endif %}
 {% endblock %}
 {% endblock %}

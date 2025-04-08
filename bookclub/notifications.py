@@ -1,16 +1,23 @@
-# notifications.py
 import json
 import logging
-import os
-from pywebpush import webpush, WebPushException
+
+from django.conf import settings
+from pywebpush import WebPushException, webpush
 
 logger = logging.getLogger(__name__)
 
-# Get VAPID keys from environment variables
-VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "")
+# Get VAPID settings from Django settings
+VAPID_PRIVATE_KEY = getattr(settings, "VAPID_PRIVATE_KEY", "")
 VAPID_CLAIMS = {
-    "sub": f"mailto:{os.environ.get('VAPID_CONTACT_EMAIL', 'your-email@example.com')}"
+    "sub": f"mailto:{getattr(settings, 'VAPID_CONTACT_EMAIL', 'your-email@example.com')}"
 }
+
+
+def is_push_enabled():
+    """
+    Check if push notifications are properly configured
+    """
+    return getattr(settings, "PUSH_NOTIFICATIONS_ENABLED", False)
 
 
 def send_push_notification(user, title, body, url=None, icon=None):
@@ -24,6 +31,11 @@ def send_push_notification(user, title, body, url=None, icon=None):
         url: URL to open when notification is clicked
         icon: URL to the notification icon
     """
+    # First check if push notifications are enabled globally
+    if not is_push_enabled():
+        logger.info("Push notifications not enabled in settings")
+        return False
+
     try:
         user_profile = user.profile
 
@@ -34,11 +46,6 @@ def send_push_notification(user, title, body, url=None, icon=None):
 
         if not user_profile.push_subscription:
             logger.info(f"No push subscription for user {user.username}")
-            return False
-
-        # Check if VAPID keys are configured
-        if not VAPID_PRIVATE_KEY:
-            logger.error("VAPID_PRIVATE_KEY is not set in environment variables")
             return False
 
         # Prepare the notification data

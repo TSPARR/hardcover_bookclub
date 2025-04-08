@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Dark Mode Implementation
     setupDarkMode();
-
-    // Push Mode Implementation
-    setupPushNotifications();
+    
+    // Register service worker for push notifications (available globally)
+    initServiceWorker();
 });
 
 function setupDarkMode() {    
@@ -172,263 +172,216 @@ function copyInviteLink(link) {
 // Make the function available globally
 window.copyInviteLink = copyInviteLink;
 
-// Add this function to common.js
+// Helper function to get CSRF token
+function getCsrfToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    
+    return cookieValue;
+}
 
-// Service Worker and Push Notification Setup
-function setupPushNotifications() {    
-    const notificationToggle = document.getElementById('id_enable_notifications');
-    if (!notificationToggle) {
-        // Not on the settings page, no need to continue
+// Helper function to check if push notifications are supported in browser
+function arePushNotificationsSupported() {
+    return 'serviceWorker' in navigator && 'PushManager' in window;
+}
+
+// Helper function to convert base64 to Uint8Array (for VAPID keys)
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+    
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+// Initialize service worker for push notifications (runs on every page)
+async function initServiceWorker() {
+    // Don't proceed if push notifications aren't supported
+    if (!arePushNotificationsSupported()) {
+        console.log('Push notifications not supported in this browser');
         return;
     }
     
-    // Check if Push API is supported
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        notificationToggle.disabled = true;
-        notificationToggle.checked = false;
-        const helpText = document.querySelector('[for="id_enable_notifications"] + .form-text');
-        if (helpText) {
-            helpText.textContent = 'Push notifications are not supported in your browser.';
-            helpText.classList.add('text-danger');
-        }
-        return;
-    }
-    
-    // Check permission state
-    const currentPermission = Notification.permission;
-    if (currentPermission === 'denied') {
-        notificationToggle.disabled = true;
-        notificationToggle.checked = false;
-        const helpText = document.querySelector('[for="id_enable_notifications"] + .form-text');
-        if (helpText) {
-            helpText.textContent = 'Notifications are blocked in your browser settings.';
-            helpText.classList.add('text-danger');
-        }
-        return;
-    }
-    
-    // Register minimal service worker
-    async function registerServiceWorker() {
-        try {
-            const registration = await navigator.serviceWorker.register('/push-service-worker.js', {
-                scope: '/push/'
-            });
-            return registration;
-        } catch (error) {
-            console.error('Service worker registration failed:', error);
-            return null;
-        }
-    }
-    
-    // Convert base64 to Uint8Array for the VAPID key
-    function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-          .replace(/-/g, '+')
-          .replace(/_/g, '/');
-      
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-      
-        for (let i = 0; i < rawData.length; ++i) {
-          outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-      }
-    
-    // Subscribe to push notifications
-    async function subscribeToPush() {
-        try {
-            // Get service worker registration
-            let registration = await navigator.serviceWorker.getRegistration('/push/');
-            if (!registration) {
-                registration = await registerServiceWorker();
-            }
-            
-            if (!registration) {
-                throw new Error('Failed to register service worker');
-            }
-            
-            // Get the server's public key
-            const response = await fetch('/api/push/vapid-public-key/');
-            if (!response.ok) {
-                throw new Error('Failed to get VAPID public key');
-            }
-            
-            const vapidPublicKey = await response.text();
-            const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
-            
-            // Subscribe to push
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey
-            });
-            
-            // Send the subscription to the server
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const sendResult = await fetch('/api/push/subscribe/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify(subscription)
-            });
-            
-            if (!sendResult.ok) {
-                throw new Error('Failed to save subscription on server');
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Subscription error:', error);
-            return false;
-        }
-    }
-    
-    // Unsubscribe from push notifications
-    async function unsubscribeFromPush() {
-        try {
-            const registration = await navigator.serviceWorker.getRegistration('/push/');
-            if (!registration) {
-                return true; // Nothing to unsubscribe from
-            }
-            
-            const subscription = await registration.pushManager.getSubscription();
-            if (!subscription) {
-                return true; // Nothing to unsubscribe from
-            }
-            
-            // Unsubscribe from browser
-            await subscription.unsubscribe();
-            
-            // Tell the server to remove the subscription
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            await fetch('/api/push/unsubscribe/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({endpoint: subscription.endpoint})
-            });
-            
-            return true;
-        } catch (error) {
-            console.error('Unsubscribe error:', error);
-            return false;
-        }
-    }
-    
-    // Check existing subscription
-    async function checkExistingSubscription() {
-        try {
-            const registration = await navigator.serviceWorker.getRegistration('/push/');
-            if (!registration) {
-                return false;
-            }
-            
-            const subscription = await registration.pushManager.getSubscription();
-            return !!subscription;
-        } catch (error) {
-            console.error('Error checking subscription:', error);
-            return false;
-        }
-    }
-    
-    // Initialize toggle state
-    checkExistingSubscription().then(isSubscribed => {
-        notificationToggle.checked = isSubscribed;
-    });
-    
-    // Handle toggle changes
-    notificationToggle.addEventListener('change', async event => {
-        if (event.target.checked) {
-            // Request permission if needed
-            if (Notification.permission !== 'granted') {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    event.target.checked = false;
-                    return;
-                }
-            }
-            
-            // Subscribe
-            const success = await subscribeToPush();
-            event.target.checked = success;
-            
-            if (success) {
-                const helpText = document.querySelector('[for="id_enable_notifications"] + .form-text');
-                if (helpText && helpText.classList.contains('text-danger')) {
-                    helpText.classList.remove('text-danger');
-                    helpText.textContent = 'Receive notifications for new comments, book progress updates, and group activities.';
-                }
-            }
+    try {
+        // Check if service worker is already registered
+        const existingRegistration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        
+        if (!existingRegistration) {
+            // Register service worker if not already registered
+            const registration = await navigator.serviceWorker.register('/push-service-worker.js');
+            console.log('Service worker registered:', registration.scope);
         } else {
-            // Unsubscribe
-            await unsubscribeFromPush();
+            console.log('Service worker already registered');
         }
-    });
-
-    // Handle test notification button
-    const testButton = document.getElementById('test-notification-button');
-    const testContainer = document.getElementById('notification-test-container');
-
-    if (testButton && testContainer) {
-        // Show test button only when notifications are enabled
-        function updateTestButtonVisibility() {
-            if (notificationToggle.checked) {
-                testContainer.style.display = 'block';
-            } else {
-                testContainer.style.display = 'none';
-            }
-        }
-        
-        // Initial visibility check
-        updateTestButtonVisibility();
-        
-        // Update visibility when toggle changes
-        notificationToggle.addEventListener('change', updateTestButtonVisibility);
-        
-        // Send test notification when button is clicked
-        testButton.addEventListener('click', async () => {
-            testButton.disabled = true;
-            testButton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Sending...';
-            
-            try {
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                const response = await fetch('/api/push/test/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({})
-                });
-                
-                if (response.ok) {
-                    testButton.innerHTML = '<i class="bi bi-check-circle me-1"></i> Notification Sent!';
-                    setTimeout(() => {
-                        testButton.innerHTML = '<i class="bi bi-bell me-1"></i> Test Notifications';
-                        testButton.disabled = false;
-                    }, 3000);
-                } else {
-                    const data = await response.json();
-                    testButton.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Failed';
-                    console.error('Test notification failed:', data.message);
-                    setTimeout(() => {
-                        testButton.innerHTML = '<i class="bi bi-bell me-1"></i> Test Notifications';
-                        testButton.disabled = false;
-                    }, 3000);
-                }
-            } catch (error) {
-                console.error('Error sending test notification:', error);
-                testButton.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Error';
-                setTimeout(() => {
-                    testButton.innerHTML = '<i class="bi bi-bell me-1"></i> Test Notifications';
-                    testButton.disabled = false;
-                }, 3000);
-            }
-        });
+    } catch (error) {
+        console.error('Service worker registration failed:', error);
     }
 }
+
+// Check if push notifications are available on the server
+async function checkPushNotificationsAvailable() {
+    try {
+        const response = await fetch('/api/push/vapid-public-key/');
+        return response.ok;
+    } catch (error) {
+        console.error('Error checking push notifications availability:', error);
+        return false;
+    }
+}
+
+// Get the current push notification subscription if one exists
+async function getCurrentPushSubscription() {
+    if (!arePushNotificationsSupported()) {
+        return null;
+    }
+    
+    try {
+        const registration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        if (!registration) {
+            return null;
+        }
+        
+        const subscription = await registration.pushManager.getSubscription();
+        return subscription;
+    } catch (error) {
+        console.error('Error getting push subscription:', error);
+        return null;
+    }
+}
+
+// Subscribe to push notifications
+async function subscribeToPushNotifications() {
+    if (!arePushNotificationsSupported()) {
+        alert('Push notifications are not supported in your browser.');
+        return null;
+    }
+    
+    try {
+        // Request permission if needed
+        if (Notification.permission !== 'granted') {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                alert('Notification permission denied. Please enable notifications in your browser settings.');
+                return null;
+            }
+        }
+        
+        // Get service worker registration
+        let registration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        
+        if (!registration) {
+            registration = await navigator.serviceWorker.register('/push-service-worker.js');
+            console.log('Service worker registered:', registration.scope);
+        }
+        
+        // Get VAPID public key
+        const response = await fetch('/api/push/vapid-public-key/');
+        if (!response.ok) {
+            throw new Error('Failed to get VAPID public key');
+        }
+        
+        const vapidPublicKey = await response.text();
+        const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+        
+        // Get existing subscription or create a new one
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedVapidKey
+            });
+            
+            console.log('Created new push subscription');
+        }
+        
+        // Send subscription to server
+        await sendSubscriptionToServer(subscription);
+        
+        return subscription;
+    } catch (error) {
+        console.error('Error subscribing to push notifications:', error);
+        alert('Failed to subscribe to push notifications. Check console for details.');
+        return null;
+    }
+}
+
+// Unsubscribe from push notifications
+async function unsubscribeFromPushNotifications() {
+    try {
+        const registration = await navigator.serviceWorker.getRegistration('/push-service-worker.js');
+        if (!registration) {
+            return true;
+        }
+        
+        const subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+            return true;
+        }
+        
+        // Store the endpoint for server unsubscription
+        const endpoint = subscription.endpoint;
+        
+        // Unsubscribe locally
+        await subscription.unsubscribe();
+        console.log('Unsubscribed from push notifications locally');
+        
+        // Inform server
+        await fetch('/api/push/unsubscribe/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ endpoint: endpoint })
+        });
+        
+        return true;
+    } catch (error) {
+        console.error('Error unsubscribing from push notifications:', error);
+        return false;
+    }
+}
+
+// Send subscription to server
+async function sendSubscriptionToServer(subscription) {
+    try {
+        const response = await fetch('/api/push/subscribe/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(subscription)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save subscription on server');
+        }
+        
+        console.log('Subscription saved on server');
+        return await response.json();
+    } catch (error) {
+        console.error('Error sending subscription to server:', error);
+        throw error;
+    }
+}
+
+// Make these functions available globally
+window.getCsrfToken = getCsrfToken;
+window.arePushNotificationsSupported = arePushNotificationsSupported;
+window.urlBase64ToUint8Array = urlBase64ToUint8Array;
+window.checkPushNotificationsAvailable = checkPushNotificationsAvailable;
+window.getCurrentPushSubscription = getCurrentPushSubscription;
+window.subscribeToPushNotifications = subscribeToPushNotifications;
+window.unsubscribeFromPushNotifications = unsubscribeFromPushNotifications;
+window.sendSubscriptionToServer = sendSubscriptionToServer;

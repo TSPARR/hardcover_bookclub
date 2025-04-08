@@ -4,9 +4,9 @@ User profile related views
 
 import json
 import logging
-import os
 
 import requests
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
@@ -16,16 +16,12 @@ from django.views.decorators.http import require_POST
 
 from ..forms import ProfileSettingsForm
 from ..hardcover_api import HardcoverAPI
-from ..notifications import send_push_notification
+from ..notifications import is_push_enabled, send_push_notification
 
 logger = logging.getLogger(__name__)
 
-# Get VAPID keys from environment variables
-VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "")
-VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "")
-VAPID_CLAIMS = {
-    "sub": f"mailto:{os.environ.get('VAPID_CONTACT_EMAIL', 'your-email@example.com')}"
-}
+# Get VAPID settings from Django settings
+VAPID_PUBLIC_KEY = getattr(settings, "VAPID_PUBLIC_KEY", "")
 
 
 @login_required
@@ -81,14 +77,19 @@ def profile_settings(request):
     else:
         form = ProfileSettingsForm(instance=request.user.profile)
 
-    return render(request, "bookclub/profile_settings.html", {"form": form})
+    context = {
+        "form": form,
+        "push_notifications_enabled": is_push_enabled(),
+    }
+
+    return render(request, "bookclub/profile_settings.html", context)
 
 
 @login_required
 def get_vapid_public_key(request):
     """Return the VAPID public key for push subscriptions"""
-    if not VAPID_PUBLIC_KEY:
-        logger.error("VAPID_PUBLIC_KEY environment variable is not set")
+    if not is_push_enabled():
+        logger.error("Push notifications are not enabled in settings")
         return HttpResponse(status=501)  # Not Implemented
     return HttpResponse(VAPID_PUBLIC_KEY)
 
@@ -98,6 +99,12 @@ def get_vapid_public_key(request):
 @require_POST
 def push_subscribe(request):
     """Store a new push subscription for the user"""
+    if not is_push_enabled():
+        return JsonResponse(
+            {"status": "error", "message": "Push notifications are not enabled"},
+            status=501,
+        )
+
     try:
         subscription_json = json.loads(request.body.decode("utf-8"))
 
@@ -128,6 +135,12 @@ def push_subscribe(request):
 @require_POST
 def push_unsubscribe(request):
     """Remove a push subscription for the user"""
+    if not is_push_enabled():
+        return JsonResponse(
+            {"status": "error", "message": "Push notifications are not enabled"},
+            status=501,
+        )
+
     try:
         data = json.loads(request.body.decode("utf-8"))
         endpoint = data.get("endpoint")
@@ -154,6 +167,12 @@ def push_unsubscribe(request):
 @require_POST
 def test_push_notification(request):
     """Send a test notification to the current user"""
+    if not is_push_enabled():
+        return JsonResponse(
+            {"status": "error", "message": "Push notifications are not enabled"},
+            status=501,
+        )
+
     user_profile = request.user.profile
 
     # Check if the user has enabled notifications
