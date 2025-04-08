@@ -1,35 +1,64 @@
 /* ===========================
  * Global Refresh Styles
  * =========================== */
+/* Base styles (non-color properties only) */
 .pull-refresh-indicator {
     position: fixed;
-    top: 0;
+    top: 15px;
     left: 50%;
-    transform: translateX(-50%) translateY(0);
-    width: 50px;
-    height: 50px;
+    transform: translateX(-50%) translateY(-70px);
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background-color: var(--bs-primary);
-    color: white;
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
     transition: transform 0.2s, opacity 0.2s;
 }
 
-.pull-refresh-indicator i {
-    font-size: 24px;
-    transition: transform 0.2s;
+.pull-refresh-indicator::after {
+    content: "Pull to refresh";
+    position: absolute;
+    bottom: -20px;
+    font-size: 12px;
+    white-space: nowrap;
+    font-weight: bold;
 }
 
-.pull-refresh-indicator.refreshing i {
-    animation: spin 1s linear infinite;
+.pull-refresh-indicator.release-ready::after {
+    content: "Release to refresh";
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.pull-refresh-indicator.refreshing::after {
+    content: "Refreshing...";
+}
+
+/* Book-flipping animation */
+@keyframes book-flip {
+    0% {
+        transform: rotateY(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotateY(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotateY(360deg) scale(1);
+    }
+}
+
+.book-flip-icon {
+    display: inline-block;
+    font-size: 28px;
+    transition: transform 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.pull-refresh-indicator.refreshing .book-flip-icon {
+    animation: book-flip 1.2s infinite ease-in-out;
 }

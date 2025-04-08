@@ -19,6 +19,7 @@
 @import 'components/group-members.css';
 @import 'components/dollar-bets.css';
 @import 'components/star_ratings.css';
+@import 'components/refresh.css';
 
 /* Add a class to the body for any body-level styling */
 html.light-mode,

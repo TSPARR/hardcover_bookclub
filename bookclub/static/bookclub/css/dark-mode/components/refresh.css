@@ -1,0 +1,13 @@
+/* ===========================
+ * Dark Mode Refresh Styles
+ * =========================== */
+.dark-mode .pull-refresh-indicator {
+    background-color: #6ea8fe;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.dark-mode .pull-refresh-indicator::after {
+    color: #8abbff;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
+}

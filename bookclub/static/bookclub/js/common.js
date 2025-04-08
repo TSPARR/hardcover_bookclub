@@ -390,16 +390,16 @@ window.unsubscribeFromPushNotifications = unsubscribeFromPushNotifications;
 window.sendSubscriptionToServer = sendSubscriptionToServer;
 
 function setupPullToRefresh() {
-    // Only implement pull-to-refresh on touch-enabled devices
+    // Skip setup if not on a touch device
     if (!('ontouchstart' in window)) {
         return;
     }
-    
-    // Create refresh indicator element
+        
+    // Create and add the pull-to-refresh indicator
     const refreshIndicator = document.createElement('div');
     refreshIndicator.id = 'pull-refresh-indicator';
     refreshIndicator.className = 'pull-refresh-indicator';
-    refreshIndicator.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+    refreshIndicator.innerHTML = '<i class="bi bi-book book-flip-icon"></i>';
     document.body.appendChild(refreshIndicator);
     
     // Variables to track touch
@@ -409,36 +409,55 @@ function setupPullToRefresh() {
     let maxPullDistance = 150;
     let thresholdDistance = 100;
     
-    // Add touch event listeners to document
+    // Touch start event
     document.addEventListener('touchstart', function(e) {
-        // Only trigger pull-to-refresh when at top of page
-        if (window.scrollY !== 0) return;
-        
-        startY = e.touches[0].pageY;
+        // Only enable pull-to-refresh when at top of page with small tolerance for iOS
+        if (window.scrollY <= 5) {
+            startY = e.touches[0].pageY;
+        } else {
+            startY = 0;
+        }
     }, { passive: true });
     
+    // Touch move event
     document.addEventListener('touchmove', function(e) {
-        // Only process if started at top of page
-        if (startY === 0 || window.scrollY !== 0 || refreshing) return;
+        // Only process if start was at top of page
+        if (startY === 0 || refreshing) return;
         
         currentY = e.touches[0].pageY;
         let pullDistance = currentY - startY;
         
         // Only show indicator if pulling down
         if (pullDistance > 0) {
-            // Calculate progress percentage
+            
+            // Calculate progress percentage (0 to 1)
             let progress = Math.min(pullDistance / maxPullDistance, 1);
             
+            // Try to prevent default page scrolling behavior when pulling down
+            // Note: This doesn't always work on all browsers/devices
+            if (pullDistance > 30 && window.scrollY <= 0) {
+                e.preventDefault();
+            }
+            
             // Update indicator
-            refreshIndicator.style.transform = `translateY(${pullDistance * 0.5}px)`;
+            refreshIndicator.style.transition = 'none'; // Turn off animation for direct control
+            refreshIndicator.style.transform = `translateX(-50%) translateY(${(pullDistance * 0.5) - 70}px)`;
             refreshIndicator.style.opacity = progress;
             
-            // Add rotation based on progress
-            const rotation = progress * 360;
-            refreshIndicator.querySelector('i').style.transform = `rotate(${rotation}deg)`;
+            // Add rotation based on progress - animate the book icon
+            const rotation = progress * 180;
+            refreshIndicator.querySelector('.book-flip-icon').style.transform = `rotateY(${rotation}deg)`;
+            
+            // Change text based on threshold
+            if (pullDistance > thresholdDistance) {
+                refreshIndicator.classList.add('release-ready');
+            } else {
+                refreshIndicator.classList.remove('release-ready');
+            }
         }
-    }, { passive: true });
+    }, { passive: false });
     
+    // Touch end event
     document.addEventListener('touchend', function() {
         // Only process if we were tracking a touch
         if (startY === 0 || refreshing) {
@@ -457,26 +476,34 @@ function setupPullToRefresh() {
             
             // Show loading state
             refreshIndicator.classList.add('refreshing');
-            refreshIndicator.style.transform = 'translateY(40px)';
+            refreshIndicator.style.transform = 'translateX(-50%) translateY(20px)';
             refreshIndicator.style.opacity = '1';
             
-            // Perform the actual refresh
+            // Clear service worker caches if available
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                // If we have an active service worker, use it to refresh content
+                // Clear caches to ensure fresh content
                 caches.keys().then(function(cacheNames) {
-                    cacheNames.forEach(function(cacheName) {
-                        caches.delete(cacheName);
+                    const clearPromises = cacheNames.map(function(cacheName) {
+                        return caches.delete(cacheName);
                     });
-                    // Reload the page after cache is cleared
+                    
+                    // After clearing caches, reload the page
+                    Promise.all(clearPromises).then(function() {
+                        window.location.reload();
+                    });
+                }).catch(function() {
+                    // If cache clearing fails, just reload
                     window.location.reload();
                 });
             } else {
-                // If no service worker, just reload the page
-                window.location.reload();
+                // No service worker, just reload the page
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             }
         } else {
-            // Reset to hidden state
-            refreshIndicator.style.transform = 'translateY(0px)';
+            // Reset to hidden state if not pulled enough
+            refreshIndicator.style.transform = 'translateX(-50%) translateY(-70px)';
             refreshIndicator.style.opacity = '0';
         }
         
@@ -484,4 +511,5 @@ function setupPullToRefresh() {
         startY = 0;
         currentY = 0;
     }, { passive: true });
+    
 }
