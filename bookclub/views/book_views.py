@@ -974,8 +974,8 @@ def delete_comment(request, comment_id):
         messages.success(request, "Your comment has been deleted.")
         return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
-    return redirect(
-        get_redirect_url_with_params(request, "book_detail", {"book_id": book.id})
+    return render(
+        request, "bookclub/delete_comment.html", {"comment": comment, "book": book}
     )
 
 

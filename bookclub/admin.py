@@ -149,15 +149,18 @@ class CommentAdmin(admin.ModelAdmin):
     ]
     list_filter = ["progress_type", "book", "user"]
     search_fields = ["text", "user__username", "book__title"]
-    readonly_fields = ["created_at"]  # Remove get_normalized_progress from readonly
+    readonly_fields = ["created_at"]
 
     def get_normalized_progress(self, obj):
         """Calculate normalized progress for admin display"""
-        if obj.hardcover_percent is not None:
-            return f"{obj.hardcover_percent:.1f}%"
+        # Use _get_progress_value_for_sorting to get the numeric value
+        progress_value = _get_progress_value_for_sorting(obj)
 
-        return f"{_get_progress_value_for_sorting(obj):.1f}%"
+        # Return a string representation that sorts correctly
+        return f"{progress_value:.1f}"
 
+    # Make this sortable in the admin
+    get_normalized_progress.admin_order_field = "normalized_progress"
     get_normalized_progress.short_description = "Normalized Progress"
 
     fieldsets = (
