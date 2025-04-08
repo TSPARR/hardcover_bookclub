@@ -18,47 +18,56 @@ def _get_progress_value_for_sorting(comment):
     Helper function to convert different progress types to comparable values
     Returns a value between 0 and 100 representing the reading progress
     """
+    # Prioritize hardcover_percent if available
     if comment.hardcover_percent is not None:
-        return comment.hardcover_percent
+        return float(comment.hardcover_percent)
 
+    # Next, try hardcover_current_page if available
+    if comment.hardcover_current_page and comment.book.pages:
+        return (comment.hardcover_current_page / comment.book.pages) * 100
+
+    # Handle percentage progress type
     if comment.progress_type == "percent":
         try:
             # Extract numeric part from percentage string (e.g., "75%" -> 75)
-            return float(comment.progress_value.replace("%", ""))
-        except (ValueError, AttributeError):
-            return 0
+            return float(str(comment.progress_value).replace("%", ""))
+        except (ValueError, AttributeError, TypeError):
+            return 0.0
 
+    # Handle page progress type
     elif comment.progress_type == "page":
-        # If we have book pages and current page, calculate percentage
         try:
             page = int(comment.progress_value)
 
-            # NEW: Check for hardcover_edition_id and try to get the edition
-            if comment.hardcover_edition_id:
-                edition = BookEdition.objects.filter(
-                    hardcover_edition_id=comment.hardcover_edition_id
-                ).first()
-                if edition and edition.pages:
-                    return (page / edition.pages) * 100
-
-            # Fall back to using book pages
+            # First try to use book pages
             if comment.book.pages:
                 return (page / comment.book.pages) * 100
-            return page  # If no total pages, just use the page number
-        except (ValueError, AttributeError):
-            return 0
 
+            # If no book pages, just return the raw page number
+            return float(page)
+        except (ValueError, AttributeError, TypeError):
+            return 0.0
+
+    # Handle audio progress type
     elif comment.progress_type == "audio":
-        # For audio, convert to a percentage if we have total audio duration
+        # Use hardcover_current_position if available
         if comment.hardcover_current_position and comment.book.audio_seconds:
             return (
                 comment.hardcover_current_position / comment.book.audio_seconds
             ) * 100
 
-        # Otherwise, just use a default value since audio times are hard to compare
-        return 50  # Middle value
+        # Try parsing audio progress
+        from .book_utils import parse_audio_progress
 
-    return 0  # Default case
+        try:
+            total_seconds = parse_audio_progress(comment.progress_value)
+            if total_seconds and comment.book.audio_seconds:
+                return (total_seconds / comment.book.audio_seconds) * 100
+        except (ValueError, AttributeError, TypeError):
+            pass
+
+    # Default fallback
+    return 0.0
 
 
 def calculate_normalized_progress(obj):

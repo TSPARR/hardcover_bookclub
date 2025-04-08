@@ -27,46 +27,30 @@ def add_normalized_progress_to_comments(comments):
 
 def sort_comments(comments, sort_by):
     """Sort comments based on the selected option."""
+    # Convert to list to allow custom sorting
+    comments_list = list(comments.all())
+
     if sort_by == "date_asc":
-        return comments.order_by("created_at")
+        return sorted(comments_list, key=lambda c: c.created_at)
     elif sort_by == "date_desc":
-        return comments.order_by("-created_at")
+        return sorted(comments_list, key=lambda c: c.created_at, reverse=True)
     elif sort_by == "progress_asc":
-        # For progress sorting, we need custom logic
-        # First, try to sort by normalized_progress if available
-        if hasattr(comments.first(), "normalized_progress"):
-            comments_list = list(comments.all())
-            comments_list.sort(key=lambda c: c.normalized_progress, reverse=False)
-            return comments_list
-        # Otherwise, try Hardcover percent if available
-        elif comments.filter(hardcover_percent__isnull=False).exists():
-            return comments.order_by("hardcover_percent", "-created_at")
-        else:
-            # Fallback to sorting by progress_type and value
-            # This is more complex since progress_value can be different formats
-            # We'll get all comments and sort in Python
-            comments_list = list(comments.all())
-            comments_list.sort(
-                key=lambda c: _get_progress_value_for_sorting(c), reverse=False
-            )
-            return comments_list
+        # Sort by progress value in ascending order
+        return sorted(
+            comments_list,
+            key=lambda c: _get_progress_value_for_sorting(c),
+            reverse=False,
+        )
     elif sort_by == "progress_desc":
-        # Similar to progress_asc but in reverse
-        if hasattr(comments.first(), "normalized_progress"):
-            comments_list = list(comments.all())
-            comments_list.sort(key=lambda c: c.normalized_progress, reverse=True)
-            return comments_list
-        elif comments.filter(hardcover_percent__isnull=False).exists():
-            return comments.order_by("-hardcover_percent", "-created_at")
-        else:
-            comments_list = list(comments.all())
-            comments_list.sort(
-                key=lambda c: _get_progress_value_for_sorting(c), reverse=True
-            )
-            return comments_list
+        # Sort by progress value in descending order
+        return sorted(
+            comments_list,
+            key=lambda c: _get_progress_value_for_sorting(c),
+            reverse=True,
+        )
     else:
         # Default to date descending
-        return comments.order_by("-created_at")
+        return sorted(comments_list, key=lambda c: c.created_at, reverse=True)
 
 
 def handle_comment_reaction(request, comment_id):
