@@ -9,6 +9,7 @@ Hardcover Bookclub is a self-hosted application that integrates seamlessly with 
 - **Comments and Discussions**: Leave comments and engage in discussions about your favorite books.
 - **Progress Tracking**: Track your reading progress and stay motivated.
 - **Integration with Hardcover.app API**: Leverage the powerful features of Hardcover.app through seamless API integration.
+- **Optional Push Notifications**: Allow users to receive real-time updates about activity in their book clubs.
 - **Optional Plex Integration**: Link directly to audiobooks in your Plex library.
 - **Optional Kavita Integration**: Connect with your self-hosted Kavita library for easy access to your digital books.
 - **Optional Admin Promoted Editions**: Quickly promote the editions your users will be most likely to use.
@@ -43,6 +44,10 @@ services:
       - DJANGO_CSRF_TRUSTED_ORIGINS=https://bookclub.domain.com
       # optionally enable debug mode
       - DJANGO_DEBUG=False
+      # optional Push Notifications
+      - VAPID_PUBLIC_KEY=your-public-key
+      - VAPID_PRIVATE_KEY=your-private-key
+      - VAPID_CONTACT_EMAIL=your-email@example.com
       # optional Plex integration
       - PLEX_URL=https://your-plex-server.com
       - PLEX_TOKEN=your-plex-token
@@ -55,6 +60,43 @@ services:
     volumes:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
+
+### 🔔 Push Notifications (Optional)
+
+<details>
+<summary>Click to expand Push Notifications functionality details</summary>
+
+#### Setup
+
+1. **Environment Variables**: Add the following environment variables to enable push notifications:
+
+  ```
+    VAPID_PUBLIC_KEY=your-public-key
+    VAPID_PRIVATE_KEY=your-private-key
+    VAPID_CONTACT_EMAIL=your-email@example.com
+  ```
+
+2. **Generating VAPID Keys**: You can generate VAPID keys by going to https://vapidkeys.com/.
+
+3. **User Opt-In**: Users can enable notifications in their profile settings. Each user must individually opt-in to receive notifications.
+
+4. **Key Features**:
+ - Real-time alerts for important book club activities
+ - Clickable notifications that link directly to relevant content
+ - Per-user opt-in/opt-out control
+ - Works on both desktop and mobile devices
+
+5. **Supported Notifications**:
+ - New active book announcements
+ - More to come!
+
+#### Troubleshooting
+
+- Push notifications require HTTPS to work properly
+- Some browsers may have additional permission settings for notifications
+- iOS users need to add the app to their home screen for notifications to work
+- Users can test their notification setup with the "Test Notifications" button in profile settings
+</details>
 
 ### 🎧 Plex Integration (Optional)
 
@@ -126,9 +168,9 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 
 **Environment Variable**: Add the following environment variable to enable the dollar bets feature:
 
-```
-DOLLAR_BETS_ENABLED=True
-```
+  ```
+    DOLLAR_BETS_ENABLED=True
+  ```
 
 **Per-Group Activation**: Even with the feature enabled at the instance level, group admins must explicitly enable dollar bets for their specific book clubs in group settings.
 
