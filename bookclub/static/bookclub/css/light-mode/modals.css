@@ -1,9 +1,12 @@
 /* ===========================
  * Light Mode Modal Styles
  * =========================== */
- .light-mode .modal-content {
+.light-mode .modal-content {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    color: #212529;
+    border-radius: 0.5rem;
 }
 
 .light-mode .modal-header {
@@ -11,6 +14,7 @@
     background-color: #f8f9fa;
     border-top-left-radius: 0.4rem;
     border-top-right-radius: 0.4rem;
+    color: #212529;
 }
 
 .light-mode .modal-footer {
@@ -18,13 +22,19 @@
     background-color: #f8f9fa;
     border-bottom-left-radius: 0.4rem;
     border-bottom-right-radius: 0.4rem;
+    color: #212529;
+}
+
+.light-mode .modal-body {
+    padding: 1.5rem;
+    color: #212529;
 }
 
 .light-mode .modal-backdrop.show {
     opacity: 0.5;
 }
 
-/* Button styles in light mode */
+/* Button styles */
 .light-mode .btn-primary {
     background-color: #0d6efd;
     border-color: #0d6efd;
@@ -40,98 +50,89 @@
     border-color: #6c757d;
 }
 
-/* Hardcover sync progress option styling in light mode */
-.light-mode .hardcover-progress-option,
-.light-mode #hardcoverSyncModalBody .progress-option {
-    background-color: #f8f9fa !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    color: #212529 !important;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 4px;
+.light-mode .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+.light-mode .btn-close {
+    filter: none;
+}
+
+/* Hardcover sync modal progress options */
+.light-mode #hardcoverSyncModal .progress-option-container {
+    margin-top: 1rem;
+}
+
+.light-mode #hardcoverSyncModal .progress-option {
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #212529;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0.375rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.light-mode .hardcover-progress-option:hover,
-.light-mode #hardcoverSyncModalBody .progress-option:hover {
-    background-color: #e9ecef !important;
-    border-color: rgba(13, 110, 253, 0.5) !important;
+.light-mode #hardcoverSyncModal .progress-option:hover {
+    background-color: #e9ecef;
+    border-color: rgba(13, 110, 253, 0.5);
     box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
 }
 
-.light-mode .hardcover-progress-option.selected,
-.light-mode #hardcoverSyncModalBody .progress-option.selected {
-    background-color: rgba(13, 110, 253, 0.1) !important;
-    border-color: #0d6efd !important;
+.light-mode #hardcoverSyncModal .progress-option.selected {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-color: #0d6efd;
     box-shadow: 0 0 0 1px #0d6efd;
 }
 
-.light-mode .progress-details,
-.light-mode #hardcoverSyncModalBody .progress-details {
-    margin-top: 6px;
-    color: #6c757d !important;
+/* Progress bar styling */
+.light-mode #hardcoverSyncModal .progress.group-members-progress {
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    margin: 0.5rem 0;
 }
 
-.light-mode .progress-percentage,
-.light-mode #hardcoverSyncModalBody .progress-percentage {
-    font-weight: bold;
-    color: #0d6efd !important;
+.light-mode #hardcoverSyncModal .progress.group-members-progress .progress-bar {
+    background-color: #0d6efd;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-/* Progress container card styling in light mode */
-.light-mode .hardcover-progress-container .card,
-.light-mode #hardcoverSyncModal .card {
-    background-color: #ffffff !important;
-    border-color: rgba(0, 0, 0, 0.125) !important;
+.light-mode #hardcoverSyncModal .progress.group-members-progress::after {
+    content: attr(data-progress) "%";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #444444;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+    z-index: 1;
 }
 
-.light-mode .hardcover-progress-container h3,
-.light-mode #hardcoverSyncModal h3,
-.light-mode .hardcover-progress-container .book-title,
+/* Text elements */
 .light-mode #hardcoverSyncModal .book-title {
-    color: #212529 !important;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    color: #212529;
 }
 
-.light-mode .hardcover-progress-container .page-info,
 .light-mode #hardcoverSyncModal .page-info {
-    color: #6c757d !important;
+    color: #6c757d;
+    font-size: 0.875rem;
 }
 
-/* Spinner styling in light mode */
+/* Spinner styling */
 .light-mode #hardcoverSyncModalBody .spinner-border {
     color: #0d6efd !important;
-}
-
-/* ===========================
- * Light Mode Special Modal Styles
- * =========================== */
-/* Styling for the special modals in light mode */
-.light-mode #progressUpdateModal .modal-content,
-.light-mode #hardcoverSyncModal .modal-content {
-    background-color: #ffffff;
-    color: #212529;
-}
-
-.light-mode #progressUpdateModal .modal-header,
-.light-mode #hardcoverSyncModal .modal-header {
-    background-color: #f8f9fa;
-    color: #212529;
-    border-color: rgba(0, 0, 0, 0.1);
-}
-
-.light-mode #progressUpdateModal .modal-footer,
-.light-mode #hardcoverSyncModal .modal-footer {
-    background-color: #f8f9fa;
-    color: #212529;
-    border-color: rgba(0, 0, 0, 0.1);
-}
-
-.light-mode #progressUpdateModal .btn-close,
-.light-mode #hardcoverSyncModal .btn-close {
-    filter: none;
-}
-
-.light-mode #hardcoverSyncModalBody {
-    color: #212529;
 }

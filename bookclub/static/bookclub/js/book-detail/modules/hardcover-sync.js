@@ -151,14 +151,19 @@ export const HardcoverSync = {
     _displayProgressOptions(progressData) {
         if (!this.modalBody) return;
         
-        let html = '<p>Select progress to import:</p><div class="list-group">';
+        let html = '<p>Select progress to import:</p><div class="progress-option-container">';
         
         progressData.forEach((item, index) => {
             const status = item.finished_at ? 'Finished' : (item.started_at ? 'In Progress' : 'Not started');
             const format = item.reading_format === 'audio' ? 'Audiobook' : 'Book';
             const progress = item.progress || 0;
             
+            // Format progress to exactly 2 decimal places
+            const formattedProgress = parseFloat(progress).toFixed(2);
+            
+            // Prioritize displaying page or audio position info when available
             let details = '';
+            
             if (item.reading_format === 'audio' && item.current_position) {
                 const hours = Math.floor(item.current_position / 3600);
                 const minutes = Math.floor((item.current_position % 3600) / 60);
@@ -175,24 +180,28 @@ export const HardcoverSync = {
                 if (item.finished_at && item.edition && item.edition.pages) {
                     details = `Page ${item.edition.pages} (Complete)`;
                 }
+            } else {
+                // Default to formatted percentage if no page/position info
+                details = `${formattedProgress}% complete`;
             }
             
             html += `
-                <button type="button" class="list-group-item list-group-item-action" data-index="${index}">
+                <div class="progress-option" data-index="${index}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>${format}</strong>
-                            ${details ? `<small class="d-block text-muted">${details}</small>` : ''}
+                            <h5 class="book-title mb-1">${format}</h5>
+                            <div class="page-info">${details}</div>
                         </div>
                         <span class="badge ${item.finished_at ? 'bg-success' : 'bg-primary'}">${status}</span>
                     </div>
-                    <div class="progress mt-2" style="height: 20px;">
-                        <div class="progress-bar" role="progressbar" style="width: ${progress}%;" 
-                             aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
-                            ${progress}%
+                    
+                    <!-- Using the consistent progress bar styling with centered percentage -->
+                    <div class="mt-3">
+                        <div class="progress group-members-progress" data-progress="${formattedProgress}">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
                         </div>
                     </div>
-                </button>
+                </div>
             `;
         });
         
@@ -203,12 +212,12 @@ export const HardcoverSync = {
         window.hardcoverProgressData = progressData;
         
         // Add event listeners to the progress options
-        document.querySelectorAll('.list-group-item').forEach(item => {
+        document.querySelectorAll('.progress-option').forEach(item => {
             item.addEventListener('click', () => {
-                document.querySelectorAll('.list-group-item').forEach(el => {
-                    el.classList.remove('active');
+                document.querySelectorAll('.progress-option').forEach(el => {
+                    el.classList.remove('selected');
                 });
-                item.classList.add('active');
+                item.classList.add('selected');
                 this.selectedProgress = window.hardcoverProgressData[parseInt(item.dataset.index)];
                 this.applyButton.disabled = false;
             });
@@ -253,22 +262,24 @@ export const HardcoverSync = {
                 const minutes = Math.floor((this.selectedProgress.current_position % 3600) / 60);
                 progressValue = `${hours}h ${minutes}m`;
             } else {
-                progressValue = Math.min(this.selectedProgress.progress || 0, 100) + '%';
+                // Format the percentage to 2 decimal places
+                const formattedProgress = parseFloat(this.selectedProgress.progress || 0).toFixed(2);
+                progressValue = formattedProgress + '%';
             }
         } else {
-            // For books
-            if (this.selectedProgress.finished_at && this.selectedProgress.edition && this.selectedProgress.edition.pages) {
+            // For books - prioritize page number over percentage
+            if (this.selectedProgress.current_page) {
+                // For books with a page number, use that
+                progressType = 'page';
+                progressValue = this.selectedProgress.current_page;
+            } else if (this.selectedProgress.finished_at && this.selectedProgress.edition && this.selectedProgress.edition.pages) {
                 // For finished books, use the total page count
                 progressType = 'page';
                 progressValue = this.selectedProgress.edition.pages;
-            } else if (this.selectedProgress.current_page) {
-                // For in-progress books with a page number
-                progressType = 'page';
-                progressValue = this.selectedProgress.current_page;
             } else {
-                // Default to percentage
+                // Default to percentage with 2 decimal places
                 progressType = 'percent';
-                progressValue = Math.min(this.selectedProgress.progress || 0, 100);
+                progressValue = parseFloat(this.selectedProgress.progress || 0).toFixed(2);
             }
         }
         
@@ -276,7 +287,7 @@ export const HardcoverSync = {
         const hardcoverData = {
             started_at: this.selectedProgress.started_at,
             finished_at: this.selectedProgress.finished_at,
-            progress: Math.min(this.selectedProgress.progress || 0, 100),
+            progress: parseFloat(this.selectedProgress.progress || 0).toFixed(2), // Format to 2 decimal places
             current_page: this.selectedProgress.current_page,
             current_position: this.selectedProgress.current_position,
             reading_format: this.selectedProgress.reading_format,
@@ -314,17 +325,15 @@ export const HardcoverSync = {
                 } else {
                     // Update the UI without reloading
                     if (this.onProgressSynced) {
-                        this.onProgressSynced(this.selectedProgress, data.progress);
-                    }
-                    
-                    // Call updateProgressFromSync directly if callback not set up
-                    if (this.onProgressSynced) {
-                        // Ensure we're passing both sync data and progress data
-                        this.onProgressSynced(this.selectedProgress, {
-                            normalized_progress: this.selectedProgress.progress || 0,
-                            progress_type: this.selectedProgress.reading_format || 'percent',
-                            progress_value: this.selectedProgress.progress || '0'
-                        });
+                        // Format the progress data properly before passing it to the callback
+                        const formattedProgressData = {
+                            normalized_progress: parseFloat(this.selectedProgress.progress || 0).toFixed(2),
+                            progress_type: progressType,
+                            progress_value: progressValue,
+                            reading_format: this.selectedProgress.reading_format
+                        };
+                        
+                        this.onProgressSynced(this.selectedProgress, formattedProgressData);
                     }
                     
                     // Close the modal
