@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Register service worker for push notifications (available globally)
     initServiceWorker();
+
+    // Initialize pull-to-refresh
+    setupPullToRefresh();
 });
 
 function setupDarkMode() {    
@@ -385,3 +388,100 @@ window.getCurrentPushSubscription = getCurrentPushSubscription;
 window.subscribeToPushNotifications = subscribeToPushNotifications;
 window.unsubscribeFromPushNotifications = unsubscribeFromPushNotifications;
 window.sendSubscriptionToServer = sendSubscriptionToServer;
+
+function setupPullToRefresh() {
+    // Only implement pull-to-refresh on touch-enabled devices
+    if (!('ontouchstart' in window)) {
+        return;
+    }
+    
+    // Create refresh indicator element
+    const refreshIndicator = document.createElement('div');
+    refreshIndicator.id = 'pull-refresh-indicator';
+    refreshIndicator.className = 'pull-refresh-indicator';
+    refreshIndicator.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+    document.body.appendChild(refreshIndicator);
+    
+    // Variables to track touch
+    let startY = 0;
+    let currentY = 0;
+    let refreshing = false;
+    let maxPullDistance = 150;
+    let thresholdDistance = 100;
+    
+    // Add touch event listeners to document
+    document.addEventListener('touchstart', function(e) {
+        // Only trigger pull-to-refresh when at top of page
+        if (window.scrollY !== 0) return;
+        
+        startY = e.touches[0].pageY;
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', function(e) {
+        // Only process if started at top of page
+        if (startY === 0 || window.scrollY !== 0 || refreshing) return;
+        
+        currentY = e.touches[0].pageY;
+        let pullDistance = currentY - startY;
+        
+        // Only show indicator if pulling down
+        if (pullDistance > 0) {
+            // Calculate progress percentage
+            let progress = Math.min(pullDistance / maxPullDistance, 1);
+            
+            // Update indicator
+            refreshIndicator.style.transform = `translateY(${pullDistance * 0.5}px)`;
+            refreshIndicator.style.opacity = progress;
+            
+            // Add rotation based on progress
+            const rotation = progress * 360;
+            refreshIndicator.querySelector('i').style.transform = `rotate(${rotation}deg)`;
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchend', function() {
+        // Only process if we were tracking a touch
+        if (startY === 0 || refreshing) {
+            startY = 0;
+            return;
+        }
+        
+        const pullDistance = currentY - startY;
+        
+        // Reset indicator position and opacity with animation
+        refreshIndicator.style.transition = 'transform 0.3s, opacity 0.3s';
+        
+        // If pulled enough, trigger refresh
+        if (pullDistance > thresholdDistance) {
+            refreshing = true;
+            
+            // Show loading state
+            refreshIndicator.classList.add('refreshing');
+            refreshIndicator.style.transform = 'translateY(40px)';
+            refreshIndicator.style.opacity = '1';
+            
+            // Perform the actual refresh
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                // If we have an active service worker, use it to refresh content
+                caches.keys().then(function(cacheNames) {
+                    cacheNames.forEach(function(cacheName) {
+                        caches.delete(cacheName);
+                    });
+                    // Reload the page after cache is cleared
+                    window.location.reload();
+                });
+            } else {
+                // If no service worker, just reload the page
+                window.location.reload();
+            }
+        } else {
+            // Reset to hidden state
+            refreshIndicator.style.transform = 'translateY(0px)';
+            refreshIndicator.style.opacity = '0';
+        }
+        
+        // Reset tracking variables
+        startY = 0;
+        currentY = 0;
+    }, { passive: true });
+}
