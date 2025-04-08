@@ -121,6 +121,11 @@ def book_detail(request, book_id):
             comment.user = request.user
             comment.book = book
 
+            if user_progress and user_progress.edition:
+                comment.hardcover_edition_id = (
+                    user_progress.edition.hardcover_edition_id
+                )
+
             # Handle reply
             parent_id = request.POST.get("parent_id")
             if parent_id:

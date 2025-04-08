@@ -30,12 +30,18 @@ def _get_progress_value_for_sorting(comment):
 
     elif comment.progress_type == "page":
         # If we have book pages and current page, calculate percentage
-        if comment.book.pages and comment.hardcover_current_page:
-            return (comment.hardcover_current_page / comment.book.pages) * 100
-
-        # Try to parse progress_value as a page number
         try:
             page = int(comment.progress_value)
+
+            # NEW: Check for hardcover_edition_id and try to get the edition
+            if comment.hardcover_edition_id:
+                edition = BookEdition.objects.filter(
+                    hardcover_edition_id=comment.hardcover_edition_id
+                ).first()
+                if edition and edition.pages:
+                    return (page / edition.pages) * 100
+
+            # Fall back to using book pages
             if comment.book.pages:
                 return (page / comment.book.pages) * 100
             return page  # If no total pages, just use the page number
