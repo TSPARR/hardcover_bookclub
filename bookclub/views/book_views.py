@@ -27,6 +27,7 @@ from ..models import (
     User,
     UserBookProgress,
 )
+from ..notifications import send_push_notification
 from ..plex_api import update_plex_info_for_book
 from ..utils.storage import is_auto_sync_enabled
 from .book_utils import (
@@ -879,6 +880,17 @@ def toggle_book_active(request, group_id, book_id):
         # Use the method we defined to set as active (deactivates others)
         book.set_active()
         messages.success(request, f"'{book.title}' is now set as the active book.")
+
+        # Only notify when book becomes active, not when deactivated
+        for member in group.members.all():
+            # Send to all members including the user who made the change
+            send_push_notification(
+                user=member,
+                title=f"New Active Book in {group.name}",
+                body=f"'{book.title}' by {book.author} is now the active book.",
+                url=request.build_absolute_uri(reverse("book_detail", args=[book.id])),
+                icon=book.cover_image_url if book.cover_image_url else None,
+            )
 
     return redirect("group_detail", group_id=group.id)
 

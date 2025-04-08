@@ -1,4 +1,5 @@
 {% extends 'bookclub/base.html' %}
+{% load static %}
 
 {% block title %}Profile Settings{% endblock %}
 
@@ -20,7 +21,20 @@
                         <div class="form-text">{{ form.hardcover_api_key.help_text }}</div>
                     </div>
 
-                    <div class="card-footer text-muted">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="id_enable_notifications" name="enable_notifications" {% if form.enable_notifications.value %}checked{% endif %}>
+                        <label class="form-check-label" for="id_enable_notifications">Enable Push Notifications</label>
+                        <div class="form-text">{{ form.enable_notifications.help_text }}</div>
+                    </div>
+
+                    <div class="mb-3 mt-2" id="notification-test-container" style="display: none;">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="test-notification-button">
+                            <i class="bi bi-bell me-1"></i> Test Notifications
+                        </button>
+                        <small class="form-text text-muted ms-2">Send a test notification to verify your settings.</small>
+                    </div>
+
+                    <div class="card-footer text-muted mb-3">
                         <small>
                             To obtain your Hardcover API Key, please visit
                             <a href="https://hardcover.app/account/api"
@@ -32,19 +46,6 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                 </form>
             </div>
-        </div>
-
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="id_enable_notifications" name="enable_notifications" {% if form.enable_notifications.value %}checked{% endif %}>
-            <label class="form-check-label" for="id_enable_notifications">Enable Push Notifications</label>
-            <div class="form-text">{{ form.enable_notifications.help_text }}</div>
-        </div>
-
-        <div class="mb-3 mt-2" id="notification-test-container" style="display: none;">
-            <button type="button" class="btn btn-outline-primary btn-sm" id="test-notification-button">
-                <i class="bi bi-bell me-1"></i> Test Notifications
-            </button>
-            <small class="form-text text-muted ms-2">Send a test notification to verify your settings.</small>
         </div>
         
         <!-- Developer information section -->
@@ -66,48 +67,6 @@
 </div>
 
 {% block extra_js %}
-<script>
-    // Function to clear JS/CSS cache
-    function clearBrowserCache() {
-        console.log('Attempting to clear browser cache...');
-        
-        // Create query strings with timestamps to force reload of assets
-        const timestamp = new Date().getTime();
-        
-        // Get all stylesheets and add/update timestamp parameter
-        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-            if (link.href) {
-                try {
-                    const url = new URL(link.href);
-                    url.searchParams.set('v', timestamp);
-                    link.href = url.toString();
-                } catch (e) {
-                    console.error('Error updating stylesheet URL:', e);
-                }
-            }
-        });
-        
-        // Get all scripts and add/update timestamp parameter
-        document.querySelectorAll('script[src]').forEach(script => {
-            if (script.src) {
-                try {
-                    const url = new URL(script.src);
-                    url.searchParams.set('v', timestamp);
-                    script.src = url.toString();
-                } catch (e) {
-                    console.error('Error updating script URL:', e);
-                }
-            }
-        });
-        
-        // Show feedback to user
-        alert('Cache cleared! Page will now reload.');
-        
-        // Force reload of the current page
-        window.location.reload(true);
-        
-        console.log('Cache clearing initiated');
-    }
-</script>
+<script src="{% static 'bookclub/js/profile-settings.js' %}"></script>
 {% endblock %}
 {% endblock %}
