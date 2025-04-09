@@ -4,65 +4,38 @@
 
 {% block title %}Select Edition - {{ book.title|split:":"|first|trim }}{% endblock %}
 
-{% block extra_head %}
-<style>
-    .format-filter-btn.active {
-        background-color: #007bff;
-        color: white;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="container my-4">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1>Select Edition for "{{ book.title|split:":"|first|trim }}"</h1>
-            <p class="text-muted">By {{ book.author }}</p>
-
-            {% if current_edition %}
-            <div class="alert alert-info alert-permanent" id="current-edition-alert">
-                <p class="mb-0"><strong>Currently tracking:</strong></p>
-                <p>{{ current_edition }}</p>
-                {% if current_edition.pages %}
-                <p><strong>Pages:</strong> {{ current_edition.pages }}</p>
-                {% endif %}
-                {% if current_edition.audio_duration_formatted %}
-                <p><strong>Duration:</strong> {{ current_edition.audio_duration_formatted }}</p>
-                {% endif %}
-                {% if current_edition.reading_format %}
-                <p>
-                    <strong>Format:</strong> 
-                    <span class="badge 
-                        {% if current_edition.reading_format == 'physical' %}bg-success{% endif %}
-                        {% if current_edition.reading_format == 'ebook' %}bg-info{% endif %}
-                        {% if current_edition.reading_format == 'audio' %}bg-warning text-dark{% endif %}
-                    ">
-                        {{ current_edition.reading_format|title }}
-                    </span>
-                </p>
-                {% endif %}
-            </div>
-            {% endif %}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'book_detail' book.id %}">{{ book.title|split:":"|first|trim }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Select Edition</li>
+                </ol>
+            </nav>
+            
+            <h1 class="mb-2">Select Edition for "{{ book.title|split:":"|first|trim }}"</h1>
+            <p class="text-muted mb-4">By {{ book.author }}</p>
         </div>
     </div>
 
     {% if editions %}
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Available Editions</h5>
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Available Editions</h5>
                     <div class="d-flex align-items-center">
-                        <button id="clear-filter" class="btn btn-sm btn-light me-2 d-none">Clear Filter</button>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="1">
+                            <button type="button" class="btn btn-sm btn-outline-success format-filter-btn" data-format-id="1">
                                 Physical <span class="badge bg-secondary format-count" data-format-id="1">0</span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="4">
+                            <button type="button" class="btn btn-sm btn-outline-info format-filter-btn" data-format-id="4">
                                 Ebook <span class="badge bg-secondary format-count" data-format-id="4">0</span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light format-filter-btn" data-format-id="2">
+                            <button type="button" class="btn btn-sm btn-outline-warning format-filter-btn" data-format-id="2">
                                 Audio <span class="badge bg-secondary format-count" data-format-id="2">0</span>
                             </button>
                         </div>
@@ -70,25 +43,29 @@
                 </div>
                 <div class="card-body">
                     <div id="no-editions-filtered" class="alert alert-warning d-none">
-                        No editions match the selected filter.
+                        <i class="bi bi-exclamation-triangle me-2"></i>No editions match the selected filter.
                     </div>
                     <div class="row">
                         {% for edition in editions %}
                         <div class="col-md-4 mb-4">
-                            <div class="card h-100 edition-card" data-format-id="{{ edition.reading_format_id }}">
+                            <div class="card h-100 edition-card shadow-sm {% if current_edition and current_edition.hardcover_edition_id == edition.id|stringformat:'s' %}current-edition{% endif %}" data-format-id="{{ edition.reading_format_id }}">
                                 {% if edition.cover_image_url %}
-                                <img src="{{ edition.cover_image_url }}" class="card-img-top" alt="{{ edition.title }}"
-                                    style="max-height: 200px; object-fit: contain; padding: 1rem;">
+                                <div class="card-img-top-container">
+                                    <img src="{{ edition.cover_image_url }}" class="card-img-top" alt="{{ edition.title }}"
+                                        style="max-height: 200px; object-fit: contain;">
+                                </div>
                                 {% else %}
-                                <div class="card-img-top text-center py-5 bg-light">No Cover Available</div>
+                                <div class="no-cover">
+                                    <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                                </div>
                                 {% endif %}
 
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ edition.title }}</h5>
+                                    <h5 class="card-title mb-3">{{ edition.title }}</h5>
 
                                     <ul class="list-unstyled">
                                         {% if edition.reading_format %}
-                                        <li>
+                                        <li class="mb-2">
                                             <strong>Format:</strong> 
                                             <span class="badge 
                                                 {% if edition.reading_format == 'physical' %}bg-success{% endif %}
@@ -101,36 +78,51 @@
                                         {% endif %}
 
                                         {% if edition.pages %}
-                                        <li><strong>Pages:</strong> {{ edition.pages }}</li>
+                                        <li class="mb-2"><strong>Pages:</strong> {{ edition.pages }}</li>
                                         {% endif %}
 
                                         {% if edition.audio_duration_formatted %}
-                                        <li><strong>Duration:</strong> {{ edition.audio_duration_formatted }}</li>
+                                        <li class="mb-2"><strong>Duration:</strong> {{ edition.audio_duration_formatted }}</li>
                                         {% endif %}
 
                                         {% if edition.publisher %}
-                                        <li><strong>Publisher:</strong> {{ edition.publisher.name }}</li>
+                                        <li class="mb-2"><strong>Publisher:</strong> {{ edition.publisher.name }}</li>
                                         {% endif %}
 
                                         {% if edition.release_date_formatted %}
-                                        <li><strong>Published:</strong> {{ edition.release_date_formatted }}</li>
+                                        <li class="mb-2"><strong>Published:</strong> {{ edition.release_date_formatted }}</li>
+                                        {% endif %}
+                                        
+                                        {% if edition.asin %}
+                                        <li class="mb-2"><strong>ASIN:</strong> {{ edition.asin }}</li>
+                                        {% endif %}
+                                        
+                                        {% if edition.edition_format %}
+                                        <li class="mb-2"><strong>Edition Format:</strong> {{ edition.edition_format }}</li>
                                         {% endif %}
 
                                         {% if edition.isbn %}
-                                        <li><strong>ISBN:</strong> {{ edition.isbn }}</li>
+                                        <li class="mb-2"><strong>ISBN:</strong> {{ edition.isbn }}</li>
                                         {% endif %}
 
                                         {% if edition.isbn13 %}
-                                        <li><strong>ISBN-13:</strong> {{ edition.isbn13 }}</li>
+                                        <li class="mb-2"><strong>ISBN-13:</strong> {{ edition.isbn13 }}</li>
                                         {% endif %}
                                     </ul>
-
+                                </div>
+                                <div class="card-footer bg-white border-top-0">
                                     <form method="post" action="{% url 'select_edition' book.id %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="edition_id" value="{{ edition.id }}">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            Select This Edition
+                                        {% if current_edition and current_edition.hardcover_edition_id == edition.id|stringformat:'s' %}
+                                        <button type="submit" class="btn btn-outline-primary w-100" disabled>
+                                            <i class="bi bi-check-circle-fill me-1"></i>Currently Selected
                                         </button>
+                                        {% else %}
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-check-circle me-1"></i>Select This Edition
+                                        </button>
+                                        {% endif %}
                                     </form>
                                 </div>
                             </div>
@@ -149,7 +141,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="edition_id" value="none">
                 <button type="submit" class="btn btn-warning">
-                    Clear Edition Selection
+                    <i class="bi bi-x-circle me-1"></i>Clear Edition Selection
                 </button>
             </form>
         </div>
@@ -160,6 +152,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="alert alert-warning">
+                <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>No editions found</h5>
                 <p>No editions found for this book. This could be because:</p>
                 <ul>
                     <li>The book doesn't have any editions registered in Hardcover</li>
@@ -174,7 +167,7 @@
     <div class="row">
         <div class="col-md-12">
             <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">
-                Back to Book
+                <i class="bi bi-arrow-left me-1"></i>Back to Book
             </a>
         </div>
     </div>

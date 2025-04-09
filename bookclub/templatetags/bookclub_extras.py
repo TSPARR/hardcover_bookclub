@@ -1,7 +1,9 @@
+import json
 import math
 
 from django import template
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -228,3 +230,52 @@ def subtract(value, arg):
         return float(value) - float(arg)
     except (ValueError, TypeError):
         return ""
+
+
+@register.filter
+def stringifyjson(value):
+    """
+    Convert a Python object to a JSON string for use in HTML data attributes.
+
+    Args:
+        value: The Python object to convert
+
+    Returns:
+        JSON string representation, safe for inclusion in HTML
+    """
+
+    # Convert Python object to JSON string
+    # We need to handle Django model instances specially
+    def serialize_object(obj):
+        if hasattr(obj, "__dict__"):
+            # For model instances, extract relevant attributes
+            if hasattr(obj, "username"):  # User object
+                return {"id": obj.id, "username": obj.username}
+            elif hasattr(obj, "title"):  # Book object
+                return {"id": obj.id, "title": obj.title}
+            else:
+                # Generic object serialization
+                return {
+                    k: serialize_object(v)
+                    for k, v in obj.__dict__.items()
+                    if not k.startswith("_")
+                }
+        elif isinstance(obj, (list, tuple)):
+            return [serialize_object(item) for item in obj]
+        elif isinstance(obj, dict):
+            return {k: serialize_object(v) for k, v in obj.items()}
+        else:
+            return obj
+
+    # First serialize the object to get a structure we can convert to JSON
+    serialized = serialize_object(value)
+
+    # Then convert to JSON string
+    try:
+        json_str = json.dumps(serialized)
+        # Escape quotes for HTML attributes
+        json_str = json_str.replace('"', "&quot;")
+        return mark_safe(json_str)
+    except (TypeError, ValueError):
+        # If serialization fails, return empty object
+        return "{}"

@@ -27,6 +27,24 @@
     color: #9e9e9e !important;
 }
 
+/* Breadcrumb styles in dark mode */
+.dark-mode .breadcrumb {
+    background-color: transparent;
+}
+
+.dark-mode .breadcrumb-item,
+.dark-mode .breadcrumb-item a {
+    color: #9e9e9e;
+}
+
+.dark-mode .breadcrumb-item.active {
+    color: #e1e1e1;
+}
+
+.dark-mode .breadcrumb-item + .breadcrumb-item::before {
+    color: #9e9e9e;
+}
+
 /* Selection color - Dark Mode */
 .dark-mode ::selection {
     background-color: rgba(13, 110, 253, 0.4);
@@ -64,4 +82,11 @@
 /* Fix for card shadow in dark mode */
 .dark-mode .card.shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Alert styling in dark mode */
+.dark-mode .alert-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #e1e1e1;
+    border-color: rgba(255, 193, 7, 0.4);
 }

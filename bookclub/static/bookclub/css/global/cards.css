@@ -2,164 +2,164 @@
  * Global Card Styles
  * =========================== */
  .card {
-    border-radius: 0.5rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 1.5rem;
 }
 
 .card:hover {
-    transform: translateY(-3px);
+  transform: translateY(-3px);
 }
 
 .card-header {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 .card-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
 .card-subtitle {
-    margin-top: -0.25rem;
-    margin-bottom: 0.75rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .card-body {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-text {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 /* Z-index fixes for cards */
 .card,
 .comment-card,
 .reply-card {
-    overflow: visible !important;
-    position: relative !important;
-    z-index: 1 !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 /* Card with active book */
 .card.active-book {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
 /* Fix for view button overflowing on narrow screens */
 @media (max-width: 1200px) and (min-width: 768px) {
-    /* Adjust column widths for better space distribution */
-    .list-group-item .col-md-5 {
-      width: 40%;
-    }
-    
-    .list-group-item .col-md-2 {
-      width: 20%;
-    }
-    
-    /* Prevent text overflow for the book title */
-    .list-group-item .col-md-5 .text-truncate {
-      display: block;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    /* Ensure the button container has enough space */
-    .list-group-item .text-md-end {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-    
-    /* Make the button text wrap if needed */
-    .list-group-item .btn-outline-primary {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-    
-    /* Make member count badge adapt better */
-    .list-group-item .badge.bg-secondary {
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    
-    /* Hide "Members" text only at narrower screens */
-    @media (max-width: 1100px) {
-      .list-group-item .badge.bg-secondary .members-text {
-        display: none;
-      }
-    }
+  /* Adjust column widths for better space distribution */
+  .list-group-item .col-md-5 {
+    width: 40%;
   }
   
-  /* Additional fix for very narrow screens */
-  @media (max-width: 767px) {
-    /* Stack the action items on mobile */
-    .list-group-item .d-flex.justify-content-between {
-      flex-direction: column;
-      gap: 0.5rem;
-      align-items: flex-start;
-    }
-    
-    /* Give some spacing for mobile layout */
-    .list-group-item .col-md-2 {
-      margin-top: 10px;
-    }
-    
-    /* Make the button full width on mobile */
-    .list-group-item .btn-outline-primary {
-      width: 100%;
-      margin-top: 0.5rem;
-    }
-    
-    /* Improve active book display on mobile */
-    .list-group-item .col-md-5 .d-flex {
-      flex-wrap: wrap;
-    }
-    
-    /* Ensure book titles don't overflow on mobile */
-    .list-group-item .col-md-5 .text-truncate {
-      max-width: 100%;
-      display: block;
-      margin-top: 0.25rem;
-    }
+  .list-group-item .col-md-2 {
+    width: 20%;
   }
   
-  /* Medium-small breakpoint fixes - critical for docked windows */
-  @media (max-width: 991px) and (min-width: 768px) {
-    /* Make column layout more compact */
-    .list-group-item .row.align-items-center {
-      flex-wrap: nowrap;
-    }
-    
-    /* Adjust column widths for this specific breakpoint */
-    .list-group-item .col-md-5:first-of-type {
-      width: 35%;
-    }
-    
-    .list-group-item .col-md-5:nth-of-type(2) {
-      width: 40%;
-    }
-    
-    .list-group-item .col-md-2 {
-      width: 25%;
-    }
-    
-    /* Shorten the badge text */
-    .list-group-item .badge.bg-secondary {
-      font-size: 0.7rem;
-    }
-    
-    /* Make the active book badge adapt */
-    .list-group-item .badge.bg-success {
-      padding: 0.25em 0.4em;
-      font-size: 0.7rem;
+  /* Prevent text overflow for the book title */
+  .list-group-item .col-md-5 .text-truncate {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Ensure the button container has enough space */
+  .list-group-item .text-md-end {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  /* Make the button text wrap if needed */
+  .list-group-item .btn-outline-primary {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  /* Make member count badge adapt better */
+  .list-group-item .badge.bg-secondary {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  
+  /* Hide "Members" text only at narrower screens */
+  @media (max-width: 1100px) {
+    .list-group-item .badge.bg-secondary .members-text {
+      display: none;
     }
   }
+}
+
+/* Additional fix for very narrow screens */
+@media (max-width: 767px) {
+  /* Stack the action items on mobile */
+  .list-group-item .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  /* Give some spacing for mobile layout */
+  .list-group-item .col-md-2 {
+    margin-top: 10px;
+  }
+  
+  /* Make the button full width on mobile */
+  .list-group-item .btn-outline-primary {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  
+  /* Improve active book display on mobile */
+  .list-group-item .col-md-5 .d-flex {
+    flex-wrap: wrap;
+  }
+  
+  /* Ensure book titles don't overflow on mobile */
+  .list-group-item .col-md-5 .text-truncate {
+    max-width: 100%;
+    display: block;
+    margin-top: 0.25rem;
+  }
+}
+
+/* Medium-small breakpoint fixes - critical for docked windows */
+@media (max-width: 991px) and (min-width: 768px) {
+  /* Make column layout more compact */
+  .list-group-item .row.align-items-center {
+    flex-wrap: nowrap;
+  }
+  
+  /* Adjust column widths for this specific breakpoint */
+  .list-group-item .col-md-5:first-of-type {
+    width: 35%;
+  }
+  
+  .list-group-item .col-md-5:nth-of-type(2) {
+    width: 40%;
+  }
+  
+  .list-group-item .col-md-2 {
+    width: 25%;
+  }
+  
+  /* Shorten the badge text */
+  .list-group-item .badge.bg-secondary {
+    font-size: 0.7rem;
+  }
+  
+  /* Make the active book badge adapt */
+  .list-group-item .badge.bg-success {
+    padding: 0.25em 0.4em;
+    font-size: 0.7rem;
+  }
+}

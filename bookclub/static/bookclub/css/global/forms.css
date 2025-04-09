@@ -30,6 +30,28 @@
     margin-bottom: 0;
 }
 
+/* Search form styling */
+.search-form {
+    margin-bottom: 1.5rem;
+}
+
+.search-form .input-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.search-form input[type="text"],
+.search-form input[type="search"] {
+    border-radius: 0.375rem 0 0 0.375rem;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.search-form .btn {
+    border-radius: 0 0.375rem 0.375rem 0;
+    padding: 0.7rem 1.5rem;
+}
+
 /* API key field styling - non-color specific */
 #id_hardcover_api_key,
 input[name="hardcover_api_key"] {
