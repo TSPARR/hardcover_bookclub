@@ -114,24 +114,30 @@ def profile_settings(request):
         initial_data["notify_new_dollar_bets"] = preferences.get(
             "new_dollar_bets", False
         )
-        initial_data["notify_bet_accepted"] = preferences.get(
-            "bet_accepted", False
-        )
-        initial_data["notify_bet_added_to"] = preferences.get(
-            "bet_added_to", False
-        )
-        initial_data["notify_bet_resolved"] = preferences.get(
-            "bet_resolved", False
-        )
+        initial_data["notify_bet_accepted"] = preferences.get("bet_accepted", False)
+        initial_data["notify_bet_added_to"] = preferences.get("bet_added_to", False)
+        initial_data["notify_bet_resolved"] = preferences.get("bet_resolved", False)
 
         notification_form = NotificationPreferencesForm(
             initial=initial_data, user=request.user, push_enabled=is_push_enabled()
         )
 
+    # Check if the user is a member of any groups with dollar bets enabled
+    user_has_dollar_bet_groups = False
+
+    # Only check group membership if the feature is globally enabled
+    if settings.ENABLE_DOLLAR_BETS:
+        user_groups = request.user.bookgroup_set.all()
+        for group in user_groups:
+            if group.is_dollar_bets_enabled():
+                user_has_dollar_bet_groups = True
+                break
+
     context = {
         "form": form,
         "notification_form": notification_form,
         "push_notifications_enabled": is_push_enabled(),
+        "user_has_dollar_bet_groups": user_has_dollar_bet_groups,
     }
 
     return render(request, "bookclub/profile_settings.html", context)

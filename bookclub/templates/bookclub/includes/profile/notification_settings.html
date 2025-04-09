@@ -35,6 +35,7 @@
                     <div class="form-text">{{ notification_form.notify_new_active_books.help_text }}</div>
                 </div>
 
+                {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
                 <!-- Dollar Bets Notifications Section -->
                 <div class="mb-2 mt-4">
                     <h6>Dollar Bets Notifications</h6>
@@ -83,6 +84,7 @@
                     </label>
                     <div class="form-text">{{ notification_form.notify_bet_resolved.help_text }}</div>
                 </div>
+                {% endif %}
             </div>
 
             <div class="mb-3 mt-2" id="notification-test-container">
