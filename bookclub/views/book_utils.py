@@ -23,8 +23,22 @@ def _get_progress_value_for_sorting(comment):
         return float(comment.hardcover_percent)
 
     # Next, try hardcover_current_page if available
-    if comment.hardcover_current_page and comment.book.pages:
-        return (comment.hardcover_current_page / comment.book.pages) * 100
+    if comment.hardcover_current_page:
+        # First check if we have an associated edition with pages
+        if hasattr(comment, "hardcover_edition_id") and comment.hardcover_edition_id:
+            # Try to find the edition
+            from ..models import BookEdition
+
+            edition = BookEdition.objects.filter(
+                hardcover_edition_id=comment.hardcover_edition_id
+            ).first()
+
+            if edition and edition.pages:
+                return (comment.hardcover_current_page / edition.pages) * 100
+
+        # Fall back to book pages
+        if comment.book.pages:
+            return (comment.hardcover_current_page / comment.book.pages) * 100
 
     # Handle percentage progress type
     if comment.progress_type == "percent":
@@ -39,7 +53,22 @@ def _get_progress_value_for_sorting(comment):
         try:
             page = int(comment.progress_value)
 
-            # First try to use book pages
+            # First check if we have an associated edition with pages
+            if (
+                hasattr(comment, "hardcover_edition_id")
+                and comment.hardcover_edition_id
+            ):
+                # Try to find the edition
+                from ..models import BookEdition
+
+                edition = BookEdition.objects.filter(
+                    hardcover_edition_id=comment.hardcover_edition_id
+                ).first()
+
+                if edition and edition.pages:
+                    return (page / edition.pages) * 100
+
+            # Fall back to book pages
             if comment.book.pages:
                 return (page / comment.book.pages) * 100
 
@@ -51,18 +80,54 @@ def _get_progress_value_for_sorting(comment):
     # Handle audio progress type
     elif comment.progress_type == "audio":
         # Use hardcover_current_position if available
-        if comment.hardcover_current_position and comment.book.audio_seconds:
-            return (
-                comment.hardcover_current_position / comment.book.audio_seconds
-            ) * 100
+        if comment.hardcover_current_position:
+            # First check if we have an associated edition with audio seconds
+            if (
+                hasattr(comment, "hardcover_edition_id")
+                and comment.hardcover_edition_id
+            ):
+                # Try to find the edition
+                from ..models import BookEdition
+
+                edition = BookEdition.objects.filter(
+                    hardcover_edition_id=comment.hardcover_edition_id
+                ).first()
+
+                if edition and edition.audio_seconds:
+                    return (
+                        comment.hardcover_current_position / edition.audio_seconds
+                    ) * 100
+
+            # Fall back to book audio seconds
+            if comment.book.audio_seconds:
+                return (
+                    comment.hardcover_current_position / comment.book.audio_seconds
+                ) * 100
 
         # Try parsing audio progress
         from .book_utils import parse_audio_progress
 
         try:
             total_seconds = parse_audio_progress(comment.progress_value)
-            if total_seconds and comment.book.audio_seconds:
-                return (total_seconds / comment.book.audio_seconds) * 100
+            if total_seconds:
+                # First check if we have an edition with audio seconds
+                if (
+                    hasattr(comment, "hardcover_edition_id")
+                    and comment.hardcover_edition_id
+                ):
+                    # Try to find the edition
+                    from ..models import BookEdition
+
+                    edition = BookEdition.objects.filter(
+                        hardcover_edition_id=comment.hardcover_edition_id
+                    ).first()
+
+                    if edition and edition.audio_seconds:
+                        return (total_seconds / edition.audio_seconds) * 100
+
+                # Fall back to book audio seconds
+                if comment.book.audio_seconds:
+                    return (total_seconds / comment.book.audio_seconds) * 100
         except (ValueError, AttributeError, TypeError):
             pass
 
