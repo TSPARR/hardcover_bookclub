@@ -14,8 +14,9 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
-from ..forms import ProfileSettingsForm, NotificationPreferencesForm
+from ..forms import NotificationPreferencesForm, ProfileSettingsForm
 from ..hardcover_api import HardcoverAPI
+from ..models import BookGroup
 from ..notifications import is_push_enabled, send_push_notification
 
 logger = logging.getLogger(__name__)
@@ -127,7 +128,8 @@ def profile_settings(request):
 
     # Only check group membership if the feature is globally enabled
     if settings.ENABLE_DOLLAR_BETS:
-        user_groups = request.user.bookgroup_set.all()
+        # Get all groups the user is a member of
+        user_groups = BookGroup.objects.filter(members=request.user)
         for group in user_groups:
             if group.is_dollar_bets_enabled():
                 user_has_dollar_bet_groups = True
