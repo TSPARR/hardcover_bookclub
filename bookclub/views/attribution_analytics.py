@@ -993,8 +993,8 @@ def format_audio_duration(seconds):
     if not seconds:
         return "0h 0m"
 
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
 
     if hours > 0:
         return f"{hours}h {minutes}m"
