@@ -111,6 +111,18 @@ def profile_settings(request):
         initial_data["notify_new_active_books"] = preferences.get(
             "new_active_books", False
         )
+        initial_data["notify_new_dollar_bets"] = preferences.get(
+            "new_dollar_bets", False
+        )
+        initial_data["notify_bet_accepted"] = preferences.get(
+            "bet_accepted", False
+        )
+        initial_data["notify_bet_added_to"] = preferences.get(
+            "bet_added_to", False
+        )
+        initial_data["notify_bet_resolved"] = preferences.get(
+            "bet_resolved", False
+        )
 
         notification_form = NotificationPreferencesForm(
             initial=initial_data, user=request.user, push_enabled=is_push_enabled()

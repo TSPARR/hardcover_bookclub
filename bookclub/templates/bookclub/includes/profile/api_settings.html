@@ -11,7 +11,14 @@
                     value="{% if notification_form.enable_notifications.value %}on{% endif %}">
                 <input type="hidden" name="{{ notification_form.notify_new_active_books.html_name }}" 
                     value="{% if notification_form.notify_new_active_books.value %}on{% endif %}">
-                <!-- Add similar hidden fields for any future notification types -->
+                <input type="hidden" name="{{ notification_form.notify_new_dollar_bets.html_name }}" 
+                    value="{% if notification_form.notify_new_dollar_bets.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_accepted.html_name }}" 
+                    value="{% if notification_form.notify_bet_accepted.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_added_to.html_name }}" 
+                    value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}" 
+                    value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
             {% endif %}
 
             <div class="mb-3">

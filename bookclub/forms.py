@@ -140,6 +140,30 @@ class NotificationPreferencesForm(forms.Form):
         help_text="Get notified when a new book becomes active in your groups",
     )
 
+    notify_new_dollar_bets = forms.BooleanField(
+        required=False,
+        label="New Dollar Bets",
+        help_text="Get notified when a new open bet is made in your groups",
+    )
+    
+    notify_bet_accepted = forms.BooleanField(
+        required=False,
+        label="Bet Accepted",
+        help_text="Get notified when someone accepts your open bet",
+    )
+    
+    notify_bet_added_to = forms.BooleanField(
+        required=False,
+        label="Added to Bet",
+        help_text="Get notified when an admin adds you to a bet",
+    )
+    
+    notify_bet_resolved = forms.BooleanField(
+        required=False,
+        label="Bet Resolved",
+        help_text="Get notified when a bet you're involved in is resolved",
+    )
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         # Get push_enabled from the view instead of directly from settings
@@ -171,7 +195,19 @@ class NotificationPreferencesForm(forms.Form):
             {
                 "new_active_books": self.cleaned_data.get(
                     "notify_new_active_books", False
-                )
+                ),
+                "new_dollar_bets": self.cleaned_data.get(
+                    "notify_new_dollar_bets", False
+                ),
+                "bet_accepted": self.cleaned_data.get(
+                    "notify_bet_accepted", False
+                ),
+                "bet_added_to": self.cleaned_data.get(
+                    "notify_bet_added_to", False
+                ),
+                "bet_resolved": self.cleaned_data.get(
+                    "notify_bet_resolved", False
+                ),
             }
         )
 

@@ -34,19 +34,55 @@
                     </label>
                     <div class="form-text">{{ notification_form.notify_new_active_books.help_text }}</div>
                 </div>
-                
-                <!-- PLACEHOLDER: Future notification types will go here -->
-                <!-- 
-                <div class="form-check mb-2">
-                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_comments.id_for_label }}" 
-                        name="{{ notification_form.notify_new_comments.html_name }}" 
-                        {% if notification_form.notify_new_comments.value %}checked{% endif %}>
-                    <label class="form-check-label" for="{{ notification_form.notify_new_comments.id_for_label }}">
-                        {{ notification_form.notify_new_comments.label }}
-                    </label>
-                    <div class="form-text">{{ notification_form.notify_new_comments.help_text }}</div>
+
+                <!-- Dollar Bets Notifications Section -->
+                <div class="mb-2 mt-4">
+                    <h6>Dollar Bets Notifications</h6>
                 </div>
-                -->
+
+                <!-- New Dollar Bets notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_dollar_bets.id_for_label }}" 
+                        name="{{ notification_form.notify_new_dollar_bets.html_name }}" 
+                        {% if notification_form.notify_new_dollar_bets.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_new_dollar_bets.id_for_label }}">
+                        {{ notification_form.notify_new_dollar_bets.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_new_dollar_bets.help_text }}</div>
+                </div>
+
+                <!-- Bet Accepted notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_accepted.id_for_label }}" 
+                        name="{{ notification_form.notify_bet_accepted.html_name }}" 
+                        {% if notification_form.notify_bet_accepted.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_bet_accepted.id_for_label }}">
+                        {{ notification_form.notify_bet_accepted.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_bet_accepted.help_text }}</div>
+                </div>
+
+                <!-- Added to Bet notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_added_to.id_for_label }}" 
+                        name="{{ notification_form.notify_bet_added_to.html_name }}" 
+                        {% if notification_form.notify_bet_added_to.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_bet_added_to.id_for_label }}">
+                        {{ notification_form.notify_bet_added_to.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_bet_added_to.help_text }}</div>
+                </div>
+
+                <!-- Bet Resolved notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_resolved.id_for_label }}" 
+                        name="{{ notification_form.notify_bet_resolved.html_name }}" 
+                        {% if notification_form.notify_bet_resolved.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_bet_resolved.id_for_label }}">
+                        {{ notification_form.notify_bet_resolved.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_bet_resolved.help_text }}</div>
+                </div>
             </div>
 
             <div class="mb-3 mt-2" id="notification-test-container">

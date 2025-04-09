@@ -15,7 +15,10 @@ VAPID_CLAIMS = {
 # Define notification types
 NOTIFICATION_TYPES = {
     "new_active_books": "New Active Books",
-    # Add more notification types as needed
+    "new_dollar_bets": "New Dollar Bets",
+    "bet_accepted": "Bet Accepted",
+    "bet_added_to": "Added to Bet",
+    "bet_resolved": "Bet Resolved",
 }
 
 
