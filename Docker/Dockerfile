@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Upgrade pip
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip wheel
 
 # Copy the requirements file into the container
 COPY requirements.txt /app/
