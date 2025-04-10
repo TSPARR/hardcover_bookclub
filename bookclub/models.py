@@ -554,6 +554,11 @@ class DollarBet(models.Model):
     description = models.TextField(
         help_text="What the bet is about (e.g., 'Character X will die')"
     )
+    counter_description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="The accepter's alternative prediction (e.g., 'No, Character Y will die instead')",
+    )
     amount = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -612,8 +617,8 @@ class DollarBet(models.Model):
         self.resolved_by = resolved_by_user
         self.save()
 
-    def accept(self, user):
-        """Accept an open bet"""
+    def accept(self, user, counter_description=None):
+        """Accept an open bet, optionally with a counter-description"""
         if self.status != "open" and self.accepter is None:
             raise ValueError("Only open bets can be accepted")
 
@@ -621,11 +626,12 @@ class DollarBet(models.Model):
             raise ValueError("Cannot accept your own bet")
 
         self.accepter = user
+        self.counter_description = counter_description
         self.status = "accepted"
         self.save()
 
     def mark_inconclusive(self, resolved_by_user):
-        """Mark a bet as inconclusive (can't be determined)"""
+        """Mark a bet as inconclusive (can't be determined or neither prediction was correct)"""
         if self.status != "accepted":
             raise ValueError("Only accepted bets can be marked inconclusive")
 

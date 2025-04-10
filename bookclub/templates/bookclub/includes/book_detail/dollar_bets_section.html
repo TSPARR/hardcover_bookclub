@@ -61,6 +61,16 @@
                               <span class="badge bg-warning status-badge">In Progress</span>
                           </div>
                           <p class="mb-1">Between <strong class="bet-proposer">{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+                          
+                          {% if bet.counter_description %}
+                          <div class="counter-bet-section mt-2 mb-2">
+                              <div class="d-flex align-items-center">
+                                  <span class="badge bg-info me-2">Counter-Bet</span>
+                                  <p class="mb-0"><strong>{{ bet.accepter.username }}</strong> counters: "{{ bet.counter_description }}"</p>
+                              </div>
+                          </div>
+                          {% endif %}
+                          
                           {% if is_admin %}
                               <div class="d-flex justify-content-end mt-2">
                                   <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-primary btn-sm">
@@ -74,9 +84,9 @@
           {% endif %}
       {% endwith %}
 
-      {% with resolved_bets=book.dollar_bets.all|filter_by_multiple_statuses:'won,lost,inconclusive' %}
+      {% with resolved_bets=book.dollar_bets.all|filter_by_multiple_statuses:'won,lost,inconclusive'|slice:":5" %}
           {% if resolved_bets %}
-              <h5 class="border-bottom pb-2 mb-3 section-title"><i class="bi bi-flag-fill me-2"></i>Resolved Bets</h5>
+              <h5 class="border-bottom pb-2 mb-3 section-title"><i class="bi bi-flag-fill me-2"></i>Resolved Bets (Recent)</h5>
               <div class="list-group">
                   {% for bet in resolved_bets %}
                       <div class="list-group-item list-group-item-action dollar-bet-item resolved-bet {% if bet.status == 'inconclusive' %}inconclusive-bet{% endif %}" data-spoiler-level="{{ bet.spoiler_level }}">
@@ -91,10 +101,28 @@
                               {% endif %}
                           </div>
                           <p class="mb-1">Between <strong class="bet-proposer">{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+                          
+                          {% if bet.counter_description %}
+                          <div class="counter-bet-section mt-2">
+                              <div class="d-flex align-items-center">
+                                  <span class="badge bg-info me-2">Counter-Bet</span>
+                                  <p class="mb-0"><strong>{{ bet.accepter.username }}</strong> countered: "{{ bet.counter_description }}"</p>
+                              </div>
+                          </div>
+                          {% endif %}
+                          
                           <small class="text-muted">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
                       </div>
                   {% endfor %}
               </div>
+              
+              {% if book.dollar_bets.all|filter_by_multiple_statuses:'won,lost,inconclusive'|length > 5 %}
+              <div class="text-center mt-3">
+                  <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-outline-primary btn-sm">
+                      <i class="bi bi-list me-1"></i> View All Bets
+                  </a>
+              </div>
+              {% endif %}
           {% endif %}
       {% endwith %}
 
@@ -108,6 +136,12 @@
                   <p class="text-muted">Be the first to create a dollar bet for this book.</p>
                   <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary mt-2">
                       Create Your First Bet
+                  </a>
+              </div>
+          {% elif all_bets|length > 3 %}
+              <div class="text-center mt-4">
+                  <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-outline-primary">
+                      <i class="bi bi-list me-1"></i> View All {{ all_bets|length }} Bets
                   </a>
               </div>
           {% endif %}

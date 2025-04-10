@@ -94,7 +94,7 @@ def create_dollar_bet(request, book_id):
 
 @login_required
 def accept_dollar_bet(request, bet_id):
-    """View to accept a dollar bet"""
+    """View to accept a dollar bet, optionally with a counter-bet"""
     bet = get_object_or_404(DollarBet, id=bet_id)
     group = bet.group
     book = bet.book
@@ -114,20 +114,42 @@ def accept_dollar_bet(request, bet_id):
     if bet.status != "open":
         return HttpResponseForbidden("This bet is no longer open")
 
-    bet.accept(request.user)
+    if request.method == "POST":
+        counter_description = request.POST.get("counter_description", "").strip()
 
-    # Notify the proposer that their bet was accepted
-    send_push_notification(
-        user=bet.proposer,
-        title="Your Dollar Bet was Accepted!",
-        body=f"{request.user.username} accepted your bet: \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\"",
-        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
-        icon=book.cover_image_url if book.cover_image_url else None,
-        notification_type="bet_accepted",
+        # Accept the bet with optional counter description
+        bet.accept(request.user, counter_description if counter_description else None)
+
+        # Prepare notification message based on whether a counter-bet was provided
+        notification_body = ""
+        if counter_description:
+            notification_body = f"{request.user.username} accepted your bet with a counter: \"{counter_description[:50]}{'...' if len(counter_description) > 50 else ''}\""
+        else:
+            notification_body = f"{request.user.username} accepted your bet: \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\""
+
+        # Notify the proposer that their bet was accepted
+        send_push_notification(
+            user=bet.proposer,
+            title="Your Dollar Bet was Accepted!",
+            body=notification_body,
+            url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+            icon=book.cover_image_url if book.cover_image_url else None,
+            notification_type="bet_accepted",
+        )
+
+        # Redirect to book detail with bets tab active
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    # If GET request, display the form for accepting a bet
+    return render(
+        request,
+        "bookclub/accept_dollar_bet.html",
+        {
+            "bet": bet,
+            "book": book,
+            "group": group,
+        },
     )
-
-    # Redirect to book detail with bets tab active
-    return redirect(f"/books/{book.id}/?tab=bets")
 
 
 # Fun phrases for winner notifications
@@ -212,12 +234,19 @@ def resolve_dollar_bet(request, bet_id):
             # Mark as inconclusive
             bet.mark_inconclusive(request.user)
 
+            # Get notification message based on whether there was a counter-bet
+            notification_message = ""
+            if bet.counter_description:
+                notification_message = f"Neither prediction ('{bet.description[:30]}...' nor '{bet.counter_description[:30]}...') was correct. The bet was ruled inconclusive by {request.user.username}."
+            else:
+                notification_message = f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
+
             # Notify both participants
             for participant in [bet.proposer, bet.accepter]:
                 send_push_notification(
                     user=participant,
                     title="Dollar Bet Ruled Inconclusive",
-                    body=f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {request.user.username}.",
+                    body=notification_message,
                     url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
                     icon=book.cover_image_url if book.cover_image_url else None,
                     notification_type="bet_resolved",
@@ -247,22 +276,25 @@ def resolve_dollar_bet(request, bet_id):
             loser = bet.accepter if winner == bet.proposer else bet.proposer
 
             # Get truncated description for notifications
-            truncated_description = bet.description[:50] + (
-                "..." if len(bet.description) > 50 else ""
+            winning_prediction = (
+                bet.description if winner == bet.proposer else bet.counter_description
+            )
+            truncated_prediction = winning_prediction[:50] + (
+                "..." if len(winning_prediction) > 50 else ""
             )
 
             # Select random fun phrases for winner
             winner_title = random.choice(WINNER_PHRASES)
             winner_body_template = random.choice(WINNER_BODY_PHRASES)
             winner_body = winner_body_template.format(
-                loser=loser.username, description=truncated_description
+                loser=loser.username, description=truncated_prediction
             )
 
             # Select random fun phrases for loser
             loser_title = random.choice(LOSER_PHRASES)
             loser_body_template = random.choice(LOSER_BODY_PHRASES)
             loser_body = loser_body_template.format(
-                winner=winner.username, description=truncated_description
+                winner=winner.username, description=truncated_prediction
             )
 
             # Notify the winner
@@ -368,6 +400,7 @@ def admin_create_dollar_bet(request, book_id):
 
     if request.method == "POST":
         description = request.POST.get("description")
+        counter_description = request.POST.get("counter_description", "").strip()
         proposer_id = request.POST.get("proposer")
         accepter_id = request.POST.get("accepter")
         spoiler_level = request.POST.get("spoiler_level", "halfway")
@@ -395,17 +428,25 @@ def admin_create_dollar_bet(request, book_id):
             proposer=proposer,
             accepter=accepter,
             description=description,
+            counter_description=counter_description if counter_description else None,
             amount=1.00,
             status="accepted",
             spoiler_level=spoiler_level,
         )
+
+        # Customize notification message based on counter bet presence
+        notification_body = ""
+        if counter_description:
+            notification_body = f'An admin has added you to a bet: "{description[:30]}..." vs counter-bet: "{counter_description[:30]}..." in {group.name}.'
+        else:
+            notification_body = f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}."
 
         # Notify both participants that they've been added to a bet
         for participant in [proposer, accepter]:
             send_push_notification(
                 user=participant,
                 title="You've Been Added to a Dollar Bet",
-                body=f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}.",
+                body=notification_body,
                 url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
                 icon=book.cover_image_url if book.cover_image_url else None,
                 notification_type="bet_added_to",

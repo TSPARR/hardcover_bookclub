@@ -1,0 +1,52 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+{% load bookclub_extras %}
+
+{% block title %}Accept Dollar Bet for {{ book.title|split:":"|first|trim }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Accept a $1 Bet for "{{ book.title|split:":"|first|trim }}"</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h5><i class="bi bi-info-circle me-2"></i>Original Bet:</h5>
+                        <p class="mb-0"><strong>{{ bet.proposer.username }}</strong> bets: "{{ bet.description }}"</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="counter_description" class="form-label">Counter-Bet (Optional)</label>
+                            <textarea class="form-control" id="counter_description" name="counter_description" 
+                                      rows="3" placeholder="Example: 'No, I bet it will be Rebecca instead of Allison'"></textarea>
+                            <div class="form-text">
+                                <p>You have two options:</p>
+                                <ul class="small">
+                                    <li><strong>Accept as is:</strong> Leave this field empty to accept the original bet as stated.</li>
+                                    <li><strong>Make a counter-bet:</strong> Provide your alternative prediction. If neither prediction comes true, the bet will be inconclusive.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Bet Amount</label>
+                            <input type="text" class="form-control" value="$1.00" disabled>
+                            <div class="form-text">All bets are fixed at $1</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Accept Bet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

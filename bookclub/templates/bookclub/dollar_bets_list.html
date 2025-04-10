@@ -31,9 +31,10 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Bet</th>
                                         <th>Proposer</th>
+                                        <th>Bet</th>
                                         <th>Accepter</th>
+                                        <th>Counter-Bet</th>
                                         <th>Spoiler Level</th>
                                         <th>Status</th>
                                         <th>Created</th>
@@ -43,9 +44,18 @@
                                 <tbody>
                                     {% for bet in bets %}
                                     <tr class="dollar-bet-item" data-spoiler-level="{{ bet.spoiler_level }}">
-                                        <td>{{ bet.description }}</td>
                                         <td class="bet-proposer">{{ bet.proposer.username }}</td>
+                                        <td>{{ bet.description }}</td>
                                         <td>{{ bet.accepter.username|default:"Not accepted yet" }}</td>
+                                        <td>
+                                            {% if bet.counter_description %}
+                                                {{ bet.counter_description }}
+                                            {% elif bet.accepter %}
+                                                <span class="text-muted">Accepted as is</span>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if bet.spoiler_level == 'none' %}
                                                 <span class="badge bg-success">No Spoilers</span>
@@ -64,8 +74,8 @@
                                                 <span class="badge bg-success">Won by {{ bet.winner.username }}</span>
                                             {% elif bet.status == 'lost' %}
                                                 <span class="badge bg-danger">Lost by {{ bet.proposer.username }}</span>
-                                            {% elif bet.status == 'canceled' %}
-                                                <span class="badge bg-secondary">Canceled</span>
+                                            {% elif bet.status == 'inconclusive' %}
+                                                <span class="badge bg-secondary">Inconclusive</span>
                                             {% endif %}
                                         </td>
                                         <td>{{ bet.created_at|date:"M d, Y" }}</td>
@@ -76,8 +86,8 @@
                                                         <i class="bi bi-check-circle me-1"></i> Accept
                                                     </a>
                                                 {% else %}
-                                                    <a href="{% url 'cancel_dollar_bet' bet.id %}" class="btn btn-sm btn-danger">
-                                                        <i class="bi bi-x-circle me-1"></i> Cancel
+                                                    <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-x-circle me-1"></i> Delete
                                                     </a>
                                                 {% endif %}
                                             {% elif bet.status == 'accepted' and is_admin %}

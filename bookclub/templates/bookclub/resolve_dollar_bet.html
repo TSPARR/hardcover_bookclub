@@ -14,7 +14,12 @@
                 <div class="card-body">
                     <div class="alert alert-info alert-permanent">
                         <h4 class="alert-heading mb-3">Bet Details</h4>
-                        <p class="mb-3"><strong>Prediction: </strong> {{ bet.description }}</p>
+                        <p class="mb-3"><strong>{{ bet.proposer.username }}'s Prediction: </strong> {{ bet.description }}</p>
+                        
+                        {% if bet.counter_description %}
+                        <p class="mb-3"><strong>{{ bet.accepter.username }}'s Counter-Prediction: </strong> {{ bet.counter_description }}</p>
+                        {% endif %}
+                        
                         <hr>
                         <div class="row">
                             <div class="col-md-4">
@@ -57,7 +62,8 @@
                                             <input class="form-check-input" type="radio" name="winner" 
                                                 id="proposer" value="{{ bet.proposer.id }}" required>
                                             <label class="form-check-label" for="proposer">
-                                                <strong>{{ bet.proposer.username }}</strong> (The Proposer) - prediction was correct
+                                                <strong>{{ bet.proposer.username }}</strong> (The Proposer) - 
+                                                prediction was correct: "{{ bet.description }}"
                                             </label>
                                         </div>
                                     </div>
@@ -68,7 +74,12 @@
                                             <input class="form-check-input" type="radio" name="winner" 
                                                 id="accepter" value="{{ bet.accepter.id }}">
                                             <label class="form-check-label" for="accepter">
-                                                <strong>{{ bet.accepter.username }}</strong> (The Accepter) - prediction was incorrect
+                                                <strong>{{ bet.accepter.username }}</strong> (The Accepter) - 
+                                                {% if bet.counter_description %}
+                                                    counter-prediction was correct: "{{ bet.counter_description }}"
+                                                {% else %}
+                                                    original prediction was incorrect
+                                                {% endif %}
                                             </label>
                                         </div>
                                     </div>
@@ -78,9 +89,15 @@
                             <div class="form-check mt-4">
                                 <input class="form-check-input" type="radio" name="resolution" id="resolveInconclusive" value="inconclusive">
                                 <label class="form-check-label" for="resolveInconclusive">
-                                    Mark as inconclusive (cannot be determined)
+                                    Mark as inconclusive
                                 </label>
-                                <div class="form-text ms-4">Use this when it's impossible to determine if the prediction was correct.</div>
+                                <div class="form-text ms-4">
+                                    {% if bet.counter_description %}
+                                        Use this when neither prediction was correct or it's impossible to determine.
+                                    {% else %}
+                                        Use this when it's impossible to determine if the prediction was correct.
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                         
