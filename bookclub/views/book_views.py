@@ -1013,6 +1013,17 @@ def manage_promoted_editions(request, book_id):
         )
         return redirect("book_detail", book_id=book.id)
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": "#", "title": "Manage Editions"},
+    ]
+
     # Get currently promoted editions
     kavita_promoted = BookEdition.objects.filter(
         book=book, is_kavita_promoted=True
@@ -1111,6 +1122,7 @@ def manage_promoted_editions(request, book_id):
             "plex_promoted": plex_promoted,
             "has_kavita": has_kavita,
             "has_plex": has_plex,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
