@@ -141,7 +141,7 @@ WINNER_PHRASES = [
     "👑 Reading Royalty! Your Bet Paid Off",
     "🔮 Your Prediction Was Spot On!",
     "💵 Cash Money! You Won the Bet",
-    "🧠 Literary Genius! Bet Won"
+    "🧠 Literary Genius! Bet Won",
 ]
 
 # Fun phrases for the winner notification body
@@ -155,7 +155,7 @@ WINNER_BODY_PHRASES = [
     "Brilliant call! That's why you're the book club MVP.",
     "You knew it all along! {loser} should bow to your literary wisdom.",
     "Perfect prediction! Use that dollar to bookmark your next victory.",
-    "Reading between the lines paid off! {loser} is $1 poorer now."
+    "Reading between the lines paid off! {loser} is $1 poorer now.",
 ]
 
 # Fun phrases for loser notifications
@@ -169,21 +169,21 @@ LOSER_PHRASES = [
     "🪙 Time to Part With a Dollar",
     "🧾 Invoice: One Dollar Due",
     "🎭 Plot Twist! You Lost the Bet",
-    "🙈 Oops! Bet Lost"
+    "🙈 Oops! Bet Lost",
 ]
 
 # Fun phrases for the loser notification body
 LOSER_BODY_PHRASES = [
-    "The bet about \"{description}\" didn't go your way. {winner} is waiting for that dollar!",
-    "Time to pay up! {winner} was right about \"{description}\".",
-    "Your prediction was bold, but {winner} had the winning take on \"{description}\".",
+    'The bet about "{description}" didn\'t go your way. {winner} is waiting for that dollar!',
+    'Time to pay up! {winner} was right about "{description}".',
+    'Your prediction was bold, but {winner} had the winning take on "{description}".',
     "Better luck next time! {winner} is doing a victory dance right now.",
     "The book had other plans! {winner} is now $1 richer.",
     "Your literary prediction skills need work. {winner} sends their regards.",
     "Now you owe {winner} a whole dollar. Don't spend it all at once, {winner}!",
     "{winner} saw that plot twist coming! Your dollar awaits its new owner.",
     "Looks like {winner} was the better book psychic this time.",
-    "That's the price of a daring prediction! {winner} is waiting for payment."
+    "That's the price of a daring prediction! {winner} is waiting for payment.",
 ]
 
 
@@ -211,7 +211,7 @@ def resolve_dollar_bet(request, bet_id):
         if resolution == "inconclusive":
             # Mark as inconclusive
             bet.mark_inconclusive(request.user)
-            
+
             # Notify both participants
             for participant in [bet.proposer, bet.accepter]:
                 send_push_notification(
@@ -242,29 +242,29 @@ def resolve_dollar_bet(request, bet_id):
                 bet.spoiler_level = "finished"
 
             bet.resolve(winner, request.user)
-            
+
             # Determine the loser
             loser = bet.accepter if winner == bet.proposer else bet.proposer
-            
+
             # Get truncated description for notifications
-            truncated_description = bet.description[:50] + ('...' if len(bet.description) > 50 else '')
-            
+            truncated_description = bet.description[:50] + (
+                "..." if len(bet.description) > 50 else ""
+            )
+
             # Select random fun phrases for winner
             winner_title = random.choice(WINNER_PHRASES)
             winner_body_template = random.choice(WINNER_BODY_PHRASES)
             winner_body = winner_body_template.format(
-                loser=loser.username, 
-                description=truncated_description
+                loser=loser.username, description=truncated_description
             )
-            
+
             # Select random fun phrases for loser
             loser_title = random.choice(LOSER_PHRASES)
             loser_body_template = random.choice(LOSER_BODY_PHRASES)
             loser_body = loser_body_template.format(
-                winner=winner.username, 
-                description=truncated_description
+                winner=winner.username, description=truncated_description
             )
-            
+
             # Notify the winner
             send_push_notification(
                 user=winner,
@@ -274,7 +274,7 @@ def resolve_dollar_bet(request, bet_id):
                 icon=book.cover_image_url if book.cover_image_url else None,
                 notification_type="bet_resolved",
             )
-            
+
             # Notify the loser
             send_push_notification(
                 user=loser,
@@ -295,6 +295,7 @@ def resolve_dollar_bet(request, bet_id):
             "bet": bet,
         },
     )
+
 
 @login_required
 def cancel_dollar_bet(request, bet_id):
@@ -413,6 +414,19 @@ def admin_create_dollar_bet(request, book_id):
         messages.success(
             request, "Dollar bet created successfully between selected members"
         )
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    return render(
+        request,
+        "bookclub/admin_create_dollar_bet.html",
+        {
+            "book": book,
+            "group": group,
+            "members": members,
+            "spoiler_levels": DollarBet.SPOILER_LEVEL_CHOICES,
+        },
+    )
+
 
 @login_required
 def delete_dollar_bet(request, bet_id):
