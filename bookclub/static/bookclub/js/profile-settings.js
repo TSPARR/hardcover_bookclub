@@ -3,13 +3,23 @@
  * Handles functionality for the profile settings page
  */
 
+// Import necessary functions from modules
+import { getCsrfToken } from './common/utils.js';
+import { 
+    arePushNotificationsSupported, 
+    checkPushNotificationsAvailable, 
+    getCurrentPushSubscription,
+    subscribeToPushNotifications,
+    unsubscribeFromPushNotifications
+} from './common/push-notifications.js';
+
 // Function to clear JS/CSS cache
 function clearBrowserCache() {
     console.log('Attempting to clear browser cache...');
     
     // Create query strings with timestamps to force reload of assets
     const timestamp = new Date().getTime();
-    const csrfToken = window.getCsrfToken();
+    const csrfToken = getCsrfToken();
     
     // Show loading indicator
     const button = document.querySelector('button.btn-warning');
@@ -81,43 +91,6 @@ function toggleNotificationOptions(enabled) {
     }
 }
 
-// Initialize when DOM is ready - using a self-executing function to ensure it only runs once
-(function() {
-    // Ensure this initialization only happens once
-    if (window.notificationUIInitialized) {
-        console.log('Notification UI already initialized, skipping...');
-        return;
-    }
-    
-    // Set flag to prevent duplicate initialization
-    window.notificationUIInitialized = true;
-    
-    document.addEventListener('DOMContentLoaded', async function() {
-        // Initialize notification UI elements
-        await initNotificationUI();
-        
-        // Initialize the notification options toggle function
-        initNotificationOptions();
-    });
-})();
-
-// Initialize notification options toggle
-function initNotificationOptions() {
-    const notificationCheckbox = document.getElementById('id_enable_notifications');
-    const notificationOptions = document.getElementById('notification-options');
-    const testContainer = document.getElementById('notification-test-container');
-    
-    if (notificationCheckbox && notificationOptions && testContainer) {
-        // Ensure initial state is correct
-        toggleNotificationOptions(notificationCheckbox.checked);
-        
-        // Toggle notification options when main checkbox changes
-        notificationCheckbox.addEventListener('change', function() {
-            toggleNotificationOptions(this.checked);
-        });
-    }
-}
-
 // Initialize push notification UI elements
 async function initNotificationUI() {
     const notificationCheckbox = document.getElementById('id_enable_notifications');
@@ -130,7 +103,7 @@ async function initNotificationUI() {
     }
     
     // Check if browser supports push notifications
-    if (!window.arePushNotificationsSupported()) {
+    if (!arePushNotificationsSupported()) {
         console.log('Browser does not support push notifications');
         notificationCheckbox.disabled = true;
         notificationCheckbox.checked = false;
@@ -146,7 +119,7 @@ async function initNotificationUI() {
     }
     
     // Check if push notifications are available on the server
-    const pushAvailable = await window.checkPushNotificationsAvailable();
+    const pushAvailable = await checkPushNotificationsAvailable();
     if (!pushAvailable) {
         console.log('Push notifications not available on server');
         notificationCheckbox.closest('.form-check').style.display = 'none';
@@ -161,7 +134,7 @@ async function initNotificationUI() {
     }
     
     // Check current subscription status
-    const subscription = await window.getCurrentPushSubscription();
+    const subscription = await getCurrentPushSubscription();
     notificationCheckbox.checked = !!subscription;
     
     // Update visibility based on checkbox state
@@ -177,11 +150,11 @@ async function initNotificationUI() {
     // Toggle subscription when checkbox changes
     updatedNotificationCheckbox.addEventListener('change', async function() {
         if (this.checked) {
-            const success = await window.subscribeToPushNotifications();
+            const success = await subscribeToPushNotifications();
             this.checked = !!success;
             toggleNotificationOptions(this.checked);
         } else {
-            await window.unsubscribeFromPushNotifications();
+            await unsubscribeFromPushNotifications();
             toggleNotificationOptions(false);
         }
     });
@@ -206,7 +179,7 @@ async function initNotificationUI() {
             const response = await fetch('/api/push/test/', {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': window.getCsrfToken(),
+                    'X-CSRFToken': getCsrfToken(),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({})
@@ -231,3 +204,46 @@ async function initNotificationUI() {
     
     console.log('Notification UI initialized successfully');
 }
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', async function() {
+    // Ensure this initialization only happens once
+    if (window.notificationUIInitialized) {
+        console.log('Notification UI already initialized, skipping...');
+        return;
+    }
+    
+    // Set flag to prevent duplicate initialization
+    window.notificationUIInitialized = true;
+    
+    // Initialize notification UI
+    await initNotificationUI();
+    
+    // Initialize the notification options toggle function
+    initNotificationOptions();
+});
+
+// Initialize notification options toggle
+function initNotificationOptions() {
+    const notificationCheckbox = document.getElementById('id_enable_notifications');
+    const notificationOptions = document.getElementById('notification-options');
+    const testContainer = document.getElementById('notification-test-container');
+    
+    if (notificationCheckbox && notificationOptions && testContainer) {
+        // Ensure initial state is correct
+        toggleNotificationOptions(notificationCheckbox.checked);
+        
+        // Toggle notification options when main checkbox changes
+        notificationCheckbox.addEventListener('change', function() {
+            toggleNotificationOptions(this.checked);
+        });
+    }
+}
+
+// Export functions if needed
+export { 
+    clearBrowserCache, 
+    toggleNotificationOptions,
+    initNotificationUI,
+    initNotificationOptions
+};

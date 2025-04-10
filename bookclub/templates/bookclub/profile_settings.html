@@ -21,7 +21,7 @@
 
 {% block extra_js %}
 {% if push_notifications_enabled %}
-<script src="{% static 'bookclub/js/profile-settings.js' %}"></script>
+<script type="module" src="{% static 'bookclub/js/profile-settings.js' %}"></script>
 {% endif %}
 {% endblock %}
 {% endblock %}
