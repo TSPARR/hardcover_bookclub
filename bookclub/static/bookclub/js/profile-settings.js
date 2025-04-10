@@ -70,6 +70,9 @@ function clearBrowserCache() {
     console.log('Cache clearing initiated');
 }
 
+// Expose clearBrowserCache globally
+window.clearBrowserCache = clearBrowserCache;
+
 // Function to toggle notification options visibility
 function toggleNotificationOptions(enabled) {
     const optionsDiv = document.getElementById('notification-options');
@@ -239,6 +242,11 @@ function initNotificationOptions() {
         });
     }
 }
+
+// Expose functions globally
+window.toggleNotificationOptions = toggleNotificationOptions;
+window.initNotificationUI = initNotificationUI;
+window.initNotificationOptions = initNotificationOptions;
 
 // Export functions if needed
 export { 
