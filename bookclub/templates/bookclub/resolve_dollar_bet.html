@@ -1,5 +1,6 @@
 {% extends 'bookclub/base.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Resolve Dollar Bet{% endblock %}
 
@@ -7,6 +8,9 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            <!-- Breadcrumb navigation -->
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+            
             <div class="card mb-4">
                 <div class="card-header">
                     <h2><i class="bi bi-flag-fill me-2"></i>Resolve Dollar Bet</h2>
@@ -115,7 +119,7 @@
                         
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{% url 'book_detail' bet.book.id %}?tab=bets" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left me-1"></i> Back to Bets
+                                <i class="bi bi-arrow-left me-1"></i> Back to Book
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-flag-fill me-1"></i> Resolve Bet
@@ -128,31 +132,7 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const resolveWinLoss = document.getElementById('resolveWinLoss');
-        const resolveInconclusive = document.getElementById('resolveInconclusive');
-        const winnerSelectionSection = document.getElementById('winnerSelectionSection');
-        
-        function updateFormVisibility() {
-            if (resolveWinLoss.checked) {
-                winnerSelectionSection.style.display = 'block';
-                document.querySelectorAll('input[name="winner"]').forEach(input => {
-                    input.required = true;
-                });
-            } else {
-                winnerSelectionSection.style.display = 'none';
-                document.querySelectorAll('input[name="winner"]').forEach(input => {
-                    input.required = false;
-                });
-            }
-        }
-        
-        resolveWinLoss.addEventListener('change', updateFormVisibility);
-        resolveInconclusive.addEventListener('change', updateFormVisibility);
-        
-        // Initial setup
-        updateFormVisibility();
-    });
-</script>
+{% block extra_js %}
+<script type="module" src="{% static 'bookclub/js/resolve-bet.js' %}"></script>
+{% endblock %}
 {% endblock %}

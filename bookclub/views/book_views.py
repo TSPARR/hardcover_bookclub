@@ -427,6 +427,13 @@ def search_books(request, group_id):
     group = get_object_or_404(BookGroup, id=group_id)
     search_results = []
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {"url": "#", "title": "Search Books"},
+    ]
+
     if request.method == "POST":
         form = BookSearchForm(request.POST)
         if form.is_valid():
@@ -451,6 +458,7 @@ def search_books(request, group_id):
             "form": form,
             "results": search_results,
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 

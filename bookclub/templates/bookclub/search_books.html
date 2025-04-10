@@ -7,13 +7,7 @@
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Search Books</li>
-                </ol>
-            </nav>
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
             
             <h1 class="mb-4"><i class="bi bi-search me-2"></i>Search Books</h1>
             

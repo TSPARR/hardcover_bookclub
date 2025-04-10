@@ -22,6 +22,7 @@
 @import 'components/group-members.css';
 @import 'components/comments.css';
 @import 'components/refresh.css';
+@import 'components/breadcrumbs.css';
 
 /* Apply dark mode styling */
 html.dark-mode,

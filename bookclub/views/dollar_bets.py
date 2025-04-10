@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from ..models import Book, BookGroup, DollarBet, User
 from ..notifications import send_push_notification
@@ -25,6 +26,17 @@ def dollar_bets_list(request, book_id):
 
     bets = DollarBet.objects.filter(book=book).order_by("-created_at")
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": "#", "title": "Dollar Bets"},
+    ]
+
     return render(
         request,
         "bookclub/dollar_bets_list.html",
@@ -33,6 +45,7 @@ def dollar_bets_list(request, book_id):
             "group": group,
             "bets": bets,
             "is_admin": group.is_admin(request.user),
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -50,6 +63,25 @@ def create_dollar_bet(request, book_id):
     # Check if user is a member of the group
     if not group.is_member(request.user):
         return HttpResponseForbidden("You're not a member of this group")
+
+    # Check if the book is active or the user is an admin
+    if not book.is_active and not group.is_admin(request.user):
+        messages.warning(
+            request, "Dollar bets can only be created for the active book. "
+        )
+        return redirect("book_detail", book_id=book.id)
+
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Create Bet"},
+    ]
 
     if request.method == "POST":
         description = request.POST.get("description")
@@ -88,6 +120,7 @@ def create_dollar_bet(request, book_id):
         {
             "book": book,
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -113,6 +146,18 @@ def accept_dollar_bet(request, bet_id):
 
     if bet.status != "open":
         return HttpResponseForbidden("This bet is no longer open")
+
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Accept Bet"},
+    ]
 
     if request.method == "POST":
         counter_description = request.POST.get("counter_description", "").strip()
@@ -148,6 +193,7 @@ def accept_dollar_bet(request, bet_id):
             "bet": bet,
             "book": book,
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -226,6 +272,18 @@ def resolve_dollar_bet(request, bet_id):
 
     if bet.status != "accepted":
         return HttpResponseForbidden("Only accepted bets can be resolved")
+
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Resolve Bet"},
+    ]
 
     if request.method == "POST":
         resolution = request.POST.get("resolution")
@@ -325,6 +383,7 @@ def resolve_dollar_bet(request, bet_id):
         "bookclub/resolve_dollar_bet.html",
         {
             "bet": bet,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -398,6 +457,18 @@ def admin_create_dollar_bet(request, book_id):
     # Get all members of the group for the dropdown selection
     members = group.members.all()
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Admin Create Bet"},
+    ]
+
     if request.method == "POST":
         description = request.POST.get("description")
         counter_description = request.POST.get("counter_description", "").strip()
@@ -465,6 +536,7 @@ def admin_create_dollar_bet(request, book_id):
             "group": group,
             "members": members,
             "spoiler_levels": DollarBet.SPOILER_LEVEL_CHOICES,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
