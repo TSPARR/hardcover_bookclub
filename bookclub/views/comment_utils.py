@@ -66,6 +66,14 @@ def handle_comment_reaction(request, comment_id):
             return JsonResponse({"error": "Reaction type is required"}, status=400)
 
         comment = get_object_or_404(Comment, id=comment_id)
+        book = comment.book
+
+        # Check if the book is active
+        if not book.is_active:
+            return JsonResponse(
+                {"error": "This book is not active. Comments are in read-only mode."},
+                status=403,
+            )
 
         # Check if the user already has this reaction on the comment
         existing_reaction = CommentReaction.objects.filter(
@@ -167,6 +175,21 @@ def handle_reply_to_comment(request, comment_id):
 
         book = parent_comment.book
         logger.debug(f"Book: id={book.id}, title={book.title}")
+
+        # Check if the book is active
+        if not book.is_active:
+            messages.error(
+                request,
+                "This book is not currently active. Comments are in read-only mode.",
+            )
+            redirect_url = get_redirect_url_with_params(
+                request,
+                "book_detail",
+                {"book_id": book.id},
+                f"comment-{parent_comment.id}",
+            )
+            logger.debug(f"Book not active, redirecting to: {redirect_url}")
+            return redirect(redirect_url)
 
         if request.method == "POST":
             logger.debug(f"POST data received: {dict(request.POST)}")
@@ -274,7 +297,13 @@ def get_comment_reaction_users(request, comment_id):
                     ),
                 }
 
-        return JsonResponse({"success": True, "reactions": reactions_data})
+        return JsonResponse(
+            {
+                "success": True,
+                "reactions": reactions_data,
+                "read_only": not comment.book.is_active,  # Add book active status
+            }
+        )
 
     except Exception as e:
         logger.exception(f"Error getting reaction users: {str(e)}")

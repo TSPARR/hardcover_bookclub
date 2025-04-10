@@ -1,8 +1,7 @@
 /* ===========================
  * Dark Mode Reactions Styles
  * =========================== */
-
-/* Reaction button styling */
+/* Buttons */
 .dark-mode .reaction-btn {
     background-color: #2c2c2c;
     border-color: #3a3a3a;
@@ -19,30 +18,33 @@
     color: white;
 }
 
-/* Make it more obvious the count is clickable */
+/* Count interaction */
 .dark-mode .reaction-count:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Add visual indicator for mobile taps */
 .dark-mode .reaction-count:active {
     background-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Add subtle indicator to show it's interactive */
 .dark-mode .reaction-count::after {
     background-color: #a0aec0;
     opacity: 0.6;
 }
 
-/* Reaction panel styling */
+/* Read-only mode */
+.dark-mode .read-only .reaction-btn .reaction-count:hover {
+    text-decoration: underline;
+    color: #6ea8fe;
+}
+
+/* Reaction panel */
 .dark-mode .reaction-panel {
     background-color: #343a40;
-    border-color: #495057;
+    border: 1px solid #495057;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
 }
 
-/* Reaction option buttons */
 .dark-mode .reaction-option {
     background-color: #2c2c2c;
     border-color: #3a3a3a;
@@ -51,10 +53,9 @@
 
 .dark-mode .reaction-option:hover {
     background-color: #3a3a3a;
-    transform: scale(1.1);
 }
 
-/* Reaction users panel */
+/* Users panel */
 .dark-mode .reaction-users-panel {
     background-color: #343a40;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -62,13 +63,11 @@
     color: #e1e1e1;
 }
 
-/* Header for reaction users panel */
 .dark-mode .reaction-users-header {
     border-bottom: 1px solid #495057;
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Close button for users panel */
 .dark-mode .close-users-panel {
     color: #adb5bd;
 }
@@ -78,7 +77,6 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* User list and items */
 .dark-mode .reaction-users-list {
     background-color: #343a40;
 }
@@ -93,7 +91,6 @@
     background-color: #495057;
 }
 
-/* Dark mode mobile-specific styles */
 .dark-mode .mobile-backdrop {
     background-color: rgba(0, 0, 0, 0.7);
 }

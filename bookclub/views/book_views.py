@@ -284,6 +284,7 @@ def book_detail(request, book_id):
         "kavita_promoted_edition": kavita_promoted_edition,
         "plex_promoted_edition": plex_promoted_edition,
         "is_admin": group.is_admin(request.user),
+        "is_active_book": book.is_active,
         "book_pages": book_pages,
         "book_audio_seconds": book_audio_seconds,
         "edition_pages": edition_pages,
