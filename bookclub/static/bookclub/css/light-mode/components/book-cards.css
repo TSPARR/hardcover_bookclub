@@ -13,14 +13,10 @@
 }
 
 .light-mode .book-header .subtitle {
-    font-size: 1.5rem;
     color: #666;
-    font-weight: 300;
-    margin-bottom: 1rem;
 }
 
 .light-mode .book-header .author {
-    font-size: 1.25rem;
     color: #888;
 }
 

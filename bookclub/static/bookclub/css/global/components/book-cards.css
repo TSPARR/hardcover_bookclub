@@ -31,6 +31,16 @@
 }
 
 /* Book details page - structural elements */
+.book-header .subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+
+.book-header .author {
+    font-size: 1.25rem;
+}
+
 .book-detail-image {
     max-width: 100%;
     border-radius: 0.25rem;
