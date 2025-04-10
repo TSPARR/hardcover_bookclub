@@ -7,7 +7,7 @@
         {% endif %}
     {% endwith %}
     <h4 class="text-muted author">{{ book.author }}</h4>
-Copy<!-- Rating Section (kept the same as before) -->
+<!-- Rating Section -->
 <div class="book-rating mb-3">
     {% if user_progress.effective_rating %}
         {% include "bookclub/includes/star_rating.html" with rating=user_progress.effective_rating %}
