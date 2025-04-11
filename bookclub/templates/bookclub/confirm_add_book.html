@@ -7,41 +7,42 @@
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1>Add Book to {{ group.name }}</h1>
-                <div>
-                    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
-                </div>
-            </div>
+            <h1 class="h3"><i class="bi bi-book-fill me-2"></i>Add Book to {{ group.name }}</h1>
         </div>
     </div>
 
+    <div class="mb-4">
+        <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Group
+        </a>
+    </div>
+
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="h4 mb-0">Confirm Book Details</h2>
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Confirm Book Details</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-4">
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-3 mb-md-0">
                             {% if book_data.cover_image_url %}
-                            <img src="{{ book_data.cover_image_url }}" class="img-fluid" alt="{{ book_data.title }}">
+                            <img src="{{ book_data.cover_image_url }}" class="img-fluid rounded shadow-sm" alt="{{ book_data.title }}">
                             {% else %}
-                            <div class="bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
-                                <span class="text-muted">No cover available</span>
+                            <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 200px;">
+                                <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
                             </div>
                             {% endif %}
                         </div>
                         <div class="col-md-8">
-                            <h3>{{ book_data.title }}</h3>
-                            <p class="text-muted">
+                            <h3 class="h4 mb-2">{{ book_data.title }}</h3>
+                            <p class="text-muted mb-3">
                                 by {{ book_data.author.name|default:"Unknown Author" }}
                             </p>
                             
-                            <div class="mt-3">
-                                <h4 class="h5">Description</h4>
-                                <p>
+                            <div>
+                                <h4 class="h6 fw-bold">Description</h4>
+                                <p class="mb-0">
                                     {{ book_data.description|default:"No description available." }}
                                 </p>
                             </div>
@@ -54,7 +55,7 @@
                         {% csrf_token %}
                         
                         <div class="mb-3">
-                            <h4 class="h5">Book Attribution</h4>
+                            <h4 class="h5 fw-bold"><i class="bi bi-person-fill me-2"></i>Book Attribution</h4>
                             <p class="text-muted">Who picked or suggested this book?</p>
                         </div>
                         
@@ -91,10 +92,29 @@
                         </div>
                         
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">Add to Group</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Add to Group
+                            </button>
                             <a href="{% url 'search_books' group.id %}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Adding Books</h5>
+                </div>
+                <div class="card-body">
+                    <p>When you add a book to your group:</p>
+                    <ul class="mb-0">
+                        <li>All members can track their reading progress</li>
+                        <li>Members can post comments and discuss the book</li>
+                        <li>You can attribute the book to the member who suggested it</li>
+                        <li>You can set it as the active book for the group</li>
+                    </ul>
                 </div>
             </div>
         </div>

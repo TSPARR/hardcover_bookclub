@@ -5,7 +5,7 @@
 {% block title %}Select Edition - {{ book.title|split:":"|first|trim }}{% endblock %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container py-4">
     <div class="row mb-4">
         <div class="col-md-12">
             <nav aria-label="breadcrumb">
@@ -16,9 +16,15 @@
                 </ol>
             </nav>
             
-            <h1 class="mb-2">Select Edition for "{{ book.title|split:":"|first|trim }}"</h1>
-            <p class="text-muted mb-4">By {{ book.author }}</p>
+            <h1 class="h3 mb-2"><i class="bi bi-book-fill me-2"></i>Select Edition</h1>
+            <p class="text-muted">Book: "{{ book.title|split:":"|first|trim }}" by {{ book.author }}</p>
         </div>
+    </div>
+
+    <div class="mb-4">
+        <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Book
+        </a>
     </div>
 
     {% if editions %}
@@ -30,13 +36,13 @@
                     <div class="d-flex align-items-center">
                         <div class="btn-group">
                             <button type="button" class="btn btn-sm btn-outline-success format-filter-btn" data-format-id="1">
-                                Physical <span class="badge bg-secondary format-count" data-format-id="1">0</span>
+                                <i class="bi bi-book me-1"></i> Physical <span class="badge bg-secondary format-count" data-format-id="1">0</span>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-info format-filter-btn" data-format-id="4">
-                                Ebook <span class="badge bg-secondary format-count" data-format-id="4">0</span>
+                                <i class="bi bi-tablet me-1"></i> Ebook <span class="badge bg-secondary format-count" data-format-id="4">0</span>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-warning format-filter-btn" data-format-id="2">
-                                Audio <span class="badge bg-secondary format-count" data-format-id="2">0</span>
+                                <i class="bi bi-headphones me-1"></i> Audio <span class="badge bg-secondary format-count" data-format-id="2">0</span>
                             </button>
                         </div>
                     </div>
@@ -47,15 +53,15 @@
                     </div>
                     <div class="row">
                         {% for edition in editions %}
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 edition-card shadow-sm {% if current_edition and current_edition.hardcover_edition_id == edition.id|stringformat:'s' %}current-edition{% endif %}" data-format-id="{{ edition.reading_format_id }}">
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 edition-card shadow-sm {% if current_edition and current_edition.hardcover_edition_id == edition.id|stringformat:'s' %}border border-primary{% endif %}" data-format-id="{{ edition.reading_format_id }}">
                                 {% if edition.cover_image_url %}
-                                <div class="card-img-top-container">
+                                <div class="card-img-top-container p-3 text-center bg-light">
                                     <img src="{{ edition.cover_image_url }}" class="card-img-top" alt="{{ edition.title }}"
-                                        style="max-height: 200px; object-fit: contain;">
+                                        style="max-height: 200px; width: auto; object-fit: contain;">
                                 </div>
                                 {% else %}
-                                <div class="no-cover">
+                                <div class="no-cover p-3 text-center bg-light" style="height: 200px;">
                                     <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
                                 </div>
                                 {% endif %}
@@ -151,26 +157,22 @@
     {% else %}
     <div class="row">
         <div class="col-md-12">
-            <div class="alert alert-warning">
-                <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>No editions found</h5>
-                <p>No editions found for this book. This could be because:</p>
-                <ul>
-                    <li>The book doesn't have any editions registered in Hardcover</li>
-                    <li>Your Hardcover API key is not set or is invalid</li>
-                    <li>There was an error communicating with the Hardcover API</li>
-                </ul>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="alert alert-warning mb-0">
+                        <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>No editions found</h5>
+                        <p>No editions found for this book. This could be because:</p>
+                        <ul class="mb-0">
+                            <li>The book doesn't have any editions registered in Hardcover</li>
+                            <li>Your Hardcover API key is not set or is invalid</li>
+                            <li>There was an error communicating with the Hardcover API</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     {% endif %}
-
-    <div class="row">
-        <div class="col-md-12">
-            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Back to Book
-            </a>
-        </div>
-    </div>
 </div>
 
 {% if editions %}

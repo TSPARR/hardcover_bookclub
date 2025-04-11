@@ -6,13 +6,16 @@
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col">
-            <h1>Create New Book Group</h1>
+            <h1 class="h3"><i class="bi bi-people-fill me-2"></i>Create New Book Group</h1>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Group Details</h5>
+                </div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
@@ -25,6 +28,7 @@
                                 {{ form.name.errors }}
                             </div>
                             {% endif %}
+                            <div class="form-text">Choose a descriptive name for your book group.</div>
                         </div>
 
                         <div class="mb-3">
@@ -35,6 +39,7 @@
                                 {{ form.description.errors }}
                             </div>
                             {% endif %}
+                            <div class="form-text">Provide details about your group's focus and purpose.</div>
                         </div>
 
                         <div class="mb-3 form-check">
@@ -42,11 +47,14 @@
                             <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
                                 Public group (visible to all users)
                             </label>
+                            <div class="form-text">Public groups can be found and joined by any user. Private groups require an invitation.</div>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Create Group</button>
-                            <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Create Group
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -54,14 +62,14 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Creating a Book Group</h5>
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Book Groups</h5>
                 </div>
                 <div class="card-body">
                     <p>Book groups allow you to discuss books with friends or colleagues.</p>
                     <p>As the creator of a group, you will:</p>
-                    <ul>
+                    <ul class="mb-0">
                         <li>Be automatically added as an admin</li>
                         <li>Be able to add or remove members</li>
                         <li>Be able to promote members to admins</li>
