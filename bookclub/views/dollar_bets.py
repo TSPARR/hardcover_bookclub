@@ -335,7 +335,9 @@ def resolve_dollar_bet(request, bet_id):
 
             # Get truncated description for notifications
             winning_prediction = (
-                bet.description if winner == bet.proposer else bet.counter_description
+                bet.description
+                if winner == bet.proposer
+                else (bet.counter_description or bet.description)
             )
             truncated_prediction = winning_prediction[:50] + (
                 "..." if len(winning_prediction) > 50 else ""
