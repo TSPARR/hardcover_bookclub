@@ -60,7 +60,9 @@
 </div>
 {% endif %}
 
-<p>{{ book.description }}</p>
+<div class="book-description">
+    {{ book.description|linebreaks_p }}
+</div>
 
 <div class="d-flex gap-2">
     <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">

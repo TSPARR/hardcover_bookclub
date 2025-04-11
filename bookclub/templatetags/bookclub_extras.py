@@ -279,3 +279,19 @@ def stringifyjson(value):
     except (TypeError, ValueError):
         # If serialization fails, return empty object
         return "{}"
+
+
+@register.filter
+def linebreaks_p(value):
+    """
+    Convert newlines (\n\n) to paragraph tags, similar to Django's built-in
+    linebreaks filter but with better handling of consecutive newlines.
+    """
+    if not value:
+        return ""
+
+    # Split on double newlines to create paragraphs
+    paragraphs = value.split("\n\n")
+    # Filter out empty paragraphs and wrap each in <p> tags
+    html = "".join([f"<p>{p.strip()}</p>" for p in paragraphs if p.strip()])
+    return mark_safe(html)
