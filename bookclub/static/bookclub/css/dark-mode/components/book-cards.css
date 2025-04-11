@@ -6,6 +6,14 @@
 }
 
 /* Book details page */
+.dark-mode .book-header .subtitle {
+    color: #777;
+}
+
+.dark-mode .book-header .author {
+    color: #777;
+}
+
 .dark-mode .book-detail-image {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
@@ -21,6 +29,83 @@
 
 .dark-mode .bg-light.d-flex.justify-content-center.align-items-center .bi {
     color: #6c757d !important;
+}
+
+/* Search and edition card styles - Dark Mode */
+.dark-mode .search-book-card, 
+.dark-mode .edition-card {
+    background-color: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .search-book-card:hover,
+.dark-mode .edition-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .search-book-card .card-header,
+.dark-mode .edition-card .card-header {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: #9e9e9e;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .search-book-card .card-title,
+.dark-mode .edition-card .card-title {
+    color: #ffffff;
+}
+
+.dark-mode .search-book-card .card-subtitle,
+.dark-mode .edition-card .card-subtitle {
+    color: #b0b0b0;
+}
+
+.dark-mode .search-book-card .card-text,
+.dark-mode .edition-card .card-text {
+    color: #c0c0c0;
+}
+
+.dark-mode .search-book-card .card-footer,
+.dark-mode .edition-card .card-footer {
+    background-color: #1e1e1e;
+    border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+/* No cover placeholder in dark mode */
+.dark-mode .no-cover {
+    background-color: #2c2c2c;
+    color: #9e9e9e;
+}
+
+/* Format filter buttons */
+.dark-mode .format-filter-btn {
+    color: #e1e1e1;
+    background-color: #2c2c2c;
+    border-color: #3a3a3a;
+}
+
+.dark-mode .format-filter-btn:hover:not(.active) {
+    background-color: #333333;
+}
+
+.dark-mode .format-filter-btn.active {
+    background-color: #0d6efd;
+}
+
+/* Dark mode specifics */
+.dark-mode .edition-card.current-edition {
+    border: 2px solid #3d8bfd;
+    box-shadow: 0 4px 12px rgba(61, 139, 253, 0.15);
+}
+
+.dark-mode .edition-card.current-edition::before {
+    background: #3d8bfd;
+}
+
+.dark-mode .edition-card.current-edition .card-footer .btn {
+    background-color: transparent;
+    color: #3d8bfd;
+    border-color: #3d8bfd;
 }
 
 /* Edition card placeholder */
@@ -96,24 +181,4 @@
 
 .dark-mode .mobile-book-rating .text-muted {
     color: #adb5bd !important;
-}
-
-/* Mobile progress bar */
-.dark-mode .mobile-book-progress {
-    background-color: rgba(255, 255, 255, 0.15);
-}
-
-.dark-mode .mobile-book-progress .progress-bar {
-    background-color: rgba(13, 110, 253, 0.7);
-}
-
-.dark-mode .mobile-progress-text {
-    color: #c0c0c0;
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) and (max-width: 991.98px) {
-    .dark-mode .mobile-book-header {
-        border-right: 1px solid #3a3a3a;
-    }
 }

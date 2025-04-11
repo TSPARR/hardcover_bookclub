@@ -77,27 +77,6 @@
     box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
 }
 
-/* Progress indicator - Light Mode */
-.light-mode .progress {
-    background-color: #e9ecef;
-}
-
-.light-mode .progress-bar {
-    background-color: #0d6efd;
-}
-
-.light-mode .progress .bg-success {
-    background-color: #198754 !important;
-}
-
-.light-mode .progress-indicator .info {
-    color: #6c757d;
-}
-
-.light-mode .progress-indicator .d-flex {
-    color: #212529;
-}
-
 /* Pagination styles - Light Mode */
 .light-mode .pagination .page-item.active .page-link {
     background-color: #0d6efd;

@@ -1,0 +1,100 @@
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Notification Settings</h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <!-- Hidden API key field to preserve it when submitting this form -->
+            <input type="hidden" name="{{ form.hardcover_api_key.html_name }}" 
+                value="{{ form.hardcover_api_key.value|default:'' }}">
+            
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="{{ notification_form.enable_notifications.id_for_label }}" 
+                    name="{{ notification_form.enable_notifications.html_name }}" 
+                    {% if notification_form.enable_notifications.value %}checked{% endif %}>
+                <label class="form-check-label" for="{{ notification_form.enable_notifications.id_for_label }}">
+                    {{ notification_form.enable_notifications.label }}
+                </label>
+                <div class="form-text">{{ notification_form.enable_notifications.help_text }}</div>
+            </div>
+            
+            <div id="notification-options" class="ps-4 mt-3">
+                <div class="mb-2">
+                    <h6 class="mb-3">What would you like to be notified about?</h6>
+                </div>
+                
+                <!-- New Active Books notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_active_books.id_for_label }}" 
+                        name="{{ notification_form.notify_new_active_books.html_name }}" 
+                        {% if notification_form.notify_new_active_books.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_new_active_books.id_for_label }}">
+                        {{ notification_form.notify_new_active_books.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_new_active_books.help_text }}</div>
+                </div>
+
+                {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                <!-- Dollar Bets Notifications Section -->
+                <div class="mb-2 mt-4">
+                    <h6>Dollar Bets Notifications</h6>
+                </div>
+
+                <!-- New Dollar Bets notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_dollar_bets.id_for_label }}" 
+                        name="{{ notification_form.notify_new_dollar_bets.html_name }}" 
+                        {% if notification_form.notify_new_dollar_bets.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_new_dollar_bets.id_for_label }}">
+                        {{ notification_form.notify_new_dollar_bets.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_new_dollar_bets.help_text }}</div>
+                </div>
+
+                <!-- Bet Accepted notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_accepted.id_for_label }}" 
+                        name="{{ notification_form.notify_bet_accepted.html_name }}" 
+                        {% if notification_form.notify_bet_accepted.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_bet_accepted.id_for_label }}">
+                        {{ notification_form.notify_bet_accepted.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_bet_accepted.help_text }}</div>
+                </div>
+
+                <!-- Added to Bet notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_added_to.id_for_label }}" 
+                        name="{{ notification_form.notify_bet_added_to.html_name }}" 
+                        {% if notification_form.notify_bet_added_to.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_bet_added_to.id_for_label }}">
+                        {{ notification_form.notify_bet_added_to.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_bet_added_to.help_text }}</div>
+                </div>
+
+                <!-- Bet Resolved notification -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_resolved.id_for_label }}" 
+                        name="{{ notification_form.notify_bet_resolved.html_name }}" 
+                        {% if notification_form.notify_bet_resolved.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ notification_form.notify_bet_resolved.id_for_label }}">
+                        {{ notification_form.notify_bet_resolved.label }}
+                    </label>
+                    <div class="form-text">{{ notification_form.notify_bet_resolved.help_text }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3 mt-2" id="notification-test-container">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="test-notification-button">
+                    <i class="bi bi-bell me-1"></i> Test Notifications
+                </button>
+                <small class="form-text text-muted ms-2">Send a test notification to verify your settings.</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+        </form>
+    </div>
+</div>

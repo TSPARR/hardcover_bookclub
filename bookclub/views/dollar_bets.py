@@ -1,9 +1,13 @@
+import random
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from ..models import Book, BookGroup, DollarBet, User
+from ..notifications import send_push_notification
 
 
 @login_required
@@ -22,6 +26,17 @@ def dollar_bets_list(request, book_id):
 
     bets = DollarBet.objects.filter(book=book).order_by("-created_at")
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": "#", "title": "Dollar Bets"},
+    ]
+
     return render(
         request,
         "bookclub/dollar_bets_list.html",
@@ -30,6 +45,7 @@ def dollar_bets_list(request, book_id):
             "group": group,
             "bets": bets,
             "is_admin": group.is_admin(request.user),
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -48,6 +64,25 @@ def create_dollar_bet(request, book_id):
     if not group.is_member(request.user):
         return HttpResponseForbidden("You're not a member of this group")
 
+    # Check if the book is active or the user is an admin
+    if not book.is_active and not group.is_admin(request.user):
+        messages.warning(
+            request, "Dollar bets can only be created for the active book. "
+        )
+        return redirect("book_detail", book_id=book.id)
+
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Create Bet"},
+    ]
+
     if request.method == "POST":
         description = request.POST.get("description")
         spoiler_level = request.POST.get("spoiler_level", "halfway")
@@ -64,6 +99,18 @@ def create_dollar_bet(request, book_id):
             spoiler_level=spoiler_level,
         )
 
+        # Send notifications to all group members (except the proposer)
+        for member in group.members.all():
+            if member != request.user:  # Don't notify the proposer
+                send_push_notification(
+                    user=member,
+                    title=f"New Dollar Bet in {group.name}",
+                    body=f"{request.user.username} proposed: \"{description[:50]}{'...' if len(description) > 50 else ''}\"",
+                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="new_dollar_bets",
+                )
+
         # Redirect to book detail with bets tab active
         return redirect(f"/books/{book.id}/?tab=bets")
 
@@ -73,13 +120,14 @@ def create_dollar_bet(request, book_id):
         {
             "book": book,
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
 
 @login_required
 def accept_dollar_bet(request, bet_id):
-    """View to accept a dollar bet"""
+    """View to accept a dollar bet, optionally with a counter-bet"""
     bet = get_object_or_404(DollarBet, id=bet_id)
     group = bet.group
     book = bet.book
@@ -99,10 +147,112 @@ def accept_dollar_bet(request, bet_id):
     if bet.status != "open":
         return HttpResponseForbidden("This bet is no longer open")
 
-    bet.accept(request.user)
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Accept Bet"},
+    ]
 
-    # Redirect to book detail with bets tab active
-    return redirect(f"/books/{book.id}/?tab=bets")
+    if request.method == "POST":
+        counter_description = request.POST.get("counter_description", "").strip()
+
+        # Accept the bet with optional counter description
+        bet.accept(request.user, counter_description if counter_description else None)
+
+        # Prepare notification message based on whether a counter-bet was provided
+        notification_body = ""
+        if counter_description:
+            notification_body = f"{request.user.username} accepted your bet with a counter: \"{counter_description[:50]}{'...' if len(counter_description) > 50 else ''}\""
+        else:
+            notification_body = f"{request.user.username} accepted your bet: \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\""
+
+        # Notify the proposer that their bet was accepted
+        send_push_notification(
+            user=bet.proposer,
+            title="Your Dollar Bet was Accepted!",
+            body=notification_body,
+            url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+            icon=book.cover_image_url if book.cover_image_url else None,
+            notification_type="bet_accepted",
+        )
+
+        # Redirect to book detail with bets tab active
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    # If GET request, display the form for accepting a bet
+    return render(
+        request,
+        "bookclub/accept_dollar_bet.html",
+        {
+            "bet": bet,
+            "book": book,
+            "group": group,
+            "breadcrumb_items": breadcrumb_items,
+        },
+    )
+
+
+# Fun phrases for winner notifications
+WINNER_PHRASES = [
+    "🎉 You Won the Dollar Bet!",
+    "💰 Jackpot! You Won the Bet",
+    "🏆 Victory! The Dollar is Yours",
+    "📚 Bookworm Triumph! You Won",
+    "🥇 Champion Reader! Bet Won",
+    "🍀 Lucky Guess! You Won",
+    "👑 Reading Royalty! Your Bet Paid Off",
+    "🔮 Your Prediction Was Spot On!",
+    "💵 Cash Money! You Won the Bet",
+    "🧠 Literary Genius! Bet Won",
+]
+
+# Fun phrases for the winner notification body
+WINNER_BODY_PHRASES = [
+    "Congratulations! Time to collect your hard-earned dollar from {loser}.",
+    "Your literary intuition was right! {loser} owes you $1.",
+    "Well predicted! Maybe {loser} should buy you a coffee with that dollar.",
+    "You called it! {loser} might want to consult you for future predictions.",
+    "Spot on! Don't spend that dollar all in one place.",
+    "Expert prediction! {loser} should frame that dollar for you.",
+    "Brilliant call! That's why you're the book club MVP.",
+    "You knew it all along! {loser} should bow to your literary wisdom.",
+    "Perfect prediction! Use that dollar to bookmark your next victory.",
+    "Reading between the lines paid off! {loser} is $1 poorer now.",
+]
+
+# Fun phrases for loser notifications
+LOSER_PHRASES = [
+    "💸 Dollar Bet Result",
+    "📉 Bet Lost! Time to Pay Up",
+    "🎲 Betting Luck Ran Out",
+    "🤦‍♂️ So Close, Yet So Far",
+    "📚 The Book Had Other Plans",
+    "💔 Your Prediction Missed",
+    "🪙 Time to Part With a Dollar",
+    "🧾 Invoice: One Dollar Due",
+    "🎭 Plot Twist! You Lost the Bet",
+    "🙈 Oops! Bet Lost",
+]
+
+# Fun phrases for the loser notification body
+LOSER_BODY_PHRASES = [
+    'The bet about "{description}" didn\'t go your way. {winner} is waiting for that dollar!',
+    'Time to pay up! {winner} was right about "{description}".',
+    'Your prediction was bold, but {winner} had the winning take on "{description}".',
+    "Better luck next time! {winner} is doing a victory dance right now.",
+    "The book had other plans! {winner} is now $1 richer.",
+    "Your literary prediction skills need work. {winner} sends their regards.",
+    "Now you owe {winner} a whole dollar. Don't spend it all at once, {winner}!",
+    "{winner} saw that plot twist coming! Your dollar awaits its new owner.",
+    "Looks like {winner} was the better book psychic this time.",
+    "That's the price of a daring prediction! {winner} is waiting for payment.",
+]
 
 
 @login_required
@@ -123,12 +273,42 @@ def resolve_dollar_bet(request, bet_id):
     if bet.status != "accepted":
         return HttpResponseForbidden("Only accepted bets can be resolved")
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Resolve Bet"},
+    ]
+
     if request.method == "POST":
         resolution = request.POST.get("resolution")
 
         if resolution == "inconclusive":
             # Mark as inconclusive
             bet.mark_inconclusive(request.user)
+
+            # Get notification message based on whether there was a counter-bet
+            notification_message = ""
+            if bet.counter_description:
+                notification_message = f"Neither prediction ('{bet.description[:30]}...' nor '{bet.counter_description[:30]}...') was correct. The bet was ruled inconclusive by {request.user.username}."
+            else:
+                notification_message = f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
+
+            # Notify both participants
+            for participant in [bet.proposer, bet.accepter]:
+                send_push_notification(
+                    user=participant,
+                    title="Dollar Bet Ruled Inconclusive",
+                    body=notification_message,
+                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="bet_resolved",
+                )
         else:
             # Regular win/loss resolution
             winner_id = request.POST.get("winner")
@@ -150,6 +330,53 @@ def resolve_dollar_bet(request, bet_id):
 
             bet.resolve(winner, request.user)
 
+            # Determine the loser
+            loser = bet.accepter if winner == bet.proposer else bet.proposer
+
+            # Get truncated description for notifications
+            winning_prediction = (
+                bet.description
+                if winner == bet.proposer
+                else (bet.counter_description or bet.description)
+            )
+            truncated_prediction = winning_prediction[:50] + (
+                "..." if len(winning_prediction) > 50 else ""
+            )
+
+            # Select random fun phrases for winner
+            winner_title = random.choice(WINNER_PHRASES)
+            winner_body_template = random.choice(WINNER_BODY_PHRASES)
+            winner_body = winner_body_template.format(
+                loser=loser.username, description=truncated_prediction
+            )
+
+            # Select random fun phrases for loser
+            loser_title = random.choice(LOSER_PHRASES)
+            loser_body_template = random.choice(LOSER_BODY_PHRASES)
+            loser_body = loser_body_template.format(
+                winner=winner.username, description=truncated_prediction
+            )
+
+            # Notify the winner
+            send_push_notification(
+                user=winner,
+                title=winner_title,
+                body=winner_body,
+                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                icon=book.cover_image_url if book.cover_image_url else None,
+                notification_type="bet_resolved",
+            )
+
+            # Notify the loser
+            send_push_notification(
+                user=loser,
+                title=loser_title,
+                body=loser_body,
+                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                icon=book.cover_image_url if book.cover_image_url else None,
+                notification_type="bet_resolved",
+            )
+
         # Redirect to book detail with bets tab active
         return redirect(f"/books/{book.id}/?tab=bets")
 
@@ -158,6 +385,7 @@ def resolve_dollar_bet(request, bet_id):
         "bookclub/resolve_dollar_bet.html",
         {
             "bet": bet,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -231,8 +459,21 @@ def admin_create_dollar_bet(request, book_id):
     # Get all members of the group for the dropdown selection
     members = group.members.all()
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Admin Create Bet"},
+    ]
+
     if request.method == "POST":
         description = request.POST.get("description")
+        counter_description = request.POST.get("counter_description", "").strip()
         proposer_id = request.POST.get("proposer")
         accepter_id = request.POST.get("accepter")
         spoiler_level = request.POST.get("spoiler_level", "halfway")
@@ -260,10 +501,29 @@ def admin_create_dollar_bet(request, book_id):
             proposer=proposer,
             accepter=accepter,
             description=description,
+            counter_description=counter_description if counter_description else None,
             amount=1.00,
             status="accepted",
             spoiler_level=spoiler_level,
         )
+
+        # Customize notification message based on counter bet presence
+        notification_body = ""
+        if counter_description:
+            notification_body = f'An admin has added you to a bet: "{description[:30]}..." vs counter-bet: "{counter_description[:30]}..." in {group.name}.'
+        else:
+            notification_body = f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}."
+
+        # Notify both participants that they've been added to a bet
+        for participant in [proposer, accepter]:
+            send_push_notification(
+                user=participant,
+                title="You've Been Added to a Dollar Bet",
+                body=notification_body,
+                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                icon=book.cover_image_url if book.cover_image_url else None,
+                notification_type="bet_added_to",
+            )
 
         messages.success(
             request, "Dollar bet created successfully between selected members"
@@ -278,6 +538,7 @@ def admin_create_dollar_bet(request, book_id):
             "group": group,
             "members": members,
             "spoiler_levels": DollarBet.SPOILER_LEVEL_CHOICES,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 

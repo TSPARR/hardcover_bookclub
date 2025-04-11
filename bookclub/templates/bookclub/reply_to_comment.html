@@ -6,33 +6,39 @@
 
 {% block content %}
 <div class="container py-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Reply to Comment</h2>
-                    <p class="text-muted mb-0">Book: {{ book.title|split:":"|first|trim }}</p>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="mb-4">
+                <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Book
+                </a>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h4 mb-1"><i class="bi bi-reply-fill me-2"></i>Reply to Comment</h2>
+                    <p class="text-muted mb-0 small">Book: {{ book.title|split:":"|first|trim }}</p>
                 </div>
                 <div class="card-body">
                     <!-- Original comment -->
-                    <div class="card mb-4">
+                    <div class="card shadow-sm mb-4">
                         <div class="card-header bg-light">
-                            <div class="d-flex justify-content-between">
-                                <span>{{ parent_comment.user.username }}</span>
-                                <span class="text-muted">{{ parent_comment.created_at|date:"F j, Y, g:i a" }}</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">{{ parent_comment.user.username }}</span>
+                                <span class="text-muted small">{{ parent_comment.created_at|date:"F j, Y, g:i a" }}</span>
                             </div>
                         </div>
                         <div class="card-body">
-                            <p class="text-muted small">
+                            <p class="text-muted small mb-2">
                                 {% if parent_comment.progress_type == 'page' %}
-                                Page {{ parent_comment.progress_value }}
+                                <i class="bi bi-book me-1"></i> Page {{ parent_comment.progress_value }}
                                 {% elif parent_comment.progress_type == 'audio' %}
-                                Audio: {{ parent_comment.progress_value }}
+                                <i class="bi bi-headphones me-1"></i> Audio: {{ parent_comment.progress_value }}
                                 {% else %}
-                                {{ parent_comment.progress_value }}% complete
+                                <i class="bi bi-percent me-1"></i> {{ parent_comment.progress_value }}% complete
                                 {% endif %}
                             </p>
-                            <p>{{ parent_comment.text }}</p>
+                            <p class="mb-0">{{ parent_comment.text }}</p>
                         </div>
                     </div>
                     
@@ -40,17 +46,27 @@
                     <form method="post">
                         {% csrf_token %}
                         
-                        <div class="mb-3">
+                        <div class="mb-4">
                             {{ form.text.label_tag }}
                             {{ form.text }}
+                            {% if form.text.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.text.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Your reply will be displayed as a direct response to the comment above.
+                            </div>
                         </div>
                         
                         <!-- Add this hidden field to track the parent comment -->
                         <input type="hidden" name="parent_id" value="{{ parent_comment.id }}">
                         
-                        <div class="d-flex">
-                            <button type="submit" class="btn btn-primary">Post Reply</button>
-                            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary ms-2">Cancel</a>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i> Post Reply
+                            </button>
+                            <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

@@ -1,7 +1,7 @@
 {% load bookclub_extras %}
-<form method="post">
+<form method="post" action="">
     {% csrf_token %}
-    <input type="hidden" name="book_order" id="bookOrderInput" value="">
+    <!-- No hidden inputs here - they will be added by JavaScript -->
     
     <div class="alert alert-info mb-3">
         <i class="bi bi-info-circle"></i> Drag and drop books using the handle <i class="bi bi-grip-vertical"></i> to rearrange them. Click Save Order when done.

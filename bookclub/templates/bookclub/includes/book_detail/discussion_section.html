@@ -1,4 +1,4 @@
-<div class="card mb-4">
+<div class="card mb-4 discussion-section" data-is-active-book="{{ is_active_book|yesno:'True,False' }}">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center flex-wrap">
             <h3 class="mb-0">Discussion</h3>
@@ -37,13 +37,24 @@
         </div>
     </div>
     <div class="card-body">
-        {% include "bookclub/includes/book_detail/comment_form.html" %}
+        {% if is_active_book %}
+            {% include "bookclub/includes/book_detail/comment_form.html" %}
+        {% else %}
+            <div class="alert alert-info alert-permanent mb-4">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                This book is not currently active. Comments are in read-only mode.
+            </div>
+        {% endif %}
   
         <!-- Comments List -->
         {% for comment in comments %}
-            {% include "bookclub/includes/book_detail/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices %}
+            {% if is_active_book %}
+                {% include "bookclub/includes/book_detail/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices %}
+            {% else %}
+                {% include "bookclub/includes/book_detail/comment.html" with comment=comment user=user user_progress=user_progress reaction_choices=reaction_choices read_only=True %}
+            {% endif %}
         {% empty %}
-            <p>No comments yet. Be the first to start the discussion!</p>
+            <p>No comments yet. {% if is_active_book %}Be the first to start the discussion!{% endif %}</p>
         {% endfor %}
     </div>
   </div>

@@ -1,0 +1,65 @@
+{% load bookclub_extras %}
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0">Media Analytics</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% if KAVITA_ENABLED %}
+            <div class="col-md-6">
+                <h6>Reading Stats</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total Pages Read:</span>
+                        <strong>{{ kavita_stats.total_pages }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Average Pages Per Book:</span>
+                        <strong>{{ kavita_stats.avg_pages|floatformat:0 }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Longest Book:</span>
+                        <strong>{{ kavita_stats.longest_book.title|split:":"|first|trim }} ({{ kavita_stats.longest_book.pages }} pages)</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Shortest Book:</span>
+                        <strong>{{ kavita_stats.shortest_book.title|split:":"|first|trim }} ({{ kavita_stats.shortest_book.pages }} pages)</strong>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% if PLEX_ENABLED %}
+            <div class="col-md-6">
+                <h6>Listening Stats</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total Listening Time:</span>
+                        <strong>{{ plex_stats.total_time_formatted }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Average Time Per Book:</span>
+                        <strong>{{ plex_stats.avg_time_formatted }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Longest Audiobook:</span>
+                        <strong>{{ plex_stats.longest_book.title|split:":"|first|trim }} ({{ plex_stats.longest_book.duration }})</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Shortest Audiobook:</span>
+                        <strong>{{ plex_stats.shortest_book.title|split:":"|first|trim }} ({{ plex_stats.shortest_book.duration }})</strong>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% if not KAVITA_ENABLED and not PLEX_ENABLED %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No media integrations are enabled. Enable Kavita or Plex in settings to see more analytics.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

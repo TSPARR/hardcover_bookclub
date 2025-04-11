@@ -8,6 +8,9 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            <!-- Breadcrumb navigation -->
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+            
             <div class="card mb-4">
                 <div class="card-header">
                     <h2>Create a $1 Bet for "{{ book.title|split:":"|first|trim }}"</h2>
@@ -44,7 +47,9 @@
                             <div class="form-text">All bets are fixed at $1</div>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Book
+                            </a>
                             <button type="submit" class="btn btn-primary">Create Bet</button>
                         </div>
                     </form>

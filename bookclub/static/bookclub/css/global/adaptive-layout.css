@@ -1,0 +1,920 @@
+/* ===========================
+ * Global Responsive Utilities
+ * =========================== */
+/* Extra small devices (phones) */
+@media (max-width: 575.98px) {
+  /* Typography adjustments */
+  body {
+    font-size: 0.95rem;
+  }
+  
+  .display-4 {
+    font-size: 2.25rem;
+  }
+  
+  /* Container padding adjustments */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Small devices (landscape phones) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .display-4 {
+    font-size: 2.5rem;
+  }
+}
+
+/* ===========================
+ * Navigation Responsive Styles
+ * =========================== */
+@media (max-width: 767.98px) {
+  /* Navbar adjustments */
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+  
+  /* Discussion header and sort dropdown */
+  .card .card-header h3 + .d-flex.align-items-center,
+  #discussion .card-header .d-flex.align-items-center.gap-3 {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch !important;
+    margin-top: 0.75rem;
+  }
+  
+  /* Toggle switch container */
+  .form-check.form-switch {
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+  
+  /* Dropdown styling */
+  .card-header .dropdown,
+  #discussion .dropdown {
+    width: 100%;
+    display: block;
+  }
+  
+  .card-header .dropdown .btn.dropdown-toggle,
+  #discussion .dropdown .btn.dropdown-toggle {
+    width: 100% !important;
+    text-align: left;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  .card-header .dropdown-menu,
+  #discussion .dropdown-menu {
+    width: 100%;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 100% !important;
+    transform: none !important;
+  }
+  
+  #sortDropdown {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+}
+
+/* ===========================
+ * Card Responsive Styles
+ * =========================== */
+/* Medium to large devices (tablets to small desktops) */
+@media (max-width: 1199.98px) and (min-width: 768px) {
+  /* Adjust column widths for better space distribution */
+  .list-group-item .col-md-5 {
+    width: 40%;
+  }
+  
+  .list-group-item .col-md-2 {
+    width: 20%;
+  }
+  
+  /* Prevent text overflow for the book title */
+  .list-group-item .col-md-5 .text-truncate {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Ensure the button container has enough space */
+  .list-group-item .text-md-end {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  /* Make the button text wrap if needed */
+  .list-group-item .btn-outline-primary {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  /* Make member count badge adapt better */
+  .list-group-item .badge.bg-secondary {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+/* Hide "Members" text only at narrower screens */
+@media (max-width: 1100px) {
+  .list-group-item .badge.bg-secondary .members-text {
+    display: none;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 767.98px) {
+  /* Stack the action items on mobile */
+  .list-group-item .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  /* Give some spacing for mobile layout */
+  .list-group-item .col-md-2 {
+    margin-top: 10px;
+  }
+  
+  /* Make the button full width on mobile */
+  .list-group-item .btn-outline-primary {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  
+  /* Improve active book display on mobile */
+  .list-group-item .col-md-5 .d-flex {
+    flex-wrap: wrap;
+  }
+  
+  /* Ensure book titles don't overflow on mobile */
+  .list-group-item .col-md-5 .text-truncate {
+    max-width: 100%;
+    display: block;
+    margin-top: 0.25rem;
+  }
+  
+  /* Card and form responsive adjustments */
+  .card {
+    width: 100%;
+    margin: 0;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .card-footer {
+    padding: 0.75rem 1rem;
+    word-wrap: break-word;
+  }
+  
+  /* Adjust form layout on small screens */
+  form .mb-3 {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Ensure API key link doesn't overflow */
+  .card-footer a {
+    word-break: break-all;
+  }
+}
+
+/* Medium-small breakpoint fixes (tablets) */
+@media (max-width: 991.98px) and (min-width: 768px) {
+  /* Make column layout more compact */
+  .list-group-item .row.align-items-center {
+    flex-wrap: nowrap;
+  }
+  
+  /* Adjust column widths for this specific breakpoint */
+  .list-group-item .col-md-5:first-of-type {
+    width: 35%;
+  }
+  
+  .list-group-item .col-md-5:nth-of-type(2) {
+    width: 40%;
+  }
+  
+  .list-group-item .col-md-2 {
+    width: 25%;
+  }
+  
+  /* Shorten the badge text */
+  .list-group-item .badge.bg-secondary {
+    font-size: 0.7rem;
+  }
+  
+  /* Make the active book badge adapt */
+  .list-group-item .badge.bg-success {
+    padding: 0.25em 0.4em;
+    font-size: 0.7rem;
+  }
+}
+
+/* ===========================
+ * Book Card & Mobile Book Card Responsive Styles
+ * =========================== */
+/* Medium to small devices */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Mobile book card styling */
+  .mobile-book-card {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .mobile-book-header {
+    width: 40%;
+  }
+  
+  /* Handle border color for both themes */
+  .light-mode .mobile-book-header {
+    border-right: 1px solid #dee2e6;
+  }
+  
+  .dark-mode .mobile-book-header {
+    border-right: 1px solid #3a3a3a;
+  }
+
+  .mobile-book-details,
+  .mobile-book-actions {
+    width: 60%;
+    border-top: 0;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+  .mobile-book-card .book-title {
+    font-size: 1rem;
+  }
+
+  .mobile-book-badges .badge {
+    font-size: 0.75rem;
+  }
+
+  .mobile-book-actions .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  /* Adjust image container height on mobile */
+  .card-img-top-container,
+  .no-cover {
+    height: 160px;
+  }
+  
+  .book-cover {
+    max-height: 140px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  /* Stack buttons vertically on very small screens - works for both themes */
+  .mobile-book-actions .btn,
+  .mobile-book-actions form.d-inline,
+  .mobile-book-actions form.d-inline .btn {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+  
+  /* Further simplify the book list items - works for both themes */
+  #sortableBooks li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ===========================
+ * Table & Group Members Progress Responsive Styles
+ * =========================== */
+/* Mobile and tablet devices */
+@media (max-width: 767.98px) {
+  /* Make the group members progress card take full width */
+  .group-members-progress-card {
+    margin-left: -12px;
+    margin-right: -12px;
+    border-radius: 0;
+    width: calc(100% + 24px);
+  }
+
+  /* Adjust the card header padding */
+  .group-members-progress-card .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  /* Make table structure more mobile-friendly */
+  .group-members-progress-card .table th,
+  .group-members-progress-card .table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Adjust column widths for mobile */
+  .group-members-progress-card .table th:nth-child(1),
+  .group-members-progress-card .table td:nth-child(1) {
+    width: 30%;
+    min-width: auto;
+    padding-left: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+  }
+
+  .group-members-progress-card .table th:nth-child(2),
+  .group-members-progress-card .table td:nth-child(2) {
+    width: 45%;
+  }
+
+  .group-members-progress-card .table th:nth-child(3),
+  .group-members-progress-card .table td:nth-child(3) {
+    width: 25%;
+    min-width: auto;
+    padding-right: 0.75rem;
+  }
+  
+  /* Optimize progress bar for mobile */
+  .group-members-progress-card .progress.group-members-progress {
+    height: 1.25rem;
+    margin: 0;
+  }
+  
+  /* Make status badges more compact */
+  .group-members-progress-card .badge {
+    padding: 0.35em 0.5em;
+    font-size: 0.75rem;
+  }
+  
+  /* Previous books table visibility and styling */
+  .previous-books-desktop {
+    display: none !important;
+  }
+
+  .previous-books-mobile {
+    display: block !important;
+  }
+  
+  /* Specific mobile styling for previous books mobile view */
+  .previous-books-mobile .mobile-book-card {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Mobile book card styling */
+  .mobile-book-card {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    background-color: var(--card-bg, #1e1e1e);
+    border: 1px solid var(--card-border-color, #333);
+  }
+  
+  /* Book information header */
+  .mobile-book-header {
+    padding: 1rem;
+  }
+  
+  .mobile-book-header .book-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+  }
+  
+  .mobile-book-header .book-author {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin-bottom: 0;
+  }
+  
+  /* Book details section */
+  .mobile-book-details {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+  }
+  
+  /* Action buttons section */
+  .mobile-book-actions {
+    padding: 1rem;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+  }
+  
+  /* Action button styling */
+  .mobile-book-actions .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    border-radius: 0.375rem;
+  }
+  
+  .mobile-book-actions .btn:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Inline form fixes */
+  .mobile-book-actions form.d-inline {
+    display: block !important;
+    width: 100%;
+    margin-bottom: 0.75rem;
+  }
+  
+  .mobile-book-actions form.d-inline:last-child {
+    margin-bottom: 0;
+  }
+  
+  .mobile-book-actions form.d-inline .btn {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  
+  /* Special spacing for Remove button - ADDED FIX */
+  .mobile-book-actions form.d-inline:last-of-type {
+    margin-top: 0.25rem;
+  }
+  
+  /* Mobile book reordering fixes */
+  #mobileReorderForm {
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  .dark-mode #mobileReorderForm {
+    background-color: #1e1e1e;
+  }
+  
+  /* Mobile specific styles for reorder form */
+  #reorderForm {
+    padding: 0.75rem;
+    overflow-x: hidden;
+  }
+
+  /* Sortable books structure */
+  #sortableBooks {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  #sortableBooks li {
+    padding: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Handle and number column */
+  #sortableBooks li .handle {
+    font-size: 1rem;
+  }
+  
+  #sortableBooks li .book-number {
+    min-width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+  
+  /* Force flex column on smaller screens for book info */
+  #sortableBooks li .d-flex.justify-content-between {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  /* Adjust book info display */
+  #sortableBooks li strong {
+    font-size: 0.9rem;
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+  }
+  
+  #sortableBooks li small {
+    font-size: 0.8rem;
+  }
+  
+  /* Fix badge display */
+  #sortableBooks li .badge {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+    white-space: normal;
+    text-align: center;
+    display: inline-block;
+  }
+  
+  /* Stack buttons on small screens */
+  #sortableBooks li .d-flex.align-items-center:last-child {
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  /* Ensure buttons are properly sized */
+  #sortableBooks li .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Action buttons at bottom of form */
+  #reorderForm>div:last-child,
+  #mobileReorderForm>div:last-child {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  
+  #reorderForm>div:last-child .btn,
+  #mobileReorderForm>div:last-child .btn {
+    width: 48%;
+  }
+  
+  /* Ensure alert message is readable */
+  #reorderForm .alert,
+  #mobileReorderForm .alert {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+  /* Further reduce padding */
+  .group-members-progress-card .card-header h3 {
+    font-size: 1rem;
+  }
+  
+  .group-members-progress-card .table th,
+  .group-members-progress-card .table td {
+    padding: 0.6rem 0.4rem;
+  }
+  
+  /* Optimize column distribution for very small screens */
+  .group-members-progress-card .table th:nth-child(1),
+  .group-members-progress-card .table td:nth-child(1) {
+    width: 25%;
+    max-width: 90px;
+  }
+  
+  .group-members-progress-card .table th:nth-child(2),
+  .group-members-progress-card .table td:nth-child(2) {
+    width: 40%;
+  }
+  
+  .group-members-progress-card .table th:nth-child(3),
+  .group-members-progress-card .table td:nth-child(3) {
+    width: 35%;
+  }
+  
+  /* Progress text adjustments for both themes */
+  .dark-mode .group-members-progress-card .progress.group-members-progress::after,
+  .light-mode .group-members-progress-card .progress.group-members-progress::after {
+    font-size: 0.75rem;
+  }
+  
+  /* Read-only indicator positioning */
+  .read-only-indicator {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  /* Make book cover smaller for sortable books */
+  #sortableBooks li .me-3[style*="width: 40px"] {
+    width: 30px !important;
+    height: 45px !important;
+    min-width: 30px;
+  }
+  
+  /* Improve text wrapping */
+  #sortableBooks li div:not(.d-flex) {
+    width: 100%;
+    word-break: break-word;
+  }
+}
+
+/* ===========================
+ * Active Book Card Responsive Styles
+ * =========================== */
+/* Mobile-specific adjustments */
+@media (max-width: 767.98px) {
+  /* Adjust the book cover column */
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .col-4.book-cover-container {
+    padding-right: 0.5rem;
+    max-height: 180px;
+  }
+
+  /* Better image handling */
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-cover,
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-cover-placeholder {
+    width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+  }
+
+  /* Better title handling */
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Better author text handling */
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .author-name {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Better button organization */
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .primary-action,
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-top: 1rem !important;
+  }
+
+  /* Make Continue Reading button prominent */
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .continue-reading-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Style the admin buttons in a grid */
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Special handling for smaller buttons */
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .editions-btn,
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .refresh-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+
+  /* Danger button (Remove) should be full width and at bottom */
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .remove-btn {
+    grid-column: 1 / span 2;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Fix for extremely small screens (iPhone SE, etc) */
+@media (max-width: 375px) {
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .remove-btn {
+    grid-column: auto;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Adjust layout for tablet view */
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-content-row {
+    flex-wrap: wrap;
+  }
+
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .book-info,
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .reading-progress {
+    width: 100%;
+  }
+
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .reading-progress {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .card.border-primary.shadow-sm.active-book-card .card-body .list-group-item .reading-progress>div {
+    margin-right: 1rem;
+  }
+
+  /* Button layout for tablets */
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .primary-action,
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .card.border-primary.shadow-sm.active-book-card .reading-progress .remove-btn {
+    margin-left: auto;
+  }
+}
+
+/* ===========================
+ * Reaction Components Responsive Styles 
+ * =========================== */
+@media (max-width: 767.98px) {
+  /* Make reaction buttons more tappable on mobile */
+  .reaction-btn {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    min-height: 2.5rem;
+  }
+  
+  /* Make reaction counts more tappable */
+  .reaction-count {
+    padding: 0.5rem 0.75rem;
+    margin: -0.5rem -0.75rem;
+    margin-left: 0;
+    position: relative;
+  }
+  
+  /* Mobile bottom sheet for reaction users panel */
+  .reaction-users-panel {
+    position: fixed !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    margin: 0 !important;
+    z-index: 1100 !important;
+  }
+  
+  /* Specific shadow styling for each theme */
+  .dark-mode .reaction-users-panel {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4) !important;
+    background-color: #343a40 !important;
+    border: 1px solid #495057 !important;
+  }
+  
+  .light-mode .reaction-users-panel {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
+    background-color: #fff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Enhanced mobile styling for reaction panels */
+  .reaction-users-header {
+    padding: 1rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  .dark-mode .reaction-users-header {
+    border-bottom: 1px solid #495057 !important;
+    background-color: rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .light-mode .reaction-users-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background-color: rgba(0, 0, 0, 0.03) !important;
+  }
+  
+  .close-users-panel {
+    padding: 0.5rem 0.75rem !important;
+    margin: -0.5rem -0.75rem !important;
+    font-size: 1.75rem !important;
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    border-radius: 0.25rem !important;
+  }
+  
+  .dark-mode .close-users-panel {
+    color: #adb5bd !important;
+  }
+  
+  .dark-mode .close-users-panel:hover {
+    color: #f8f9fa !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .light-mode .close-users-panel {
+    color: #6c757d !important;
+  }
+  
+  .light-mode .close-users-panel:hover {
+    color: #343a40 !important;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Make the user list more touch-friendly on mobile */
+  .reaction-users-list {
+    max-height: 40vh !important;
+    padding: 0.75rem !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+  }
+  
+  .dark-mode .reaction-users-list {
+    background-color: #343a40 !important;
+  }
+  
+  .light-mode .reaction-users-list {
+    background-color: #fff !important;
+  }
+  
+  /* Larger touch targets for user pills on mobile */
+  .reaction-user-item {
+    border-radius: 2rem !important;
+    padding: 0.5rem 0.75rem !important;
+    margin: 0.35rem !important;
+    font-size: 1rem !important;
+    display: inline-block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    transition: background-color 0.15s !important;
+  }
+  
+  .dark-mode .reaction-user-item {
+    background-color: #2c2c2c !important;
+    color: #e1e1e1 !important;
+    border: 1px solid #3a3a3a !important;
+  }
+  
+  .dark-mode .reaction-user-item:hover {
+    background-color: #495057 !important;
+  }
+  
+  .light-mode .reaction-user-item {
+    background-color: #f1f3f5 !important;
+  }
+  
+  .light-mode .reaction-user-item:hover {
+    background-color: #e9ecef !important;
+  }
+  
+  /* Mobile backdrop for reaction panel */
+  .mobile-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1040 !important;
+    display: none !important;
+  }
+  
+  .dark-mode .mobile-backdrop {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+  
+  .light-mode .mobile-backdrop {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  /* Reaction panel styling for mobile */
+  .reaction-panel {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    border-radius: 0.25rem !important;
+    position: relative !important;
+    z-index: 1050 !important;
+  }
+  
+  .dark-mode .reaction-panel {
+    background-color: #343a40 !important;
+    border: 1px solid #495057 !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  .light-mode .reaction-panel {
+    background-color: #fff !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+/* Extra small devices - additional adjustments for reactions */
+@media (max-width: 575.98px) {
+  .reaction-user-item {
+    font-size: 0.9rem !important;
+    padding: 0.4rem 0.65rem !important;
+    margin: 0.25rem !important;
+  }
+  
+  .close-users-panel {
+    font-size: 1.5rem !important;
+  }
+}

@@ -1,7 +1,7 @@
 /* ===========================
  * Global Comments Styles
  * =========================== */
-/* Comment components - Structural elements */
+/* Comment Elements */
 .comment-progress {
     font-weight: bold;
     margin-bottom: 0.75rem;
@@ -9,33 +9,37 @@
 }
 
 .comment-user {
-    font-weight: 600;
     font-weight: bold;
 }
 
 .comment-date {
-    font-size: 0.875rem;
     font-size: 0.85rem;
 }
 
-/* Comment Section Structure */
-.replies {
-    padding-left: 1rem;
-    margin-left: 1rem;
-}
-
-/* Progress percentage display */
 .comment-progress .text-muted {
     font-size: 0.875rem;
 }
 
-/* Badge sizing */
+/* Progress badges */
 .comment-progress .badge {
     font-size: 0.75rem;
     padding: 0.25em 0.5em;
 }
 
-/* Spoiler Comment Structural Styles */
+/* Reply structure */
+.replies {
+    padding-left: 1rem;
+    margin-left: 1rem;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* Comment card structure */
+.comment-card {
+    z-index: auto !important;
+}
+
+/* Spoilers */
 .spoiler-warning {
     display: flex;
     align-items: center;
@@ -54,32 +58,35 @@
     border-radius: 0.25rem;
 }
 
-/* Sort Dropdown Structural Styles */
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Container overflow fixes */
+.card-body,
+.spoiler-content,
+.replies {
+    overflow: visible !important;
+}
+
+/* Sort dropdown */
 .card-header .dropdown-menu {
     max-width: 100%;
     min-width: fit-content;
 }
 
-@media (max-width: 768px) {
-    .card-header .d-flex {
-        width: 100%;
-    }
+/* Read-Only Mode */
+.read-only-indicator {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+}
 
-    .card-header .dropdown {
-        max-width: 100%;
-    }
-
-    .card-header .dropdown-menu {
-        width: auto;
-        position: absolute !important;
-        right: 0;
-    }
-
-    /* Ensure the toggle button doesn't overflow */
-    #sortDropdown {
-        max-width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+.read-only-indicator i {
+    margin-right: 0.25rem;
 }

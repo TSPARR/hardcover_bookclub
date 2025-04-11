@@ -1,0 +1,22 @@
+{% comment %}
+  Standard breadcrumbs include
+  
+  Parameters:
+  - items: List of dictionaries with 'url' and 'title' keys.
+           The last item is automatically marked as active.
+  
+  Usage example:
+  {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+{% endcomment %}
+
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    {% for item in items %}
+      {% if forloop.last %}
+        <li class="breadcrumb-item active" aria-current="page">{{ item.title }}</li>
+      {% else %}
+        <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.title }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+</nav>

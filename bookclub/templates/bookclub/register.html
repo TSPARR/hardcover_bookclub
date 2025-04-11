@@ -3,79 +3,89 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h2>Register</h2>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h3 mb-0"><i class="bi bi-person-plus me-2"></i>Create Account</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="text-danger">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="text-danger">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
-                        {{ form.first_name }}
-                        {% if form.first_name.errors %}
-                        <div class="text-danger">{{ form.first_name.errors }}</div>
-                        {% endif %}
-                    </div>
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger">{{ form.username.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Choose a unique username for your account.</div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
-                        {{ form.last_name }}
-                        {% if form.last_name.errors %}
-                        <div class="text-danger">{{ form.last_name.errors }}</div>
-                        {% endif %}
-                    </div>
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger">{{ form.email.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Your email will be used for account recovery and notifications.</div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="text-danger">{{ form.username.errors }}</div>
-                        {% endif %}
-                    </div>
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                            <div class="text-danger">{{ form.password1.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">{{ form.password1.help_text }}</div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                        <div class="text-danger">{{ form.email.errors }}</div>
-                        {% endif %}
-                    </div>
+                        <div class="mb-3">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                            <div class="text-danger">{{ form.password2.errors }}</div>
+                            {% endif %}
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
-                        {{ form.password1 }}
-                        {% if form.password1.errors %}
-                        <div class="text-danger">{{ form.password1.errors }}</div>
-                        {% endif %}
-                        <div class="form-text">{{ form.password1.help_text }}</div>
-                    </div>
+                        <div class="mb-4">
+                            <label for="{{ form.invitation_code.id_for_label }}" class="form-label">Invitation Code</label>
+                            {{ form.invitation_code }}
+                            {% if form.invitation_code.errors %}
+                            <div class="text-danger">{{ form.invitation_code.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">{{ form.invitation_code.help_text|default:"A valid invitation code is required to register." }}</div>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
-                        {{ form.password2 }}
-                        {% if form.password2.errors %}
-                        <div class="text-danger">{{ form.password2.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="{{ form.invitation_code.id_for_label }}" class="form-label">Invitation Code</label>
-                        {{ form.invitation_code }}
-                        {% if form.invitation_code.errors %}
-                        <div class="text-danger">{{ form.invitation_code.errors }}</div>
-                        {% endif %}
-                        <div class="form-text">{{ form.invitation_code.help_text }}</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Register</button>
-                </form>
-            </div>
-            <div class="card-footer">
-                <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-check me-1"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <p class="mb-0">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+                </div>
             </div>
         </div>
     </div>

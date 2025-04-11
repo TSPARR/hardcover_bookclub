@@ -1,12 +1,12 @@
 {% load bookclub_extras %}
 
 {% with comment_progress_value=comment.normalized_progress|default:0 %}
-<div class="card mb-3 comment-card {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}spoiler-comment{% endif %}"
+<div class="card mb-3 comment-card {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}spoiler-comment{% endif %} {% if read_only %}read-only{% endif %}"
     data-progress="{{ comment_progress_value }}" data-comment-id="{{ comment.id }}" id="comment-{{ comment.id }}">
     <div class="card-header d-flex justify-content-between">
         <div class="d-flex align-items-center">
             <span class="comment-user">{{ comment.user.username }}</span>
-            {% if comment.user == user %}
+            {% if comment.user == user and not read_only %}
             <div class="dropdown ms-2">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-three-dots"></i>
@@ -55,14 +55,15 @@
                 <div class="existing-reactions mb-2">
                     {% for reaction_type, count in comment.get_reactions_summary.items %}
                     {% with users=comment.get_users_for_reaction|get_item:reaction_type %}
-                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in users %}active{% endif %}"
+                    <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in users %}active{% endif %} {% if read_only %}disabled{% endif %}"
                         data-comment-id="{{ comment.id }}" 
                         data-reaction="{{ reaction_type }}"
                         data-reaction-users="{{ users|map:'username'|join:', ' }}"
                         data-bs-toggle="tooltip"
                         data-bs-custom-class="reaction-tooltip"
                         data-bs-placement="top"
-                        data-bs-title="Reacted by: {{ users|map:'username'|join:', ' }}">
+                        data-bs-title="Reacted by: {{ users|map:'username'|join:', ' }}"
+                        {% if read_only %}disabled aria-disabled="true"{% endif %}>
                         {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
                     </button>
                     {% endwith %}
@@ -70,6 +71,7 @@
                 </div>
                 
                 <!-- Add reaction button and inline panel -->
+                {% if not read_only %}
                 <div class="add-reaction">
                     <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
                         Add Reaction
@@ -82,6 +84,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% else %}
@@ -92,14 +95,16 @@
             <!-- Existing reactions -->
             <div class="existing-reactions mb-2">
                 {% for reaction_type, count in comment.get_reactions_summary.items %}
-                <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                    data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}">
+                <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %} {% if read_only %}disabled{% endif %}"
+                    data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}"
+                    {% if read_only %}disabled aria-disabled="true"{% endif %}>
                     {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
                 </button>
                 {% endfor %}
             </div>
             
             <!-- Add reaction button and inline panel -->
+            {% if not read_only %}
             <div class="add-reaction">
                 <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ comment.id }}">
                     Add Reaction
@@ -112,23 +117,28 @@
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
         {% endif %}
     </div>
 
     <div class="card-footer d-flex justify-content-between">
+        {% if not read_only %}
         <a href="{% url 'reply_to_comment' comment.id %}" class="btn btn-sm btn-outline-primary">Reply</a>
+        {% else %}
+        <span class="text-muted small">Comments are in read-only mode</span>
+        {% endif %}
     </div>
     
     <!-- Replies -->
     {% if comment.get_replies %}
     <div class="replies ms-4 mt-2 mb-2">
         {% for reply in comment.get_replies %}
-        <div class="card mb-2 reply-card" id="comment-{{ reply.id }}">
+        <div class="card mb-2 reply-card {% if read_only %}read-only{% endif %}" id="comment-{{ reply.id }}">
             <div class="card-header d-flex justify-content-between">
                 <div class="d-flex align-items-center">
                     <span class="comment-user">{{ reply.user.username }}</span>
-                    {% if reply.user == user %}
+                    {% if reply.user == user and not read_only %}
                     <div class="dropdown ms-2">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-three-dots"></i>
@@ -157,14 +167,16 @@
                         <!-- Existing reactions -->
                         <div class="existing-reactions mb-2">
                             {% for reaction_type, count in reply.get_reactions_summary.items %}
-                            <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                                data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
+                            <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %} {% if read_only %}disabled{% endif %}"
+                                data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}"
+                                {% if read_only %}disabled aria-disabled="true"{% endif %}>
                                 {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
                             </button>
                             {% endfor %}
                         </div>
                         
                         <!-- Add reaction button and inline panel -->
+                        {% if not read_only %}
                         <div class="add-reaction">
                             <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
                                 Add Reaction
@@ -177,6 +189,7 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% else %}
@@ -187,14 +200,16 @@
                     <!-- Existing reactions -->
                     <div class="existing-reactions mb-2">
                         {% for reaction_type, count in reply.get_reactions_summary.items %}
-                        <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %}"
-                            data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}">
+                        <button class="btn btn-sm btn-outline-secondary reaction-btn me-1 {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %} {% if read_only %}disabled{% endif %}"
+                            data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}"
+                            {% if read_only %}disabled aria-disabled="true"{% endif %}>
                             {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
                         </button>
                         {% endfor %}
                     </div>
                     
                     <!-- Add reaction button and inline panel -->
+                    {% if not read_only %}
                     <div class="add-reaction">
                         <button class="btn btn-sm btn-outline-secondary add-reaction-btn" type="button" data-comment-id="{{ reply.id }}">
                             Add Reaction
@@ -207,6 +222,7 @@
                             {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>

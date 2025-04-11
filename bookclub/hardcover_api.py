@@ -329,6 +329,7 @@ class HardcoverAPI:
             id
             title
             cached_image
+            asin
             pages
             audio_seconds
             reading_format_id
@@ -338,6 +339,7 @@ class HardcoverAPI:
                 name
             }
             release_date
+            edition_format
         }
         }
         """

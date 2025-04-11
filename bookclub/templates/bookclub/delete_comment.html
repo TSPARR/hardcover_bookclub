@@ -5,38 +5,52 @@
 
 {% block content %}
 <div class="container py-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="mb-4">
+                <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Book
+                </a>
+            </div>
+            
+            <div class="card shadow-sm">
                 <div class="card-header bg-danger text-white">
-                    <h2>Delete Comment</h2>
+                    <h2 class="h4 mb-0"><i class="bi bi-trash me-2"></i>Delete Comment</h2>
                 </div>
                 <div class="card-body">
-                    <h5>Are you sure you want to delete this comment?</h5>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. Are you sure you want to delete this comment?
+                    </div>
                     
-                    <div class="card mb-3 mt-3">
+                    <div class="card mb-4 shadow-sm">
                         <div class="card-header bg-light">
-                            <span>{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">{{ comment.user.username }}</span>
+                                <span class="text-muted small">{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
+                            </div>
                         </div>
                         <div class="card-body">
-                            <p>
+                            <p class="text-muted small mb-2">
                                 {% if comment.progress_type == 'page' %}
-                                Page {{ comment.progress_value }}
+                                <i class="bi bi-book me-1"></i> Page {{ comment.progress_value }}
                                 {% elif comment.progress_type == 'audio' %}
-                                Audio: {{ comment.progress_value }}
+                                <i class="bi bi-headphones me-1"></i> Audio: {{ comment.progress_value }}
                                 {% else %}
-                                {{ comment.progress_value }}% complete
+                                <i class="bi bi-percent me-1"></i> {{ comment.progress_value }}% complete
                                 {% endif %}
                             </p>
-                            <p class="card-text">{{ comment.text }}</p>
+                            <p class="card-text mb-0">{{ comment.text }}</p>
                         </div>
                     </div>
                     
                     <form method="post">
                         {% csrf_token %}
-                        <div class="d-flex">
-                            <button type="submit" class="btn btn-danger">Delete Comment</button>
-                            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary ms-2">Cancel</a>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Delete Comment
+                            </button>
+                            <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

@@ -1,7 +1,7 @@
 /* ===========================
  * Dark Mode Comments Styles
  * =========================== */
-/* Comment text colors for dark mode */
+/* Base text colors */
 .dark-mode .comment-progress {
     color: #b0b0b0;
 }
@@ -10,12 +10,20 @@
     color: #a0a0a0;
 }
 
-/* Dark mode reply threading */
+.dark-mode .comment-user {
+    color: #ffffff;
+}
+
+.dark-mode .comment-progress .text-muted {
+    color: #9e9e9e;
+}
+
+/* Reply threading */
 .dark-mode .replies {
     border-left: 3px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Spoiler styling for dark mode */
+/* Spoiler styling */
 .dark-mode .show-spoiler-btn:hover {
     background-color: #2c2c2c;
 }
@@ -30,7 +38,7 @@
     color: #ffda6a;
 }
 
-/* Dropdown styles for dark mode */
+/* Dropdown styling */
 .dark-mode .card-header .dropdown-menu {
     background-color: #2c2c2c;
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -42,4 +50,33 @@
 
 .dark-mode .card-header .dropdown-item:hover {
     background-color: #3a3a3a;
+}
+
+/* Read-only colors */
+.dark-mode .comment-card.read-only,
+.dark-mode .reply-card.read-only {
+    border-color: #2a2a2a;
+    background-color: #252525;
+}
+
+.dark-mode .read-only .card-header {
+    background-color: #2a2a2a;
+    color: #a0a0a0;
+}
+
+.dark-mode .read-only .card-footer {
+    background-color: #2a2a2a;
+    font-style: italic;
+    color: #a0a0a0;
+}
+
+.dark-mode .read-only .btn.disabled,
+.dark-mode .read-only .btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dark-mode .read-only-indicator {
+    color: #a0a0a0;
+    background-color: #2a2a2a;
 }

@@ -9,6 +9,8 @@
 <script src="{% static 'bookclub/js/analytics/attribution_analytics.js' %}"></script>
 <script src="{% static 'bookclub/js/analytics/rating_chart.js' %}"></script>
 <script src="{% static 'bookclub/js/analytics/collapsible_tables.js' %}"></script>
+<script src="{% static 'bookclub/js/analytics/bet_rivalries.js' %}"></script>
+<script src="{% static 'bookclub/js/analytics/bet_rivalries_chart.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -32,6 +34,27 @@
             {% if group_rating_stats %}
                 {% include "bookclub/includes/analytics/group_rating_summary.html" %}
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Media Stats (Kavita and Plex) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% include "bookclub/includes/analytics/media_stats.html" %}
+        </div>
+    </div>
+
+    <!-- Dollar Betting Analytics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% include "bookclub/includes/analytics/betting_analytics.html" %}
+        </div>
+    </div>
+    
+    <!-- Dollar Betting Rivalries -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% include "bookclub/includes/analytics/bet_rivalries.html" %}
         </div>
     </div>
 

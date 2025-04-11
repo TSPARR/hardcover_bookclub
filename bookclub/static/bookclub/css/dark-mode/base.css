@@ -65,3 +65,10 @@
 .dark-mode .card.shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5) !important;
 }
+
+/* Alert styling in dark mode */
+.dark-mode .alert-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #e1e1e1;
+    border-color: rgba(255, 193, 7, 0.4);
+}

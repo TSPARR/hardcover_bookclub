@@ -1,0 +1,139 @@
+/* ===========================
+ * Global Progress Bar Styles
+ * =========================== */
+/* Base Progress Bar Structure */
+.progress {
+    border-radius: 0.25rem;
+    height: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.5rem;
+}
+
+/* Progress Bar with Percentage Display */
+.progress.progress-styled::after,
+.progress.group-members-progress::after {
+    content: attr(data-progress) "%";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+/* Group Members Progress Card Structure */
+.group-members-progress-card .progress.group-members-progress,
+#bookDetailsAccordion .progress.progress-styled {
+    position: relative;
+    border-radius: 0.25rem;
+    margin: 0.75rem 0;
+    overflow: hidden;
+    height: 1.75rem;
+}
+
+.group-members-progress-card .progress.group-members-progress .progress-bar,
+#bookDetailsAccordion .progress.progress-styled .progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Mobile Book Progress Bar Structure */
+.mobile-book-card .progress.group-members-progress {
+    height: 1.25rem;
+    margin: 0.5rem 0;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.mobile-book-card .progress.group-members-progress .progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Target the specific progress bar in home.html */
+.list-group-item .progress {
+    height: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Override the general progress::after rule */
+.list-group-item .progress::after {
+    content: none;
+}
+
+/* Modal progress bar structure */
+#hardcoverSyncModal .progress.group-members-progress {
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    position: relative;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+#hardcoverSyncModal .progress.group-members-progress .progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.2s ease;
+}
+
+/* Progress indicator structure */
+.progress-indicator {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.progress-indicator .progress {
+    height: 8px;
+    margin-bottom: 0.25rem;
+}
+
+.progress-indicator .info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+}
+
+.progress-indicator .badge {
+    font-weight: 600;
+}
+
+/* Progress details text structure */
+.progress-details,
+#hardcoverSyncModalBody .progress-details {
+    margin-top: 6px;
+}
+
+.progress-percentage,
+#hardcoverSyncModalBody .progress-percentage {
+    font-weight: bold;
+}
+
+/* Mobile book progress bar */
+.mobile-book-progress {
+    height: 0.75rem;
+    margin: 0.5rem 0 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.mobile-progress-text {
+    text-align: right;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}

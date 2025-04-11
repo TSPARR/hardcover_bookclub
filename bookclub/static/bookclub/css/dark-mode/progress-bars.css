@@ -1,0 +1,127 @@
+/* ===========================
+ * Dark Mode Progress Bar Styles
+ * =========================== */
+/* Base Progress Bar Styles - Dark Mode */
+.dark-mode .progress {
+    background-color: rgba(255, 255, 255, 0.15);
+    height: 1.75rem;
+}
+
+.dark-mode .progress-bar {
+    background-color: rgba(13, 110, 253, 0.7);
+    color: #fff;
+}
+
+/* Progress text styling - Dark Mode */
+.dark-mode .progress.progress-styled::after,
+.dark-mode .progress.group-members-progress::after {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
+.dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
+.dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar.bg-secondary {
+    background-color: rgba(108, 117, 125, 0.7);
+}
+
+/* Mobile Book Card Progress Bar - Dark Mode */
+.dark-mode .mobile-book-card .progress.group-members-progress {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode .mobile-book-card .progress.group-members-progress .progress-bar {
+    background-color: #0d6efd;
+}
+
+.dark-mode .mobile-book-card .progress.group-members-progress::after,
+.dark-mode .group-members-progress-card .progress.group-members-progress::after {
+    color: #ffffff;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+    font-weight: 600;
+}
+
+/* Modal progress bar - Dark Mode */
+.dark-mode #hardcoverSyncModal .progress.group-members-progress {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode #hardcoverSyncModal .progress.group-members-progress .progress-bar {
+    background-color: rgba(13, 110, 253, 0.7);
+}
+
+.dark-mode #hardcoverSyncModal .progress.group-members-progress::after {
+    color: #ffffff;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+}
+
+/* Progress indicator - Dark Mode */
+.dark-mode .progress-indicator .progress {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .progress-indicator .info {
+    color: #9e9e9e;
+}
+
+.dark-mode .progress-indicator .d-flex {
+    color: #e1e1e1;
+}
+
+/* Progress details text - Dark Mode */
+.dark-mode .progress-details,
+.dark-mode #hardcoverSyncModalBody .progress-details {
+    color: #b0b0b0 !important;
+}
+
+.dark-mode .progress-percentage,
+.dark-mode #hardcoverSyncModalBody .progress-percentage {
+    color: #5c9bff !important;
+}
+
+/* Progress container card styling - Dark Mode */
+.dark-mode .hardcover-progress-container .progress,
+.dark-mode #hardcoverSyncModal .progress {
+    background-color: #3a3a3a !important;
+}
+
+/* Mobile book progress - Dark Mode */
+.dark-mode .mobile-book-progress {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode .mobile-book-progress .progress-bar {
+    background-color: rgba(13, 110, 253, 0.7);
+}
+
+.dark-mode .mobile-progress-text {
+    color: #c0c0c0;
+}
+
+/* Hardcover progress options - Dark Mode */
+.dark-mode .hardcover-progress-container .hardcover-progress-option,
+.dark-mode #hardcoverSyncModalBody .progress-option {
+    background-color: #2c2c2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e1e1e1 !important;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dark-mode .hardcover-progress-container .hardcover-progress-option:hover,
+.dark-mode #hardcoverSyncModalBody .progress-option:hover {
+    background-color: #3a3a3a !important;
+    border-color: rgba(13, 110, 253, 0.5) !important;
+    box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
+}
+
+.dark-mode .hardcover-progress-container .hardcover-progress-option.selected,
+.dark-mode #hardcoverSyncModalBody .progress-option.selected {
+    background-color: rgba(13, 110, 253, 0.25) !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 1px #0d6efd;
+}

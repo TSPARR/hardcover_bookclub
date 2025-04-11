@@ -73,6 +73,11 @@
     color: #adb5bd;
 }
 
+.dark-mode textarea::placeholder {
+    color: #adb5bd;
+    opacity: 0.7;
+}
+
 /* Dollar bets table styling */
 .dark-mode .dollar-bets-table {
     color: #e9ecef;

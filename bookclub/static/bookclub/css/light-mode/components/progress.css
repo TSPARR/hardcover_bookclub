@@ -28,45 +28,10 @@
     background-color: #f8f9fa;
 }
 
-/* Progress indicator styles - Light Mode */
-.light-mode .progress {
-    background-color: #e9ecef;
-}
-
-.light-mode .progress-bar {
-    background-color: #0d6efd;
-    color: white;
-}
-
-.light-mode .progress-indicator .info {
-    color: #6c757d;
-}
-
-.light-mode .progress-indicator .d-flex {
-    color: #212529;
-}
-
-/* Progress details text - Light Mode */
-.light-mode .progress-details,
-.light-mode #hardcoverSyncModalBody .progress-details {
-    color: #6c757d !important;
-}
-
-.light-mode .progress-percentage,
-.light-mode #hardcoverSyncModalBody .progress-percentage {
-    color: #0d6efd !important;
-}
-
 /* Help text for progress inputs - Light Mode */
 .light-mode #commentProgressHelp,
 .light-mode #progressHelp {
     color: #6c757d;
-}
-
-/* Progress container card styling - Light Mode */
-.light-mode .hardcover-progress-container .progress,
-.light-mode #hardcoverSyncModal .progress {
-    background-color: #e9ecef !important;
 }
 
 /* Comment progress styles - Light Mode */

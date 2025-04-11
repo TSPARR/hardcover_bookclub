@@ -5,8 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize filter buttons
     const filterButtons = document.querySelectorAll('.format-filter-btn');
     const editionCards = document.querySelectorAll('.edition-card');
-    const clearFilterBtn = document.getElementById('clear-filter');
     const formatCountBadges = document.querySelectorAll('.format-count');
+    
+    // Track currently active filter
+    let activeFormatId = null;
     
     // Count initial formats
     updateFormatCounts();
@@ -16,33 +18,23 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function() {
             const formatId = this.getAttribute('data-format-id');
             
-            // Update active state
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Show the clear filter button when a filter is active
-            if (formatId) {
-                clearFilterBtn.classList.remove('d-none');
+            // Toggle filter: clear if clicking the same filter, otherwise apply new filter
+            if (this.classList.contains('active')) {
+                // Clear filter if clicking the active button
+                this.classList.remove('active');
+                activeFormatId = null;
             } else {
-                clearFilterBtn.classList.add('d-none');
+                // Remove active state from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Set new active button
+                this.classList.add('active');
+                activeFormatId = formatId;
             }
             
-            // Filter the editions
-            filterEditions(formatId);
+            // Filter the editions based on current active state
+            filterEditions(activeFormatId);
         });
     });
-    
-    // Clear filter button
-    if (clearFilterBtn) {
-        clearFilterBtn.addEventListener('click', function() {
-            // Clear active state on all filter buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            // Hide the clear button
-            this.classList.add('d-none');
-            // Show all editions
-            filterEditions(null);
-        });
-    }
     
     // Function to filter editions
     function filterEditions(formatId) {

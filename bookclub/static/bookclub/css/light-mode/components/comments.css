@@ -1,7 +1,7 @@
 /* ===========================
  * Light Mode Comments Styles
  * =========================== */
-/* Comment text colors for light mode */
+/* Base text colors */
 .light-mode .comment-progress {
     color: #495057;
 }
@@ -10,12 +10,20 @@
     color: #6c757d;
 }
 
-/* Light mode reply threading */
+.light-mode .comment-user {
+    color: #212529;
+}
+
+.light-mode .comment-progress .text-muted {
+    color: #6c757d;
+}
+
+/* Reply threading */
 .light-mode .replies {
     border-left: 3px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Spoiler styling for light mode */
+/* Spoiler styling */
 .light-mode .show-spoiler-btn:hover {
     background-color: #f8f9fa;
 }
@@ -30,7 +38,7 @@
     color: #856404;
 }
 
-/* Dropdown styles for light mode */
+/* Dropdown styling */
 .light-mode .card-header .dropdown-menu {
     background-color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.15);
@@ -42,4 +50,33 @@
 
 .light-mode .card-header .dropdown-item:hover {
     background-color: #f8f9fa;
+}
+
+/* Read-only colors */
+.light-mode .comment-card.read-only,
+.light-mode .reply-card.read-only {
+    border-color: #f0f0f0;
+    background-color: #fafafa;
+}
+
+.light-mode .read-only .card-header {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.light-mode .read-only .card-footer {
+    background-color: #f5f5f5;
+    font-style: italic;
+    color: #666;
+}
+
+.light-mode .read-only .btn.disabled,
+.light-mode .read-only .btn[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.light-mode .read-only-indicator {
+    color: #666;
+    background-color: #f0f0f0;
 }

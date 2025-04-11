@@ -1,57 +1,6 @@
 /* ===========================
  * Global Edition Info Styles
  * =========================== */
-/* Reaction components - globally applicable */
-.reaction-btn {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 0.5rem;
-    transition: all 0.2s;
-}
-
-.reaction-count {
-    margin-left: 0.25rem;
-    font-weight: bold;
-}
-
-/* Active reaction */
-.reaction-btn.active {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-    color: white;
-}
-
-/* Reaction panel styling */
-.reaction-panel {
-    display: none; /* Hidden by default */
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-    animation: fadeIn 0.2s ease-in-out;
-}
-
-/* Animation for panel appearance */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Reaction option buttons */
-.reaction-option {
-    min-width: 2.5rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 1rem;
-    transition: transform 0.2s ease;
-}
-
-.reaction-option:hover {
-    transform: scale(1.1);
-}
-
 /* Edition info section - structural elements */
 .edition-info {
     margin-top: 0.75rem;

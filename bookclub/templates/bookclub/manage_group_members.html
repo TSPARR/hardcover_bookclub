@@ -6,119 +6,131 @@
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col">
-            <h1>Manage Members: {{ group.name }}</h1>
-            <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
+            <h1 class="h3"><i class="bi bi-people-fill me-2"></i>Manage Members</h1>
+            <p class="text-muted">Group: {{ group.name }}</p>
         </div>
     </div>
 
+    <div class="mb-4">
+        <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Group
+        </a>
+    </div>
+    
     <div class="row">
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">Current Members</h3>
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-person-check me-2"></i>Current Members</h5>
                     <span class="badge bg-primary">{{ members.count }} members</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if members %}
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for member in members %}
-                            <tr>
-                                <td>{{ member.username }}</td>
-                                <td>
-                                    {% if member in admins %}
-                                    <span class="badge bg-success">Admin</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">Member</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        {% if member != user %}
-                                        <form method="post" class="d-inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="user_id" value="{{ member.id }}">
-
-                                            {% if member in admins %}
-                                            <button type="submit" name="action" value="remove_admin"
-                                                class="btn btn-sm btn-outline-warning">
-                                                Remove Admin Role
-                                            </button>
-                                            {% else %}
-                                            <button type="submit" name="action" value="make_admin"
-                                                class="btn btn-sm btn-outline-success">
-                                                Make Admin
-                                            </button>
-                                            {% endif %}
-
-                                            <button type="submit" name="action" value="remove"
-                                                class="btn btn-sm btn-outline-danger ms-1">
-                                                Remove
-                                            </button>
-                                        </form>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                <tr>
+                                    <td class="align-middle">{{ member.username }}</td>
+                                    <td class="align-middle">
+                                        {% if member in admins %}
+                                        <span class="badge bg-success">Admin</span>
                                         {% else %}
-                                        <span class="text-muted">You</span>
+                                        <span class="badge bg-secondary">Member</span>
                                         {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% if member != user %}
+                                            <form method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ member.id }}">
+
+                                                {% if member in admins %}
+                                                <button type="submit" name="action" value="remove_admin"
+                                                    class="btn btn-sm btn-outline-warning">
+                                                    <i class="bi bi-shield-minus me-1"></i> Remove Admin
+                                                </button>
+                                                {% else %}
+                                                <button type="submit" name="action" value="make_admin"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-shield-plus me-1"></i> Make Admin
+                                                </button>
+                                                {% endif %}
+
+                                                <button type="submit" name="action" value="remove"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-person-dash me-1"></i> Remove
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <span class="text-muted">You</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
-                    <p>No members in this group yet.</p>
+                    <div class="p-4 text-center">
+                        <p class="text-muted mb-0">No members in this group yet.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">Add Members</h3>
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Add Members</h5>
                 </div>
                 <div class="card-body">
                     {% if available_users %}
                     <form method="post" action="{% url 'add_group_member' group.id %}">
                         {% csrf_token %}
-                        <div class="input-group mb-3">
+                        <div class="input-group">
                             <select name="user_id" class="form-select">
                                 <option selected disabled>Choose a user to add...</option>
                                 {% for user in available_users %}
                                 <option value="{{ user.id }}">{{ user.username }}</option>
                                 {% endfor %}
                             </select>
-                            <button class="btn btn-primary" type="submit">Add Member</button>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-plus-lg me-1"></i> Add
+                            </button>
                         </div>
                     </form>
                     {% else %}
-                    <p>No more users available to add.</p>
+                    <p class="text-center mb-0">No more users available to add.</p>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4 class="mb-0">Group Roles</h4>
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 1rem;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Group Roles</h5>
                 </div>
                 <div class="card-body">
-                    <h5>Admins Can:</h5>
-                    <ul>
+                    <h6 class="fw-bold"><i class="bi bi-shield-fill me-2 text-success"></i>Admins Can:</h6>
+                    <ul class="mb-4">
                         <li>Add and remove members</li>
                         <li>Promote members to admins</li>
                         <li>Add or remove books</li>
                         <li>Edit group settings</li>
                     </ul>
 
-                    <h5>Members Can:</h5>
-                    <ul>
+                    <h6 class="fw-bold"><i class="bi bi-person-fill me-2 text-secondary"></i>Members Can:</h6>
+                    <ul class="mb-0">
                         <li>View group books</li>
                         <li>Post comments</li>
                         <li>Track their reading progress</li>

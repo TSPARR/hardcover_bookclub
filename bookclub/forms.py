@@ -121,3 +121,96 @@ class GroupForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
             "is_public": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+
+class NotificationPreferencesForm(forms.Form):
+    """Form for managing user notification preferences"""
+
+    # Main notification toggle
+    enable_notifications = forms.BooleanField(
+        required=False,
+        label="Enable Push Notifications",
+        help_text="Receive notifications from Book Club in your browser",
+    )
+
+    # Specific notification types
+    notify_new_active_books = forms.BooleanField(
+        required=False,
+        label="New Active Books",
+        help_text="Get notified when a new book becomes active in your groups",
+    )
+
+    notify_new_dollar_bets = forms.BooleanField(
+        required=False,
+        label="New Dollar Bets",
+        help_text="Get notified when a new open bet is made in your groups",
+    )
+    
+    notify_bet_accepted = forms.BooleanField(
+        required=False,
+        label="Bet Accepted",
+        help_text="Get notified when someone accepts your open bet",
+    )
+    
+    notify_bet_added_to = forms.BooleanField(
+        required=False,
+        label="Added to Bet",
+        help_text="Get notified when an admin adds you to a bet",
+    )
+    
+    notify_bet_resolved = forms.BooleanField(
+        required=False,
+        label="Bet Resolved",
+        help_text="Get notified when a bet you're involved in is resolved",
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        # Get push_enabled from the view instead of directly from settings
+        self.push_enabled = kwargs.pop("push_enabled", True)
+        super().__init__(*args, **kwargs)
+
+        # Disable all fields if push notifications aren't enabled
+        if not self.push_enabled:
+            for field in self.fields.values():
+                field.disabled = True
+                field.help_text = "Push notifications are not enabled on this server"
+
+    def save(self):
+        """Save the notification preferences to the user's profile"""
+        if not self.user or not self.is_valid():
+            return False
+
+        profile = self.user.profile
+        profile.enable_notifications = self.cleaned_data.get(
+            "enable_notifications", False
+        )
+
+        # Create or update preferences dictionary
+        if not profile.notification_preferences:
+            profile.notification_preferences = {}
+
+        # Update specific preferences
+        profile.notification_preferences.update(
+            {
+                "new_active_books": self.cleaned_data.get(
+                    "notify_new_active_books", False
+                ),
+                "new_dollar_bets": self.cleaned_data.get(
+                    "notify_new_dollar_bets", False
+                ),
+                "bet_accepted": self.cleaned_data.get(
+                    "notify_bet_accepted", False
+                ),
+                "bet_added_to": self.cleaned_data.get(
+                    "notify_bet_added_to", False
+                ),
+                "bet_resolved": self.cleaned_data.get(
+                    "notify_bet_resolved", False
+                ),
+            }
+        )
+
+        # Save profile
+        profile.save(update_fields=["enable_notifications", "notification_preferences"])
+        return True
