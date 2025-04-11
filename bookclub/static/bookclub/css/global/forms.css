@@ -64,30 +64,3 @@ input[name="hardcover_api_key"] {
     white-space: normal;     /* Allow text to wrap */
     line-height: 1.5;        /* Improve readability of wrapped text */
 }
-
-/* Make card and form responsive on mobile */
-@media (max-width: 767.98px) {
-    .card {
-        width: 100%;
-        margin: 0;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .card-footer {
-        padding: 0.75rem 1rem;
-        word-wrap: break-word;  /* Allow text to wrap properly */
-    }
-    
-    /* Adjust form layout on small screens */
-    form .mb-3 {
-        margin-bottom: 1rem !important;
-    }
-    
-    /* Ensure API key link doesn't overflow */
-    .card-footer a {
-        word-break: break-all;  /* Break long URLs */
-    }
-}

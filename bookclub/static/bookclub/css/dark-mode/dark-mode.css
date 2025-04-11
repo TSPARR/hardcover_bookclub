@@ -10,6 +10,7 @@
 @import 'modals.css';
 @import 'utilities.css';
 @import 'base.css';
+@import 'progress-bars.css';
 
 /* Feature-specific overrides */
 @import 'components/book-cards.css';

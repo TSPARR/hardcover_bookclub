@@ -130,10 +130,3 @@
 .light-mode .mobile-progress-text {
     color: #555555;
 }
-
-/* Responsive adjustments */
-@media (min-width: 768px) and (max-width: 991.98px) {
-    .light-mode .mobile-book-header {
-        border-right: 1px solid #dee2e6;
-    }
-}

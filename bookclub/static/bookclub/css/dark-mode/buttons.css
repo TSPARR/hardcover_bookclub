@@ -1,6 +1,53 @@
 /* ===========================
  * Dark Mode Button Styles
  * =========================== */
+
+/* Basic button colors */
+.dark-mode .btn-primary {
+    background-color: #2b8afe; /* Brighter blue */
+    border-color: #2b8afe;
+    color: #ffffff;
+}
+
+.dark-mode .btn-primary:hover {
+    background-color: #3a94ff; /* Even brighter on hover */
+    border-color: #3a94ff;
+}
+
+.dark-mode .btn-secondary {
+    background-color: #5a6268; /* Lighter gray */
+    border-color: #5a6268;
+    color: #ffffff;
+}
+
+.dark-mode .btn-secondary:hover {
+    background-color: #6c757d; /* Even lighter on hover */
+    border-color: #6c757d;
+}
+
+.dark-mode .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.dark-mode .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.dark-mode .btn-info {
+    background-color: #0dcaf0; /* Brighter teal */
+    border-color: #0dcaf0;
+    color: #000000; /* Black text for contrast */
+    font-weight: 500; /* Slightly bolder text */
+}
+
+.dark-mode .btn-info:hover {
+    background-color: #31d2f2; /* Even brighter on hover */
+    border-color: #31d2f2;
+    color: #000000;
+}
+
 /* Close button - Dark Mode */
 .dark-mode .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);
@@ -93,10 +140,6 @@
     color: white;
 }
 
-.dark-mode .btn-kavita i {
-    font-size: 1.1rem;
-}
-
 .dark-mode .btn-plex {
     background-color: #cc7b19;
     border-color: #cc7b19;
@@ -107,10 +150,6 @@
     background-color: #b36d16;
     border-color: #a66414;
     color: white;
-}
-
-.dark-mode .btn-plex i {
-    font-size: 1.1rem;
 }
 
 /* Spoiler button styling - Dark Mode */
@@ -130,55 +169,22 @@
     box-shadow: 0 0 0 0.25rem rgba(255, 243, 205, 0.5);
 }
 
-/* Dark Mode Primary Button Colors - excluding modal buttons which already have specific styles */
+/* Dark Mode Primary Button Colors - excluding modal buttons */
 .dark-mode .btn-primary:not(.modal-footer .btn-primary) {
-    background-color: #2b8afe; /* Brighter blue */
+    background-color: #2b8afe;
     border-color: #2b8afe;
     color: #ffffff;
 }
 
 .dark-mode .btn-primary:not(.modal-footer .btn-primary):hover {
-    background-color: #3a94ff; /* Even brighter on hover */
+    background-color: #3a94ff;
     border-color: #3a94ff;
 }
 
-/* Dark Mode Secondary Button Colors */
-.dark-mode .btn-secondary {
-    background-color: #5a6268; /* Lighter gray */
-    border-color: #5a6268;
-    color: #ffffff;
-}
-
-.dark-mode .btn-secondary:hover {
-    background-color: #6c757d; /* Even lighter on hover */
-    border-color: #6c757d;
-}
-
-/* Dark Mode Info Button Colors */
-.dark-mode .btn-info {
-    background-color: #0dcaf0; /* Brighter teal */
-    border-color: #0dcaf0;
-    color: #000000; /* Black text for contrast */
-    font-weight: 500; /* Slightly bolder text */
-}
-
-.dark-mode .btn-info:hover {
-    background-color: #31d2f2; /* Even brighter on hover */
-    border-color: #31d2f2;
-    color: #000000;
-}
-
-/* Dark Mode Small Buttons Improvements */
-.dark-mode .btn-sm.btn-primary {
-    font-weight: 500;
-    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2); /* Subtle text shadow for better contrast */
-}
-
-/* Create Group Button Specific */
+/* Create Group Button Specific Colors */
 .dark-mode .card-header .btn-sm.btn-primary {
     background-color: #2b8afe;
     border-color: #2b8afe;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .dark-mode .card-header .btn-sm.btn-primary:hover {
@@ -186,9 +192,13 @@
     border-color: #3a94ff;
 }
 
-/* Continue Button Specific */
+/* Continue Button Specific Colors */
 .dark-mode .btn-sm.btn-primary:not(.card-header .btn-sm.btn-primary) {
     background-color: #2b8afe;
     border-color: #2b8afe;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Text shadow for small buttons */
+.dark-mode .btn-sm.btn-primary {
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
 }

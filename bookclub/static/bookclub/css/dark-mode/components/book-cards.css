@@ -182,23 +182,3 @@
 .dark-mode .mobile-book-rating .text-muted {
     color: #adb5bd !important;
 }
-
-/* Mobile progress bar */
-.dark-mode .mobile-book-progress {
-    background-color: rgba(255, 255, 255, 0.15);
-}
-
-.dark-mode .mobile-book-progress .progress-bar {
-    background-color: rgba(13, 110, 253, 0.7);
-}
-
-.dark-mode .mobile-progress-text {
-    color: #c0c0c0;
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) and (max-width: 991.98px) {
-    .dark-mode .mobile-book-header {
-        border-right: 1px solid #3a3a3a;
-    }
-}
