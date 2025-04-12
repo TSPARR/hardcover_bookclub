@@ -1,7 +1,7 @@
 /* ===========================
  * Dark Mode Modal Styles
  * =========================== */
-.dark-mode .modal-content {
+ .dark-mode .modal-content {
     background-color: #2c2c2c;
     color: #e1e1e1;
     border-color: rgba(255, 255, 255, 0.2);
@@ -80,38 +80,6 @@
     background-color: rgba(13, 110, 253, 0.25);
     border-color: #0d6efd;
     box-shadow: 0 0 0 1px #0d6efd;
-}
-
-/* Progress bar styling */
-.dark-mode #hardcoverSyncModal .progress.group-members-progress {
-    height: 1.5rem;
-    border-radius: 0.25rem;
-    background-color: rgba(255, 255, 255, 0.15);
-    overflow: hidden;
-    position: relative;
-    margin: 0.5rem 0;
-}
-
-.dark-mode #hardcoverSyncModal .progress.group-members-progress .progress-bar {
-    background-color: rgba(13, 110, 253, 0.7);
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transition: width 0.3s ease, background-color 0.2s ease;
-}
-
-.dark-mode #hardcoverSyncModal .progress.group-members-progress::after {
-    content: attr(data-progress) "%";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-    z-index: 1;
 }
 
 /* Text elements */

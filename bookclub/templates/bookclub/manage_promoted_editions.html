@@ -6,6 +6,8 @@
 
 {% block content %}
 <div class="container my-4">
+    {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+    
     {% include 'bookclub/includes/promoted_editions/header.html' %}
     
     {% if has_kavita %}

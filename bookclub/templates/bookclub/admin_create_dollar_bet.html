@@ -8,6 +8,9 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            <!-- Breadcrumb navigation -->
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+            
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2><i class="bi bi-currency-dollar me-2"></i>Admin: Create Dollar Bet</h2>
@@ -24,12 +27,6 @@
                     
                     <form method="post">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Bet Description</label>
-                            <textarea class="form-control" id="description" name="description" 
-                                    rows="3" required placeholder="What is this bet about?"></textarea>
-                            <div class="form-text">Be specific about the prediction so it can be clearly judged later.</div>
-                        </div>
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -40,7 +37,7 @@
                                         <option value="{{ member.id }}">{{ member.username }}</option>
                                     {% endfor %}
                                 </select>
-                                <div class="form-text">The member who proposed the bet</div>
+                                <div class="form-text">The member who proposes the bet</div>
                             </div>
                             
                             <div class="col-md-6">
@@ -51,7 +48,24 @@
                                         <option value="{{ member.id }}">{{ member.username }}</option>
                                     {% endfor %}
                                 </select>
-                                <div class="form-text">The member who accepted the bet</div>
+                                <div class="form-text">The member who accepts the bet</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Proposer's Bet Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                    rows="3" required placeholder="What is this bet about?"></textarea>
+                            <div class="form-text">Be specific about the prediction so it can be clearly judged later.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="counter_description" class="form-label">Accepter's Counter-Bet (Optional)</label>
+                            <textarea class="form-control" id="counter_description" name="counter_description" 
+                                    rows="3" placeholder="Alternative prediction from the accepter (if any)"></textarea>
+                            <div class="form-text">
+                                If the accepter has a specific counter-prediction (e.g., "No, I bet Rebecca, not Allison"). 
+                                Leave blank if the accepter simply accepts the original bet.
                             </div>
                         </div>
                         
@@ -83,7 +97,9 @@
                         </div>
                         
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Book
+                            </a>
                             <button type="submit" class="btn btn-primary">Create Bet</button>
                         </div>
                     </form>

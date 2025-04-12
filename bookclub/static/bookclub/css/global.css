@@ -11,6 +11,7 @@
 @import 'global/utilities.css';
 @import 'global/tables.css';
 @import 'global/star_ratings.css';
+@import 'global/progress-bars.css';
 
 /* Feature-specific components */
 @import 'global/components/analytics.css';
@@ -21,3 +22,7 @@
 @import 'global/components/dollar-bets.css';
 @import 'global/components/reactions.css';
 @import 'global/components/book-cards.css';
+@import 'global/components/refresh.css';
+@import 'global/components/breadcrumbs.css';
+
+@import 'global/adaptive-layout.css';

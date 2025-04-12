@@ -23,14 +23,42 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
+    <!-- Inline script to prevent mode flash -->
+    <script>
+        (function() {
+            const storedMode = localStorage.getItem('darkMode');
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            const shouldUseDarkMode = storedMode === 'true' || 
+                (storedMode === null && prefersDarkMode);
+
+            // Always add to documentElement
+            document.documentElement.classList.add(shouldUseDarkMode ? 'dark-mode' : 'light-mode');
+            document.documentElement.classList.remove(shouldUseDarkMode ? 'light-mode' : 'dark-mode');
+
+            // Use MutationObserver to add classes when body becomes available
+            const observer = new MutationObserver(function(mutations) {
+                const body = document.body;
+                if (body) {
+                    body.classList.add(shouldUseDarkMode ? 'dark-mode' : 'light-mode');
+                    body.classList.remove(shouldUseDarkMode ? 'light-mode' : 'dark-mode');
+                    observer.disconnect();
+                }
+            });
+
+            // Start observing the document with the configured parameters
+            observer.observe(document.documentElement, { childList: true });
+        })();
+    </script>
+
     <!-- Global CSS (always loaded) -->
     <link rel="stylesheet" href="{% static 'bookclub/css/global.css' %}">
         
     <!-- Light Mode CSS (default theme) -->
     <link rel="stylesheet" href="{% static 'bookclub/css/light-mode/light-mode.css' %}">
         
-    <!-- Dark Mode CSS (loaded conditionally) -->
-    <link rel="stylesheet" href="{% static 'bookclub/css/dark-mode/dark-mode.css' %}" media="(prefers-color-scheme: dark)">
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="{% static 'bookclub/css/dark-mode/dark-mode.css' %}">
     
     <!-- Theme-specific elements visibility -->
     <style>
@@ -118,7 +146,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Common JS -->
-    <script src="{% static 'bookclub/js/common.js' %}"></script>
+    <script type="module" src="{% static 'bookclub/js/common.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
 </body>

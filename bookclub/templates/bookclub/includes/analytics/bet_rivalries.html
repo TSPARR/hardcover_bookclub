@@ -1,0 +1,91 @@
+{% load bookclub_extras %}
+{% if group.is_dollar_bets_enabled %}
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0">Betting Rivalries</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="table-responsive">
+                    <table id="betting-rivalries-table" class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Nemesis</th>
+                                <th>Net Loss ($)</th>
+                                <th>Cash Cow</th>
+                                <th>Net Gain ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if dollar_rivalries %}
+                                {% for rivalry in dollar_rivalries %}
+                                    <tr>
+                                        <td>{{ rivalry.user.username }}</td>
+                                        <td>
+                                            {% if rivalry.nemesis %}
+                                                {{ rivalry.nemesis.username }}
+                                            {% else %}
+                                                <span class="text-muted">None</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-danger">
+                                            {% if rivalry.nemesis_loss %}
+                                                -${{ rivalry.nemesis_loss|floatformat:2 }}
+                                            {% else %}
+                                                $0.00
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if rivalry.cash_cow %}
+                                                {{ rivalry.cash_cow.username }}
+                                            {% else %}
+                                                <span class="text-muted">None</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-success">
+                                            {% if rivalry.cash_cow_gain %}
+                                                +${{ rivalry.cash_cow_gain|floatformat:2 }}
+                                            {% else %}
+                                                $0.00
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <div class="alert alert-info mb-0">
+                                            <i class="bi bi-info-circle"></i> 
+                                            Not enough resolved bets to show rivalries.
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="chart-container" style="min-height: 300px; position: relative;">
+                    <canvas id="rivalriesChart" data-rivalries="{{ dollar_rivalries|stringifyjson }}"></canvas>
+                </div>
+                <div class="text-center mt-2">
+                    <small class="text-muted">Top 5 most significant betting rivalries</small>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-light border">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <span><strong>Nemesis:</strong> The member you've lost the most money to in bets.</span>
+                    <span class="mx-3">|</span>
+                    <span><strong>Cash Cow:</strong> The member you've gained the most money from in bets.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

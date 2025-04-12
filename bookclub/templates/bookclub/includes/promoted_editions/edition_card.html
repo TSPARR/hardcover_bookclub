@@ -49,6 +49,14 @@
             {% if edition.release_date_formatted %}
             <li><strong>Published:</strong> {{ edition.release_date_formatted }}</li>
             {% endif %}
+            
+            {% if edition.asin %}
+            <li><strong>ASIN:</strong> {{ edition.asin }}</li>
+            {% endif %}
+            
+            {% if edition.edition_format %}
+            <li><strong>Edition Format:</strong> {{ edition.edition_format }}</li>
+            {% endif %}
 
             {% if edition.isbn %}
             <li><strong>ISBN:</strong> {{ edition.isbn }}</li>

@@ -3,13 +3,23 @@
  * Handles functionality for the profile settings page
  */
 
+// Import necessary functions from modules
+import { getCsrfToken } from './common/utils.js';
+import { 
+    arePushNotificationsSupported, 
+    checkPushNotificationsAvailable, 
+    getCurrentPushSubscription,
+    subscribeToPushNotifications,
+    unsubscribeFromPushNotifications
+} from './common/push-notifications.js';
+
 // Function to clear JS/CSS cache
 function clearBrowserCache() {
     console.log('Attempting to clear browser cache...');
     
     // Create query strings with timestamps to force reload of assets
     const timestamp = new Date().getTime();
-    const csrfToken = window.getCsrfToken();
+    const csrfToken = getCsrfToken();
     
     // Show loading indicator
     const button = document.querySelector('button.btn-warning');
@@ -60,22 +70,29 @@ function clearBrowserCache() {
     console.log('Cache clearing initiated');
 }
 
-// Initialize when DOM is ready - using a self-executing function to ensure it only runs once
-(function() {
-    // Ensure this initialization only happens once
-    if (window.notificationUIInitialized) {
-        console.log('Notification UI already initialized, skipping...');
-        return;
+// Expose clearBrowserCache globally
+window.clearBrowserCache = clearBrowserCache;
+
+// Function to toggle notification options visibility
+function toggleNotificationOptions(enabled) {
+    const optionsDiv = document.getElementById('notification-options');
+    const testContainer = document.getElementById('notification-test-container');
+    
+    if (optionsDiv) {
+        optionsDiv.style.display = enabled ? 'block' : 'none';
     }
     
-    // Set flag to prevent duplicate initialization
-    window.notificationUIInitialized = true;
+    if (testContainer) {
+        testContainer.style.display = enabled ? 'block' : 'none';
+    }
     
-    document.addEventListener('DOMContentLoaded', async function() {
-        // Initialize notification UI elements
-        await initNotificationUI();
-    });
-})();
+    // If notifications are disabled, uncheck all option checkboxes
+    if (!enabled) {
+        document.querySelectorAll('#notification-options input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+}
 
 // Initialize push notification UI elements
 async function initNotificationUI() {
@@ -89,30 +106,42 @@ async function initNotificationUI() {
     }
     
     // Check if browser supports push notifications
-    if (!window.arePushNotificationsSupported()) {
+    if (!arePushNotificationsSupported()) {
         console.log('Browser does not support push notifications');
         notificationCheckbox.disabled = true;
         notificationCheckbox.checked = false;
         notificationCheckbox.closest('.form-check').style.display = 'none';
         testContainer.style.display = 'none';
+        
+        // Also hide notification options
+        const notificationOptions = document.getElementById('notification-options');
+        if (notificationOptions) {
+            notificationOptions.style.display = 'none';
+        }
         return;
     }
     
     // Check if push notifications are available on the server
-    const pushAvailable = await window.checkPushNotificationsAvailable();
+    const pushAvailable = await checkPushNotificationsAvailable();
     if (!pushAvailable) {
         console.log('Push notifications not available on server');
         notificationCheckbox.closest('.form-check').style.display = 'none';
         testContainer.style.display = 'none';
+        
+        // Also hide notification options
+        const notificationOptions = document.getElementById('notification-options');
+        if (notificationOptions) {
+            notificationOptions.style.display = 'none';
+        }
         return;
     }
     
     // Check current subscription status
-    const subscription = await window.getCurrentPushSubscription();
+    const subscription = await getCurrentPushSubscription();
     notificationCheckbox.checked = !!subscription;
     
-    // Update test button visibility based on checkbox state
-    testContainer.style.display = notificationCheckbox.checked ? 'block' : 'none';
+    // Update visibility based on checkbox state
+    toggleNotificationOptions(notificationCheckbox.checked);
     
     // Remove any existing listeners to prevent duplicates
     const newNotificationCheckbox = notificationCheckbox.cloneNode(true);
@@ -124,12 +153,12 @@ async function initNotificationUI() {
     // Toggle subscription when checkbox changes
     updatedNotificationCheckbox.addEventListener('change', async function() {
         if (this.checked) {
-            const success = await window.subscribeToPushNotifications();
+            const success = await subscribeToPushNotifications();
             this.checked = !!success;
-            testContainer.style.display = this.checked ? 'block' : 'none';
+            toggleNotificationOptions(this.checked);
         } else {
-            await window.unsubscribeFromPushNotifications();
-            testContainer.style.display = 'none';
+            await unsubscribeFromPushNotifications();
+            toggleNotificationOptions(false);
         }
     });
     
@@ -153,7 +182,7 @@ async function initNotificationUI() {
             const response = await fetch('/api/push/test/', {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': window.getCsrfToken(),
+                    'X-CSRFToken': getCsrfToken(),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({})
@@ -178,3 +207,51 @@ async function initNotificationUI() {
     
     console.log('Notification UI initialized successfully');
 }
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', async function() {
+    // Ensure this initialization only happens once
+    if (window.notificationUIInitialized) {
+        console.log('Notification UI already initialized, skipping...');
+        return;
+    }
+    
+    // Set flag to prevent duplicate initialization
+    window.notificationUIInitialized = true;
+    
+    // Initialize notification UI
+    await initNotificationUI();
+    
+    // Initialize the notification options toggle function
+    initNotificationOptions();
+});
+
+// Initialize notification options toggle
+function initNotificationOptions() {
+    const notificationCheckbox = document.getElementById('id_enable_notifications');
+    const notificationOptions = document.getElementById('notification-options');
+    const testContainer = document.getElementById('notification-test-container');
+    
+    if (notificationCheckbox && notificationOptions && testContainer) {
+        // Ensure initial state is correct
+        toggleNotificationOptions(notificationCheckbox.checked);
+        
+        // Toggle notification options when main checkbox changes
+        notificationCheckbox.addEventListener('change', function() {
+            toggleNotificationOptions(this.checked);
+        });
+    }
+}
+
+// Expose functions globally
+window.toggleNotificationOptions = toggleNotificationOptions;
+window.initNotificationUI = initNotificationUI;
+window.initNotificationOptions = initNotificationOptions;
+
+// Export functions if needed
+export { 
+    clearBrowserCache, 
+    toggleNotificationOptions,
+    initNotificationUI,
+    initNotificationOptions
+};

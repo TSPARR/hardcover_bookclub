@@ -121,6 +121,11 @@ def book_detail(request, book_id):
             comment.user = request.user
             comment.book = book
 
+            if user_progress and user_progress.edition:
+                comment.hardcover_edition_id = (
+                    user_progress.edition.hardcover_edition_id
+                )
+
             # Handle reply
             parent_id = request.POST.get("parent_id")
             if parent_id:
@@ -279,6 +284,7 @@ def book_detail(request, book_id):
         "kavita_promoted_edition": kavita_promoted_edition,
         "plex_promoted_edition": plex_promoted_edition,
         "is_admin": group.is_admin(request.user),
+        "is_active_book": book.is_active,
         "book_pages": book_pages,
         "book_audio_seconds": book_audio_seconds,
         "edition_pages": edition_pages,
@@ -421,6 +427,13 @@ def search_books(request, group_id):
     group = get_object_or_404(BookGroup, id=group_id)
     search_results = []
 
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {"url": "#", "title": "Search Books"},
+    ]
+
     if request.method == "POST":
         form = BookSearchForm(request.POST)
         if form.is_valid():
@@ -445,6 +458,7 @@ def search_books(request, group_id):
             "form": form,
             "results": search_results,
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -520,6 +534,7 @@ def add_book_to_group(request, group_id, hardcover_id):
                         reverse("book_detail", args=[book.id])
                     ),
                     icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="new_active_books",
                 )
 
         messages.success(request, f"'{book.title}' has been added to the group.")
@@ -900,6 +915,7 @@ def toggle_book_active(request, group_id, book_id):
                 body=f"'{book.title}' by {book.author} is now the active book.",
                 url=request.build_absolute_uri(reverse("book_detail", args=[book.id])),
                 icon=book.cover_image_url if book.cover_image_url else None,
+                notification_type="new_active_books",
             )
 
     return redirect("group_detail", group_id=group.id)
@@ -967,8 +983,8 @@ def delete_comment(request, comment_id):
         messages.success(request, "Your comment has been deleted.")
         return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
-    return redirect(
-        get_redirect_url_with_params(request, "book_detail", {"book_id": book.id})
+    return render(
+        request, "bookclub/delete_comment.html", {"comment": comment, "book": book}
     )
 
 
@@ -996,6 +1012,17 @@ def manage_promoted_editions(request, book_id):
             request, "You don't have permission to manage promoted editions."
         )
         return redirect("book_detail", book_id=book.id)
+
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": "#", "title": "Manage Editions"},
+    ]
 
     # Get currently promoted editions
     kavita_promoted = BookEdition.objects.filter(
@@ -1095,6 +1122,7 @@ def manage_promoted_editions(request, book_id):
             "plex_promoted": plex_promoted,
             "has_kavita": has_kavita,
             "has_plex": has_plex,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 

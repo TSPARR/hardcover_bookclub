@@ -77,27 +77,6 @@
     box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.35) !important;
 }
 
-/* Progress indicator - Dark Mode */
-.dark-mode .progress {
-    background-color: #3a3a3a;
-}
-
-.dark-mode .progress-bar {
-    background-color: #0d6efd;
-}
-
-.dark-mode .progress .bg-success {
-    background-color: #198754 !important;
-}
-
-.dark-mode .progress-indicator .info {
-    color: #9e9e9e;
-}
-
-.dark-mode .progress-indicator .d-flex {
-    color: #e1e1e1;
-}
-
 /* Pagination styles - Dark Mode */
 .dark-mode .pagination .page-item.active .page-link {
     background-color: #0d6efd;

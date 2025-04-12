@@ -1,6 +1,38 @@
 /* ===========================
  * Light Mode Button Styles
  * =========================== */
+
+/* Basic button colors */
+.light-mode .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.light-mode .btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.light-mode .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.light-mode .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+.light-mode .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.light-mode .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
 /* Edition management buttons - Light Mode */
 .light-mode .btn-editions {
     color: #0aa2c0;
@@ -64,10 +96,6 @@
     color: white;
 }
 
-.light-mode .btn-kavita i {
-    font-size: 1.1rem;
-}
-
 .light-mode .btn-plex {
     background-color: #cc7b19;
     border-color: #cc7b19;
@@ -78,10 +106,6 @@
     background-color: #b36d16;
     border-color: #a66414;
     color: white;
-}
-
-.light-mode .btn-plex i {
-    font-size: 1.1rem;
 }
 
 /* Spoiler button styling - Light Mode */

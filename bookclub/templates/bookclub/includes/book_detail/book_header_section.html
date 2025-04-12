@@ -7,7 +7,7 @@
         {% endif %}
     {% endwith %}
     <h4 class="text-muted author">{{ book.author }}</h4>
-Copy<!-- Rating Section (kept the same as before) -->
+<!-- Rating Section -->
 <div class="book-rating mb-3">
     {% if user_progress.effective_rating %}
         {% include "bookclub/includes/star_rating.html" with rating=user_progress.effective_rating %}
@@ -60,7 +60,9 @@ Copy<!-- Rating Section (kept the same as before) -->
 </div>
 {% endif %}
 
-<p>{{ book.description }}</p>
+<div class="book-description">
+    {{ book.description|linebreaks_p }}
+</div>
 
 <div class="d-flex gap-2">
     <a href="{% url 'group_detail' book.group.id %}" class="btn btn-secondary">

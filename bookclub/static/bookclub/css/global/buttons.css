@@ -8,38 +8,7 @@
     transition: all 0.2s;
 }
 
-/* Common button styles for both themes */
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
-}
-
-.btn-success {
-    background-color: #198754;
-    border-color: #198754;
-}
-
-.btn-success:hover {
-    background-color: #157347;
-    border-color: #146c43;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-    background-color: #5c636a;
-    border-color: #565e64;
-}
-
-/* Common external service link buttons layout */
+/* Layout and structure styles for buttons */
 .external-link-btn {
     border-width: 1px;
     border-style: solid;
@@ -50,4 +19,76 @@
 
 .buttons-container .btn {
     margin-bottom: 0.5rem;
+}
+
+/* Icon sizing */
+.btn-kavita i,
+.btn-plex i {
+    font-size: 1.1rem;
+}
+
+/* Spoiler button focus styling */
+.spoiler-warning .show-spoiler-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 243, 205, 0.5);
+}
+
+/* Button sizing variations */
+.btn-sm.btn-primary {
+    font-weight: 500;
+}
+
+/* Card header buttons */
+.card-header .btn-sm.btn-primary {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Continue button specific structure */
+.btn-sm.btn-primary:not(.card-header .btn-sm.btn-primary) {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Mobile button layout structure */
+.mobile-book-actions .btn,
+.mobile-book-actions form.d-inline,
+.mobile-book-actions form.d-inline .btn {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Form display structure */
+.mobile-book-actions form.d-inline {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 0.75rem !important;
+}
+
+/* Layout structure overrides */
+.mobile-book-actions .d-flex,
+.mobile-book-actions .d-flex.flex-wrap {
+    display: block !important;
+    width: 100% !important;
+}
+
+/* Button alignment */
+.mobile-book-actions .btn.btn-primary,
+.mobile-book-actions .btn.btn-outline-primary,
+.mobile-book-actions .btn.btn-outline-secondary,
+.mobile-book-actions .btn.btn-outline-info,
+.mobile-book-actions .btn.btn-outline-danger {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+/* Edit button structure */
+.mobile-book-actions .edit-attribution,
+.mobile-book-actions button[data-bs-toggle="modal"] {
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Remove button spacing */
+.mobile-book-actions form.d-inline:last-of-type {
+    margin-top: 0.5rem !important;
 }

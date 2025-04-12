@@ -34,9 +34,11 @@
                     </div>
                     {% endif %}
                     
-                    <!-- Read-only book list without table-responsive wrapper -->
+                    <!-- Read-only book list -->
                     <div id="readOnlyBooks">
-                        {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
+                        <div class="table-responsive">
+                            {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,7 +76,7 @@
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <div class="empty-previous-books">
+                            <div class="empty-previous-books p-4 text-center">
                                 <i class="bi bi-book mb-2" style="font-size: 1.5rem;"></i>
                                 <p class="mb-0">No previous books yet.</p>
                             </div>

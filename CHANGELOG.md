@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.4.0
+- Added new Notification Preferences system for opting in to notifications
+- Added some enhancements to the Dollar Bet system as well as analytics for bets
+- Some further JS/CSS/HTML restructuring and organization
+- Added more comprehensive options to the admin page
+
 ## Release 0.3.0
 - Added optional Push Notification support to allow for updates on activity
 - Added optional Dollar Bets feature to allow fun wagers on what will happen in the book

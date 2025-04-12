@@ -9,8 +9,8 @@
 @import 'tables.css';
 @import 'modals.css';
 @import 'utilities.css';
-@import 'comments.css';
 @import 'base.css';
+@import 'progress-bars.css';
 
 /* Feature-specific overrides */
 @import 'components/book-cards.css';
@@ -22,6 +22,8 @@
 @import 'components/star_ratings.css';
 @import 'components/group-members.css';
 @import 'components/comments.css';
+@import 'components/refresh.css';
+@import 'components/breadcrumbs.css';
 
 /* Apply dark mode styling */
 html.dark-mode,

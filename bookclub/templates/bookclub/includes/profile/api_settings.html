@@ -1,0 +1,50 @@
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Integration Settings</h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <!-- Hidden notification form fields to preserve them when submitting this form -->
+            {% if notification_form %}
+                <input type="hidden" name="{{ notification_form.enable_notifications.html_name }}" 
+                    value="{% if notification_form.enable_notifications.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_new_active_books.html_name }}" 
+                    value="{% if notification_form.notify_new_active_books.value %}on{% endif %}">
+                
+                {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                <!-- Only include dollar bet notification fields if both conditions are met -->
+                <input type="hidden" name="{{ notification_form.notify_new_dollar_bets.html_name }}" 
+                    value="{% if notification_form.notify_new_dollar_bets.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_accepted.html_name }}" 
+                    value="{% if notification_form.notify_bet_accepted.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_added_to.html_name }}" 
+                    value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}" 
+                    value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
+                {% endif %}
+            {% endif %}
+
+            <div class="mb-3">
+                <label for="{{ form.hardcover_api_key.id_for_label }}" class="form-label">Hardcover API
+                    Key</label>
+                {{ form.hardcover_api_key }}
+                {% if form.hardcover_api_key.errors %}
+                <div class="text-danger">{{ form.hardcover_api_key.errors }}</div>
+                {% endif %}
+                <div class="form-text">{{ form.hardcover_api_key.help_text }}</div>
+            </div>
+
+            <div class="card-footer text-muted mb-3">
+                <small>
+                    To obtain your Hardcover API Key, please visit
+                    <a href="https://hardcover.app/account/api"
+                        target="_blank">https://hardcover.app/account/api</a>
+                    and grab the bearer token to put into this field.
+                </small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save API Settings</button>
+        </form>
+    </div>
+</div>

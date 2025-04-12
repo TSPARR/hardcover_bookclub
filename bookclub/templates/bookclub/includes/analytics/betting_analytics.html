@@ -1,0 +1,76 @@
+{% if group.is_dollar_bets_enabled %}
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0">Dollar Bet Analytics</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Betting Leaders</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Won</th>
+                                <th>Lost</th>
+                                <th>Total</th>
+                                <th>Net ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in dollar_bet_stats %}
+                            <tr>
+                                <td>{{ stat.user.username }}</td>
+                                <td>{{ stat.won }}</td>
+                                <td>{{ stat.lost }}</td>
+                                <td>{{ stat.total }}</td>
+                                <td class="{% if stat.net > 0 %}text-success{% elif stat.net < 0 %}text-danger{% endif %}">
+                                    ${{ stat.net|floatformat:2 }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Betting Stats</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total Bets:</span>
+                        <strong>{{ dollar_bet_summary.total_bets }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Resolved Bets:</span>
+                        <strong>{{ dollar_bet_summary.resolved_bets }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Biggest Winner:</span>
+                        <strong>{{ dollar_bet_summary.biggest_winner.user.username }} (${{ dollar_bet_summary.biggest_winner.net|floatformat:2 }})</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Biggest Loser:</span>
+                        <strong>{{ dollar_bet_summary.biggest_loser.user.username }} (${{ dollar_bet_summary.biggest_loser.net|floatformat:2 }})</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Most Bets Placed:</span>
+                        <strong>{{ dollar_bet_summary.most_active.user.username }} ({{ dollar_bet_summary.most_active.total }})</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Most Profitable Rivalry:</span>
+                        <strong>
+                            {% if dollar_bet_summary.most_profitable_rivalry %}
+                                {{ dollar_bet_summary.most_profitable_rivalry.winner }} vs {{ dollar_bet_summary.most_profitable_rivalry.loser }}
+                                (${{ dollar_bet_summary.most_profitable_rivalry.amount|floatformat:2 }})
+                            {% else %}
+                                None
+                            {% endif %}
+                        </strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

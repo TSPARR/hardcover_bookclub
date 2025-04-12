@@ -30,6 +30,28 @@
     margin-bottom: 0;
 }
 
+/* Search form styling */
+.search-form {
+    margin-bottom: 1.5rem;
+}
+
+.search-form .input-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.search-form input[type="text"],
+.search-form input[type="search"] {
+    border-radius: 0.375rem 0 0 0.375rem;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.search-form .btn {
+    border-radius: 0 0.375rem 0.375rem 0;
+    padding: 0.7rem 1.5rem;
+}
+
 /* API key field styling - non-color specific */
 #id_hardcover_api_key,
 input[name="hardcover_api_key"] {
@@ -41,31 +63,4 @@ input[name="hardcover_api_key"] {
     word-break: break-all;   /* Break long strings at any character */
     white-space: normal;     /* Allow text to wrap */
     line-height: 1.5;        /* Improve readability of wrapped text */
-}
-
-/* Make card and form responsive on mobile */
-@media (max-width: 767.98px) {
-    .card {
-        width: 100%;
-        margin: 0;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .card-footer {
-        padding: 0.75rem 1rem;
-        word-wrap: break-word;  /* Allow text to wrap properly */
-    }
-    
-    /* Adjust form layout on small screens */
-    form .mb-3 {
-        margin-bottom: 1rem !important;
-    }
-    
-    /* Ensure API key link doesn't overflow */
-    .card-footer a {
-        word-break: break-all;  /* Break long URLs */
-    }
 }

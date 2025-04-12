@@ -4,67 +4,104 @@
 {% block title %}Search Books{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Search Books</h1>
-
-<form method="post" class="mb-4">
-    {% csrf_token %}
-    <div class="input-group">
-        {{ form.query }}
-        <button type="submit" class="btn btn-primary">Search</button>
-    </div>
-</form>
-
-{% comment %}
-{% if debug_info %}
-<div class="card mb-4">
-    <div class="card-header bg-info text-white">
-        Debug Information
-    </div>
-    <div class="card-body">
-        <pre>{{ debug_info|pprint }}</pre>
-    </div>
-</div>
-{% endif %}
-{% endcomment %}
-
-<div class="row">
-    {% for book in results %}
-    <div class="col-md-4 mb-4">
-        <div class="card book-card">
-            <div class="card-header bg-light small">
-                <strong>Book ID:</strong> {{ book.document.id|default:"EMPTY" }}
-            </div>
-            {% if book.document.image.url %}
-            <div class="card-img-top-container">
-                <img src="{{ book.document.image.url }}" class="book-cover card-img-top"
-                    alt="{{ book.document.title }}">
-            </div>
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ book.document.title }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                    {% if book.document.contributions.0.author %}
-                    {{ book.document.contributions.0.author.name }}
-                    {% else %}
-                    Unknown
-                    {% endif %}
-                </h6>
-                <p class="card-text">{{ book.document.description|truncatechars:100 }}</p>
-                <a href="{% url 'add_book_to_group' group.id book.document.id %}" class="btn btn-success">Add to
-                    Group</a>
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+            
+            <h1 class="mb-4"><i class="bi bi-search me-2"></i>Search Books</h1>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="post" class="mb-0 search-form">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            {{ form.query }}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    {% empty %}
-    {% if request.method == 'POST' %}
-    <div class="col-12">
-        <div class="alert alert-warning">
-            <p>No books found matching your search.</p>
+
+    {% if results %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-list me-2"></i>Search Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for book in results %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card search-book-card h-100 shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span><strong>Book ID:</strong> {{ book.document.id|default:"EMPTY" }}</span>
+                                    {% if book.document.reading_format %}
+                                    <span class="badge 
+                                        {% if book.document.reading_format == 'physical' %}bg-success{% endif %}
+                                        {% if book.document.reading_format == 'ebook' %}bg-info{% endif %}
+                                        {% if book.document.reading_format == 'audio' %}bg-warning text-dark{% endif %}
+                                    ">
+                                        {{ book.document.reading_format|title }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% if book.document.image.url %}
+                                <div class="card-img-top-container">
+                                    <img src="{{ book.document.image.url }}" class="book-cover"
+                                        alt="{{ book.document.title }}">
+                                </div>
+                                {% else %}
+                                <div class="no-cover">
+                                    <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ book.document.title }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        {% if book.document.contributions.0.author %}
+                                        {{ book.document.contributions.0.author.name }}
+                                        {% else %}
+                                        Unknown
+                                        {% endif %}
+                                    </h6>
+                                    <p class="card-text">{{ book.document.description|truncatechars:100 }}</p>
+                                </div>
+                                <div class="card-footer bg-white border-top-0">
+                                    <a href="{% url 'add_book_to_group' group.id book.document.id %}" class="btn btn-success w-100">
+                                        <i class="bi bi-plus-circle me-1"></i>Add to Group
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-warning">
+                <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>No Results</h5>
+                <p>No books found matching your search. Try different keywords or check your spelling.</p>
+            </div>
         </div>
     </div>
     {% endif %}
-    {% endfor %}
-</div>
 
-<a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Group
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -71,61 +71,67 @@ function initBookSorting() {
         handle: '.handle',
         ghostClass: 'sortable-ghost',
         onEnd: function() {
-            // When reordering ends, update the hidden input with the new order
-            updateBookOrderInput();
             // Update the book numbers
             updateBookNumbers();
         }
     });
     
-    // Handle form submission for reordering
-    const reorderForm = document.getElementById('reorderForm');
-    if (reorderForm) {
-        reorderForm.addEventListener('submit', function(e) {
+    // Get the save button
+    const saveOrderBtn = document.getElementById('saveOrderBtn');
+    if (saveOrderBtn) {
+        saveOrderBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Update the input one more time to ensure it has the latest order
-            updateBookOrderInput();
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             
-            // Create an array of inputs for book order
-            const bookIds = document.getElementById('bookOrderInput').value.split(',');
-            const form = this;
+            // Get the current order of books (only from sortableBooks)
+            const bookItems = document.querySelectorAll('#sortableBooks > li');
             
-            // Remove any existing book_order inputs
-            const existingInputs = form.querySelectorAll('input[name="book_order"]');
-            existingInputs.forEach(function(input) {
-                input.remove();
+            // Use a Set to ensure no duplicate book IDs
+            const uniqueBookIds = new Set();
+            bookItems.forEach(item => {
+                const bookId = item.getAttribute('data-id');
+                if (bookId) {
+                    uniqueBookIds.add(bookId);
+                }
             });
             
-            // Add new inputs for each book ID
-            bookIds.forEach(function(bookId) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'book_order';
-                input.value = bookId;
-                form.appendChild(input);
+            // Convert the Set to an Array
+            const bookIds = Array.from(uniqueBookIds);
+            
+            // Debug info
+            
+            // Create FormData
+            const formData = new FormData();
+            bookIds.forEach(id => {
+                formData.append('book_order', id);
             });
             
-            // Submit the form
-            form.submit();
+            // Get the current URL (which should be the group detail page)
+            const url = window.location.href;
+            
+            // Submit with fetch
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // If successful, reload the page
+                    window.location.reload();
+                } else {
+                    console.error('Error saving book order');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         });
     }
-    
-    // Initialize the book order input on page load
-    updateBookOrderInput();
-}
-
-// Function to update the hidden input with the book order
-function updateBookOrderInput() {
-    const bookOrderInput = document.getElementById('bookOrderInput');
-    if (!bookOrderInput) return;
-    
-    const bookItems = document.querySelectorAll('#sortableBooks li');
-    const bookIds = Array.from(bookItems).map(function(item) {
-        return item.getAttribute('data-id');
-    });
-    
-    bookOrderInput.value = bookIds.join(',');
 }
 
 // Function to update book numbers after reordering
@@ -241,3 +247,9 @@ function initAddBookForm() {
         });
     }
 }
+
+// Expose functions globally to maintain compatibility
+window.initBookSorting = initBookSorting;
+window.initBookAttribution = initBookAttribution;
+window.initAddBookForm = initAddBookForm;
+window.initEditModeToggle = initEditModeToggle;

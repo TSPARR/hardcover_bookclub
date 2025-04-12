@@ -1,7 +1,7 @@
 /* ===========================
  * Light Mode Book Card Styles
  * =========================== */
- /* Book card components */
+/* Book card components */
 .light-mode .card-img-top-container {
     background-color: #f8f9fa;
 }
@@ -13,14 +13,10 @@
 }
 
 .light-mode .book-header .subtitle {
-    font-size: 1.5rem;
     color: #666;
-    font-weight: 300;
-    margin-bottom: 1rem;
 }
 
 .light-mode .book-header .author {
-    font-size: 1.25rem;
     color: #888;
 }
 
@@ -31,6 +27,41 @@
 
 .light-mode .book-cover-container {
     background-color: #f8f9fa;
+}
+
+/* Search and edition card styles - Light Mode */
+.light-mode .search-book-card,
+.light-mode .edition-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .search-book-card:hover,
+.light-mode .edition-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .search-book-card .card-header,
+.light-mode .edition-card .card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .search-book-card .card-footer,
+.light-mode .edition-card .card-footer {
+    background-color: #ffffff;
+    border-top: none;
+}
+
+/* No cover placeholder */
+.light-mode .no-cover {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+/* Format filter buttons */
+.light-mode .format-filter-btn.active {
+    background-color: #0d6efd;
 }
 
 /* Card with active book */
@@ -98,11 +129,4 @@
 
 .light-mode .mobile-progress-text {
     color: #555555;
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) and (max-width: 991.98px) {
-    .light-mode .mobile-book-header {
-        border-right: 1px solid #dee2e6;
-    }
 }

@@ -3,15 +3,63 @@
 {% block title %}Welcome to Book Club{% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-4">Welcome to Book Club!</h1>
-    <p class="lead">Join your friends in discussions about your favorite books.</p>
-    <hr class="my-4">
-    <p>Please login to join the community.</p>
-    <div class="btn-group">
-        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Login</a>
-        <div class="ms-2 d-flex align-items-center">
-            <span class="text-muted">New users need an invitation to join.</span>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-book text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h1 class="display-4 mb-3">Welcome to Book Club!</h1>
+                    <p class="lead mb-4">Join your friends in discussions about your favorite books.</p>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <p class="mb-4">Please log in to join the community.</p>
+                            <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+                                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                                </a>
+                                <span class="text-muted">New users need an invitation to join.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Book Club</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="text-center">
+                                <i class="bi bi-people text-primary mb-2" style="font-size: 2rem;"></i>
+                                <h5>Join Groups</h5>
+                                <p class="text-muted">Find like-minded readers and discuss together.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="text-center">
+                                <i class="bi bi-book-half text-primary mb-2" style="font-size: 2rem;"></i>
+                                <h5>Track Progress</h5>
+                                <p class="text-muted">Keep up with your reading and share updates.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="bi bi-chat-quote text-primary mb-2" style="font-size: 2rem;"></i>
+                                <h5>Discuss Books</h5>
+                                <p class="text-muted">Share thoughts and get recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
