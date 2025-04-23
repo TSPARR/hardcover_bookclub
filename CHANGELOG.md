@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.4.1
+- Fixes for the Comment Reactions JS on mobile
+- Added ability for end users to change their own passwords
+
 ## Release 0.4.0
 - Added new Notification Preferences system for opting in to notifications
 - Added some enhancements to the Dollar Bet system as well as analytics for bets

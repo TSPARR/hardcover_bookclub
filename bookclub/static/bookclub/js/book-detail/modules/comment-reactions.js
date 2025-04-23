@@ -10,6 +10,10 @@ export const CommentReactions = {
         // First check if the book is active
         this.isBookActive = this._checkBookActive();
         
+        // CRITICAL: Force all panels to be hidden BEFORE any other initialization
+        this._forceHideAllPanels();
+        
+        // Set up event listeners
         this._setupEventListeners();
         this._initializeReactionButtons();
         this._setupResizeHandler();
@@ -19,7 +23,35 @@ export const CommentReactions = {
             this._applyReadOnlyStyles();
         }
         
+        // Double check panels are still hidden after everything else
+        setTimeout(() => {
+            this._forceHideAllPanels();
+        }, 100);
+        
         return this;
+    },
+    
+    /**
+     * Aggressively force-hide all panels to ensure they're not visible by default
+     * This solves issues with panels being visible on mobile
+     */
+    _forceHideAllPanels() {
+        // Use !important to override any CSS rules that might show panels
+        document.querySelectorAll('.reaction-panel').forEach(panel => {
+            panel.style.cssText = 'display: none !important';
+            // Force browser reflow to ensure styles are applied
+            void panel.offsetHeight;
+        });
+        
+        document.querySelectorAll('.reaction-users-panel').forEach(panel => {
+            panel.style.cssText = 'display: none !important';
+            void panel.offsetHeight;
+        });
+        
+        document.querySelectorAll('.mobile-backdrop').forEach(backdrop => {
+            panel.style.cssText = 'display: none !important';
+            void backdrop.offsetHeight;
+        });
     },
     
     /**
@@ -80,9 +112,7 @@ export const CommentReactions = {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 // Hide all panels on resize to prevent positioning issues
-                document.querySelectorAll('.reaction-panel, .reaction-users-panel, .mobile-backdrop').forEach(panel => {
-                    panel.style.display = 'none';
-                });
+                this._forceHideAllPanels();
             }, 250);
         });
     },
@@ -146,6 +176,11 @@ export const CommentReactions = {
                     console.error(`Error fetching reaction users for comment ${commentId}:`, error);
                 });
         });
+        
+        // Double check panels are hidden after fetching reaction data
+        setTimeout(() => {
+            this._forceHideAllPanels();
+        }, 300);
     },
     
     /**
@@ -176,6 +211,11 @@ export const CommentReactions = {
      * Set up event listeners for reactions
      */
     _setupEventListeners() {
+        // CRITICAL: Add a page load event listener to ensure panels are hidden
+        window.addEventListener('load', () => {
+            this._forceHideAllPanels();
+        });
+        
         // Event delegation for all reaction-related interactions
         document.addEventListener('click', (e) => {
             // Special handling for reaction count clicks
@@ -188,9 +228,9 @@ export const CommentReactions = {
                 
                 if (button) {
                     // Always allow viewing reaction users, even in read-only mode
-                    this._toggleReactionUsers(button);
                     e.preventDefault();
                     e.stopPropagation();
+                    this._toggleReactionUsers(button);
                     return;
                 }
             }
@@ -201,7 +241,7 @@ export const CommentReactions = {
             // Handle clicking existing reaction buttons
             if (e.target.classList.contains('reaction-btn') || e.target.closest('.reaction-btn')) {
                 const button = e.target.classList.contains('reaction-btn') ? 
-                              e.target : e.target.closest('.reaction-btn');
+                            e.target : e.target.closest('.reaction-btn');
                 
                 // Skip reaction toggling if the book is inactive
                 if (isInactive) return;
@@ -226,29 +266,65 @@ export const CommentReactions = {
                     // Hide the reaction panel after selection
                     const panel = button.closest('.reaction-panel');
                     if (panel) {
-                        panel.style.display = 'none';
+                        panel.style.cssText = 'display: none !important';
                     }
+                    
+                    // Also hide any backdrops
+                    document.querySelectorAll('.mobile-backdrop').forEach(backdrop => {
+                        backdrop.style.cssText = 'display: none !important';
+                    });
                 }
             }
             
             // Handle the "Add Reaction" button click (only if book is active)
             if ((e.target.classList.contains('add-reaction-btn') || e.target.closest('.add-reaction-btn')) && !isInactive) {
+                e.preventDefault(); // Prevent default action
+                e.stopPropagation(); // Stop event bubbling
+                
                 const button = e.target.classList.contains('add-reaction-btn') ? 
-                              e.target : e.target.closest('.add-reaction-btn');
+                            e.target : e.target.closest('.add-reaction-btn');
                 
                 const panel = button.nextElementSibling;
                 if (panel && panel.classList.contains('reaction-panel')) {
+                    // First close all other open panels
+                    document.querySelectorAll('.reaction-panel, .reaction-users-panel').forEach(p => {
+                        if (p !== panel) {
+                            p.style.cssText = 'display: none !important';
+                        }
+                    });
+                    
                     // Toggle the panel visibility
-                    const isVisible = panel.style.display === 'flex';
+                    const computedStyle = window.getComputedStyle(panel);
+                    const isVisible = computedStyle.display !== 'none';
+                    
+                    // Show or hide this panel
                     panel.style.display = isVisible ? 'none' : 'flex';
                     
-                    // Close other open panels
-                    if (!isVisible) {
-                        document.querySelectorAll('.reaction-panel, .reaction-users-panel').forEach(p => {
-                            if (p !== panel && p.style.display === 'flex') {
-                                p.style.display = 'none';
-                            }
-                        });
+                    // Handle the mobile backdrop
+                    if (window.innerWidth < 768) {
+                        const allBackdrops = document.querySelectorAll('.mobile-backdrop');
+                        
+                        // Remove existing backdrops
+                        allBackdrops.forEach(b => b.remove());
+                        
+                        if (!isVisible) {
+                            // Create new backdrop
+                            const backdrop = document.createElement('div');
+                            backdrop.className = 'mobile-backdrop';
+                            backdrop.dataset.forPanel = panel.id = `reaction-panel-${Date.now()}`;
+                            document.body.appendChild(backdrop);
+                            
+                            // Show backdrop
+                            setTimeout(() => {
+                                backdrop.style.display = 'block';
+                            }, 0);
+                            
+                            // Add click handler to backdrop
+                            backdrop.addEventListener('click', () => {
+                                panel.style.cssText = 'display: none !important';
+                                backdrop.style.cssText = 'display: none !important';
+                            });
+                        }
                     }
                 }
             }
@@ -266,11 +342,11 @@ export const CommentReactions = {
                 !e.target.closest('.reaction-user-item')) {
                 
                 document.querySelectorAll('.reaction-panel, .reaction-users-panel').forEach(panel => {
-                    panel.style.display = 'none';
+                    panel.style.cssText = 'display: none !important';
                 });
                 
                 document.querySelectorAll('.mobile-backdrop').forEach(backdrop => {
-                    backdrop.style.display = 'none';
+                    backdrop.style.cssText = 'display: none !important';
                 });
             }
             
@@ -278,13 +354,18 @@ export const CommentReactions = {
             if (e.target.classList.contains('close-users-panel')) {
                 const panel = e.target.closest('.reaction-users-panel');
                 if (panel) {
-                    panel.style.display = 'none';
+                    panel.style.cssText = 'display: none !important';
                     
                     // Also hide the backdrop if it exists
                     if (panel.id) {
                         const backdrop = document.querySelector(`.mobile-backdrop[data-for-panel="${panel.id}"]`);
                         if (backdrop) {
-                            backdrop.style.display = 'none';
+                            backdrop.style.cssText = 'display: none !important';
+                        } else {
+                            // Hide all backdrops as a fallback
+                            document.querySelectorAll('.mobile-backdrop').forEach(backdrop => {
+                                backdrop.style.cssText = 'display: none !important';
+                            });
                         }
                     }
                 }
@@ -356,7 +437,7 @@ export const CommentReactions = {
         // Create panel
         const usersPanel = document.createElement('div');
         usersPanel.className = 'reaction-users-panel';
-        usersPanel.style.display = 'none';
+        usersPanel.style.cssText = 'display: none !important';
         
         // Create header with reaction info
         const header = document.createElement('div');
@@ -397,8 +478,8 @@ export const CommentReactions = {
             
             // Close panel when backdrop is clicked
             backdrop.addEventListener('click', () => {
-                usersPanel.style.display = 'none';
-                backdrop.style.display = 'none';
+                usersPanel.style.cssText = 'display: none !important';
+                backdrop.style.cssText = 'display: none !important';
             });
             
             document.body.appendChild(backdrop);
@@ -436,10 +517,10 @@ export const CommentReactions = {
         const closeButton = usersPanel.querySelector('.close-users-panel');
         if (closeButton) {
             closeButton.addEventListener('click', () => {
-                usersPanel.style.display = 'none';
+                usersPanel.style.cssText = 'display: none !important';
                 const backdrop = document.querySelector(`.mobile-backdrop[data-for-panel="${usersPanel.id}"]`);
                 if (backdrop) {
-                    backdrop.style.display = 'none';
+                    backdrop.style.cssText = 'display: none !important';
                 }
             });
         }
