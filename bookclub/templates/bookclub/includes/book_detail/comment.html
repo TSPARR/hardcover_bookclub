@@ -47,7 +47,7 @@
             <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
         </div>
         <div class="spoiler-content" style="display: none;">
-            <p class="card-text">{{ comment.text }}</p>
+            <p class="card-text">{{ comment.text|linebreaksbr }}</p>
             
             <!-- Comment reactions INSIDE spoiler content -->
             <div class="comment-reactions mt-3">
@@ -88,7 +88,7 @@
             </div>
         </div>
         {% else %}
-        <p class="card-text">{{ comment.text }}</p>
+        <p class="card-text">{{ comment.text|linebreaksbr }}</p>
 
         <!-- Comment reactions for non-spoiler comments -->
         <div class="comment-reactions mt-3">
@@ -160,7 +160,7 @@
                     <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
                 </div>
                 <div class="spoiler-content" style="display: none;">
-                    <p class="card-text">{{ reply.text }}</p>
+                    <p class="card-text">{{ reply.text|linebreaksbr }}</p>
                     
                     <!-- Reply reactions INSIDE spoiler content -->
                     <div class="comment-reactions mt-3">
@@ -193,7 +193,7 @@
                     </div>
                 </div>
                 {% else %}
-                <p class="card-text">{{ reply.text }}</p>
+                <p class="card-text">{{ reply.text|linebreaksbr }}</p>
                 
                 <!-- Reply reactions for non-spoiler replies -->
                 <div class="comment-reactions mt-3">
