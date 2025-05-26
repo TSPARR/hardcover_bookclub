@@ -302,9 +302,6 @@ def attribution_analytics(request, group_id):
 
 def analyze_rotation(book_sequence, members, group):
     """Analyze rotation patterns using admin-specified starting points."""
-    if not book_sequence:
-        return {"has_pattern": False, "message": "No books have been added yet."}
-
     # Get member starting points
     starting_points = MemberStartingPoint.objects.filter(group=group).select_related(
         "member", "starting_book"
@@ -312,7 +309,11 @@ def analyze_rotation(book_sequence, members, group):
 
     # Create lookup dictionaries
     starting_book_indexes = {}
-    books_by_id = {item[1].id: idx for idx, item in enumerate(book_sequence)}
+    books_by_id = (
+        {item[1].id: idx for idx, item in enumerate(book_sequence)}
+        if book_sequence
+        else {}
+    )
 
     # For each member, find when they became eligible
     for sp in starting_points:
@@ -326,15 +327,19 @@ def analyze_rotation(book_sequence, members, group):
         starting_idx = starting_book_indexes.get(member.id, 0)
 
         # Count books since eligible
-        books_since_eligible = len(book_sequence) - starting_idx
+        books_since_eligible = len(book_sequence) - starting_idx if book_sequence else 0
 
         # Count picks since eligible
-        picks_since_eligible = sum(
-            1
-            for idx, (picker_id, _, _, _) in enumerate(
-                book_sequence
-            )  # Updated for 4-tuple
-            if idx >= starting_idx and picker_id == member.id
+        picks_since_eligible = (
+            sum(
+                1
+                for idx, (picker_id, _, _, _) in enumerate(
+                    book_sequence
+                )  # Updated for 4-tuple
+                if idx >= starting_idx and picker_id == member.id
+            )
+            if book_sequence
+            else 0
         )
 
         # Calculate participation rate
@@ -356,6 +361,18 @@ def analyze_rotation(book_sequence, members, group):
             ),
         }
 
+    if not book_sequence:
+        return {
+            "has_pattern": False,
+            "message": "No books have been added yet.",
+            "participation_stats": participation_stats,
+            "rotations": [],
+            "rotation_count": 0,
+            "avg_balance": 0,
+            "avg_coverage": 0,
+            "non_participating": list({member.id for member in members}),
+        }
+
     # Extract just the picker IDs for pattern analysis (excluding collective/group picks)
     picker_sequence = [
         item[0]
@@ -368,6 +385,14 @@ def analyze_rotation(book_sequence, members, group):
         return {
             "has_pattern": False,
             "message": "Not enough individually attributed books to analyze rotation pattern.",
+            "participation_stats": participation_stats,
+            "rotations": [],
+            "rotation_count": 0,
+            "avg_balance": 0,
+            "avg_coverage": 0,
+            "non_participating": list(
+                {member.id for member in members} - set(picker_sequence)
+            ),
         }
 
     # Get all member IDs for reference
