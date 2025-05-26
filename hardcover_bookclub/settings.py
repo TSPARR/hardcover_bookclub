@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 from django.core.management.utils import get_random_secret_key
 
 # Import dotenv to load environment variables from .env file
@@ -60,19 +61,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
-
-# Security settings for production
-if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = "DENY"
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ROOT_URLCONF = "hardcover_bookclub.urls"
 
@@ -140,6 +128,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Authentication and Sessions Settings
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/home/"
+LOGOUT_REDIRECT_URL = "/"
+
+# Session settings
+SESSION_COOKIE_AGE = int(
+    os.environ.get("SESSION_COOKIE_AGE", 1209600)
+)  # Default is 2 weeks (1209600 seconds)
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -169,10 +168,35 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/home/"
-LOGOUT_REDIRECT_URL = "/"
 
+# Security settings for production
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+
+# CSRF Settings
+# Get CSRF trusted origins from environment variable
+# The format should be comma-separated URLs, e.g.: 'https://example.com,https://sub.example.com'
+CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+
+# Filter out empty strings (in case the env var is empty or has trailing commas)
+CSRF_TRUSTED_ORIGINS = [origin for origin in CSRF_TRUSTED_ORIGINS if origin]
+
+# If no origins are provided, use a default
+if not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
+
+
+# Logging Configuration
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -212,28 +236,21 @@ LOGGING = {
 # Ensure the logs directory exists
 os.makedirs(os.path.join(BASE_DIR, "logs"), exist_ok=True)
 
-# Get CSRF trusted origins from environment variable
-# The format should be comma-separated URLs, e.g.: 'https://example.com,https://sub.example.com'
-CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
 
-# Filter out empty strings (in case the env var is empty or has trailing commas)
-CSRF_TRUSTED_ORIGINS = [origin for origin in CSRF_TRUSTED_ORIGINS if origin]
+# Integration Settings
 
-# If no origins are provided, use a default
-if not CSRF_TRUSTED_ORIGINS:
-    CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]
-
-# Kavita integration (optional)
+# Kavita integration
 KAVITA_BASE_URL = os.environ.get("KAVITA_BASE_URL", "")
 KAVITA_API_KEY = os.environ.get("KAVITA_API_KEY", "")
 KAVITA_ENABLED = bool(KAVITA_BASE_URL and KAVITA_API_KEY)
 
-# Plex integration (optional)
+# Plex integration
 PLEX_BASE_URL = os.environ.get("PLEX_BASE_URL", "")
 PLEX_TOKEN = os.environ.get("PLEX_TOKEN", "")
 PLEX_LIBRARY_NAME = os.environ.get("PLEX_LIBRARY_NAME", "")
 PLEX_ENABLED = bool(PLEX_BASE_URL and PLEX_TOKEN and PLEX_LIBRARY_NAME)
 
+# Feature Flags
 ENABLE_DOLLAR_BETS = os.environ.get("ENABLE_DOLLAR_BETS", "False") == "True"
 
 # Push Notification Settings (using Web Push VAPID)
