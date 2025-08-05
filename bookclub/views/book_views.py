@@ -499,7 +499,7 @@ def add_book_to_group(request, group_id, hardcover_id):
                 ),
                 "cover_image_url": book_data.get("cover_image_url", ""),
                 "url": book_data.get("url", ""),
-                "description": book_data.get("description", ""),
+                "description": book_data.get("description") or "",
                 "group": group,
                 "display_order": next_order,
                 "is_collective_pick": is_collective_pick,
