@@ -208,6 +208,13 @@ class CommentReaction(models.Model):
         ("🎉", "Celebrate"),
         ("💡", "Idea"),
         ("📚", "Book"),
+        ("☠️", "Skull and Crossbones"),
+        ("👻", "Ghost"),
+        ("💩", "Hankey"),
+        ("👽", "Alien"),
+        ("🧑‍🦼", "Person in Motorized Wheelchair"),
+        ("🧑‍🦯", "Person with Probing Cane"),
+        ("✨", "Sparkles"),
     ]
 
     comment = models.ForeignKey(
