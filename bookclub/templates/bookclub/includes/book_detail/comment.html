@@ -47,7 +47,7 @@
             <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
         </div>
         <div class="spoiler-content" style="display: none;">
-            <p class="card-text">{{ comment.text|linebreaksbr }}</p>
+            <div class="card-text">{{ comment.text|markdown }}</div>
             
             <!-- Comment reactions INSIDE spoiler content -->
             <div class="comment-reactions mt-3">
@@ -88,7 +88,7 @@
             </div>
         </div>
         {% else %}
-        <p class="card-text">{{ comment.text|linebreaksbr }}</p>
+        <div class="card-text">{{ comment.text|markdown }}</div>
 
         <!-- Comment reactions for non-spoiler comments -->
         <div class="comment-reactions mt-3">
@@ -160,8 +160,8 @@
                     <button class="btn btn-sm btn-outline-secondary ms-2 show-spoiler-btn">Show Anyway</button>
                 </div>
                 <div class="spoiler-content" style="display: none;">
-                    <p class="card-text">{{ reply.text|linebreaksbr }}</p>
-                    
+                    <div class="card-text">{{ reply.text|markdown }}</div>
+
                     <!-- Reply reactions INSIDE spoiler content -->
                     <div class="comment-reactions mt-3">
                         <!-- Existing reactions -->
@@ -193,8 +193,8 @@
                     </div>
                 </div>
                 {% else %}
-                <p class="card-text">{{ reply.text|linebreaksbr }}</p>
-                
+                <div class="card-text">{{ reply.text|markdown }}</div>
+
                 <!-- Reply reactions for non-spoiler replies -->
                 <div class="comment-reactions mt-3">
                     <!-- Existing reactions -->
