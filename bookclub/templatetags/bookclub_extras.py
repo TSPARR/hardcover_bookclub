@@ -1,6 +1,8 @@
 import json
 import math
 
+import bleach
+import markdown as md
 from django import template
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
@@ -295,3 +297,42 @@ def linebreaks_p(value):
     # Filter out empty paragraphs and wrap each in <p> tags
     html = "".join([f"<p>{p.strip()}</p>" for p in paragraphs if p.strip()])
     return mark_safe(html)
+
+
+@register.filter(name="markdown")
+def markdown_format(text):
+    """
+    Convert Markdown text to HTML with basic text formatting only.
+    Supports: bold, italic, lists, and blockquotes.
+    Links and code blocks are not supported.
+    """
+    if not text:
+        return ""
+
+    # Convert markdown to HTML with minimal extensions
+    html = md.markdown(
+        text,
+        extensions=[
+            "nl2br",  # Convert newlines to <br> tags
+            "sane_lists",  # Better list handling
+        ],
+    )
+
+    # Sanitize HTML - only allow basic text formatting tags
+    allowed_tags = [
+        "b",
+        "strong",
+        "em",
+        "i",
+        "p",
+        "br",
+        "ul",
+        "ol",
+        "li",
+        "blockquote",
+    ]
+
+    # No attributes allowed (prevents links from working)
+    clean_html = bleach.clean(html, tags=allowed_tags, attributes={}, strip=True)
+
+    return mark_safe(clean_html)
