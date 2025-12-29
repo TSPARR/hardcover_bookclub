@@ -414,6 +414,9 @@ def analyze_rotation(book_sequence, members, group):
     active_members = set()
 
     for picker_id in picker_sequence:
+        # Check if this picker would cause a repeat BEFORE adding
+        is_repeat = picker_id in active_members
+
         # Add this picker to current rotation
         current_rotation.append(picker_id)
         active_members.add(picker_id)
@@ -433,16 +436,19 @@ def analyze_rotation(book_sequence, members, group):
                 unique_members_in_rotation >= len(unique_pickers) * 0.7
                 and rotation_size >= min_rotation_size
             )
-            or (
-                picker_id in set(current_rotation[:-1])
-                and rotation_size >= min_rotation_size
-            )
+            or (is_repeat and rotation_size > min_rotation_size)
         )
 
         if should_end_rotation:
+            # If ending due to repeat, don't include the repeat in this rotation
+            if is_repeat and rotation_size > min_rotation_size:
+                current_rotation.pop()  # Remove the duplicate
+
             rotations.append(current_rotation.copy())
-            current_rotation = []
-            active_members = set()
+
+            # Start next rotation with the duplicate if that's why we ended
+            current_rotation = [picker_id] if is_repeat else []
+            active_members = {picker_id} if is_repeat else set()
 
     # Add the final rotation if it meets minimum size requirement
     if len(current_rotation) >= min_rotation_size:
