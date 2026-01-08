@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.5.1
+- Dependency update: urllib3 2.6.3
+
 ## Release 0.5.0
 - Added basic markdown support to comments (blockquotes and formatting)
 - Added seven new emoji reactions to comments
