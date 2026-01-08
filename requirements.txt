@@ -17,6 +17,6 @@ pycparser==2.22
 python-dotenv==1.0.1
 requests==2.32.4
 sqlparse==0.5.3
-urllib3==2.6.0
+urllib3==2.6.3
 whitenoise==6.6.0
 pywebpush==1.14.0
