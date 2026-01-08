@@ -1,0 +1,26 @@
+# Git
+.git
+.github
+.gitignore
+
+# Python
+venv
+*.pyc
+__pycache__
+.python-version
+
+# Development files
+.env
+db.sqlite3
+*.log
+logs
+
+# Documentation and screenshots
+screenshots
+README.md
+LICENSE
+CHANGELOG.md
+VERSION
+
+# OS files
+.DS_Store

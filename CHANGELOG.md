@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.5.0
+- Added basic markdown support to comments (blockquotes and formatting)
+- Added seven new emoji reactions to comments
+- Enhanced comment display with line break support
+- Added configurable session cookie age via environment variable
+- Improved pick analytics display
+- Fixed book description handling to prevent null values
+- Updated screenshots with separate dark and light mode versions
+- Dependency updates: Django 5.1.15, urllib3 2.6.0, requests 2.32.4
+
 ## Release 0.4.1
 - Fixes for the Comment Reactions JS on mobile
 - Added ability for end users to change their own passwords
