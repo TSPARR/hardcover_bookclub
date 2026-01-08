@@ -80,3 +80,10 @@
     color: #666;
     background-color: #f0f0f0;
 }
+
+/* Markdown Blockquotes */
+.light-mode .card-text blockquote {
+    background-color: #f8f9fa;
+    border-left-color: #0d6efd;
+    color: #495057;
+}
