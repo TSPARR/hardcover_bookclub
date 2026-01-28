@@ -14,7 +14,11 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
-from ..forms import NotificationPreferencesForm, ProfileSettingsForm
+from ..forms import (
+    HomePagePreferenceForm,
+    NotificationPreferencesForm,
+    ProfileSettingsForm,
+)
 from ..hardcover_api import HardcoverAPI
 from ..models import BookGroup
 from ..notifications import is_push_enabled, send_push_notification
@@ -32,6 +36,7 @@ def profile_settings(request):
         notification_form = NotificationPreferencesForm(
             request.POST, user=request.user, push_enabled=is_push_enabled()
         )
+        home_page_form = HomePagePreferenceForm(request.POST, user=request.user)
 
         api_key_valid = True
         api_key_message = None
@@ -80,6 +85,7 @@ def profile_settings(request):
             api_key_valid or not form.cleaned_data["hardcover_api_key"]
         )
         should_save_notifications = notification_form.is_valid()
+        should_save_home_page = home_page_form.is_valid()
 
         # Save the forms if appropriate
         if should_save_api_key:
@@ -88,10 +94,13 @@ def profile_settings(request):
         if should_save_notifications:
             notification_form.save()
 
+        if should_save_home_page:
+            home_page_form.save()
+
         # Display appropriate messages
         if not api_key_valid and api_key_message:
             messages.error(request, api_key_message)
-        elif should_save_api_key or should_save_notifications:
+        elif should_save_api_key or should_save_notifications or should_save_home_page:
             # Only show one success message if any form was saved
             messages.success(
                 request, "Your profile settings have been updated successfully."
@@ -123,6 +132,20 @@ def profile_settings(request):
             initial=initial_data, user=request.user, push_enabled=is_push_enabled()
         )
 
+        # Initialize home page preference form
+        home_pref = request.user.profile.get_home_page_preference()
+        home_page_form = HomePagePreferenceForm(
+            initial={
+                "preference_type": home_pref.get("type", "default"),
+                "group_id": (
+                    str(home_pref.get("group_id", ""))
+                    if home_pref.get("group_id")
+                    else ""
+                ),
+            },
+            user=request.user,
+        )
+
     # Check if the user is a member of any groups with dollar bets enabled
     user_has_dollar_bet_groups = False
 
@@ -138,6 +161,7 @@ def profile_settings(request):
     context = {
         "form": form,
         "notification_form": notification_form,
+        "home_page_form": home_page_form,
         "push_notifications_enabled": is_push_enabled(),
         "user_has_dollar_bet_groups": user_has_dollar_bet_groups,
     }

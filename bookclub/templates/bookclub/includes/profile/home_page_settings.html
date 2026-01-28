@@ -1,0 +1,90 @@
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Home Page Settings</h4>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">Choose where you want to go after logging in.</p>
+        <form method="post">
+            {% csrf_token %}
+            <!-- Hidden fields to preserve other form values -->
+            <input type="hidden" name="{{ form.hardcover_api_key.html_name }}" value="{{ form.hardcover_api_key.value|default:'' }}">
+            {% if notification_form %}
+                <input type="hidden" name="{{ notification_form.enable_notifications.html_name }}"
+                    value="{% if notification_form.enable_notifications.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_new_active_books.html_name }}"
+                    value="{% if notification_form.notify_new_active_books.value %}on{% endif %}">
+
+                {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                <input type="hidden" name="{{ notification_form.notify_new_dollar_bets.html_name }}"
+                    value="{% if notification_form.notify_new_dollar_bets.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_accepted.html_name }}"
+                    value="{% if notification_form.notify_bet_accepted.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_added_to.html_name }}"
+                    value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
+                <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
+                    value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
+                {% endif %}
+            {% endif %}
+
+            <div class="mb-3">
+                {% for radio in home_page_form.preference_type %}
+                <div class="form-check">
+                    {{ radio.tag }}
+                    <label class="form-check-label" for="{{ radio.id_for_label }}">
+                        {{ radio.choice_label }}
+                        {% if radio.data.value == "default" %}
+                            <small class="text-muted">- Go to /home/</small>
+                        {% elif radio.data.value == "group" %}
+                            <small class="text-muted">- Go to a specific group's page</small>
+                        {% elif radio.data.value == "active_book" %}
+                            <small class="text-muted">- Go to the currently active book of a group</small>
+                        {% endif %}
+                    </label>
+                </div>
+                {% endfor %}
+                {% if home_page_form.preference_type.errors %}
+                <div class="text-danger">{{ home_page_form.preference_type.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3" id="group-select-container" style="{% if home_page_form.preference_type.value == 'default' %}display: none;{% endif %}">
+                <label for="{{ home_page_form.group_id.id_for_label }}" class="form-label">Select Group</label>
+                {{ home_page_form.group_id }}
+                {% if home_page_form.group_id.errors %}
+                <div class="text-danger">{{ home_page_form.group_id.errors }}</div>
+                {% endif %}
+            </div>
+
+            {% if home_page_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ home_page_form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Save Home Page Settings</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const preferenceRadios = document.querySelectorAll('input[name="preference_type"]');
+    const groupSelectContainer = document.getElementById('group-select-container');
+
+    function toggleGroupSelect() {
+        const selectedValue = document.querySelector('input[name="preference_type"]:checked')?.value;
+        if (selectedValue === 'default') {
+            groupSelectContainer.style.display = 'none';
+        } else {
+            groupSelectContainer.style.display = 'block';
+        }
+    }
+
+    preferenceRadios.forEach(radio => {
+        radio.addEventListener('change', toggleGroupSelect);
+    });
+
+    // Initial state
+    toggleGroupSelect();
+});
+</script>

@@ -123,6 +123,69 @@ class GroupForm(forms.ModelForm):
         }
 
 
+class HomePagePreferenceForm(forms.Form):
+    """Form for managing user's home page preference"""
+
+    HOME_PAGE_CHOICES = [
+        ("default", "Default Home Page"),
+        ("group", "Group Page"),
+        ("active_book", "Active Book"),
+    ]
+
+    preference_type = forms.ChoiceField(
+        choices=HOME_PAGE_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "form-check-input"}),
+        initial="default",
+        label="Home Page Preference",
+    )
+
+    group_id = forms.ChoiceField(
+        required=False,
+        label="Select Group",
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        # Populate group choices from user's groups
+        if self.user:
+            user_groups = BookGroup.objects.filter(members=self.user).order_by("name")
+            group_choices = [("", "-- Select a group --")]
+            group_choices.extend([(str(g.id), g.name) for g in user_groups])
+            self.fields["group_id"].choices = group_choices
+
+    def clean(self):
+        cleaned_data = super().clean()
+        preference_type = cleaned_data.get("preference_type")
+        group_id = cleaned_data.get("group_id")
+
+        # Require group selection when type is not "default"
+        if preference_type in ["group", "active_book"] and not group_id:
+            raise ValidationError("Please select a group for this preference.")
+
+        return cleaned_data
+
+    def save(self):
+        """Save the home page preference to the user's profile"""
+        if not self.user or not self.is_valid():
+            return False
+
+        preference_type = self.cleaned_data.get("preference_type", "default")
+        group_id = self.cleaned_data.get("group_id")
+
+        # Convert group_id to int if it's a valid number
+        if group_id:
+            try:
+                group_id = int(group_id)
+            except (ValueError, TypeError):
+                group_id = None
+
+        self.user.profile.set_home_page_preference(preference_type, group_id)
+        return True
+
+
 class NotificationPreferencesForm(forms.Form):
     """Form for managing user notification preferences"""
 
@@ -145,19 +208,19 @@ class NotificationPreferencesForm(forms.Form):
         label="New Dollar Bets",
         help_text="Get notified when a new open bet is made in your groups",
     )
-    
+
     notify_bet_accepted = forms.BooleanField(
         required=False,
         label="Bet Accepted",
         help_text="Get notified when someone accepts your open bet",
     )
-    
+
     notify_bet_added_to = forms.BooleanField(
         required=False,
         label="Added to Bet",
         help_text="Get notified when an admin adds you to a bet",
     )
-    
+
     notify_bet_resolved = forms.BooleanField(
         required=False,
         label="Bet Resolved",
@@ -199,15 +262,9 @@ class NotificationPreferencesForm(forms.Form):
                 "new_dollar_bets": self.cleaned_data.get(
                     "notify_new_dollar_bets", False
                 ),
-                "bet_accepted": self.cleaned_data.get(
-                    "notify_bet_accepted", False
-                ),
-                "bet_added_to": self.cleaned_data.get(
-                    "notify_bet_added_to", False
-                ),
-                "bet_resolved": self.cleaned_data.get(
-                    "notify_bet_resolved", False
-                ),
+                "bet_accepted": self.cleaned_data.get("notify_bet_accepted", False),
+                "bet_added_to": self.cleaned_data.get("notify_bet_added_to", False),
+                "bet_resolved": self.cleaned_data.get("notify_bet_resolved", False),
             }
         )
 

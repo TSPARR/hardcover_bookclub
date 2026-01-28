@@ -484,6 +484,12 @@ class UserProfile(models.Model):
         help_text="User's notification preferences for different types of notifications",
     )
 
+    home_page_preference = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="User's home page preference: type (default/group/active_book) and group_id",
+    )
+
     def __str__(self):
         return f"{self.user.username}'s profile"
 
@@ -499,6 +505,68 @@ class UserProfile(models.Model):
             self.notification_preferences = {}
         self.notification_preferences[notification_type] = enabled
         self.save(update_fields=["notification_preferences"])
+
+    def get_home_page_preference(self):
+        """Get the user's home page preference"""
+        if not self.home_page_preference:
+            return {"type": "default", "group_id": None}
+        return {
+            "type": self.home_page_preference.get("type", "default"),
+            "group_id": self.home_page_preference.get("group_id"),
+        }
+
+    def set_home_page_preference(self, preference_type, group_id=None):
+        """Set the user's home page preference"""
+        if not self.home_page_preference:
+            self.home_page_preference = {}
+        self.home_page_preference["type"] = preference_type
+        self.home_page_preference["group_id"] = (
+            group_id if preference_type != "default" else None
+        )
+        self.save(update_fields=["home_page_preference"])
+
+    def get_home_redirect_url(self):
+        """
+        Get the URL to redirect to based on user's home page preference.
+        Handles all fallback logic for deleted groups, left groups, no active book, etc.
+        Returns a URL path string.
+        """
+        from django.urls import reverse
+
+        pref = self.get_home_page_preference()
+        pref_type = pref.get("type", "default")
+        group_id = pref.get("group_id")
+
+        # Default behavior
+        if pref_type == "default" or not group_id:
+            return reverse("home")
+
+        # Check if the group exists and user is still a member
+        try:
+            group = BookGroup.objects.get(id=group_id)
+            if not group.members.filter(id=self.user.id).exists():
+                # User is no longer a member, fallback to default
+                return reverse("home")
+        except BookGroup.DoesNotExist:
+            # Group was deleted, fallback to default
+            return reverse("home")
+
+        # Group page preference
+        if pref_type == "group":
+            return reverse("group_detail", kwargs={"group_id": group_id})
+
+        # Active book preference
+        if pref_type == "active_book":
+            # Try to find the active book for this group
+            active_book = group.books.filter(is_active=True).first()
+            if active_book:
+                return reverse("book_detail", kwargs={"book_id": active_book.id})
+            else:
+                # No active book, fallback to group page
+                return reverse("group_detail", kwargs={"group_id": group_id})
+
+        # Unknown preference type, fallback to default
+        return reverse("home")
 
 
 @receiver(post_save, sender=User)
