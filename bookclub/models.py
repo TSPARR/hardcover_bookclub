@@ -4,13 +4,15 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django_cryptography.fields import encrypt
+from django.db.models import Q, Count, Max
 
 
 class BookGroup(models.Model):
@@ -506,7 +508,10 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
     else:
-        instance.profile.save()
+        # Minimal fix: avoid touching encrypted fields on every user save (e.g., login).
+        # Ensure a profile exists without loading/decrypting it.
+        if not UserProfile.objects.filter(user=instance).exists():
+            UserProfile.objects.create(user=instance)
 
 
 class MemberStartingPoint(models.Model):
@@ -646,3 +651,101 @@ class DollarBet(models.Model):
         self.resolved_at = timezone.now()
         self.resolved_by = resolved_by_user
         self.save()
+
+class Meeting(models.Model):
+    group = models.ForeignKey(BookGroup, on_delete=models.CASCADE, related_name="meetings")
+    title = models.CharField(max_length=200, blank=True)  # optional override
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="meetings", null=True, blank=True)
+    place = models.CharField(max_length=1000, blank=True)
+    is_public = models.BooleanField(default=False)
+    members = models.ManyToManyField(User, through="MeetingAttendance", related_name="meetings")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    meeting_number = models.PositiveIntegerField(editable=False, null=True)  # per-scope counter
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_meetings")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["group", "book", "meeting_number"],
+                condition=Q(book__isnull=False),
+                name="uniq_meeting_number_per_book",
+            ),
+            models.UniqueConstraint(
+                fields=["group", "meeting_number"],
+                condition=Q(book__isnull=True),
+                name="uniq_meeting_number_no_book",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["group", "book", "meeting_number"]),
+            models.Index(fields=["group", "start_time"]),
+        ]
+        ordering = ["start_time", "id"]
+        
+    def clean(self):
+        if self.end_time and self.start_time and self.end_time <= self.start_time:
+            raise ValidationError({"end_time": "End time must be after start time."})
+
+        # Book must belong to the same group, when provided
+        if self.book_id and self.book.group_id != self.group_id:
+            raise ValidationError({"book": "Selected book must belong to the same group as the meeting."})
+
+        # Disallow changing scope (group/book) after creation to keep meeting_number invariant
+        if self.pk:
+            orig = Meeting.objects.filter(pk=self.pk).values("group_id", "book_id").first()
+            if orig and (orig["group_id"] != self.group_id or orig["book_id"] != self.book_id):
+                raise ValidationError("Changing group or book on an existing meeting is not allowed. Create a new meeting.")
+
+    def save(self, *args, **kwargs):
+        creating = self.pk is None
+        if creating and self.meeting_number is None:
+            with transaction.atomic():
+                if self.book_id:
+                    last = Meeting.objects.select_for_update() \
+                        .filter(group_id=self.group_id, book_id=self.book_id) \
+                        .aggregate(m=Max("meeting_number"))["m"] or 0
+                else:
+                    last = Meeting.objects.select_for_update() \
+                        .filter(group_id=self.group_id, book__isnull=True) \
+                        .aggregate(m=Max("meeting_number"))["m"] or 0
+                self.meeting_number = last + 1
+        super().save(*args, **kwargs)
+
+    @property
+    def display_title(self) -> str:
+        """Computed title used in UI when no explicit title is set."""
+        if self.title:
+            return self.title
+        base = self.book.title if self.book_id else self.group.name
+        n = self.meeting_number or 1
+        return f"{base} {self._ordinal(n)} Meeting"
+
+    @staticmethod
+    def _ordinal(n: int) -> str:
+        if 10 <= n % 100 <= 20:
+            suffix = "th"
+        else:
+            suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+        return f"{n}{suffix}"
+
+    def __str__(self):
+        return f"{self.display_title} ({self.start_time:%Y-%m-%d %H:%M})"
+
+
+class MeetingAttendance(models.Model):
+    ATTENDANCE_CHOICES = [
+        ("yes", "Attending"),
+        ("maybe", "Maybe"),
+        ("no", "Not Attending"),
+    ]
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="attendance")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rsvp_status = models.CharField(max_length=10, choices=ATTENDANCE_CHOICES, default="maybe")
+    checked_in_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("meeting", "user")
