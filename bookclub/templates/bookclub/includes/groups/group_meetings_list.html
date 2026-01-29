@@ -1,0 +1,46 @@
+{% load static %}
+<div class="card mb-4 shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h3 class="h6 mb-0"><i class="bi bi-calendar-event me-2"></i>Meetings</h3>
+    <span class="text-muted small">Upcoming</span>
+  </div>
+  <div class="card-body p-0">
+    {% if meetings %}
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Start</th>
+            <th scope="col" class="text-center">Participants</th>
+            <th scope="col" class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for meeting in meetings %}
+          <tr>
+            <td class="align-middle">{{ meeting.display_title }}</td>
+            <td class="align-middle">{{ meeting.start_time|date:"M d, Y H:i" }}</td>
+            <td class="align-middle text-center">{{ meeting.yes_count }}</td>
+            <td class="align-middle text-end">
+              <form method="post" action="{% url 'meeting-join' meeting.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm" {% if meeting.id in user_joined_meetings %}disabled{% endif %}>
+                  {% if meeting.id in user_joined_meetings %}
+                  Joined
+                  {% else %}
+                  Join
+                  {% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="p-3 text-muted">No upcoming meetings.</div>
+    {% endif %}
+  </div>
+</div>
