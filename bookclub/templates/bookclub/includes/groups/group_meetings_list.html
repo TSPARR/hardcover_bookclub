@@ -23,16 +23,17 @@
             <td class="align-middle">{{ meeting.start_time|date:"M d, Y H:i" }}</td>
             <td class="align-middle text-center">{{ meeting.yes_count }}</td>
             <td class="align-middle text-end">
+              {% if meeting.id in user_joined_meetings %}
+              <form method="post" action="{% url 'meeting-leave' meeting.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">Leave</button>
+              </form>
+              {% else %}
               <form method="post" action="{% url 'meeting-join' meeting.id %}" class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary btn-sm" {% if meeting.id in user_joined_meetings %}disabled{% endif %}>
-                  {% if meeting.id in user_joined_meetings %}
-                  Joined
-                  {% else %}
-                  Join
-                  {% endif %}
-                </button>
+                <button type="submit" class="btn btn-primary btn-sm">Join</button>
               </form>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

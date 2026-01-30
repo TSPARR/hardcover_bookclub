@@ -66,6 +66,7 @@ from bookclub.views.meeting_views import (
     update_meeting,
     delete_meeting,
     join_meeting,
+    leave_meeting,
 )
 
 
@@ -317,5 +318,10 @@ urlpatterns = [
         "meetings/<int:meeting_id>/join/",
         join_meeting,
         name="meeting-join",
+    ),
+    path(
+        "meetings/<int:meeting_id>/leave/",
+        leave_meeting,
+        name="meeting-leave",
     ),
 ]

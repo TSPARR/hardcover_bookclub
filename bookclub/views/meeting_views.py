@@ -275,3 +275,36 @@ def join_meeting(request, meeting_id: int):
     # Fallback: redirect to the group's detail page
     from django.shortcuts import redirect
     return redirect("group_detail", group_id=group.id)
+
+@login_required
+@require_POST
+def leave_meeting(request, meeting_id: int):
+    """Allow a group member to leave a meeting (RSVP 'no')."""
+    meeting = Meeting.objects.filter(pk=meeting_id).first()
+    if not meeting:
+        return JsonResponse({"error": "Meeting not found."}, status=404)
+
+    group = meeting.group
+    # User must be a member of the group
+    if not group.is_member(request.user):
+        return JsonResponse({"error": "Forbidden: membership required."}, status=403)
+
+    # Update RSVP to 'no' if an attendance record exists
+    attendance = MeetingAttendance.objects.filter(meeting=meeting, user=request.user).first()
+    if attendance:
+        if attendance.rsvp_status != "no":
+            attendance.rsvp_status = "no"
+            attendance.save(update_fields=["rsvp_status"])
+    # If no attendance record, there's nothing to change; treat as success
+
+    accept_json = request.headers.get("Accept", "").lower().find("application/json") != -1
+    if accept_json:
+        return JsonResponse({
+            "status": "left",
+            "meeting": meeting.id,
+            "group": group.id,
+            "rsvp_status": "no",
+        })
+
+    from django.shortcuts import redirect
+    return redirect("group_detail", group_id=group.id)

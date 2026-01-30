@@ -12,7 +12,6 @@
         <!-- Left Sidebar - Members Section -->
         <div class="col-md-3 mb-4">
             {% include "bookclub/includes/groups/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
-            {% include "bookclub/includes/groups/group_meetings_list.html" with meetings=meetings user_joined_meetings=user_joined_meetings %}
             
             <!-- Dollar Bets Settings (Admin only) -->
             {% include "bookclub/includes/groups/group_dollar_bets_settings.html" with group=group is_admin=is_admin %}
@@ -40,7 +39,10 @@
                                 {% include "bookclub/includes/groups/active_book_card.html" with book=book group=group is_admin=is_admin book_progress=book_progress %}
                             {% endif %}
                         {% endfor %}
-                        
+
+                        <!-- Meetings Section-->
+                        {% include "bookclub/includes/groups/group_meetings_list.html" with meetings=meetings user_joined_meetings=user_joined_meetings %}
+
                         <!-- Previous Books Section -->
                         {% with previous_books=books|rejectattr:"is_active" %}
                             {% if previous_books %}
