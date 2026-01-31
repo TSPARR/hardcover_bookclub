@@ -3,6 +3,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 
 from bookclub.models import BookGroup, Book, Meeting, MeetingAttendance
 
@@ -287,6 +288,7 @@ def meeting_detail(request, meeting_id: int):
     user_joined = attendance_qs.filter(user=request.user, rsvp_status="yes").exists()
 
     from django.shortcuts import render
+    is_past = meeting.start_time <= timezone.now()
     return render(
         request,
         "bookclub/meeting_detail.html",
@@ -299,6 +301,7 @@ def meeting_detail(request, meeting_id: int):
             "did_not_vote_users": did_not_vote_users,
             "user_joined": user_joined,
             "is_admin": _is_group_admin(request.user, group),
+            "is_past": is_past,
         },
     )
 
@@ -312,6 +315,10 @@ def join_meeting(request, meeting_id: int):
     meeting = Meeting.objects.filter(pk=meeting_id).first()
     if not meeting:
         return JsonResponse({"error": "Meeting not found."}, status=404)
+
+    # Disallow joining past meetings
+    if meeting.start_time <= timezone.now():
+        return JsonResponse({"error": "Meeting has already occurred."}, status=400)
 
     group = meeting.group
     # User must be a member of the group to join
@@ -348,6 +355,10 @@ def leave_meeting(request, meeting_id: int):
     meeting = Meeting.objects.filter(pk=meeting_id).first()
     if not meeting:
         return JsonResponse({"error": "Meeting not found."}, status=404)
+
+    # Disallow leaving past meetings
+    if meeting.start_time <= timezone.now():
+        return JsonResponse({"error": "Meeting has already occurred."}, status=400)
 
     group = meeting.group
     # User must be a member of the group

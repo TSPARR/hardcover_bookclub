@@ -225,11 +225,16 @@ def group_detail(request, group_id):
             )
             return redirect("group_detail", group_id=group.id)
 
-    # Prepare meetings list (upcoming)
+    # Prepare meetings lists
     now = timezone.now()
     meetings = (
         Meeting.objects.filter(group=group, start_time__gte=now)
         .order_by("start_time")
+        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+    )
+    past_meetings = (
+        Meeting.objects.filter(group=group, start_time__lt=now)
+        .order_by("-start_time")
         .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
     )
 
@@ -250,6 +255,7 @@ def group_detail(request, group_id):
             "is_admin": is_admin,
             "book_progress": book_progress,
             "meetings": meetings,
+            "past_meetings": past_meetings,
             "user_joined_meetings": user_joined_ids,
         },
     )

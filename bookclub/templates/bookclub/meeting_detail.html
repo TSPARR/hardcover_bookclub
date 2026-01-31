@@ -13,16 +13,20 @@
           <span class="h6 mb-0">Actions</span>
         </div>
         <div class="card-body">
-          {% if user_joined %}
-          <form method="post" action="{% url 'meeting-leave' meeting.id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Leave Meeting</button>
-          </form>
+          {% if is_past %}
+            <div class="alert alert-secondary py-2 mb-2">This meeting has already occurred.</div>
           {% else %}
-          <form method="post" action="{% url 'meeting-join' meeting.id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary btn-sm w-100">Join Meeting</button>
-          </form>
+            {% if user_joined %}
+            <form method="post" action="{% url 'meeting-leave' meeting.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm w-100">Leave Meeting</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'meeting-join' meeting.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-sm w-100">Join Meeting</button>
+            </form>
+            {% endif %}
           {% endif %}
 
           {% if is_admin %}
