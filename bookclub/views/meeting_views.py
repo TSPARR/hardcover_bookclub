@@ -271,9 +271,15 @@ def meeting_detail(request, meeting_id: int):
         return JsonResponse({"error": "Meeting not found."}, status=404)
 
     group = meeting.group
-    # Visibility: require membership
-    if not group.is_member(request.user):
-        return JsonResponse({"error": "Forbidden: membership required."}, status=403)
+    # Visibility: allow either membership OR Django Meeting model permissions
+    can_manage = (
+        _is_group_admin(request.user, group)
+        or _has_meeting_perm(request.user, "add_meeting")
+        or _has_meeting_perm(request.user, "change_meeting")
+        or _has_meeting_perm(request.user, "delete_meeting")
+    )
+    if not group.is_member(request.user) and not can_manage:
+        return JsonResponse({"error": "Forbidden: membership or meeting permission required."}, status=403)
 
     # Attendance summary
     attendance_qs = meeting.attendance.select_related("user")
@@ -300,7 +306,8 @@ def meeting_detail(request, meeting_id: int):
             "no_attendees": no_attendees,
             "did_not_vote_users": did_not_vote_users,
             "user_joined": user_joined,
-            "is_admin": _is_group_admin(request.user, group),
+            # Treat users with meeting perms as "admin" for UI controls
+            "is_admin": can_manage,
             "is_past": is_past,
         },
     )
