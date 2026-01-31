@@ -173,12 +173,12 @@
                         <input type="text" class="form-control" id="meetingPlace-{{ book.id }}" name="place" placeholder="e.g., Community Library, Room B">
                     </div>
 
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="true" id="meetingPublic-{{ book.id }}" name="is_public">
-                        <label class="form-check-label" for="meetingPublic-{{ book.id }}">
-                            Public meeting (visible to non-members)
-                        </label>
+                    <div class="mb-3">
+                        <label for="meetingDescription-{{ book.id }}" class="form-label">Description (optional)</label>
+                        <textarea class="form-control" id="meetingDescription-{{ book.id }}" name="description" rows="3" placeholder="Agenda, notes, or any extra details..."></textarea>
                     </div>
+
+                    {# Public visibility removed #}
 
                     <div class="alert alert-danger d-none mt-3" id="meetingError-{{ book.id }}"></div>
                     <div class="alert alert-success d-none mt-3" id="meetingSuccess-{{ book.id }}"></div>
@@ -208,7 +208,8 @@
         const startInput = document.getElementById('meetingStart-{{ book.id }}');
         const endInput = document.getElementById('meetingEnd-{{ book.id }}');
         const placeInput = document.getElementById('meetingPlace-{{ book.id }}');
-        const isPublicInput = document.getElementById('meetingPublic-{{ book.id }}');
+        const descriptionInput = document.getElementById('meetingDescription-{{ book.id }}');
+        // Public visibility removed
         const errorBox = document.getElementById('meetingError-{{ book.id }}');
         const successBox = document.getElementById('meetingSuccess-{{ book.id }}');
         const spinner = document.getElementById('meetingSpinner-{{ book.id }}');
@@ -278,7 +279,8 @@
                 formData.set('start_time', startInput.value);
                 if (endInput.value) formData.set('end_time', endInput.value);
                 if (placeInput.value) formData.set('place', placeInput.value);
-                if (isPublicInput.checked) formData.set('is_public', 'true');
+                if (descriptionInput.value) formData.set('description', descriptionInput.value);
+                // Public visibility removed
 
                 const res = await fetch('/api/meetings/create/', {
                     method: 'POST',

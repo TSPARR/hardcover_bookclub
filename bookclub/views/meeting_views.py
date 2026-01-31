@@ -71,6 +71,12 @@ def _is_group_admin(user, group: BookGroup) -> bool:
     return bool(group.admins.filter(pk=user.pk).exists())
 
 
+def _has_meeting_perm(user, codename: str) -> bool:
+    """Check Django model permission for Meeting, e.g., 'bookclub.add_meeting'."""
+    app_label = Meeting._meta.app_label
+    return user.has_perm(f"{app_label}.{codename}")
+
+
 @login_required
 @require_POST
 def create_meeting(request):
@@ -83,6 +89,7 @@ def create_meeting(request):
     - start_time (ISO8601, required)
     - end_time (ISO8601, optional)
     - place (str, optional)
+    - description (str, optional)
     - is_public (bool-like, optional)
 
     Future improvements:
@@ -99,8 +106,9 @@ def create_meeting(request):
     if not group:
         return JsonResponse({"error": "Group not found."}, status=404)
 
-    if not _is_group_admin(request.user, group):
-        return JsonResponse({"error": "Forbidden: admin required."}, status=403)
+    # Require either group admin or Django 'add_meeting' permission
+    if not (_is_group_admin(request.user, group) or _has_meeting_perm(request.user, "add_meeting")):
+        return JsonResponse({"error": "Forbidden: admin or add_meeting permission required."}, status=403)
 
     book_id = request.POST.get("book")
     book = None
@@ -113,8 +121,7 @@ def create_meeting(request):
 
     title = request.POST.get("title", "").strip()
     place = request.POST.get("place", "").strip()
-    is_public_raw = request.POST.get("is_public", "false").lower()
-    is_public = is_public_raw in ("true", "1", "yes")
+    description = request.POST.get("description", "").strip()
 
     start_raw = request.POST.get("start_time")
     if not start_raw:
@@ -133,7 +140,7 @@ def create_meeting(request):
         book=book,
         title=title,
         place=place,
-        is_public=is_public,
+        description=description,
         start_time=start_dt,
         end_time=end_dt,
         created_by=request.user,
@@ -150,8 +157,9 @@ def create_meeting(request):
         "book": meeting.book_id,
         "start_time": meeting.start_time.isoformat(),
         "end_time": meeting.end_time.isoformat() if meeting.end_time else None,
-        "is_public": meeting.is_public,
+        # public visibility removed
         "place": meeting.place,
+        "description": meeting.description,
     }, status=201)
 
 
@@ -172,8 +180,9 @@ def update_meeting(request, meeting_id: int):
 
     # Check if user is group admin
     group = meeting.group
-    if not _is_group_admin(request.user, group):
-        return JsonResponse({"error": "Forbidden: admin required."}, status=403)
+    # Require either group admin or Django 'change_meeting' permission
+    if not (_is_group_admin(request.user, group) or _has_meeting_perm(request.user, "change_meeting")):
+        return JsonResponse({"error": "Forbidden: admin or change_meeting permission required."}, status=403)
 
     # Check if Title is Empty
     title = request.POST.get("title")
@@ -185,10 +194,10 @@ def update_meeting(request, meeting_id: int):
     if place is not None:
         meeting.place = place.strip()
 
-    # Check is_public field
-    is_public_raw = request.POST.get("is_public")
-    if is_public_raw is not None:
-        meeting.is_public = is_public_raw.lower() in ("true", "1", "yes")
+    # Description field
+    description = request.POST.get("description")
+    if description is not None:
+        meeting.description = description.strip()
 
     # Check start_time field Format
     start_raw = request.POST.get("start_time")
@@ -201,12 +210,17 @@ def update_meeting(request, meeting_id: int):
     # Check end_time field Format and logic
     end_raw = request.POST.get("end_time")
     if end_raw is not None:
-        end_dt = parse_datetime(end_raw)
-        if not end_dt:
-            return JsonResponse({"error": "Invalid 'end_time' format."}, status=400)
-        if meeting.start_time and end_dt <= meeting.start_time:
-            return JsonResponse({"error": "'end_time' must be after 'start_time'."}, status=400)
-        meeting.end_time = end_dt
+        end_str = end_raw.strip() if isinstance(end_raw, str) else end_raw
+        if end_str == "":
+            # Treat empty string as clearing the end_time
+            meeting.end_time = None
+        else:
+            end_dt = parse_datetime(end_str)
+            if not end_dt:
+                return JsonResponse({"error": "Invalid 'end_time' format."}, status=400)
+            if meeting.start_time and end_dt <= meeting.start_time:
+                return JsonResponse({"error": "'end_time' must be after 'start_time'."}, status=400)
+            meeting.end_time = end_dt
 
     try:
         meeting.save()
@@ -220,8 +234,9 @@ def update_meeting(request, meeting_id: int):
         "book": meeting.book_id,
         "start_time": meeting.start_time.isoformat(),
         "end_time": meeting.end_time.isoformat() if meeting.end_time else None,
-        "is_public": meeting.is_public,
+        # public visibility removed
         "place": meeting.place,
+        "description": meeting.description,
     })
 
 
@@ -233,11 +248,61 @@ def delete_meeting(request, meeting_id: int):
     if not meeting:
         return JsonResponse({"error": "Meeting not found."}, status=404)
 
-    if not _is_group_admin(request.user, meeting.group):
-        return JsonResponse({"error": "Forbidden: admin required."}, status=403)
+    # Require either group admin or Django 'delete_meeting' permission
+    if not (_is_group_admin(request.user, meeting.group) or _has_meeting_perm(request.user, "delete_meeting")):
+        return JsonResponse({"error": "Forbidden: admin or delete_meeting permission required."}, status=403)
 
     meeting.delete()
-    return JsonResponse({"status": "deleted", "id": meeting_id})
+
+    accept_json = request.headers.get("Accept", "").lower().find("application/json") != -1
+    if accept_json:
+        return JsonResponse({"status": "deleted", "id": meeting_id})
+    from django.shortcuts import redirect
+    return redirect("group_detail", group_id=meeting.group_id)
+
+
+@login_required
+@require_GET
+def meeting_detail(request, meeting_id: int):
+    """Render a meeting details page with core info and attendance."""
+    meeting = Meeting.objects.select_related("group", "book", "created_by").filter(pk=meeting_id).first()
+    if not meeting:
+        return JsonResponse({"error": "Meeting not found."}, status=404)
+
+    group = meeting.group
+    # Visibility: require membership
+    if not group.is_member(request.user):
+        return JsonResponse({"error": "Forbidden: membership required."}, status=403)
+
+    # Attendance summary
+    attendance_qs = meeting.attendance.select_related("user")
+    yes_attendees = [a.user for a in attendance_qs.filter(rsvp_status="yes")]
+    # Treat 'maybe' as not attending for logic moving forward
+    no_attendees = [a.user for a in attendance_qs.filter(rsvp_status__in=["no", "maybe"])]
+    # Users who did not vote: members without any attendance record
+    voted_user_ids = set(attendance_qs.values_list("user_id", flat=True))
+    did_not_vote_users = list(group.members.exclude(id__in=voted_user_ids))
+
+    # Determine whether current user has joined
+    user_joined = attendance_qs.filter(user=request.user, rsvp_status="yes").exists()
+
+    from django.shortcuts import render
+    return render(
+        request,
+        "bookclub/meeting_detail.html",
+        {
+            "meeting": meeting,
+            "group": group,
+            "book": meeting.book,
+            "yes_attendees": yes_attendees,
+            "no_attendees": no_attendees,
+            "did_not_vote_users": did_not_vote_users,
+            "user_joined": user_joined,
+            "is_admin": _is_group_admin(request.user, group),
+        },
+    )
+
+    
 
 
 @login_required

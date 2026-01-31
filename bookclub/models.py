@@ -657,7 +657,7 @@ class Meeting(models.Model):
     title = models.CharField(max_length=200, blank=True)  # optional override
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="meetings", null=True, blank=True)
     place = models.CharField(max_length=1000, blank=True)
-    is_public = models.BooleanField(default=False)
+    description = models.TextField(blank=True)
     members = models.ManyToManyField(User, through="MeetingAttendance", related_name="meetings")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -738,12 +738,11 @@ class Meeting(models.Model):
 class MeetingAttendance(models.Model):
     ATTENDANCE_CHOICES = [
         ("yes", "Attending"),
-        ("maybe", "Maybe"),
         ("no", "Not Attending"),
-    ]
+    ]   
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="attendance")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rsvp_status = models.CharField(max_length=10, choices=ATTENDANCE_CHOICES, default="maybe")
+    rsvp_status = models.CharField(max_length=10, choices=ATTENDANCE_CHOICES, default="no")
     checked_in_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

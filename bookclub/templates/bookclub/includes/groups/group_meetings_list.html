@@ -19,7 +19,7 @@
         <tbody>
           {% for meeting in meetings %}
           <tr>
-            <td class="align-middle">{{ meeting.display_title }}</td>
+            <td class="align-middle"><a href="{% url 'meeting-detail' meeting.id %}">{{ meeting.display_title }}</a></td>
             <td class="align-middle">{{ meeting.start_time|date:"M d, Y H:i" }}</td>
             <td class="align-middle text-center">{{ meeting.yes_count }}</td>
             <td class="align-middle text-end">
