@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.5.2
+- Dependency update: cryptography 46.0.5
+- Dependency update: cffi 2.0.0
+
 ## Release 0.5.1
 - Dependency update: urllib3 2.6.3
 
