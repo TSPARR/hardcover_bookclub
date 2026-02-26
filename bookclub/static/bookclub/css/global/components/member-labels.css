@@ -28,3 +28,21 @@
 
 /* First element: divider close to the left border makes icon appear right of the border */
 .member-label .label-divider:first-child { margin-left: 0; }
+
+/* Variants */
+.member-label-success {
+  background-color: rgba(25, 135, 84, 0.1);
+  border-color: #198754 !important;
+}
+.member-label-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: #dc3545 !important;
+}
+.member-label-secondary {
+  background-color: rgba(108, 117, 125, 0.1);
+  border-color: #6c757d !important;
+}
+.member-label-warning {
+  background-color: rgba(255, 193, 7, 0.12);
+  border-color: #ffc107 !important;
+}

@@ -8,6 +8,7 @@ Hardcover Bookclub is a self-hosted application that integrates seamlessly with 
 - **Book Management**: Create and manage book entries with ease.
 - **Comments and Discussions**: Leave comments and engage in discussions about your favorite books.
 - **Progress Tracking**: Track your reading progress and stay motivated.
+- **Organize Meetings**: Create Meetings and let members of the group join to signify participation
 - **Integration with Hardcover.app API**: Leverage the powerful features of Hardcover.app through seamless API integration.
 - **Optional Push Notifications**: Allow users to receive real-time updates about activity in their book clubs.
 - **Optional Plex Integration**: Link directly to audiobooks in your Plex library.

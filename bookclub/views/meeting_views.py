@@ -1,13 +1,16 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from bookclub.models import BookGroup, Book, Meeting, MeetingAttendance
 
 
+@login_required
 @require_GET
 def next_meeting_info(request):
     """
@@ -49,6 +52,16 @@ def next_meeting_info(request):
     else:
         qs = Meeting.objects.filter(group_id=group.id, book__isnull=True)
 
+    # Access: require membership OR meeting management permission
+    can_manage = (
+        _is_group_admin(request.user, group)
+        or _has_meeting_perm(request.user, "add_meeting")
+        or _has_meeting_perm(request.user, "change_meeting")
+        or _has_meeting_perm(request.user, "delete_meeting")
+    )
+    if not group.is_member(request.user) and not can_manage:
+        return JsonResponse({"error": "Forbidden: membership or meeting permission required."}, status=403)
+
     last = qs.aggregate(m=Max("meeting_number"))
     next_n = (last.get("m") or 0) + 1
     suggested = f"{base_title} {ordinal(next_n)} Meeting"
@@ -66,6 +79,26 @@ def ordinal(n: int) -> str:
     else:
         suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
     return f"{n}{suffix}"
+
+
+def _make_aware(dt):
+    """Ensure datetime is timezone-aware using the current timezone."""
+    if dt and timezone.is_naive(dt):
+        try:
+            return timezone.make_aware(dt, timezone.get_current_timezone())
+        except Exception:
+            # Fallback to default behavior if current timezone not available
+            return timezone.make_aware(dt)
+    return dt
+
+
+def _is_past(dt) -> bool:
+    """Safe comparison: treat naive datetimes as current timezone, then compare."""
+    if dt is None:
+        return False
+    aware_dt = _make_aware(dt)
+    now = timezone.now()
+    return aware_dt <= now
 
 
 def _is_group_admin(user, group: BookGroup) -> bool:
@@ -130,15 +163,30 @@ def create_meeting(request):
     start_dt = parse_datetime(start_raw)
     if not start_dt:
         return JsonResponse({"error": "Invalid 'start_time' format."}, status=400)
+    start_dt = _make_aware(start_dt)
 
     end_raw = request.POST.get("end_time")
     end_dt = parse_datetime(end_raw) if end_raw else None
+    end_dt = _make_aware(end_dt) if end_dt else None
     if end_dt and end_dt <= start_dt:
         return JsonResponse({"error": "'end_time' must be after 'start_time'."}, status=400)
+
+    # Disallow creating meetings in the past
+    if _is_past(start_dt):
+        return JsonResponse({"error": "'start_time' must be in the future."}, status=400)
+
+    # Determine next meeting_number within scope (group + optional book)
+    scope_qs = Meeting.objects.filter(group=group)
+    if book is None:
+        scope_qs = scope_qs.filter(book__isnull=True)
+    else:
+        scope_qs = scope_qs.filter(book=book)
+    last_num = scope_qs.aggregate(m=Max("meeting_number")).get("m") or 0
 
     meeting = Meeting(
         group=group,
         book=book,
+        meeting_number=last_num + 1,
         title=title,
         place=place,
         description=description,
@@ -147,6 +195,8 @@ def create_meeting(request):
         created_by=request.user,
     )
     try:
+        # Validate via model's clean/validators if defined
+        meeting.full_clean()
         meeting.save()
     except Exception as e:
         return JsonResponse({"error": "Failed to create meeting.", "detail": str(e)}, status=400)
@@ -206,7 +256,7 @@ def update_meeting(request, meeting_id: int):
         start_dt = parse_datetime(start_raw)
         if not start_dt:
             return JsonResponse({"error": "Invalid 'start_time' format."}, status=400)
-        meeting.start_time = start_dt
+        meeting.start_time = _make_aware(start_dt)
     
     # Check end_time field Format and logic
     end_raw = request.POST.get("end_time")
@@ -219,12 +269,16 @@ def update_meeting(request, meeting_id: int):
             end_dt = parse_datetime(end_str)
             if not end_dt:
                 return JsonResponse({"error": "Invalid 'end_time' format."}, status=400)
+            end_dt = _make_aware(end_dt)
             if meeting.start_time and end_dt <= meeting.start_time:
                 return JsonResponse({"error": "'end_time' must be after 'start_time'."}, status=400)
             meeting.end_time = end_dt
 
     try:
+        meeting.full_clean()
         meeting.save()
+    except ValidationError as ve:
+        return JsonResponse({"error": "Validation error.", "detail": ve.message_dict}, status=400)
     except Exception as e:
         return JsonResponse({"error": "Failed to update meeting.", "detail": str(e)}, status=400)
 
@@ -255,8 +309,10 @@ def delete_meeting(request, meeting_id: int):
 
     meeting.delete()
 
-    accept_json = request.headers.get("Accept", "").lower().find("application/json") != -1
-    if accept_json:
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or (
+        "application/json" in (request.headers.get("Accept", "").lower())
+    )
+    if is_ajax:
         return JsonResponse({"status": "deleted", "id": meeting_id})
     from django.shortcuts import redirect
     return redirect("group_detail", group_id=meeting.group_id)
@@ -266,9 +322,9 @@ def delete_meeting(request, meeting_id: int):
 @require_GET
 def meeting_detail(request, meeting_id: int):
     """Render a meeting details page with core info and attendance."""
-    meeting = Meeting.objects.select_related("group", "book", "created_by").filter(pk=meeting_id).first()
-    if not meeting:
-        return JsonResponse({"error": "Meeting not found."}, status=404)
+    from django.shortcuts import get_object_or_404, render
+    qs = Meeting.objects.select_related("group", "book", "created_by")
+    meeting = get_object_or_404(qs, pk=meeting_id)
 
     group = meeting.group
     # Visibility: allow either membership OR Django Meeting model permissions
@@ -279,13 +335,19 @@ def meeting_detail(request, meeting_id: int):
         or _has_meeting_perm(request.user, "delete_meeting")
     )
     if not group.is_member(request.user) and not can_manage:
-        return JsonResponse({"error": "Forbidden: membership or meeting permission required."}, status=403)
+        # Return JSON for AJAX, otherwise a 403 page
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or (
+            "application/json" in (request.headers.get("Accept", "").lower())
+        )
+        if is_ajax:
+            return JsonResponse({"error": "Forbidden: membership or meeting permission required."}, status=403)
+        return HttpResponseForbidden("Forbidden: membership or meeting permission required.")
 
     # Attendance summary
     attendance_qs = meeting.attendance.select_related("user")
     yes_attendees = [a.user for a in attendance_qs.filter(rsvp_status="yes")]
-    # Treat 'maybe' as not attending for logic moving forward
-    no_attendees = [a.user for a in attendance_qs.filter(rsvp_status__in=["no", "maybe"])]
+    maybe_attendees = [a.user for a in attendance_qs.filter(rsvp_status="maybe")]
+    no_attendees = [a.user for a in attendance_qs.filter(rsvp_status="no")]
     # Users who did not vote: members without any attendance record
     voted_user_ids = set(attendance_qs.values_list("user_id", flat=True))
     did_not_vote_users = list(group.members.exclude(id__in=voted_user_ids))
@@ -293,8 +355,7 @@ def meeting_detail(request, meeting_id: int):
     # Determine whether current user has joined
     user_joined = attendance_qs.filter(user=request.user, rsvp_status="yes").exists()
 
-    from django.shortcuts import render
-    is_past = meeting.start_time <= timezone.now()
+    is_past = _is_past(meeting.start_time)
     return render(
         request,
         "bookclub/meeting_detail.html",
@@ -303,12 +364,14 @@ def meeting_detail(request, meeting_id: int):
             "group": group,
             "book": meeting.book,
             "yes_attendees": yes_attendees,
+            "maybe_attendees": maybe_attendees,
             "no_attendees": no_attendees,
             "did_not_vote_users": did_not_vote_users,
             "user_joined": user_joined,
             # Treat users with meeting perms as "admin" for UI controls
             "is_admin": can_manage,
             "is_past": is_past,
+            "current_tz": getattr(settings, "TIME_ZONE", "UTC"),
         },
     )
 
@@ -324,7 +387,7 @@ def join_meeting(request, meeting_id: int):
         return JsonResponse({"error": "Meeting not found."}, status=404)
 
     # Disallow joining past meetings
-    if meeting.start_time <= timezone.now():
+    if _is_past(meeting.start_time):
         return JsonResponse({"error": "Meeting has already occurred."}, status=400)
 
     group = meeting.group
@@ -342,8 +405,10 @@ def join_meeting(request, meeting_id: int):
         attendance.save(update_fields=["rsvp_status"])
 
     # Support both AJAX and regular form POSTs
-    accept_json = request.headers.get("Accept", "").lower().find("application/json") != -1
-    if accept_json:
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or (
+        "application/json" in (request.headers.get("Accept", "").lower())
+    )
+    if is_ajax:
         return JsonResponse({
             "status": "joined",
             "meeting": meeting.id,
@@ -364,7 +429,7 @@ def leave_meeting(request, meeting_id: int):
         return JsonResponse({"error": "Meeting not found."}, status=404)
 
     # Disallow leaving past meetings
-    if meeting.start_time <= timezone.now():
+    if _is_past(meeting.start_time):
         return JsonResponse({"error": "Meeting has already occurred."}, status=400)
 
     group = meeting.group
@@ -380,8 +445,10 @@ def leave_meeting(request, meeting_id: int):
             attendance.save(update_fields=["rsvp_status"])
     # If no attendance record, there's nothing to change; treat as success
 
-    accept_json = request.headers.get("Accept", "").lower().find("application/json") != -1
-    if accept_json:
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or (
+        "application/json" in (request.headers.get("Accept", "").lower())
+    )
+    if is_ajax:
         return JsonResponse({
             "status": "left",
             "meeting": meeting.id,

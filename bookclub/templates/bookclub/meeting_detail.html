@@ -121,7 +121,12 @@
                     <span class="label-text">{{ member.username }}</span>
                     <span class="label-divider"></span>
                     <i class="bi bi-check-circle label-icon"></i>
-
+                  </span>
+                {% elif member in maybe_attendees %}
+                  <span class="member-label member-label-warning">
+                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-divider"></span>
+                    <i class="bi bi-question-circle label-icon"></i>
                   </span>
                 {% elif member in no_attendees %}
                   <span class="member-label member-label-danger">
@@ -167,7 +172,7 @@
           <div class="mb-3">
             <label for="editStart" class="form-label">Start Time</label>
             <input type="datetime-local" class="form-control" id="editStart" name="start_time" value="{{ meeting.start_time|date:"Y-m-d\\TH:i" }}" required>
-            <div class="form-text">Local time; saved in ISO format.</div>
+            <div class="form-text">Local time — saved as {{ current_tz }}.</div>
           </div>
 
           <div class="mb-3">
