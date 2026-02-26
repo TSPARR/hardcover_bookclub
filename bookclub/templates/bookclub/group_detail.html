@@ -39,13 +39,19 @@
                                 {% include "bookclub/includes/groups/active_book_card.html" with book=book group=group is_admin=is_admin book_progress=book_progress %}
                             {% endif %}
                         {% endfor %}
-                        
+
+                        <!-- Meetings Section-->
+                        {% include "bookclub/includes/groups/group_meetings_list.html" with meetings=meetings user_joined_meetings=user_joined_meetings %}
+
                         <!-- Previous Books Section -->
                         {% with previous_books=books|rejectattr:"is_active" %}
                             {% if previous_books %}
                                 {% include "bookclub/includes/groups/previous_books.html" with books=books previous_books=previous_books group=group is_admin=is_admin book_progress=book_progress members=members %}
                             {% endif %}
                         {% endwith %}
+
+                        <!-- Past Meetings Section (below previous books) -->
+                        {% include "bookclub/includes/groups/group_past_meetings_list.html" with past_meetings=past_meetings %}
                         
                         {% endwith %}
                     {% else %}

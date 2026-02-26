@@ -102,6 +102,9 @@
                                 <!-- Admin Action Buttons -->
                                 {% if is_admin %}
                                 <div class="mt-2 admin-actions">
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#scheduleMeetingModal-{{ book.id }}">
+                                        <i class="bi bi-calendar-plus"></i> Schedule Meeting
+                                    </button>
                                     <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-outline-info btn-sm editions-btn">
                                         <i class="bi bi-star"></i> Editions
                                     </a>
@@ -131,3 +134,178 @@
         </div>
     </div>
 </div>
+
+{% if is_admin %}
+{# Schedule Meeting Modal (scoped to this book card) #}
+<div class="modal fade" id="scheduleMeetingModal-{{ book.id }}" tabindex="-1" aria-labelledby="scheduleMeetingLabel-{{ book.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleMeetingLabel-{{ book.id }}">Schedule Meeting</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="meetingCreateForm-{{ book.id }}" class="needs-validation" novalidate>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" name="group" value="{{ group.id }}">
+                    <input type="hidden" name="book" value="{{ book.id }}">
+
+                    <div class="mb-3">
+                        <label for="meetingTitle-{{ book.id }}" class="form-label">Title (optional)</label>
+                        <input type="text" class="form-control" id="meetingTitle-{{ book.id }}" name="title" placeholder="Loading suggestion...">
+                        <div class="form-text">Leave blank to use the suggested title.</div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-12 col-md-6 mb-3">
+                            <label for="meetingStart-{{ book.id }}" class="form-label">Start</label>
+                            <input type="datetime-local" class="form-control" id="meetingStart-{{ book.id }}" name="start_time" required>
+                            <div class="invalid-feedback">Start time is required.</div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label for="meetingEnd-{{ book.id }}" class="form-label">End (optional)</label>
+                            <input type="datetime-local" class="form-control" id="meetingEnd-{{ book.id }}" name="end_time">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="meetingPlace-{{ book.id }}" class="form-label">Place (optional)</label>
+                        <input type="text" class="form-control" id="meetingPlace-{{ book.id }}" name="place" placeholder="e.g., Community Library, Room B">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="meetingDescription-{{ book.id }}" class="form-label">Description (optional)</label>
+                        <textarea class="form-control" id="meetingDescription-{{ book.id }}" name="description" rows="3" placeholder="Agenda, notes, or any extra details..."></textarea>
+                    </div>
+
+                    {# Public visibility removed #}
+
+                    <div class="alert alert-danger d-none mt-3" id="meetingError-{{ book.id }}"></div>
+                    <div class="alert alert-success d-none mt-3" id="meetingSuccess-{{ book.id }}"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true" id="meetingSpinner-{{ book.id }}"></span>
+                        Create Meeting
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+<script>
+    (function() {
+        const form = document.getElementById('meetingCreateForm-{{ book.id }}');
+        if (!form) return;
+        const modalEl = document.getElementById('scheduleMeetingModal-{{ book.id }}');
+        // Move modal to <body> to avoid stacking context/z-index issues under card containers.
+        if (modalEl && modalEl.parentElement !== document.body) {
+            document.body.appendChild(modalEl);
+        }
+        const titleInput = document.getElementById('meetingTitle-{{ book.id }}');
+        const startInput = document.getElementById('meetingStart-{{ book.id }}');
+        const endInput = document.getElementById('meetingEnd-{{ book.id }}');
+        const placeInput = document.getElementById('meetingPlace-{{ book.id }}');
+        const descriptionInput = document.getElementById('meetingDescription-{{ book.id }}');
+        // Public visibility removed
+        const errorBox = document.getElementById('meetingError-{{ book.id }}');
+        const successBox = document.getElementById('meetingSuccess-{{ book.id }}');
+        const spinner = document.getElementById('meetingSpinner-{{ book.id }}');
+
+        // Fetch CSRF from the hidden input Django renders
+        const csrfToken = (function() {
+            const input = form.querySelector('input[name="csrfmiddlewaretoken"]');
+            return input ? input.value : '';
+        })();
+
+        function setLoading(loading) {
+            if (loading) {
+                spinner.classList.remove('d-none');
+                form.querySelector('button[type="submit"]').setAttribute('disabled', 'disabled');
+            } else {
+                spinner.classList.add('d-none');
+                form.querySelector('button[type="submit"]').removeAttribute('disabled');
+            }
+        }
+
+        function showError(msg) {
+            errorBox.textContent = msg || 'Something went wrong. Please try again.';
+            errorBox.classList.remove('d-none');
+            successBox.classList.add('d-none');
+        }
+
+        function showSuccess(msg) {
+            successBox.textContent = msg || 'Meeting created.';
+            successBox.classList.remove('d-none');
+            errorBox.classList.add('d-none');
+        }
+
+        async function loadSuggestion() {
+            try {
+                const url = new URL('/api/meetings/next/', window.location.origin);
+                url.searchParams.set('group', '{{ group.id }}');
+                url.searchParams.set('book', '{{ book.id }}');
+                const res = await fetch(url.toString());
+                if (!res.ok) return;
+                const data = await res.json();
+                if (titleInput && !titleInput.value) {
+                    titleInput.placeholder = data.suggested_title || '';
+                }
+            } catch (e) {
+                // no-op; placeholder is optional
+            }
+        }
+
+        modalEl.addEventListener('shown.bs.modal', loadSuggestion);
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            errorBox.classList.add('d-none');
+            successBox.classList.add('d-none');
+
+            if (!startInput.value) {
+                showError('Please provide a start time.');
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const formData = new URLSearchParams();
+                formData.set('group', '{{ group.id }}');
+                formData.set('book', '{{ book.id }}');
+                if (titleInput.value) formData.set('title', titleInput.value);
+                formData.set('start_time', startInput.value);
+                if (endInput.value) formData.set('end_time', endInput.value);
+                if (placeInput.value) formData.set('place', placeInput.value);
+                if (descriptionInput.value) formData.set('description', descriptionInput.value);
+                // Public visibility removed
+
+                const res = await fetch('/api/meetings/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: formData.toString(),
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    showError(data.error || 'Failed to create meeting.');
+                    return;
+                }
+
+                showSuccess('Meeting created successfully.');
+                // Refresh after a short delay to reflect the new meeting in lists
+                setTimeout(() => window.location.reload(), 600);
+            } catch (err) {
+                showError('Network error. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        });
+    })();
+</script>
+{% endif %}

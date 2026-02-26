@@ -1,0 +1,266 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+{% load bookclub_extras %}
+{% block title %}{{ meeting.display_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <!-- Sidebar: Actions -->
+    <div class="col-md-3 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <span class="h6 mb-0">Actions</span>
+        </div>
+        <div class="card-body">
+          {% if is_past %}
+            <div class="alert alert-secondary py-2 mb-2">This meeting has already occurred.</div>
+          {% else %}
+            {% if user_joined %}
+            <form method="post" action="{% url 'meeting-leave' meeting.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm w-100">Leave Meeting</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'meeting-join' meeting.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-sm w-100">Join Meeting</button>
+            </form>
+            {% endif %}
+          {% endif %}
+
+          {% if is_admin %}
+          <hr>
+          <div class="d-grid gap-2">
+            <p>Admin Settings:</p>
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editMeetingModal">Edit Details</button>
+            <form method="post" action="{% url 'meeting-delete' meeting.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm">Delete Meeting</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="col-md-9">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h3 class="h5 mb-0">{{ meeting.display_title }}</h3>
+              <div class="small text-muted">Meeting #{{ meeting.meeting_number }}</div>
+            </div>
+          </div>
+          <!-- Prominent date/time banner -->
+          <div class="mt-2 p-2 rounded border bg-light">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <div class="fw-semibold">
+                <i class="bi bi-calendar-event me-1"></i>
+                <span id="meetingDate">{{ meeting.start_time|date:"M d, Y" }}</span>
+              </div>
+              <div class="fw-semibold">
+                <i class="bi bi-clock me-1"></i>
+                <span id="meetingTimeStart">{{ meeting.start_time|date:"H:i" }}</span>
+                {% if meeting.end_time %}
+                  - <span id="meetingTimeEnd">{{ meeting.end_time|date:"H:i" }}</span>
+                {% endif %}
+              </div>
+              {% if meeting.place %}
+              <div class="text-muted" id="meetingPlaceBlock">
+                <i class="bi bi-geo-alt me-1"></i>
+                <span id="meetingPlaceText">{{ meeting.place }}</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <!-- Book cover -->
+            {% if meeting.book %}
+            <div class="col-md-3 mb-3 mb-md-0">
+              {% if meeting.book.cover_image_url %}
+                <img src="{{ meeting.book.cover_image_url }}" class="img-fluid rounded" alt="{{ meeting.book.title|split:":"|first|trim }}">
+              {% else %}
+                <div class="card-img-top-placeholder text-center">
+                  <p class="text-muted">No cover available</p>
+                </div>
+              {% endif %}
+            </div>
+            {% endif %}
+            <div class="col-md-{% if meeting.book %}9{% else %}12{% endif %}">
+              <div class="row">
+                <div class="col-md-6">
+                  <div><strong>Group:</strong> <a href="{% url 'group_detail' meeting.group.id %}">{{ meeting.group.name }}</a></div>
+                  {% if meeting.book %}
+                  <div><strong>Book:</strong> <a href="{% url 'book_detail' meeting.book.id %}">{{ meeting.book.title }}</a></div>
+                  {% endif %}
+                  {% if meeting.description %}
+                  <div id="meetingDescriptionBlock">
+                    <strong> Meeting Description:</strong>
+                    <div style="white-space: pre-wrap;" id="meetingDescriptionText">{{ meeting.description|linebreaksbr }}</div>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <hr>
+          <!-- Member status chips -->
+          <div>
+            <h6 class="mb-2">Member Status</h6>
+            <div class="d-flex flex-wrap gap-2">
+              {% for member in group.members.all %}
+                {% if member in yes_attendees %}
+                  <span class="member-label member-label-success">
+                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-divider"></span>
+                    <i class="bi bi-check-circle label-icon"></i>
+                  </span>
+                {% elif member in maybe_attendees %}
+                  <span class="member-label member-label-warning">
+                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-divider"></span>
+                    <i class="bi bi-question-circle label-icon"></i>
+                  </span>
+                {% elif member in no_attendees %}
+                  <span class="member-label member-label-danger">
+                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-divider"></span>
+                    <i class="bi bi-x-circle label-icon"></i>
+                  </span>
+                {% else %}
+                  <span class="member-label member-label-secondary">
+                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-divider"></span>
+                    <i class="bi bi-clock label-icon"></i>
+                  </span>
+                {% endif %}
+              {% empty %}
+                <span class="text-muted">No members in this group.</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if is_admin %}
+<!-- Edit Meeting Modal (admin-only) -->
+<div class="modal fade" id="editMeetingModal" tabindex="-1" aria-labelledby="editMeetingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editMeetingModalLabel">Edit Meeting</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editMeetingForm">
+        <div class="modal-body">
+          <div class="alert alert-danger d-none" id="editMeetingError"></div>
+
+          <div class="mb-3">
+            <label for="editTitle" class="form-label">Title</label>
+            <input type="text" class="form-control" id="editTitle" name="title" value="{{ meeting.title }}" placeholder="Optional custom title">
+          </div>
+
+          <div class="mb-3">
+            <label for="editStart" class="form-label">Start Time</label>
+            <input type="datetime-local" class="form-control" id="editStart" name="start_time" value="{{ meeting.start_time|date:"Y-m-d\\TH:i" }}" required>
+            <div class="form-text">Local time — saved as {{ current_tz }}.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="editEnd" class="form-label">End Time</label>
+            <input type="datetime-local" class="form-control" id="editEnd" name="end_time" value="{% if meeting.end_time %}{{ meeting.end_time|date:"Y-m-d\\TH:i" }}{% endif %}">
+          </div>
+
+          <div class="mb-3">
+            <label for="editPlace" class="form-label">Place</label>
+            <input type="text" class="form-control" id="editPlace" name="place" value="{{ meeting.place }}" placeholder="e.g., Zoom, Library Room 2">
+          </div>
+
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" name="description" rows="3" placeholder="Optional details">{{ meeting.description }}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% csrf_token %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if is_admin %}
+<script>
+  (function() {
+    const form = document.getElementById('editMeetingForm');
+    if (!form) return;
+    const errorBox = document.getElementById('editMeetingError');
+    const updateUrl = '{% url "meeting-update" meeting.id %}';
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      errorBox.classList.add('d-none');
+      errorBox.textContent = '';
+
+      const fd = new FormData(form);
+      const start = fd.get('start_time');
+      if (!start) {
+        errorBox.textContent = "Start time is required.";
+        errorBox.classList.remove('d-none');
+        return;
+      }
+
+      // Remove empty optional fields to avoid backend "not None" checks
+      const endVal = fd.get('end_time');
+      if (endVal !== null && String(endVal).trim() === '') {
+        fd.delete('end_time');
+      }
+
+      const headers = {
+        'Accept': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') || '',
+      };
+
+      try {
+        const resp = await fetch(updateUrl, {
+          method: 'POST',
+          headers,
+          body: fd,
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          errorBox.textContent = data && (data.error || data.detail || 'Failed to update meeting.');
+          errorBox.classList.remove('d-none');
+          return;
+        }
+        window.location.reload();
+      } catch (err) {
+        errorBox.textContent = 'Network error. Please try again.';
+        errorBox.classList.remove('d-none');
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

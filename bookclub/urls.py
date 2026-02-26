@@ -60,6 +60,15 @@ from bookclub.views.profile_views import (
     push_unsubscribe,
     test_push_notification,
 )
+from bookclub.views.meeting_views import (
+    next_meeting_info,
+    create_meeting,
+    update_meeting,
+    delete_meeting,
+    join_meeting,
+    leave_meeting,
+    meeting_detail,
+)
 
 
 def serve_service_worker(request):
@@ -284,5 +293,41 @@ urlpatterns = [
         "api/push/test/",
         test_push_notification,
         name="test-push-notification",
+    ),
+    # Meetings - suggestion endpoint
+    path(
+        "api/meetings/next/",
+        next_meeting_info,
+        name="meeting-next",
+    ),
+    path(
+        "api/meetings/create/",
+        create_meeting,
+        name="meeting-create",
+    ),
+    path(
+        "api/meetings/<int:meeting_id>/update/",
+        update_meeting,
+        name="meeting-update",
+    ),
+    path(
+        "api/meetings/<int:meeting_id>/delete/",
+        delete_meeting,
+        name="meeting-delete",
+    ),
+    path(
+        "meetings/<int:meeting_id>/join/",
+        join_meeting,
+        name="meeting-join",
+    ),
+    path(
+        "meetings/<int:meeting_id>/leave/",
+        leave_meeting,
+        name="meeting-leave",
+    ),
+    path(
+        "meetings/<int:meeting_id>/",
+        meeting_detail,
+        name="meeting-detail",
     ),
 ]

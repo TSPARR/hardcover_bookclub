@@ -11,7 +11,9 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import GroupForm
-from ..models import Book, BookGroup, MemberStartingPoint, User, UserBookProgress
+from ..models import Book, BookGroup, MemberStartingPoint, User, UserBookProgress, Meeting, MeetingAttendance
+from django.db.models import Count, Q
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +225,25 @@ def group_detail(request, group_id):
             )
             return redirect("group_detail", group_id=group.id)
 
+    # Prepare meetings lists
+    now = timezone.now()
+    meetings = (
+        Meeting.objects.filter(group=group, start_time__gte=now)
+        .order_by("start_time")
+        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+    )
+    past_meetings = (
+        Meeting.objects.filter(group=group, start_time__lt=now)
+        .order_by("-start_time")
+        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+    )
+
+    # Track which meetings the current user has already joined
+    user_joined_ids = set(
+        MeetingAttendance.objects.filter(meeting__group=group, user=request.user, rsvp_status="yes")
+        .values_list("meeting_id", flat=True)
+    )
+
     return render(
         request,
         "bookclub/group_detail.html",
@@ -233,6 +254,9 @@ def group_detail(request, group_id):
             "admins": admins,
             "is_admin": is_admin,
             "book_progress": book_progress,
+            "meetings": meetings,
+            "past_meetings": past_meetings,
+            "user_joined_meetings": user_joined_ids,
         },
     )
 
