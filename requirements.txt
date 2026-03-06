@@ -10,7 +10,7 @@ django-cryptography-django5==2.2
 djangorestframework==3.15.2
 gunicorn==23.0.0
 idna==3.10
-markdown==3.7
+markdown==3.8.1
 packaging==24.2
 PlexAPI==4.16.1
 pycparser==2.22
