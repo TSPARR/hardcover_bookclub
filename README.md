@@ -58,6 +58,8 @@ services:
       - KAVITA_API_KEY=your-kavita-api-key
       # optional Dollar Bets feature
       - ENABLE_DOLLAR_BETS=False
+      # optional Meeting feature (True by default)
+      - ENABLE_MEETINGS=False
     volumes:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
@@ -188,6 +190,43 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 - Admins resolve bets by declaring winners when outcomes are known
 - All bets are organized by status (Open, Active, Resolved, Inconclusive) for easy tracking
 </details>
+
+
+### 📅 Meetings (Optional)
+
+<details>
+<summary>Click to expand Meetings functionality details</summary>
+
+### Setup
+
+**Environment Variable**: The Meetings feature is activated by default. Deactivate it with the following environment variable:
+
+  ```
+    ENABLE_MEETINGS=False
+  ```
+
+**Per-Group Activation**: Even with the feature enabled at the instance level, group admins can enable or disable meetings for each group in group settings.
+
+**Key Features**:
+
+- Meetings are assigned to a specific book
+- Members of the group can join/leave meetings
+- Members of the group see which members have selected to attend
+- Automatic Meeting-Title suggestions following specific pattern. Example: "Animal Farm 4th Meeting"
+- Special Django permissions for creating, editing and deleting meetings
+- Past meetings are Archived and can't be changed but are visible
+
+**How It Works**:
+- Group Admins or members with special permission create a meeting with information:
+  - book
+  - optional Title
+  - Start time, end time (optional)
+  - place (optional)
+  - description (optional)
+- Members can join the meeting
+- After the selected date and time is over, the Meeting is automatically Archived and cannot be changed
+</details>
+
 
 ### 🔨 Development
 

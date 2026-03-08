@@ -36,6 +36,8 @@ def next_meeting_info(request):
     group = BookGroup.objects.filter(pk=group_id).first()
     if not group:
         return JsonResponse({"error": "Group not found."}, status=404)
+    if not group.is_meetings_enabled():
+        return _meetings_disabled_response()
 
     book_id = request.GET.get("book")
     base_title = group.name
@@ -111,6 +113,10 @@ def _has_meeting_perm(user, codename: str) -> bool:
     return user.has_perm(f"{app_label}.{codename}")
 
 
+def _meetings_disabled_response():
+    return JsonResponse({"error": "Meetings are disabled for this group."}, status=403)
+
+
 @login_required
 @require_POST
 def create_meeting(request):
@@ -139,6 +145,8 @@ def create_meeting(request):
     group = BookGroup.objects.filter(pk=group_id).first()
     if not group:
         return JsonResponse({"error": "Group not found."}, status=404)
+    if not group.is_meetings_enabled():
+        return _meetings_disabled_response()
 
     # Require either group admin or Django 'add_meeting' permission
     if not (_is_group_admin(request.user, group) or _has_meeting_perm(request.user, "add_meeting")):
@@ -231,6 +239,8 @@ def update_meeting(request, meeting_id: int):
 
     # Check if user is group admin
     group = meeting.group
+    if not group.is_meetings_enabled():
+        return _meetings_disabled_response()
     # Require either group admin or Django 'change_meeting' permission
     if not (_is_group_admin(request.user, group) or _has_meeting_perm(request.user, "change_meeting")):
         return JsonResponse({"error": "Forbidden: admin or change_meeting permission required."}, status=403)
@@ -304,6 +314,8 @@ def delete_meeting(request, meeting_id: int):
         return JsonResponse({"error": "Meeting not found."}, status=404)
 
     # Require either group admin or Django 'delete_meeting' permission
+    if not meeting.group.is_meetings_enabled():
+        return _meetings_disabled_response()
     if not (_is_group_admin(request.user, meeting.group) or _has_meeting_perm(request.user, "delete_meeting")):
         return JsonResponse({"error": "Forbidden: admin or delete_meeting permission required."}, status=403)
 
@@ -327,6 +339,8 @@ def meeting_detail(request, meeting_id: int):
     meeting = get_object_or_404(qs, pk=meeting_id)
 
     group = meeting.group
+    if not group.is_meetings_enabled():
+        return _meetings_disabled_response()
     # Visibility: allow either membership OR Django Meeting model permissions
     can_manage = (
         _is_group_admin(request.user, group)
@@ -386,6 +400,9 @@ def join_meeting(request, meeting_id: int):
     if not meeting:
         return JsonResponse({"error": "Meeting not found."}, status=404)
 
+    if not meeting.group.is_meetings_enabled():
+        return _meetings_disabled_response()
+
     # Disallow joining past meetings
     if _is_past(meeting.start_time):
         return JsonResponse({"error": "Meeting has already occurred."}, status=400)
@@ -427,6 +444,9 @@ def leave_meeting(request, meeting_id: int):
     meeting = Meeting.objects.filter(pk=meeting_id).first()
     if not meeting:
         return JsonResponse({"error": "Meeting not found."}, status=404)
+
+    if not meeting.group.is_meetings_enabled():
+        return _meetings_disabled_response()
 
     # Disallow leaving past meetings
     if _is_past(meeting.start_time):

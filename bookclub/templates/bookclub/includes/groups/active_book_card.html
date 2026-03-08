@@ -102,9 +102,12 @@
                                 <!-- Admin Action Buttons -->
                                 {% if is_admin %}
                                 <div class="mt-2 admin-actions">
+                                    {% if group.is_meetings_enabled %}
                                     <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#scheduleMeetingModal-{{ book.id }}">
                                         <i class="bi bi-calendar-plus"></i> Schedule Meeting
                                     </button>
+                                    {% endif %}
+                                    
                                     <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-outline-info btn-sm editions-btn">
                                         <i class="bi bi-star"></i> Editions
                                     </a>
@@ -135,7 +138,7 @@
     </div>
 </div>
 
-{% if is_admin %}
+{% if is_admin and group.is_meetings_enabled %}
 {# Schedule Meeting Modal (scoped to this book card) #}
 <div class="modal fade" id="scheduleMeetingModal-{{ book.id }}" tabindex="-1" aria-labelledby="scheduleMeetingLabel-{{ book.id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

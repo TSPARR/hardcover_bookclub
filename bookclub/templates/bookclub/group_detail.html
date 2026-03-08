@@ -15,6 +15,9 @@
             
             <!-- Dollar Bets Settings (Admin only) -->
             {% include "bookclub/includes/groups/group_dollar_bets_settings.html" with group=group is_admin=is_admin %}
+
+            <!-- Meetings Settings (Admin only) -->
+            {% include "bookclub/includes/groups/group_meetings_settings.html" with group=group is_admin=is_admin %}
         </div>
         
         <!-- Main Content - Books and Bets Sections -->
@@ -41,8 +44,10 @@
                         {% endfor %}
 
                         <!-- Meetings Section-->
-                        {% include "bookclub/includes/groups/group_meetings_list.html" with meetings=meetings user_joined_meetings=user_joined_meetings %}
-
+                        {% if group.is_meetings_enabled %}
+                            {% include "bookclub/includes/groups/group_meetings_list.html" with meetings=meetings user_joined_meetings=user_joined_meetings %}
+                        {% endif %}
+                        
                         <!-- Previous Books Section -->
                         {% with previous_books=books|rejectattr:"is_active" %}
                             {% if previous_books %}
@@ -51,7 +56,9 @@
                         {% endwith %}
 
                         <!-- Past Meetings Section (below previous books) -->
-                        {% include "bookclub/includes/groups/group_past_meetings_list.html" with past_meetings=past_meetings %}
+                        {% if group.is_meetings_enabled %}
+                            {% include "bookclub/includes/groups/group_past_meetings_list.html" with past_meetings=past_meetings %}
+                        {% endif %}
                         
                         {% endwith %}
                     {% else %}

@@ -46,10 +46,11 @@ class BookGroupAdmin(admin.ModelAdmin):
         "created_at",
         "is_public",
         "enable_dollar_bets",
+        "enable_meetings",
         "member_count",
         "book_count",
     )
-    list_filter = ("is_public", "enable_dollar_bets", "created_at")
+    list_filter = ("is_public", "enable_dollar_bets", "enable_meetings", "created_at")
     search_fields = ("name", "description")
     filter_horizontal = ("members", "admins")
 

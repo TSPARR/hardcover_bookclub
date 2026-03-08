@@ -26,6 +26,10 @@ class BookGroup(models.Model):
         default=False,
         help_text="Enable $1 betting for predictions about books in this group",
     )
+    enable_meetings = models.BooleanField(
+        default=True,
+        help_text="Enable Meetings in this group",
+    )
 
     def __str__(self):
         return self.name
@@ -42,6 +46,11 @@ class BookGroup(models.Model):
         """Check if dollar bets are enabled for this group"""
         # Both the site-wide setting and the group setting must be enabled
         return settings.ENABLE_DOLLAR_BETS and self.enable_dollar_bets
+    
+    def is_meetings_enabled(self):
+        """Check if meetings are enabled for this group"""
+        # Both the site-wide setting and the group setting must be enabled
+        return settings.ENABLE_MEETINGS and self.enable_meetings
 
 
 class Book(models.Model):

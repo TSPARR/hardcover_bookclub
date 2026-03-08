@@ -10,4 +10,5 @@ def bookclub_settings(request):
         "PUSH_NOTIFICATIONS_ENABLED": settings.PUSH_NOTIFICATIONS_ENABLED,
         "KAVITA_ENABLED": settings.KAVITA_ENABLED,
         "PLEX_ENABLED": settings.PLEX_ENABLED,
+        "ENABLE_MEETINGS": settings.ENABLE_MEETINGS,
     }

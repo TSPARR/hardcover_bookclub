@@ -1,0 +1,23 @@
+{% if is_admin and ENABLE_MEETINGS %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h3 class="h5 mb-0"><i class="bi bi-calendar-event me-2"></i>Meetings Settings</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'update_group_settings' group.id %}">
+            {% csrf_token %}
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableMeetings"
+                    name="enable_meetings" {% if group.enable_meetings %}checked{% endif %}>
+                <label class="form-check-label" for="enableMeetings">
+                    Enable Meetings
+                </label>
+                <div class="form-text">
+                    When enabled, members can create and RSVP to meetings for books
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm mt-3">Save Settings</button>
+        </form>
+    </div>
+</div>
+{% endif %}
