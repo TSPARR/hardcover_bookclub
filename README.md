@@ -219,8 +219,8 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 **How It Works**:
 - Group Admins or members with special permission create a meeting with information:
   - book
-  - optional Title
-  - Start time, end time (optional)
+  - Title (optional)
+  - Start time (required), end time (optional)
   - place (optional)
   - description (optional)
 - Members can join the meeting
