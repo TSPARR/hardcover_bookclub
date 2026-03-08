@@ -13,11 +13,8 @@
         <div class="col-md-3 mb-4">
             {% include "bookclub/includes/groups/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
             
-            <!-- Dollar Bets Settings (Admin only) -->
-            {% include "bookclub/includes/groups/group_dollar_bets_settings.html" with group=group is_admin=is_admin %}
-
-            <!-- Meetings Settings (Admin only) -->
-            {% include "bookclub/includes/groups/group_meetings_settings.html" with group=group is_admin=is_admin %}
+            <!-- Feature Settings (Admin only) -->
+            {% include "bookclub/includes/groups/group_feature_settings.html" with group=group is_admin=is_admin %}
         </div>
         
         <!-- Main Content - Books and Bets Sections -->
