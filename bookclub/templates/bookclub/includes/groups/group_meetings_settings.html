@@ -6,6 +6,7 @@
     <div class="card-body">
         <form method="post" action="{% url 'update_group_settings' group.id %}">
             {% csrf_token %}
+            <input type="hidden" name="settings_section" value="meetings">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="enableMeetings"
                     name="enable_meetings" {% if group.enable_meetings %}checked{% endif %}>
