@@ -503,14 +503,14 @@ def update_group_settings(request, group_id):
 
     if request.method == "POST":
         changed_fields = []
-        settings_section = request.POST.get("settings_section")
 
-        # Update only the section submitted by the active form.
-        if settings_section == "dollar_bets" and settings.ENABLE_DOLLAR_BETS:
+        # Update dollar bets setting if the site-wide setting is enabled
+        if settings.ENABLE_DOLLAR_BETS:
             group.enable_dollar_bets = "enable_dollar_bets" in request.POST
             changed_fields.append("enable_dollar_bets")
 
-        if settings_section == "meetings" and settings.ENABLE_MEETINGS:
+        # Update meetings setting if the site-wide setting is enabled
+        if settings.ENABLE_MEETINGS:
             group.enable_meetings = "enable_meetings" in request.POST
             changed_fields.append("enable_meetings")
 
