@@ -11,7 +11,9 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import GroupForm
-from ..models import Book, BookGroup, MemberStartingPoint, User, UserBookProgress
+from ..models import Book, BookGroup, MemberStartingPoint, User, UserBookProgress, Meeting, MeetingAttendance
+from django.db.models import Count, Q
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +225,25 @@ def group_detail(request, group_id):
             )
             return redirect("group_detail", group_id=group.id)
 
+    # Prepare meetings lists
+    now = timezone.now()
+    meetings = (
+        Meeting.objects.filter(group=group, start_time__gte=now)
+        .order_by("start_time")
+        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+    )
+    past_meetings = (
+        Meeting.objects.filter(group=group, start_time__lt=now)
+        .order_by("-start_time")
+        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+    )
+
+    # Track which meetings the current user has already joined
+    user_joined_ids = set(
+        MeetingAttendance.objects.filter(meeting__group=group, user=request.user, rsvp_status="yes")
+        .values_list("meeting_id", flat=True)
+    )
+
     return render(
         request,
         "bookclub/group_detail.html",
@@ -233,6 +254,9 @@ def group_detail(request, group_id):
             "admins": admins,
             "is_admin": is_admin,
             "book_progress": book_progress,
+            "meetings": meetings,
+            "past_meetings": past_meetings,
+            "user_joined_meetings": user_joined_ids,
         },
     )
 
@@ -470,7 +494,7 @@ def manage_member_starting_points(request, group_id):
 
 @login_required
 def update_group_settings(request, group_id):
-    """Handle updates to group settings including dollar bets toggle"""
+    """Handle updates to group settings for optional features."""
     group = get_object_or_404(BookGroup, id=group_id)
 
     # Check if user is an admin of the group
@@ -478,10 +502,20 @@ def update_group_settings(request, group_id):
         return HttpResponseForbidden("Only group admins can update settings")
 
     if request.method == "POST":
+        changed_fields = []
+
         # Update dollar bets setting if the site-wide setting is enabled
         if settings.ENABLE_DOLLAR_BETS:
             group.enable_dollar_bets = "enable_dollar_bets" in request.POST
-            group.save()
+            changed_fields.append("enable_dollar_bets")
+
+        # Update meetings setting if the site-wide setting is enabled
+        if settings.ENABLE_MEETINGS:
+            group.enable_meetings = "enable_meetings" in request.POST
+            changed_fields.append("enable_meetings")
+
+        if changed_fields:
+            group.save(update_fields=changed_fields)
 
         # Redirect back to the group detail page
         return redirect("group_detail", group_id=group.id)

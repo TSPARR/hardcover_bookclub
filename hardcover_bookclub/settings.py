@@ -252,6 +252,7 @@ PLEX_ENABLED = bool(PLEX_BASE_URL and PLEX_TOKEN and PLEX_LIBRARY_NAME)
 
 # Feature Flags
 ENABLE_DOLLAR_BETS = os.environ.get("ENABLE_DOLLAR_BETS", "False") == "True"
+ENABLE_MEETINGS = os.environ.get("ENABLE_MEETINGS", "True") == "True"
 
 # Push Notification Settings (using Web Push VAPID)
 VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "")

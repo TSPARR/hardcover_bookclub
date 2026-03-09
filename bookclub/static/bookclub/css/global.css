@@ -24,5 +24,6 @@
 @import 'global/components/book-cards.css';
 @import 'global/components/refresh.css';
 @import 'global/components/breadcrumbs.css';
+@import 'global/components/member-labels.css';
 
 @import 'global/adaptive-layout.css';

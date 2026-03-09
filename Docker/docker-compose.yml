@@ -20,5 +20,7 @@ services:
       - DJANGO_CSRF_TRUSTED_ORIGINS=https://my.domain.com
       # optionally enable debug mode
       - DJANGO_DEBUG=False
+      # optionally disable meeting feature (True by default)
+      #- ENABLE_MEETINGS=False
     volumes:
       - "./db.sqlite3:/app/db.sqlite3:rw"
