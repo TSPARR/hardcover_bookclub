@@ -1,3 +1,5 @@
+import logging
+
 from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
@@ -8,6 +10,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from bookclub.models import BookGroup, Book, Meeting, MeetingAttendance
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -360,7 +364,6 @@ def meeting_detail(request, meeting_id: int):
     # Attendance summary
     attendance_qs = meeting.attendance.select_related("user")
     yes_attendees = [a.user for a in attendance_qs.filter(rsvp_status="yes")]
-    maybe_attendees = [a.user for a in attendance_qs.filter(rsvp_status="maybe")]
     no_attendees = [a.user for a in attendance_qs.filter(rsvp_status="no")]
     # Users who did not vote: members without any attendance record
     voted_user_ids = set(attendance_qs.values_list("user_id", flat=True))
@@ -378,7 +381,6 @@ def meeting_detail(request, meeting_id: int):
             "group": group,
             "book": meeting.book,
             "yes_attendees": yes_attendees,
-            "maybe_attendees": maybe_attendees,
             "no_attendees": no_attendees,
             "did_not_vote_users": did_not_vote_users,
             "user_joined": user_joined,

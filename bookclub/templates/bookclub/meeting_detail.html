@@ -122,12 +122,6 @@
                     <span class="label-divider"></span>
                     <i class="bi bi-check-circle label-icon"></i>
                   </span>
-                {% elif member in maybe_attendees %}
-                  <span class="member-label member-label-warning">
-                    <span class="label-text">{{ member.username }}</span>
-                    <span class="label-divider"></span>
-                    <i class="bi bi-question-circle label-icon"></i>
-                  </span>
                 {% elif member in no_attendees %}
                   <span class="member-label member-label-danger">
                     <span class="label-text">{{ member.username }}</span>
