@@ -11,6 +11,8 @@ from .models import (
     MemberStartingPoint,
     UserBookProgress,
     UserProfile,
+    Meeting,
+    MeetingAttendance,
 )
 from .views.book_utils import _get_progress_value_for_sorting
 
@@ -44,10 +46,11 @@ class BookGroupAdmin(admin.ModelAdmin):
         "created_at",
         "is_public",
         "enable_dollar_bets",
+        "enable_meetings",
         "member_count",
         "book_count",
     )
-    list_filter = ("is_public", "enable_dollar_bets", "created_at")
+    list_filter = ("is_public", "enable_dollar_bets", "enable_meetings", "created_at")
     search_fields = ("name", "description")
     filter_horizontal = ("members", "admins")
 
@@ -280,6 +283,28 @@ class CommentReactionAdmin(admin.ModelAdmin):
     raw_id_fields = ["comment", "user"]
 
 
+class MeetingAdmin(admin.ModelAdmin):
+    list_display = (
+        "display_title",
+        "group",
+        "book",
+        "meeting_number",
+        "start_time",
+        "end_time",
+        "created_by",
+    )
+    list_filter = ("group", "book", "start_time")
+    search_fields = ("title", "group__name", "book__title")
+    raw_id_fields = ("group", "book", "created_by")
+
+
+class MeetingAttendanceAdmin(admin.ModelAdmin):
+    list_display = ("meeting", "user", "rsvp_status", "checked_in_at", "created_at")
+    list_filter = ("rsvp_status",)
+    search_fields = ("meeting__title", "user__username")
+    raw_id_fields = ("meeting", "user")
+
+
 # Register models with try/except pattern to handle already registered models
 try:
     admin.site.unregister(UserProfile)
@@ -340,3 +365,15 @@ try:
 except admin.sites.NotRegistered:
     pass
 admin.site.register(DollarBet, DollarBetAdmin)
+
+try:
+    admin.site.unregister(Meeting)
+except admin.sites.NotRegistered:
+    pass
+admin.site.register(Meeting, MeetingAdmin)
+
+try:
+    admin.site.unregister(MeetingAttendance)
+except admin.sites.NotRegistered:
+    pass
+admin.site.register(MeetingAttendance, MeetingAttendanceAdmin)

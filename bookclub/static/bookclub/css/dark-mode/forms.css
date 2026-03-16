@@ -65,6 +65,14 @@
     color: #9e9e9e;
 }
 
+/* Placeholder text in Dark Mode */
+.dark-mode .form-control::placeholder,
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+    color: #bbbbbb; /* ensure sufficient contrast on dark backgrounds */
+    opacity: 1; /* override browser default lowered opacity */
+}
+
 /* Form input styling for various types in Dark Mode */
 .dark-mode input[type="text"],
 .dark-mode input[type="password"],
