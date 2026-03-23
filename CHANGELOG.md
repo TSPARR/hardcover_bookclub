@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.6.0
+- Added optional Meetings feature to schedule and track group meeting attendance
+- Dependency updates: sqlparse 0.5.4, markdown 3.8.1
+
 ## Release 0.5.2
 - Dependency update: cryptography 46.0.5
 - Dependency update: cffi 2.0.0
