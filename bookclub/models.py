@@ -27,7 +27,7 @@ class BookGroup(models.Model):
         help_text="Enable $1 betting for predictions about books in this group",
     )
     enable_meetings = models.BooleanField(
-        default=True,
+        default=False,
         help_text="Enable Meetings in this group",
     )
 
@@ -46,7 +46,7 @@ class BookGroup(models.Model):
         """Check if dollar bets are enabled for this group"""
         # Both the site-wide setting and the group setting must be enabled
         return settings.ENABLE_DOLLAR_BETS and self.enable_dollar_bets
-    
+
     def is_meetings_enabled(self):
         """Check if meetings are enabled for this group"""
         # Both the site-wide setting and the group setting must be enabled
@@ -729,19 +729,30 @@ class DollarBet(models.Model):
         self.resolved_by = resolved_by_user
         self.save()
 
+
 class Meeting(models.Model):
-    group = models.ForeignKey(BookGroup, on_delete=models.CASCADE, related_name="meetings")
+    group = models.ForeignKey(
+        BookGroup, on_delete=models.CASCADE, related_name="meetings"
+    )
     title = models.CharField(max_length=200, blank=True)  # optional override
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="meetings", null=True, blank=True)
+    book = models.ForeignKey(
+        Book, on_delete=models.CASCADE, related_name="meetings", null=True, blank=True
+    )
     place = models.CharField(max_length=1000, blank=True)
     description = models.TextField(blank=True)
-    members = models.ManyToManyField(User, through="MeetingAttendance", related_name="meetings")
+    members = models.ManyToManyField(
+        User, through="MeetingAttendance", related_name="meetings"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
-    meeting_number = models.PositiveIntegerField(editable=False, null=True)  # per-scope counter
+    meeting_number = models.PositiveIntegerField(
+        editable=False, null=True
+    )  # per-scope counter
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_meetings")
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="created_meetings"
+    )
 
     class Meta:
         constraints = [
@@ -761,33 +772,47 @@ class Meeting(models.Model):
             models.Index(fields=["group", "start_time"]),
         ]
         ordering = ["start_time", "id"]
-        
+
     def clean(self):
         if self.end_time and self.start_time and self.end_time <= self.start_time:
             raise ValidationError({"end_time": "End time must be after start time."})
 
         # Book must belong to the same group, when provided
         if self.book_id and self.book.group_id != self.group_id:
-            raise ValidationError({"book": "Selected book must belong to the same group as the meeting."})
+            raise ValidationError(
+                {"book": "Selected book must belong to the same group as the meeting."}
+            )
 
         # Disallow changing scope (group/book) after creation to keep meeting_number invariant
         if self.pk:
-            orig = Meeting.objects.filter(pk=self.pk).values("group_id", "book_id").first()
-            if orig and (orig["group_id"] != self.group_id or orig["book_id"] != self.book_id):
-                raise ValidationError("Changing group or book on an existing meeting is not allowed. Create a new meeting.")
+            orig = (
+                Meeting.objects.filter(pk=self.pk).values("group_id", "book_id").first()
+            )
+            if orig and (
+                orig["group_id"] != self.group_id or orig["book_id"] != self.book_id
+            ):
+                raise ValidationError(
+                    "Changing group or book on an existing meeting is not allowed. Create a new meeting."
+                )
 
     def save(self, *args, **kwargs):
         creating = self.pk is None
         if creating and self.meeting_number is None:
             with transaction.atomic():
                 if self.book_id:
-                    last = Meeting.objects.select_for_update() \
-                        .filter(group_id=self.group_id, book_id=self.book_id) \
-                        .aggregate(m=Max("meeting_number"))["m"] or 0
+                    last = (
+                        Meeting.objects.select_for_update()
+                        .filter(group_id=self.group_id, book_id=self.book_id)
+                        .aggregate(m=Max("meeting_number"))["m"]
+                        or 0
+                    )
                 else:
-                    last = Meeting.objects.select_for_update() \
-                        .filter(group_id=self.group_id, book__isnull=True) \
-                        .aggregate(m=Max("meeting_number"))["m"] or 0
+                    last = (
+                        Meeting.objects.select_for_update()
+                        .filter(group_id=self.group_id, book__isnull=True)
+                        .aggregate(m=Max("meeting_number"))["m"]
+                        or 0
+                    )
                 self.meeting_number = last + 1
         super().save(*args, **kwargs)
 
@@ -816,10 +841,14 @@ class MeetingAttendance(models.Model):
     ATTENDANCE_CHOICES = [
         ("yes", "Attending"),
         ("no", "Not Attending"),
-    ]   
-    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="attendance")
+    ]
+    meeting = models.ForeignKey(
+        Meeting, on_delete=models.CASCADE, related_name="attendance"
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rsvp_status = models.CharField(max_length=10, choices=ATTENDANCE_CHOICES, default="no")
+    rsvp_status = models.CharField(
+        max_length=10, choices=ATTENDANCE_CHOICES, default="no"
+    )
     checked_in_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

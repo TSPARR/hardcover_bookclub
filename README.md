@@ -58,8 +58,8 @@ services:
       - KAVITA_API_KEY=your-kavita-api-key
       # optional Dollar Bets feature
       - ENABLE_DOLLAR_BETS=False
-      # optional Meeting feature (True by default)
-      - ENABLE_MEETINGS=False
+      # optional Meeting feature (False by default)
+      - ENABLE_MEETINGS=True
     volumes:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
@@ -199,10 +199,10 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
 
 ### Setup
 
-**Environment Variable**: The Meetings feature is activated by default. Deactivate it with the following environment variable:
+**Environment Variable**: The Meetings feature is deactivated by default. Activate it with the following environment variable:
 
   ```
-    ENABLE_MEETINGS=False
+    ENABLE_MEETINGS=True
   ```
 
 **Per-Group Activation**: Even with the feature enabled at the instance level, group admins can enable or disable meetings for each group in group settings.
