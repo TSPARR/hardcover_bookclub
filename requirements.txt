@@ -15,7 +15,7 @@ packaging==24.2
 PlexAPI==4.16.1
 pycparser==2.22
 python-dotenv==1.0.1
-requests==2.32.4
+requests==2.33.0
 sqlparse==0.5.4
 urllib3==2.6.3
 whitenoise==6.6.0
