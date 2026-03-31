@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.6.2
+- Dependency update: djangorestframework 3.17.1
+- Dependency update: pywebpush 2.3.0
+- Dependency update: django 5.2.12
+- Dependency update: requests 2.33.1
+- Dependency update: asgiref 3.11.1
+- Dependency update: whitenoise 6.12.0
+- Dependency update: certifi 2026.2.25
+- Dependency update: packaging 26.0
+- Dependency update: sqlparse 0.5.5
+- Dependency update: python-dotenv 1.2.2
+- Dependency update: charset-normalizer 3.4.6
+- Dependency update: plexapi 4.18.1
+- Depedency update: bleach 6.3.0
+- Dependecy update: pycparser 3.0
+- Dependency update: idna 3.11
+- Dependency update: cryptography 46.0.6
+- Dependency update: django-appconf 1.2.0
+- Dependency update: gunicorn 25.3.0
+- Dependency update: markdown 3.10.2
+- Dependency update: docker/login-action 4
+- Dependency update: docker/setup-buildx-action 4
+- Dependency update: docker/build-push-action 7
+- Dependency update: actions/checkout 6
+
 ## Release 0.6.1
 - Added Dependabot configuration for automated dependency updates
 
