@@ -13,7 +13,7 @@ idna==3.10
 markdown==3.8.1
 packaging==26.0
 PlexAPI==4.18.1
-pycparser==2.22
+pycparser==3.0
 python-dotenv==1.2.2
 requests==2.33.1
 sqlparse==0.5.5
