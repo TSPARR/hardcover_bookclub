@@ -14,7 +14,7 @@ markdown==3.8.1
 packaging==26.0
 PlexAPI==4.16.1
 pycparser==2.22
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 requests==2.33.1
 sqlparse==0.5.5
 urllib3==2.6.3
