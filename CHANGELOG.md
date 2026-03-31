@@ -15,8 +15,8 @@ All notable changes to this project will be documented in this file.
 - Dependency update: python-dotenv 1.2.2
 - Dependency update: charset-normalizer 3.4.6
 - Dependency update: plexapi 4.18.1
-- Depedency update: bleach 6.3.0
-- Dependecy update: pycparser 3.0
+- Dependency update: bleach 6.3.0
+- Depenndecy update: pycparser 3.0
 - Dependency update: idna 3.11
 - Dependency update: cryptography 46.0.6
 - Dependency update: django-appconf 1.2.0
