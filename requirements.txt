@@ -19,4 +19,4 @@ requests==2.32.4
 sqlparse==0.5.4
 urllib3==2.6.3
 whitenoise==6.6.0
-pywebpush==1.14.0
+pywebpush==2.3.0
