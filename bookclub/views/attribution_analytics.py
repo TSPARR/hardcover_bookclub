@@ -215,6 +215,40 @@ def attribution_analytics(request, group_id):
             "distribution": rating_distribution,
         }
 
+    member_pick_books = defaultdict(list)
+
+    for book in books:
+        if book.picked_by_id and not book.is_collective_pick:
+            member_pick_books[book.picked_by_id].append(book)
+
+    selection_rating_stats = {}
+
+    for member in members:
+        picked_books = member_pick_books.get(member.id, [])
+        adjusted_book_avgs = []
+
+        for book in picked_books:
+            rating_data = book_ratings.get(book.id)
+            if not rating_data:
+                continue
+
+            user_ratings = rating_data.get("user_ratings", {})
+
+            non_picker_ratings = [
+                r["value"]
+                for user_id, r in user_ratings.items()
+                if user_id != member.id
+            ]
+
+            if non_picker_ratings:
+                adjusted_book_avgs.append(mean(non_picker_ratings))
+
+        selection_rating_stats[member.id] = {
+            "books_selected_count": len(picked_books),
+            "avg_selection_rating": (
+                round(mean(adjusted_book_avgs), 2) if adjusted_book_avgs else None
+            ),
+        }
     # Calculate member rating statistics
     member_rating_stats = []
     for member_id, ratings in member_ratings.items():
@@ -228,6 +262,13 @@ def attribution_analytics(request, group_id):
                         "count": len(ratings),
                     }
                 )
+
+    for stat in member_rating_stats:
+        user_id = stat["user"].id
+        selection_data = selection_rating_stats.get(user_id, {})
+
+        stat["avg_selection_rating"] = selection_data.get("avg_selection_rating")
+        stat["books_selected_count"] = selection_data.get("books_selected_count", 0)
 
     # Sort member rating stats by count (descending)
     member_rating_stats.sort(key=lambda x: (-x["count"], -x["avg_rating"]))
