@@ -221,7 +221,7 @@ def attribution_analytics(request, group_id):
         if book.picked_by_id and not book.is_collective_pick:
             member_pick_books[book.picked_by_id].append(book)
 
-    selection_rating_stats = {}    
+    selection_rating_stats = {}
 
     for member in members:
         picked_books = member_pick_books.get(member.id, [])
@@ -235,7 +235,8 @@ def attribution_analytics(request, group_id):
             user_ratings = rating_data.get("user_ratings", {})
 
             non_picker_ratings = [
-                r["value"] for user_id, r in user_ratings.items()
+                r["value"]
+                for user_id, r in user_ratings.items()
                 if user_id != member.id
             ]
 
@@ -268,7 +269,6 @@ def attribution_analytics(request, group_id):
 
         stat["avg_selection_rating"] = selection_data.get("avg_selection_rating")
         stat["books_selected_count"] = selection_data.get("books_selected_count", 0)
- 
 
     # Sort member rating stats by count (descending)
     member_rating_stats.sort(key=lambda x: (-x["count"], -x["avg_rating"]))
