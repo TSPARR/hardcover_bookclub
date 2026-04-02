@@ -99,14 +99,14 @@
 
 /* Member rating table column styles */
 .member-col {
-    width: 140px;
-    max-width: 140px;
+    width: 120px;
+    max-width: 120px;
 }
 
 .member-name-truncate {
     display: block;
-    width: 140px;
-    max-width: 140px;
+    width: 120px;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
