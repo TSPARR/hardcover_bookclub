@@ -3,23 +3,6 @@
         <h3 class="h5 mb-0">Rating Distribution</h3>
     </div>
     <div class="card-body">
-
-        <style>
-        .member-col {
-            width: 140px;
-            max-width: 140px;
-        }
-
-        .member-name-truncate {
-            display: block;
-            width: 140px;
-            max-width: 140px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        </style>
-
         {% if rating_distribution %}
             <canvas id="ratingDistributionChart" height="200" 
                     data-distribution="{{ rating_distribution|join:"," }}"></canvas>
