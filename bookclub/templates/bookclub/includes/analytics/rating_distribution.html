@@ -3,6 +3,23 @@
         <h3 class="h5 mb-0">Rating Distribution</h3>
     </div>
     <div class="card-body">
+
+        <style>
+        .member-col {
+            width: 140px;
+            max-width: 140px;
+        }
+
+        .member-name-truncate {
+            display: block;
+            width: 140px;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        </style>
+
         {% if rating_distribution %}
             <canvas id="ratingDistributionChart" height="200" 
                     data-distribution="{{ rating_distribution|join:"," }}"></canvas>
@@ -19,11 +36,18 @@
         <h6>Member Rating Patterns</h6>
         <div class="table-responsive">
             <table class="table table-sm">
+                <colgroup>
+                    <col class="member-col">
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                </colgroup>
                 <thead>
                     <tr>
-                        <th>Member</th>
+                        <th class="member-col">Member</th>
                         <th>Books Rated</th>
-                        <th>Avg Rating Given </th>
+                        <th>Avg Rating Given</th>
                         <th>Books Picked</th>
                         <th>Avg Rating Received</th>
                     </tr>
@@ -31,18 +55,16 @@
                 <tbody>
                     {% for stat in member_rating_stats %}
                         <tr>
-                            <td>{{ stat.user.username }}</td>
+                            <td class="member-col">
+                                <div class="member-name-truncate" title="{{ stat.user.username }}">
+                                    {{ stat.user.username }}
+                                </div>
+                            </td>
                             <td>{{ stat.count }}</td>
                             <td>
                                 {% include "bookclub/includes/star_rating.html" with rating=stat.avg_rating|floatformat:2 small=True %}
                             </td>
-                            <td>
-                                {% if stat.books_selected_count %}
-                                    {{ stat.books_selected_count }}
-                                {% else %}
-                                    0
-                                {% endif %}
-                            </td>
+                            <td>{{ stat.books_selected_count|default:0 }}</td>
                             <td>
                                 {% if stat.avg_selection_rating %}
                                     {% include "bookclub/includes/star_rating.html" with rating=stat.avg_selection_rating|floatformat:2 small=True %}
