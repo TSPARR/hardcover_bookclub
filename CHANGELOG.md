@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.6.3
+- Added the average rating of each user's picks
+- Dependency update: charset-normalizer 3.4.7
+- Dependency update: Django 5.2.13
+
 ## Release 0.6.2
 - Dependency update: djangorestframework 3.17.1
 - Dependency update: pywebpush 2.3.0
