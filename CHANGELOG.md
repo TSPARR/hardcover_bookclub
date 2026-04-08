@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Added the average rating of each user's picks
 - Dependency update: charset-normalizer 3.4.7
 - Dependency update: Django 5.2.13
+- Dependency update: cryptography 46.0.7
 
 ## Release 0.6.2
 - Dependency update: djangorestframework 3.17.1
