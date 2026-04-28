@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## Release 0.6.3
+- Dependency update: certifi 2026.4.22
+- Dependency update: cryptography 47.0.0
+- Dependency update: idna 3.13
+- Dependency update: packaging 26.2
+
+## Release 0.6.3
 - Added the average rating of each user's picks
 - Dependency update: charset-normalizer 3.4.7
 - Dependency update: Django 5.2.13
