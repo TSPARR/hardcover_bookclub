@@ -1,0 +1,78 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Delete Proposal - {{ proposal.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_proposals' group.id %}">Proposals</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Delete Proposal</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-4"><i class="bi bi-trash me-2"></i>Delete Proposal</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone.
+                    </div>
+
+                    <p>Are you sure you want to delete the proposal for:</p>
+
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-md-3">
+                                {% if proposal.cover_image_url %}
+                                <img src="{{ proposal.cover_image_url }}" class="img-fluid rounded-start" alt="{{ proposal.title }}">
+                                {% else %}
+                                <div class="no-cover">
+                                    <i class="bi bi-book text-muted proposal-icon-large"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ proposal.title }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">by {{ proposal.author }}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            Proposed by {{ proposal.proposed_by.first_name }} {{ proposal.proposed_by.last_name }}
+                                            on {{ proposal.created_at|date:"F j, Y" }}
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>Yes, Delete Proposal
+                            </button>
+                            <a href="{% url 'group_proposals' group.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>No, Go Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

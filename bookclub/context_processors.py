@@ -11,4 +11,5 @@ def bookclub_settings(request):
         "KAVITA_ENABLED": settings.KAVITA_ENABLED,
         "PLEX_ENABLED": settings.PLEX_ENABLED,
         "ENABLE_MEETINGS": settings.ENABLE_MEETINGS,
+        "ENABLE_BOOK_PROPOSALS": settings.ENABLE_BOOK_PROPOSALS,
     }

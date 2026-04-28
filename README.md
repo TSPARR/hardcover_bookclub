@@ -15,6 +15,7 @@ Hardcover Bookclub is a self-hosted application that integrates seamlessly with 
 - **Optional Kavita Integration**: Connect with your self-hosted Kavita library for easy access to your digital books.
 - **Optional Admin Promoted Editions**: Quickly promote the editions your users will be most likely to use.
 - **Optional Dollar Bets Feature**: Let members place friendly $1 wagers on predictions about books they're reading.
+- **Optional Book Proposals**: Allow members to propose books for admin review, enabling democratic book selection.
 
 ## 🏗️ Self Hosting
 
@@ -60,6 +61,8 @@ services:
       - ENABLE_DOLLAR_BETS=False
       # optional Meeting feature (False by default)
       - ENABLE_MEETINGS=True
+      # optional Book Proposals feature (False by default)
+      - ENABLE_BOOK_PROPOSALS=False
     volumes:
       - "./db.sqlite3:/app/db.sqlite3:rw"
 ```
@@ -225,6 +228,41 @@ The app includes optional integration with [Kavita](https://www.kavitareader.com
   - description (optional)
 - Members can join the meeting
 - After the selected date and time is over, the Meeting is automatically Archived and cannot be changed
+</details>
+
+
+### 💡 Book Proposals (Optional)
+
+<details>
+<summary>Click to expand Book Proposals functionality details</summary>
+
+### Setup
+
+**Environment Variable**: The Book Proposals feature is deactivated by default. Activate it with the following environment variable:
+
+  ```
+    ENABLE_BOOK_PROPOSALS=True
+  ```
+
+**Per-Group Activation**: Even with the feature enabled at the instance level, group admins must explicitly enable book proposals for their specific book clubs in group settings.
+
+**Key Features**:
+
+- Member Proposals: Any group member can propose books for consideration, not just admins.
+- Admin Review: Group admins receive notifications of new proposals and can approve or reject them.
+- Book Previews: Proposal pages display book covers, descriptions, and metadata to help with decision-making.
+- Proposer Notes: Members can include optional notes explaining why they recommend a book.
+- Transparency: All members can view all proposals (pending, approved, rejected) to facilitate discussion.
+- Flexible Approval: Admins can set attribution (who picked it), mark as collective pick, or set as active book when approving.
+
+**How It Works**:
+- Members search for books and click "Propose" instead of "Add to Group"
+- Members can optionally include a note about why they recommend the book
+- Admins receive push notifications about new proposals
+- Admins review proposals with full book details and proposer's note
+- On approval, the book is automatically added to the group with optional settings
+- Proposers receive notifications when their proposals are approved or rejected
+- All members can view proposal history for meeting discussions and voting context
 </details>
 
 

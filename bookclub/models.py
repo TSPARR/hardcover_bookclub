@@ -30,6 +30,10 @@ class BookGroup(models.Model):
         default=False,
         help_text="Enable Meetings in this group",
     )
+    enable_book_proposals = models.BooleanField(
+        default=False,
+        help_text="Allow members to propose books for group consideration",
+    )
 
     def __str__(self):
         return self.name
@@ -51,6 +55,11 @@ class BookGroup(models.Model):
         """Check if meetings are enabled for this group"""
         # Both the site-wide setting and the group setting must be enabled
         return settings.ENABLE_MEETINGS and self.enable_meetings
+
+    def is_book_proposals_enabled(self):
+        """Check if book proposals are enabled for this group"""
+        # Both the site-wide setting and the group setting must be enabled
+        return settings.ENABLE_BOOK_PROPOSALS and self.enable_book_proposals
 
 
 class Book(models.Model):
@@ -98,6 +107,92 @@ class Book(models.Model):
             # Then activate this book
             self.is_active = True
             self.save(update_fields=["is_active"])
+
+
+class BookProposal(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending Review"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+
+    # Relationships
+    group = models.ForeignKey(
+        BookGroup, on_delete=models.CASCADE, related_name="book_proposals"
+    )
+    proposed_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="book_proposals"
+    )
+
+    # Book metadata (from Hardcover API)
+    hardcover_id = models.CharField(max_length=50)
+    title = models.CharField(max_length=300)
+    author = models.CharField(max_length=200)
+    cover_image_url = models.URLField(blank=True)
+    description = models.TextField(blank=True)
+    url = models.URLField(blank=True)
+    pages = models.IntegerField(null=True, blank=True)
+    audio_seconds = models.IntegerField(null=True, blank=True)
+
+    # Proposal details
+    proposal_note = models.TextField(
+        blank=True,
+        help_text="Optional note from proposer about why they suggest this book",
+    )
+
+    # Status tracking
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Admin review tracking
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_proposals",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
+    created_book = models.ForeignKey(
+        Book,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="source_proposal",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = [("group", "hardcover_id", "status")]
+
+    def __str__(self):
+        return f"{self.title} proposed by {self.proposed_by.username} for {self.group.name}"
+
+    @property
+    def audio_duration_formatted(self):
+        """Return a human-readable audio duration"""
+        if not self.audio_seconds:
+            return None
+        hours = self.audio_seconds // 3600
+        minutes = (self.audio_seconds % 3600) // 60
+        return f"{hours}h {minutes}m"
+
+    def approve(self, admin_user):
+        """Approve proposal and mark as approved"""
+        self.status = "approved"
+        self.reviewed_by = admin_user
+        self.reviewed_at = timezone.now()
+        self.save()
+
+    def reject(self, admin_user, reason=""):
+        """Reject proposal with optional reason"""
+        self.status = "rejected"
+        self.reviewed_by = admin_user
+        self.reviewed_at = timezone.now()
+        self.rejection_reason = reason
+        self.save()
 
 
 class BookEdition(models.Model):

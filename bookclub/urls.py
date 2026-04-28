@@ -69,6 +69,12 @@ from bookclub.views.meeting_views import (
     leave_meeting,
     meeting_detail,
 )
+from bookclub.views.proposal_views import (
+    propose_book,
+    group_proposals,
+    review_proposal,
+    delete_proposal,
+)
 
 
 def serve_service_worker(request):
@@ -215,6 +221,27 @@ urlpatterns = [
         "group/<int:group_id>/starting-points/",
         manage_member_starting_points,
         name="manage_member_starting_points",
+    ),
+    # Book Proposals
+    path(
+        "groups/<int:group_id>/proposals/",
+        group_proposals,
+        name="group_proposals",
+    ),
+    path(
+        "groups/<int:group_id>/propose/<str:hardcover_id>/",
+        propose_book,
+        name="propose_book",
+    ),
+    path(
+        "proposals/<int:proposal_id>/review/",
+        review_proposal,
+        name="review_proposal",
+    ),
+    path(
+        "proposals/<int:proposal_id>/delete/",
+        delete_proposal,
+        name="delete_proposal",
     ),
     path("comments/<int:comment_id>/edit/", edit_comment, name="edit_comment"),
     path("comments/<int:comment_id>/delete/", delete_comment, name="delete_comment"),

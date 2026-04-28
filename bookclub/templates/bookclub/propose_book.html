@@ -1,0 +1,94 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Propose Book - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_proposals' group.id %}">Proposals</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Propose Book</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-4"><i class="bi bi-lightbulb me-2"></i>Propose a Book</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-book me-2"></i>Book Preview</h5>
+                </div>
+                <div class="card-body">
+                    {% if book.cover_image_url %}
+                    <div class="book-cover-container">
+                        <img src="{{ book.cover_image_url }}" class="book-detail-image" alt="{{ book.title }}">
+                    </div>
+                    {% endif %}
+
+                    <h4>{{ book.title }}</h4>
+                    {% if book.author.name %}
+                    <h6 class="text-muted mb-3">by {{ book.author.name }}</h6>
+                    {% endif %}
+
+                    {% if book.description %}
+                    <p class="text-muted">{{ book.description|truncatechars:300 }}</p>
+                    {% endif %}
+
+                    {% if book.url %}
+                    <a href="{{ book.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>View on Hardcover
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Your Proposal</h5>
+                </div>
+                <div class="card-body">
+                    <p>You're about to propose <strong>{{ book.title }}</strong> to <strong>{{ group.name }}</strong>.</p>
+                    <p class="text-muted">Group admins will review your proposal and can approve or reject it.</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.proposal_note.id_for_label }}" class="form-label">
+                                {{ form.proposal_note.label }}
+                            </label>
+                            {{ form.proposal_note }}
+                            {% if form.proposal_note.help_text %}
+                            <div class="form-text">{{ form.proposal_note.help_text }}</div>
+                            {% endif %}
+                            {% if form.proposal_note.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.proposal_note.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i>Submit Proposal
+                            </button>
+                            <a href="{% url 'group_proposals' group.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

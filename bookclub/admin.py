@@ -4,6 +4,7 @@ from .models import (
     Book,
     BookEdition,
     BookGroup,
+    BookProposal,
     Comment,
     CommentReaction,
     DollarBet,
@@ -47,10 +48,17 @@ class BookGroupAdmin(admin.ModelAdmin):
         "is_public",
         "enable_dollar_bets",
         "enable_meetings",
+        "enable_book_proposals",
         "member_count",
         "book_count",
     )
-    list_filter = ("is_public", "enable_dollar_bets", "enable_meetings", "created_at")
+    list_filter = (
+        "is_public",
+        "enable_dollar_bets",
+        "enable_meetings",
+        "enable_book_proposals",
+        "created_at",
+    )
     search_fields = ("name", "description")
     filter_horizontal = ("members", "admins")
 
@@ -138,6 +146,22 @@ class BookEditionAdmin(admin.ModelAdmin):
     list_filter = ["reading_format_id", "is_kavita_promoted", "is_plex_promoted"]
     search_fields = ["title", "book__title", "publisher"]
     raw_id_fields = ["book"]
+
+
+class BookProposalAdmin(admin.ModelAdmin):
+    list_display = [
+        "title",
+        "author",
+        "group",
+        "proposed_by",
+        "status",
+        "created_at",
+        "reviewed_by",
+    ]
+    list_filter = ["status", "group", "created_at"]
+    search_fields = ["title", "author", "proposed_by__username", "group__name"]
+    raw_id_fields = ["group", "proposed_by", "reviewed_by", "created_book"]
+    readonly_fields = ["created_at", "updated_at", "reviewed_at"]
 
 
 class CommentAdmin(admin.ModelAdmin):
@@ -335,6 +359,12 @@ try:
 except admin.sites.NotRegistered:
     pass
 admin.site.register(BookEdition, BookEditionAdmin)
+
+try:
+    admin.site.unregister(BookProposal)
+except admin.sites.NotRegistered:
+    pass
+admin.site.register(BookProposal, BookProposalAdmin)
 
 try:
     admin.site.unregister(Comment)

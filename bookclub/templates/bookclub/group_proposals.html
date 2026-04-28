@@ -1,0 +1,131 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Book Proposals - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Book Proposals</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-lightbulb me-2"></i>Book Proposals</h1>
+                {% if not is_admin %}
+                <a href="{% url 'search_books' group.id %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Propose a Book
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Proposals Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning bg-opacity-10">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-hourglass-split me-2"></i>Pending Review
+                        <span class="badge bg-warning text-dark">{{ pending_proposals.count }}</span>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if pending_proposals %}
+                    <div class="row row-cols-1 g-4">
+                        {% for proposal in pending_proposals %}
+                        <div class="col">
+                            {% include "bookclub/includes/proposals/proposal_card.html" with proposal=proposal is_admin=is_admin %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-2">No pending proposals</p>
+                        {% if not is_admin %}
+                        <a href="{% url 'search_books' group.id %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i>Propose a Book
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Proposals Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success bg-opacity-10">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-check-circle me-2"></i>Approved
+                        <span class="badge bg-success">{{ approved_proposals.count }}</span>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if approved_proposals %}
+                    <div class="row row-cols-1 g-4">
+                        {% for proposal in approved_proposals %}
+                        <div class="col">
+                            {% include "bookclub/includes/proposals/proposal_card.html" with proposal=proposal is_admin=is_admin %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-2">No approved proposals yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejected Proposals Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger bg-opacity-10">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-x-circle me-2"></i>Rejected
+                        <span class="badge bg-danger">{{ rejected_proposals.count }}</span>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if rejected_proposals %}
+                    <div class="row row-cols-1 g-4">
+                        {% for proposal in rejected_proposals %}
+                        <div class="col">
+                            {% include "bookclub/includes/proposals/proposal_card.html" with proposal=proposal is_admin=is_admin %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-2">No rejected proposals</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Group
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

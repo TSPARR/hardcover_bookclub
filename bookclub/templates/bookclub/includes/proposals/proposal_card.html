@@ -1,0 +1,77 @@
+<div class="card h-100 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="text-muted small">Proposed by {{ proposal.proposed_by.first_name }} {{ proposal.proposed_by.last_name }}</span>
+        {% if proposal.status == 'pending' %}
+        <span class="badge bg-warning text-dark">Pending</span>
+        {% elif proposal.status == 'approved' %}
+        <span class="badge bg-success">Approved</span>
+        {% else %}
+        <span class="badge bg-danger">Rejected</span>
+        {% endif %}
+    </div>
+    <div class="row g-0">
+        <div class="col-md-4">
+            {% if proposal.cover_image_url %}
+            <img src="{{ proposal.cover_image_url }}" class="img-fluid rounded-start proposal-card-image" alt="{{ proposal.title }}">
+            {% else %}
+            <div class="no-cover">
+                <i class="bi bi-book text-muted proposal-icon-large"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">{{ proposal.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ proposal.author }}</h6>
+
+                {% if proposal.description %}
+                <p class="card-text small">{{ proposal.description|truncatechars:150 }}</p>
+                {% endif %}
+
+                {% if proposal.proposal_note %}
+                <div class="border border-info rounded p-2 bg-info bg-opacity-10 small mt-2 mb-2">
+                    <strong><i class="bi bi-chat-quote me-1"></i>Proposer's Note:</strong>
+                    <p class="mb-0 mt-1">{{ proposal.proposal_note|truncatechars:100 }}</p>
+                </div>
+                {% endif %}
+
+                <div class="mt-2">
+                    {% if proposal.pages %}
+                    <span class="badge bg-secondary me-1">{{ proposal.pages }} pages</span>
+                    {% endif %}
+                    {% if proposal.audio_duration_formatted %}
+                    <span class="badge bg-secondary">{{ proposal.audio_duration_formatted }} audio</span>
+                    {% endif %}
+                </div>
+
+                <div class="text-muted small mt-2">
+                    Proposed {{ proposal.created_at|timesince }} ago
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top">
+                {% if proposal.status == 'pending' %}
+                    {% if is_admin %}
+                    <a href="{% url 'review_proposal' proposal.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-eye"></i> Review
+                    </a>
+                    <a href="{% url 'delete_proposal' proposal.id %}" class="btn btn-outline-danger btn-sm float-end">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                    {% elif proposal.proposed_by == request.user %}
+                    <a href="{% url 'delete_proposal' proposal.id %}" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash"></i> Delete My Proposal
+                    </a>
+                    {% endif %}
+                {% elif proposal.status == 'approved' and proposal.created_book %}
+                    <a href="{% url 'book_detail' proposal.created_book.id %}" class="btn btn-success btn-sm">
+                        <i class="bi bi-book"></i> View Book
+                    </a>
+                {% elif proposal.status == 'rejected' and proposal.rejection_reason %}
+                    <div class="small text-muted">
+                        <strong>Reason:</strong> {{ proposal.rejection_reason|truncatechars:80 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
