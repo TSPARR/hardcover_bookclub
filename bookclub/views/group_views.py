@@ -11,7 +11,15 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..forms import GroupForm
-from ..models import Book, BookGroup, MemberStartingPoint, User, UserBookProgress, Meeting, MeetingAttendance
+from ..models import (
+    Book,
+    BookGroup,
+    MemberStartingPoint,
+    User,
+    UserBookProgress,
+    Meeting,
+    MeetingAttendance,
+)
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -230,18 +238,23 @@ def group_detail(request, group_id):
     meetings = (
         Meeting.objects.filter(group=group, start_time__gte=now)
         .order_by("start_time")
-        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+        .annotate(
+            yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes"))
+        )
     )
     past_meetings = (
         Meeting.objects.filter(group=group, start_time__lt=now)
         .order_by("-start_time")
-        .annotate(yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes")))
+        .annotate(
+            yes_count=Count("attendance", filter=Q(attendance__rsvp_status="yes"))
+        )
     )
 
     # Track which meetings the current user has already joined
     user_joined_ids = set(
-        MeetingAttendance.objects.filter(meeting__group=group, user=request.user, rsvp_status="yes")
-        .values_list("meeting_id", flat=True)
+        MeetingAttendance.objects.filter(
+            meeting__group=group, user=request.user, rsvp_status="yes"
+        ).values_list("meeting_id", flat=True)
     )
 
     return render(
@@ -513,6 +526,11 @@ def update_group_settings(request, group_id):
         if settings.ENABLE_MEETINGS:
             group.enable_meetings = "enable_meetings" in request.POST
             changed_fields.append("enable_meetings")
+
+        # Update book proposals setting if site-wide setting is enabled
+        if settings.ENABLE_BOOK_PROPOSALS:
+            group.enable_book_proposals = "enable_book_proposals" in request.POST
+            changed_fields.append("enable_book_proposals")
 
         if changed_fields:
             group.save(update_fields=changed_fields)

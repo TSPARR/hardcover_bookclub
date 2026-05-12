@@ -271,3 +271,54 @@ class NotificationPreferencesForm(forms.Form):
         # Save profile
         profile.save(update_fields=["enable_notifications", "notification_preferences"])
         return True
+
+
+class BookProposalForm(forms.Form):
+    """Form for members to propose a book with optional note"""
+
+    proposal_note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Optional: Why do you recommend this book?",
+            }
+        ),
+        label="Proposal Note",
+        help_text="Share why you think this book would be great for the group",
+    )
+
+
+class ReviewProposalForm(forms.Form):
+    """Form for admins to review proposals"""
+
+    action = forms.ChoiceField(
+        choices=[("approve", "Approve"), ("reject", "Reject")],
+        widget=forms.RadioSelect(attrs={"class": "form-check-input"}),
+        label="Action",
+    )
+    rejection_reason = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 2}),
+        label="Rejection Reason (optional)",
+    )
+    # Book addition options (for approval)
+    set_active = forms.BooleanField(required=False, label="Set as Active Book")
+    picked_by = forms.ChoiceField(required=False, label="Picked By")
+    is_collective_pick = forms.BooleanField(required=False, label="Collective Pick")
+
+    def __init__(self, *args, **kwargs):
+        group = kwargs.pop("group", None)
+        super().__init__(*args, **kwargs)
+
+        # Populate picked_by choices from group members
+        if group:
+            member_choices = [("", "-- Not specified --")]
+            member_choices.extend(
+                [
+                    (str(m.id), f"{m.first_name} {m.last_name}")
+                    for m in group.members.all()
+                ]
+            )
+            self.fields["picked_by"].choices = member_choices

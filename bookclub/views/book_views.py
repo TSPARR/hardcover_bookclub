@@ -451,6 +451,9 @@ def search_books(request, group_id):
     else:
         form = BookSearchForm()
 
+    # Check if user can propose books (feature enabled and not an admin)
+    can_propose = group.is_book_proposals_enabled() and not group.is_admin(request.user)
+
     return render(
         request,
         "bookclub/search_books.html",
@@ -459,6 +462,7 @@ def search_books(request, group_id):
             "results": search_results,
             "group": group,
             "breadcrumb_items": breadcrumb_items,
+            "can_propose": can_propose,
         },
     )
 

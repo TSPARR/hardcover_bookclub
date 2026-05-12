@@ -3,12 +3,12 @@ bleach==6.3.0
 certifi==2026.4.22
 cffi==2.0.0
 charset-normalizer==3.4.7
-cryptography==47.0.0
-Django==5.2.13
+cryptography==48.0.0
+Django==5.2.14
 django-appconf==1.2.0
 django-cryptography-django5==2.2
 djangorestframework==3.17.1
-gunicorn==25.3.0
+gunicorn==26.0.0
 idna==3.13
 markdown==3.10.2
 packaging==26.2

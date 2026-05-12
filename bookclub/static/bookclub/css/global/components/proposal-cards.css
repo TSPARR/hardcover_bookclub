@@ -1,0 +1,24 @@
+/* ===========================
+ * Global Proposal Card Styles
+ * =========================== */
+
+/* Proposal card specific styles */
+.proposal-card-image {
+    height: 100%;
+    object-fit: cover;
+    min-height: 200px;
+}
+
+/* Icon sizing for proposal placeholders */
+.proposal-icon-large {
+    font-size: 3rem;
+}
+
+/* Form visibility toggles (controlled by JavaScript) */
+.proposal-form-section {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.proposal-form-section.hidden {
+    display: none;
+}

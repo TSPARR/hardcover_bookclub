@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.7.0
+- Added new Proposals feature
+- Dependency update: django 5.2.14
+- Dependency update: cryptography 48.0.0
+- Dependency update: gunicorn 26.0.0
+
 ## Release 0.6.4
 - Dependency update: certifi 2026.4.22
 - Dependency update: cryptography 47.0.0

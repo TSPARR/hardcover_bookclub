@@ -1,0 +1,188 @@
+{% extends 'bookclub/base.html' %}
+
+{% block title %}Review Proposal - {{ proposal.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'group_proposals' group.id %}">Proposals</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Review</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-4"><i class="bi bi-eye me-2"></i>Review Proposal</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-book me-2"></i>Book Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if proposal.cover_image_url %}
+                    <div class="book-cover-container">
+                        <img src="{{ proposal.cover_image_url }}" class="book-detail-image" alt="{{ proposal.title }}">
+                    </div>
+                    {% endif %}
+
+                    <h4>{{ proposal.title }}</h4>
+                    <h6 class="text-muted mb-3">by {{ proposal.author }}</h6>
+
+                    {% if proposal.description %}
+                    <p class="text-muted">{{ proposal.description }}</p>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        {% if proposal.pages %}
+                        <span class="badge bg-secondary me-1"><i class="bi bi-book me-1"></i>{{ proposal.pages }} pages</span>
+                        {% endif %}
+                        {% if proposal.audio_duration_formatted %}
+                        <span class="badge bg-secondary"><i class="bi bi-headphones me-1"></i>{{ proposal.audio_duration_formatted }}</span>
+                        {% endif %}
+                    </div>
+
+                    {% if proposal.url %}
+                    <a href="{{ proposal.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>View on Hardcover
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Proposal Info</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Proposed by:</dt>
+                        <dd class="col-sm-8">{{ proposal.proposed_by.first_name }} {{ proposal.proposed_by.last_name }}</dd>
+
+                        <dt class="col-sm-4">Proposed on:</dt>
+                        <dd class="col-sm-8">{{ proposal.created_at|date:"F j, Y g:i A" }}</dd>
+
+                        {% if proposal.proposal_note %}
+                        <dt class="col-sm-12 mt-2 mb-1">Proposer's Note:</dt>
+                        <dd class="col-sm-12">
+                            <div class="border border-info rounded p-3 bg-info bg-opacity-10 mb-0">
+                                <i class="bi bi-chat-quote me-2"></i>{{ proposal.proposal_note }}
+                            </div>
+                        </dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Review Decision</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="reviewForm">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.action.label }}</label>
+                            <div>
+                                {% for radio in form.action %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Rejection reason (shown when reject is selected) -->
+                        <div class="mb-3 proposal-form-section hidden" id="rejectionReasonDiv">
+                            <label for="{{ form.rejection_reason.id_for_label }}" class="form-label">
+                                {{ form.rejection_reason.label }}
+                            </label>
+                            {{ form.rejection_reason }}
+                        </div>
+
+                        <!-- Approval options (shown when approve is selected) -->
+                        <div class="proposal-form-section hidden" id="approvalOptionsDiv">
+                            <hr>
+                            <h6>Book Addition Options</h6>
+
+                            <div class="mb-3 form-check">
+                                {{ form.set_active }}
+                                <label class="form-check-label" for="{{ form.set_active.id_for_label }}">
+                                    {{ form.set_active.label }}
+                                </label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.picked_by.id_for_label }}" class="form-label">
+                                    {{ form.picked_by.label }}
+                                </label>
+                                <select name="picked_by" id="{{ form.picked_by.id_for_label }}" class="form-select">
+                                    {% for value, label in form.picked_by.field.choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                {{ form.is_collective_pick }}
+                                <label class="form-check-label" for="{{ form.is_collective_pick.id_for_label }}">
+                                    {{ form.is_collective_pick.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i>Submit Review
+                            </button>
+                            <a href="{% url 'group_proposals' group.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const approveRadio = document.getElementById('id_action_0');
+    const rejectRadio = document.getElementById('id_action_1');
+    const rejectionReasonDiv = document.getElementById('rejectionReasonDiv');
+    const approvalOptionsDiv = document.getElementById('approvalOptionsDiv');
+
+    function updateVisibility() {
+        if (rejectRadio.checked) {
+            rejectionReasonDiv.classList.remove('hidden');
+            approvalOptionsDiv.classList.add('hidden');
+        } else if (approveRadio.checked) {
+            rejectionReasonDiv.classList.add('hidden');
+            approvalOptionsDiv.classList.remove('hidden');
+        } else {
+            rejectionReasonDiv.classList.add('hidden');
+            approvalOptionsDiv.classList.add('hidden');
+        }
+    }
+
+    approveRadio.addEventListener('change', updateVisibility);
+    rejectRadio.addEventListener('change', updateVisibility);
+
+    // Initial check
+    updateVisibility();
+});
+</script>
+{% endblock %}
