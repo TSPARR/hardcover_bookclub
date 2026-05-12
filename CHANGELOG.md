@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.7.1
+- Dependency update: urllib3 2.7.0
+- Dependency update: idna 3.14
+- Dependency update: requests 2.34.0
+
 ## Release 0.7.0
 - Added new Proposals feature
 - Dependency update: django 5.2.14
