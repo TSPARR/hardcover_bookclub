@@ -582,7 +582,7 @@ def resolve_dollar_bet(request, bet_id):
                     participant.save()
 
                 # Calculate winnings per winner
-                winnings_per_winner = bet.winnings_per_winner()
+                net_gain_per_winner = bet.net_gain_per_winner()
 
                 # Notify all participants
                 winner_user_ids = [w[0].id for w in winner_users]
@@ -590,9 +590,9 @@ def resolve_dollar_bet(request, bet_id):
                     if p.user.id in winner_user_ids:
                         # Winner notification
                         if len(winner_users) > 1:
-                            body_text = f"You won ${winnings_per_winner:.2f} (split {len(winner_users)} ways)! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
+                            body_text = f"You won ${net_gain_per_winner:.2f} (split {len(winner_users)} ways)! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
                         else:
-                            body_text = f"You won ${winnings_per_winner:.2f}! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
+                            body_text = f"You won ${net_gain_per_winner:.2f}! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
 
                         send_push_notification(
                             user=p.user,
@@ -610,9 +610,9 @@ def resolve_dollar_bet(request, bet_id):
                             winner_names = ", ".join(
                                 [w[0].username for w in winner_users]
                             )
-                            body_text = f"{winner_names} won (${winnings_per_winner:.2f} each) with correct predictions!"
+                            body_text = f"{winner_names} won (${net_gain_per_winner:.2f} each) with correct predictions!"
                         else:
-                            body_text = f"{winner_users[0][0].username} won ${winnings_per_winner:.2f} with the correct prediction!"
+                            body_text = f"{winner_users[0][0].username} won ${net_gain_per_winner:.2f} with the correct prediction!"
 
                         send_push_notification(
                             user=p.user,

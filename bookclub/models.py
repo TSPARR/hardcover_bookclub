@@ -879,6 +879,15 @@ class DollarBet(models.Model):
             return Decimal("0")
         return self.total_pot / Decimal(str(winner_count))
 
+    def net_gain_per_winner(self):
+        """Calculate net gain per winner (winnings minus entry fee)"""
+        from decimal import Decimal
+
+        winner_count = self.winner_count
+        if winner_count == 0:
+            return Decimal("0")
+        return self.winnings_per_winner() - self.amount
+
     def resolve(self, winner_user, resolved_by_user):
         """Resolve the bet by setting a winner"""
         # Ensure the bet is in 'accepted' status

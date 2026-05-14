@@ -191,7 +191,7 @@
                                           {% for p in bet.participants.all %}
                                               {% if p.is_winner %}
                                                   <p class="mb-1 text-success">
-                                                      <strong><i class="bi bi-trophy-fill me-1"></i>{{ p.user.username }}</strong> won ${{ bet.winnings_per_winner }}: "{{ p.prediction|truncatewords:10 }}"
+                                                      <strong><i class="bi bi-trophy-fill me-1"></i>{{ p.user.username }}</strong> won ${{ bet.net_gain_per_winner }}: "{{ p.prediction|truncatewords:10 }}"
                                                   </p>
                                               {% endif %}
                                           {% endfor %}
