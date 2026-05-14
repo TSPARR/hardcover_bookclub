@@ -94,13 +94,12 @@ def create_dollar_bet(request, book_id):
             my_prediction = request.POST.get("my_prediction", "").strip()
             min_participants = request.POST.get("min_participants", "2")
             max_participants = request.POST.get("max_participants", "").strip()
-            is_admin = group.is_admin(request.user)
 
             if not question:
                 return JsonResponse({"error": "Question is required"}, status=400)
 
-            # Regular users must participate, admins can optionally participate
-            if not my_prediction and not is_admin:
+            # Regular users must participate with their prediction
+            if not my_prediction:
                 return JsonResponse(
                     {"error": "Your prediction is required"}, status=400
                 )
@@ -200,7 +199,6 @@ def create_dollar_bet(request, book_id):
         {
             "book": book,
             "group": group,
-            "is_admin": group.is_admin(request.user),
             "breadcrumb_items": breadcrumb_items,
         },
     )
@@ -756,63 +754,138 @@ def admin_create_dollar_bet(request, book_id):
     ]
 
     if request.method == "POST":
-        description = request.POST.get("description")
-        counter_description = request.POST.get("counter_description", "").strip()
-        proposer_id = request.POST.get("proposer")
-        accepter_id = request.POST.get("accepter")
+        bet_type = request.POST.get("bet_type", "two_party")
         spoiler_level = request.POST.get("spoiler_level", "halfway")
 
-        if not description:
-            messages.error(request, "Description is required")
-            return redirect("admin_create_dollar_bet", book_id=book.id)
+        if bet_type == "multi_party":
+            # Multi-party bet creation (admin can optionally participate)
+            question = request.POST.get("question", "").strip()
+            my_prediction = request.POST.get("my_prediction", "").strip()
+            min_participants = request.POST.get("min_participants", "2")
+            max_participants = request.POST.get("max_participants", "").strip()
 
-        if proposer_id == accepter_id:
-            messages.error(request, "Proposer and accepter must be different users")
-            return redirect("admin_create_dollar_bet", book_id=book.id)
+            if not question:
+                messages.error(request, "Question is required")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
 
-        proposer = get_object_or_404(User, id=proposer_id)
-        accepter = get_object_or_404(User, id=accepter_id)
+            try:
+                min_participants = int(min_participants)
+                if min_participants < 2:
+                    messages.error(request, "Minimum participants must be at least 2")
+                    return redirect("admin_create_dollar_bet", book_id=book.id)
+            except ValueError:
+                messages.error(request, "Invalid minimum participants")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
 
-        # Ensure both users are members of the group
-        if not group.is_member(proposer) or not group.is_member(accepter):
-            messages.error(request, "Both users must be members of the group")
-            return redirect("admin_create_dollar_bet", book_id=book.id)
+            max_participants_int = None
+            if max_participants:
+                try:
+                    max_participants_int = int(max_participants)
+                    if max_participants_int < min_participants:
+                        messages.error(
+                            request, "Maximum participants must be >= minimum"
+                        )
+                        return redirect("admin_create_dollar_bet", book_id=book.id)
+                except ValueError:
+                    messages.error(request, "Invalid maximum participants")
+                    return redirect("admin_create_dollar_bet", book_id=book.id)
 
-        # Create bet with immediately accepted status
-        bet = DollarBet.objects.create(
-            book=book,
-            group=group,
-            proposer=proposer,
-            accepter=accepter,
-            description=description,
-            counter_description=counter_description if counter_description else None,
-            amount=1.00,
-            status="accepted",
-            spoiler_level=spoiler_level,
-        )
-
-        # Customize notification message based on counter bet presence
-        notification_body = ""
-        if counter_description:
-            notification_body = f'An admin has added you to a bet: "{description[:30]}..." vs counter-bet: "{counter_description[:30]}..." in {group.name}.'
-        else:
-            notification_body = f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}."
-
-        # Notify both participants that they've been added to a bet
-        for participant in [proposer, accepter]:
-            send_push_notification(
-                user=participant,
-                title="You've Been Added to a Dollar Bet",
-                body=notification_body,
-                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
-                icon=book.cover_image_url if book.cover_image_url else None,
-                notification_type="bet_added_to",
+            # Create the bet
+            bet = DollarBet.objects.create(
+                book=book,
+                group=group,
+                bet_type="multi_party",
+                question=question,
+                creator=request.user,
+                min_participants=min_participants,
+                max_participants=max_participants_int,
+                amount=1.00,
+                spoiler_level=spoiler_level,
             )
 
-        messages.success(
-            request, "Dollar bet created successfully between selected members"
-        )
-        return redirect(f"/books/{book.id}/?tab=bets")
+            # Admin can optionally participate
+            if my_prediction:
+                BetParticipant.objects.create(
+                    bet=bet, user=request.user, prediction=my_prediction
+                )
+
+            # Notify all group members
+            for member in group.members.all():
+                if member != request.user:
+                    send_push_notification(
+                        user=member,
+                        title=f"Admin Created Multi-Party Bet in {group.name}",
+                        body=f"New bet: \"{question[:50]}{'...' if len(question) > 50 else ''}\"",
+                        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                        icon=book.cover_image_url if book.cover_image_url else None,
+                        notification_type="new_dollar_bets",
+                    )
+
+            messages.success(request, "Multi-party dollar bet created successfully")
+            return redirect(f"/books/{book.id}/?tab=bets")
+
+        else:
+            # Two-party bet creation (existing logic)
+            description = request.POST.get("description")
+            counter_description = request.POST.get("counter_description", "").strip()
+            proposer_id = request.POST.get("proposer")
+            accepter_id = request.POST.get("accepter")
+
+            if not description:
+                messages.error(request, "Description is required")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
+
+            if proposer_id == accepter_id:
+                messages.error(request, "Proposer and accepter must be different users")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
+
+            proposer = get_object_or_404(User, id=proposer_id)
+            accepter = get_object_or_404(User, id=accepter_id)
+
+            # Ensure both users are members of the group
+            if not group.is_member(proposer) or not group.is_member(accepter):
+                messages.error(request, "Both users must be members of the group")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
+
+            # Create bet with immediately accepted status
+            bet = DollarBet.objects.create(
+                book=book,
+                group=group,
+                bet_type="two_party",
+                creator=request.user,
+                proposer=proposer,
+                accepter=accepter,
+                description=description,
+                counter_description=(
+                    counter_description if counter_description else None
+                ),
+                amount=1.00,
+                status="active",  # Use new status
+                spoiler_level=spoiler_level,
+            )
+
+            # Customize notification message based on counter bet presence
+            notification_body = ""
+            if counter_description:
+                notification_body = f'An admin has added you to a bet: "{description[:30]}..." vs counter-bet: "{counter_description[:30]}..." in {group.name}.'
+            else:
+                notification_body = f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}."
+
+            # Notify both participants that they've been added to a bet
+            for participant in [proposer, accepter]:
+                send_push_notification(
+                    user=participant,
+                    title="You've Been Added to a Dollar Bet",
+                    body=notification_body,
+                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="bet_added_to",
+                )
+
+            messages.success(
+                request, "Dollar bet created successfully between selected members"
+            )
+            return redirect(f"/books/{book.id}/?tab=bets")
 
     return render(
         request,

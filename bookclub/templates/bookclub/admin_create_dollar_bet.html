@@ -27,45 +27,97 @@
                     
                     <form method="post">
                         {% csrf_token %}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="proposer" class="form-label">Proposer</label>
-                                <select class="form-select" id="proposer" name="proposer" required>
-                                    <option value="" selected disabled>Select proposer</option>
-                                    {% for member in members %}
-                                        <option value="{{ member.id }}">{{ member.username }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div class="form-text">The member who proposes the bet</div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label for="accepter" class="form-label">Accepter</label>
-                                <select class="form-select" id="accepter" name="accepter" required>
-                                    <option value="" selected disabled>Select accepter</option>
-                                    {% for member in members %}
-                                        <option value="{{ member.id }}">{{ member.username }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div class="form-text">The member who accepts the bet</div>
-                            </div>
-                        </div>
-                        
+
                         <div class="mb-3">
-                            <label for="description" class="form-label">Proposer's Bet Description</label>
-                            <textarea class="form-control" id="description" name="description" 
-                                    rows="3" required placeholder="What is this bet about?"></textarea>
-                            <div class="form-text">Be specific about the prediction so it can be clearly judged later.</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="counter_description" class="form-label">Accepter's Counter-Bet (Optional)</label>
-                            <textarea class="form-control" id="counter_description" name="counter_description" 
-                                    rows="3" placeholder="Alternative prediction from the accepter (if any)"></textarea>
+                            <label for="bet_type" class="form-label">Bet Type</label>
+                            <select name="bet_type" id="bet_type" class="form-select">
+                                <option value="two_party">Two-Party Bet (Pre-Accepted Between Two Users)</option>
+                                <option value="multi_party">Multi-Party Bet (Open to All Members)</option>
+                            </select>
                             <div class="form-text">
-                                If the accepter has a specific counter-prediction (e.g., "No, I bet Rebecca, not Allison"). 
-                                Leave blank if the accepter simply accepts the original bet.
+                                Two-Party: Create pre-accepted bet between two users. Multi-Party: Create open bet that members can join.
+                            </div>
+                        </div>
+
+                        <!-- Two-Party Fields -->
+                        <div id="two-party-fields" style="display: none;">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="proposer" class="form-label">Proposer</label>
+                                    <select class="form-select" id="proposer" name="proposer">
+                                        <option value="" selected disabled>Select proposer</option>
+                                        {% for member in members %}
+                                            <option value="{{ member.id }}">{{ member.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">The member who proposes the bet</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="accepter" class="form-label">Accepter</label>
+                                    <select class="form-select" id="accepter" name="accepter">
+                                        <option value="" selected disabled>Select accepter</option>
+                                        {% for member in members %}
+                                            <option value="{{ member.id }}">{{ member.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">The member who accepts the bet</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Proposer's Bet Description</label>
+                                <textarea class="form-control" id="description" name="description"
+                                        rows="3" placeholder="What is this bet about?"></textarea>
+                                <div class="form-text">Be specific about the prediction so it can be clearly judged later.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="counter_description" class="form-label">Accepter's Counter-Bet (Optional)</label>
+                                <textarea class="form-control" id="counter_description" name="counter_description"
+                                        rows="3" placeholder="Alternative prediction from the accepter (if any)"></textarea>
+                                <div class="form-text">
+                                    If the accepter has a specific counter-prediction (e.g., "No, I bet Rebecca, not Allison").
+                                    Leave blank if the accepter simply accepts the original bet.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Party Fields -->
+                        <div id="multi-party-fields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="question" class="form-label">What's the question?</label>
+                                <textarea name="question" id="question" class="form-control" rows="3"
+                                          placeholder="Example: Who is the killer in this book?"></textarea>
+                                <div class="form-text">The question all participants will answer</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="my_prediction" class="form-label">Your Prediction (Optional)</label>
+                                <textarea name="my_prediction" id="my_prediction" class="form-control" rows="3"
+                                          placeholder="Example: Rebecca is the killer"></textarea>
+                                <div class="form-text">
+                                    <strong>Admin privilege:</strong> You can optionally participate with your own prediction or just create the bet without joining
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="min_participants" class="form-label">Minimum Participants</label>
+                                        <input type="number" name="min_participants" id="min_participants"
+                                               class="form-control" value="2" min="2">
+                                        <div class="form-text">Bet needs at least this many to activate</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="max_participants" class="form-label">Maximum Participants (Optional)</label>
+                                        <input type="number" name="max_participants" id="max_participants"
+                                               class="form-control" placeholder="No limit" min="2">
+                                        <div class="form-text">Leave blank for no limit</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -91,11 +143,16 @@
                             <div class="form-text">All bets are fixed at $1</div>
                         </div>
                         
-                        <div class="alert alert-info">
+                        <div class="alert alert-info" id="two-party-alert" style="display: none;">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>Note:</strong> This bet will be created with an "Accepted" status automatically.
+                            <strong>Note:</strong> Two-party bets will be created with "Active" status automatically (already accepted).
                         </div>
-                        
+
+                        <div class="alert alert-info" id="multi-party-alert" style="display: none;">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong> Multi-party bets will be created as "Open" for members to join. You can close betting when ready.
+                        </div>
+
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left me-1"></i> Back to Book
@@ -108,4 +165,41 @@
         </div>
     </div>
 </div>
+
+<script>
+    const betTypeSelect = document.getElementById('bet_type');
+    const twoPartyFields = document.getElementById('two-party-fields');
+    const multiPartyFields = document.getElementById('multi-party-fields');
+    const twoPartyAlert = document.getElementById('two-party-alert');
+    const multiPartyAlert = document.getElementById('multi-party-alert');
+
+    betTypeSelect.addEventListener('change', function() {
+        if (this.value === 'two_party') {
+            twoPartyFields.style.display = 'block';
+            multiPartyFields.style.display = 'none';
+            twoPartyAlert.style.display = 'block';
+            multiPartyAlert.style.display = 'none';
+
+            // Set required fields for two-party
+            document.getElementById('proposer').required = true;
+            document.getElementById('accepter').required = true;
+            document.getElementById('description').required = true;
+            document.getElementById('question').required = false;
+        } else {
+            twoPartyFields.style.display = 'none';
+            multiPartyFields.style.display = 'block';
+            twoPartyAlert.style.display = 'none';
+            multiPartyAlert.style.display = 'block';
+
+            // Set required fields for multi-party
+            document.getElementById('proposer').required = false;
+            document.getElementById('accepter').required = false;
+            document.getElementById('description').required = false;
+            document.getElementById('question').required = true;
+        }
+    });
+
+    // Default to two-party on page load
+    betTypeSelect.dispatchEvent(new Event('change'));
+</script>
 {% endblock %}
