@@ -113,7 +113,17 @@
                                                 <span class="badge bg-warning text-dark">Active</span>
                                             {% elif bet.status == 'won' or bet.status == 'resolved_winner' %}
                                                 <span class="badge bg-success">Resolved</span>
-                                                <br><small>Winner: {{ bet.winner.username }}</small>
+                                                {% if bet.bet_type == 'multi_party' %}
+                                                    {% with winners=bet.participants.all|selectattr:"is_winner"|list %}
+                                                    {% if winners|length > 1 %}
+                                                        <br><small>{{ winners|length }} winners (split pot)</small>
+                                                    {% elif winners|length == 1 %}
+                                                        <br><small>Winner: {{ winners.0.user.username }}</small>
+                                                    {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <br><small>Winner: {{ bet.winner.username }}</small>
+                                                {% endif %}
                                             {% elif bet.status == 'lost' %}
                                                 <span class="badge bg-success">Resolved</span>
                                                 <br><small>Winner: {{ bet.winner.username }}</small>
