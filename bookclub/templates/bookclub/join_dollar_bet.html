@@ -1,0 +1,74 @@
+{% extends 'bookclub/base.html' %}
+{% load static %}
+{% load bookclub_extras %}
+
+{% block title %}Join Dollar Bet{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <!-- Breadcrumb navigation -->
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Join Multi-Party Bet</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Question:</h5>
+                        <p class="mb-2"><strong>{{ bet.question }}</strong></p>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small><strong>Participants:</strong> {{ bet.participant_count }}
+                                {% if bet.max_participants %}/ {{ bet.max_participants }}{% endif %}</small>
+                            </div>
+                            <div class="col-md-4">
+                                <small><strong>Current Pot:</strong> ${{ bet.total_pot }}</small>
+                            </div>
+                            <div class="col-md-4">
+                                <small><strong>Spoiler Level:</strong>
+                                    {% if bet.spoiler_level == 'none' %}No Spoilers
+                                    {% elif bet.spoiler_level == 'halfway' %}Halfway Through
+                                    {% else %}Finished Book
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Existing Predictions:</h5>
+                    <div class="list-group mb-4">
+                        {% for participant in existing_participants %}
+                        <div class="list-group-item">
+                            <strong>{{ participant.user.username }}:</strong> "{{ participant.prediction }}"
+                            <small class="text-muted float-end">{{ participant.joined_at|date:"M d, Y g:i A" }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="prediction" class="form-label">Your Prediction <span class="text-danger">*</span></label>
+                            <textarea name="prediction" id="prediction" class="form-control" rows="4"
+                                      required placeholder="Enter your answer to the question"></textarea>
+                            <div class="form-text">
+                                This will be visible to other participants. Be specific!
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'book_detail' bet.book.id %}?tab=bets" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">Join Bet - $1.00</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,24 +16,21 @@
                     <h2><i class="bi bi-flag-fill me-2"></i>Resolve Dollar Bet</h2>
                 </div>
                 <div class="card-body">
+                    {% if bet.bet_type == 'multi_party' %}
                     <div class="alert alert-info alert-permanent">
-                        <h4 class="alert-heading mb-3">Bet Details</h4>
-                        <p class="mb-3"><strong>{{ bet.proposer.username }}'s Prediction: </strong> {{ bet.description }}</p>
-                        
-                        {% if bet.counter_description %}
-                        <p class="mb-3"><strong>{{ bet.accepter.username }}'s Counter-Prediction: </strong> {{ bet.counter_description }}</p>
-                        {% endif %}
-                        
+                        <h4 class="alert-heading mb-3">Multi-Party Bet Details</h4>
+                        <p class="mb-3"><strong>Question:</strong> {{ bet.question }}</p>
+
                         <hr>
                         <div class="row">
                             <div class="col-md-4">
-                                <p><strong>Proposed by:</strong> {{ bet.proposer.username }}</p>
+                                <p><strong>Participants:</strong> {{ bet.participant_count }}</p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>Accepted by:</strong> {{ bet.accepter.username }}</p>
+                                <p><strong>Total Pot:</strong> ${{ bet.total_pot }}</p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>Spoiler Level:</strong> 
+                                <p><strong>Spoiler Level:</strong>
                                     {% if bet.spoiler_level == 'none' %}
                                         <span class="badge bg-success">No Spoilers</span>
                                     {% elif bet.spoiler_level == 'halfway' %}
@@ -45,58 +42,110 @@
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="alert alert-info alert-permanent">
+                        <h4 class="alert-heading mb-3">Bet Details</h4>
+                        <p class="mb-3"><strong>{{ bet.proposer.username }}'s Prediction: </strong> {{ bet.description }}</p>
+
+                        {% if bet.counter_description %}
+                        <p class="mb-3"><strong>{{ bet.accepter.username }}'s Counter-Prediction: </strong> {{ bet.counter_description }}</p>
+                        {% endif %}
+
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p><strong>Proposed by:</strong> {{ bet.proposer.username }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Accepted by:</strong> {{ bet.accepter.username }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Spoiler Level:</strong>
+                                    {% if bet.spoiler_level == 'none' %}
+                                        <span class="badge bg-success">No Spoilers</span>
+                                    {% elif bet.spoiler_level == 'halfway' %}
+                                        <span class="badge bg-warning">Halfway</span>
+                                    {% elif bet.spoiler_level == 'finished' %}
+                                        <span class="badge bg-danger">Finished Book</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-4">
                             <label class="form-label fs-5">How would you like to resolve this bet?</label>
-                            
+
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="resolution" id="resolveWinLoss" value="win_loss" checked>
+                                <input class="form-check-input" type="radio" name="resolution" id="resolveWinLoss" value="winner" checked>
                                 <label class="form-check-label" for="resolveWinLoss">
                                     Declare a winner
                                 </label>
                             </div>
-                            
+
                             <div id="winnerSelectionSection">
-                                <!-- Winner selection cards - only shown when resolveWinLoss is selected -->
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="winner" 
-                                                id="proposer" value="{{ bet.proposer.id }}" required>
-                                            <label class="form-check-label" for="proposer">
-                                                <strong>{{ bet.proposer.username }}</strong> (The Proposer) - 
-                                                prediction was correct: "{{ bet.description }}"
-                                            </label>
+                                {% if bet.bet_type == 'multi_party' %}
+                                    <!-- Multi-party participant selection -->
+                                    <p class="text-muted ms-4 mb-3">Select the participant whose prediction was correct:</p>
+                                    {% for participant in bet.participants.all %}
+                                    <div class="card mb-3 ms-4">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="winner"
+                                                    id="participant_{{ participant.id }}" value="{{ participant.user.id }}" required>
+                                                <label class="form-check-label" for="participant_{{ participant.id }}">
+                                                    <strong>{{ participant.user.username }}</strong> - "{{ participant.prediction }}"
+                                                    <br><small class="text-muted">Joined: {{ participant.joined_at|date:"M d, Y g:i A" }}</small>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="winner" 
-                                                id="accepter" value="{{ bet.accepter.id }}">
-                                            <label class="form-check-label" for="accepter">
-                                                <strong>{{ bet.accepter.username }}</strong> (The Accepter) - 
-                                                {% if bet.counter_description %}
-                                                    counter-prediction was correct: "{{ bet.counter_description }}"
-                                                {% else %}
-                                                    original prediction was incorrect
-                                                {% endif %}
-                                            </label>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- Two-party winner selection -->
+                                    <div class="card mb-3 ms-4">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="winner"
+                                                    id="proposer" value="{{ bet.proposer.id }}" required>
+                                                <label class="form-check-label" for="proposer">
+                                                    <strong>{{ bet.proposer.username }}</strong> (The Proposer) -
+                                                    prediction was correct: "{{ bet.description }}"
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                    <div class="card ms-4">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="winner"
+                                                    id="accepter" value="{{ bet.accepter.id }}">
+                                                <label class="form-check-label" for="accepter">
+                                                    <strong>{{ bet.accepter.username }}</strong> (The Accepter) -
+                                                    {% if bet.counter_description %}
+                                                        counter-prediction was correct: "{{ bet.counter_description }}"
+                                                    {% else %}
+                                                        original prediction was incorrect
+                                                    {% endif %}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-                            
+
                             <div class="form-check mt-4">
                                 <input class="form-check-input" type="radio" name="resolution" id="resolveInconclusive" value="inconclusive">
                                 <label class="form-check-label" for="resolveInconclusive">
                                     Mark as inconclusive
                                 </label>
                                 <div class="form-text ms-4">
-                                    {% if bet.counter_description %}
+                                    {% if bet.bet_type == 'multi_party' %}
+                                        Use this when none of the predictions were correct or it's impossible to determine.
+                                    {% elif bet.counter_description %}
                                         Use this when neither prediction was correct or it's impossible to determine.
                                     {% else %}
                                         Use this when it's impossible to determine if the prediction was correct.

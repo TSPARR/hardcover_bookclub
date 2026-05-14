@@ -66,16 +66,21 @@ def next_meeting_info(request):
         or _has_meeting_perm(request.user, "delete_meeting")
     )
     if not group.is_member(request.user) and not can_manage:
-        return JsonResponse({"error": "Forbidden: membership or meeting permission required."}, status=403)
+        return JsonResponse(
+            {"error": "Forbidden: membership or meeting permission required."},
+            status=403,
+        )
 
     last = qs.aggregate(m=Max("meeting_number"))
     next_n = (last.get("m") or 0) + 1
     suggested = f"{base_title} {ordinal(next_n)} Meeting"
 
-    return JsonResponse({
-        "next_number": next_n,
-        "suggested_title": suggested,
-    })
+    return JsonResponse(
+        {
+            "next_number": next_n,
+            "suggested_title": suggested,
+        }
+    )
 
 
 def ordinal(n: int) -> str:
@@ -153,8 +158,14 @@ def create_meeting(request):
         return _meetings_disabled_response()
 
     # Require either group admin or Django 'add_meeting' permission
-    if not (_is_group_admin(request.user, group) or _has_meeting_perm(request.user, "add_meeting")):
-        return JsonResponse({"error": "Forbidden: admin or add_meeting permission required."}, status=403)
+    if not (
+        _is_group_admin(request.user, group)
+        or _has_meeting_perm(request.user, "add_meeting")
+    ):
+        return JsonResponse(
+            {"error": "Forbidden: admin or add_meeting permission required."},
+            status=403,
+        )
 
     book_id = request.POST.get("book")
     book = None
@@ -181,11 +192,15 @@ def create_meeting(request):
     end_dt = parse_datetime(end_raw) if end_raw else None
     end_dt = _make_aware(end_dt) if end_dt else None
     if end_dt and end_dt <= start_dt:
-        return JsonResponse({"error": "'end_time' must be after 'start_time'."}, status=400)
+        return JsonResponse(
+            {"error": "'end_time' must be after 'start_time'."}, status=400
+        )
 
     # Disallow creating meetings in the past
     if _is_past(start_dt):
-        return JsonResponse({"error": "'start_time' must be in the future."}, status=400)
+        return JsonResponse(
+            {"error": "'start_time' must be in the future."}, status=400
+        )
 
     # Determine next meeting_number within scope (group + optional book)
     scope_qs = Meeting.objects.filter(group=group)
@@ -211,19 +226,24 @@ def create_meeting(request):
         meeting.full_clean()
         meeting.save()
     except Exception as e:
-        return JsonResponse({"error": "Failed to create meeting.", "detail": str(e)}, status=400)
+        return JsonResponse(
+            {"error": "Failed to create meeting.", "detail": str(e)}, status=400
+        )
 
-    return JsonResponse({
-        "id": meeting.id,
-        "title": getattr(meeting, "display_title", meeting.title),
-        "group": meeting.group_id,
-        "book": meeting.book_id,
-        "start_time": meeting.start_time.isoformat(),
-        "end_time": meeting.end_time.isoformat() if meeting.end_time else None,
-        # public visibility removed
-        "place": meeting.place,
-        "description": meeting.description,
-    }, status=201)
+    return JsonResponse(
+        {
+            "id": meeting.id,
+            "title": getattr(meeting, "display_title", meeting.title),
+            "group": meeting.group_id,
+            "book": meeting.book_id,
+            "start_time": meeting.start_time.isoformat(),
+            "end_time": meeting.end_time.isoformat() if meeting.end_time else None,
+            # public visibility removed
+            "place": meeting.place,
+            "description": meeting.description,
+        },
+        status=201,
+    )
 
 
 @login_required
@@ -246,8 +266,14 @@ def update_meeting(request, meeting_id: int):
     if not group.is_meetings_enabled():
         return _meetings_disabled_response()
     # Require either group admin or Django 'change_meeting' permission
-    if not (_is_group_admin(request.user, group) or _has_meeting_perm(request.user, "change_meeting")):
-        return JsonResponse({"error": "Forbidden: admin or change_meeting permission required."}, status=403)
+    if not (
+        _is_group_admin(request.user, group)
+        or _has_meeting_perm(request.user, "change_meeting")
+    ):
+        return JsonResponse(
+            {"error": "Forbidden: admin or change_meeting permission required."},
+            status=403,
+        )
 
     # Check if Title is Empty
     title = request.POST.get("title")
@@ -271,7 +297,7 @@ def update_meeting(request, meeting_id: int):
         if not start_dt:
             return JsonResponse({"error": "Invalid 'start_time' format."}, status=400)
         meeting.start_time = _make_aware(start_dt)
-    
+
     # Check end_time field Format and logic
     end_raw = request.POST.get("end_time")
     if end_raw is not None:
@@ -285,28 +311,36 @@ def update_meeting(request, meeting_id: int):
                 return JsonResponse({"error": "Invalid 'end_time' format."}, status=400)
             end_dt = _make_aware(end_dt)
             if meeting.start_time and end_dt <= meeting.start_time:
-                return JsonResponse({"error": "'end_time' must be after 'start_time'."}, status=400)
+                return JsonResponse(
+                    {"error": "'end_time' must be after 'start_time'."}, status=400
+                )
             meeting.end_time = end_dt
 
     try:
         meeting.full_clean()
         meeting.save()
     except ValidationError as ve:
-        return JsonResponse({"error": "Validation error.", "detail": ve.message_dict}, status=400)
+        return JsonResponse(
+            {"error": "Validation error.", "detail": ve.message_dict}, status=400
+        )
     except Exception as e:
-        return JsonResponse({"error": "Failed to update meeting.", "detail": str(e)}, status=400)
+        return JsonResponse(
+            {"error": "Failed to update meeting.", "detail": str(e)}, status=400
+        )
 
-    return JsonResponse({
-        "id": meeting.id,
-        "title": getattr(meeting, "display_title", meeting.title),
-        "group": meeting.group_id,
-        "book": meeting.book_id,
-        "start_time": meeting.start_time.isoformat(),
-        "end_time": meeting.end_time.isoformat() if meeting.end_time else None,
-        # public visibility removed
-        "place": meeting.place,
-        "description": meeting.description,
-    })
+    return JsonResponse(
+        {
+            "id": meeting.id,
+            "title": getattr(meeting, "display_title", meeting.title),
+            "group": meeting.group_id,
+            "book": meeting.book_id,
+            "start_time": meeting.start_time.isoformat(),
+            "end_time": meeting.end_time.isoformat() if meeting.end_time else None,
+            # public visibility removed
+            "place": meeting.place,
+            "description": meeting.description,
+        }
+    )
 
 
 @login_required
@@ -320,8 +354,14 @@ def delete_meeting(request, meeting_id: int):
     # Require either group admin or Django 'delete_meeting' permission
     if not meeting.group.is_meetings_enabled():
         return _meetings_disabled_response()
-    if not (_is_group_admin(request.user, meeting.group) or _has_meeting_perm(request.user, "delete_meeting")):
-        return JsonResponse({"error": "Forbidden: admin or delete_meeting permission required."}, status=403)
+    if not (
+        _is_group_admin(request.user, meeting.group)
+        or _has_meeting_perm(request.user, "delete_meeting")
+    ):
+        return JsonResponse(
+            {"error": "Forbidden: admin or delete_meeting permission required."},
+            status=403,
+        )
 
     meeting.delete()
 
@@ -331,6 +371,7 @@ def delete_meeting(request, meeting_id: int):
     if is_ajax:
         return JsonResponse({"status": "deleted", "id": meeting_id})
     from django.shortcuts import redirect
+
     return redirect("group_detail", group_id=meeting.group_id)
 
 
@@ -339,6 +380,7 @@ def delete_meeting(request, meeting_id: int):
 def meeting_detail(request, meeting_id: int):
     """Render a meeting details page with core info and attendance."""
     from django.shortcuts import get_object_or_404, render
+
     qs = Meeting.objects.select_related("group", "book", "created_by")
     meeting = get_object_or_404(qs, pk=meeting_id)
 
@@ -358,8 +400,13 @@ def meeting_detail(request, meeting_id: int):
             "application/json" in (request.headers.get("Accept", "").lower())
         )
         if is_ajax:
-            return JsonResponse({"error": "Forbidden: membership or meeting permission required."}, status=403)
-        return HttpResponseForbidden("Forbidden: membership or meeting permission required.")
+            return JsonResponse(
+                {"error": "Forbidden: membership or meeting permission required."},
+                status=403,
+            )
+        return HttpResponseForbidden(
+            "Forbidden: membership or meeting permission required."
+        )
 
     # Attendance summary
     attendance_qs = meeting.attendance.select_related("user")
@@ -390,8 +437,6 @@ def meeting_detail(request, meeting_id: int):
             "current_tz": getattr(settings, "TIME_ZONE", "UTC"),
         },
     )
-
-    
 
 
 @login_required
@@ -428,16 +473,20 @@ def join_meeting(request, meeting_id: int):
         "application/json" in (request.headers.get("Accept", "").lower())
     )
     if is_ajax:
-        return JsonResponse({
-            "status": "joined",
-            "meeting": meeting.id,
-            "group": group.id,
-            "rsvp_status": attendance.rsvp_status,
-        })
+        return JsonResponse(
+            {
+                "status": "joined",
+                "meeting": meeting.id,
+                "group": group.id,
+                "rsvp_status": attendance.rsvp_status,
+            }
+        )
 
     # Fallback: redirect to the group's detail page
     from django.shortcuts import redirect
+
     return redirect("group_detail", group_id=group.id)
+
 
 @login_required
 @require_POST
@@ -460,7 +509,9 @@ def leave_meeting(request, meeting_id: int):
         return JsonResponse({"error": "Forbidden: membership required."}, status=403)
 
     # Update RSVP to 'no' if an attendance record exists
-    attendance = MeetingAttendance.objects.filter(meeting=meeting, user=request.user).first()
+    attendance = MeetingAttendance.objects.filter(
+        meeting=meeting, user=request.user
+    ).first()
     if attendance:
         if attendance.rsvp_status != "no":
             attendance.rsvp_status = "no"
@@ -471,12 +522,15 @@ def leave_meeting(request, meeting_id: int):
         "application/json" in (request.headers.get("Accept", "").lower())
     )
     if is_ajax:
-        return JsonResponse({
-            "status": "left",
-            "meeting": meeting.id,
-            "group": group.id,
-            "rsvp_status": "no",
-        })
+        return JsonResponse(
+            {
+                "status": "left",
+                "meeting": meeting.id,
+                "group": group.id,
+                "rsvp_status": "no",
+            }
+        )
 
     from django.shortcuts import redirect
+
     return redirect("group_detail", group_id=group.id)

@@ -711,12 +711,23 @@ class MemberStartingPoint(models.Model):
 
 
 class DollarBet(models.Model):
+    BET_TYPE_CHOICES = [
+        ("two_party", "Two Party"),
+        ("multi_party", "Multi Party"),
+    ]
+
     BET_STATUS_CHOICES = [
         ("open", "Open"),
-        ("accepted", "Accepted"),
-        ("won", "Won"),
-        ("lost", "Lost"),
-        ("inconclusive", "Inconclusive"),
+        ("accepted", "Accepted"),  # Legacy - will migrate to "active"
+        ("active", "Active"),
+        ("won", "Won"),  # Legacy - will migrate to "resolved_winner"
+        ("lost", "Lost"),  # Legacy - will migrate to "resolved_winner"
+        ("resolved_winner", "Resolved - Winner"),
+        (
+            "inconclusive",
+            "Inconclusive",
+        ),  # Legacy - will migrate to "resolved_inconclusive"
+        ("resolved_inconclusive", "Resolved - Inconclusive"),
     ]
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="dollar_bets")
@@ -724,8 +735,40 @@ class DollarBet(models.Model):
         BookGroup, on_delete=models.CASCADE, related_name="dollar_bets"
     )
 
+    # Bet type and multi-party fields
+    bet_type = models.CharField(
+        max_length=12, choices=BET_TYPE_CHOICES, default="two_party"
+    )
+    question = models.TextField(
+        null=True, blank=True, help_text="The question being bet on (multi-party only)"
+    )
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="created_bets",
+        null=True,  # Temporarily nullable for migration
+        blank=True,
+        help_text="User who created the bet",
+    )
+    min_participants = models.IntegerField(
+        default=2,
+        validators=[MinValueValidator(2)],
+        help_text="Minimum participants required (multi-party only)",
+    )
+    max_participants = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(2)],
+        help_text="Maximum participants allowed (multi-party only, optional)",
+    )
+
+    # Legacy fields (two-party only) - now nullable for multi-party bets
     proposer = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="proposed_dollar_bets"
+        User,
+        on_delete=models.CASCADE,
+        related_name="proposed_dollar_bets",
+        null=True,
+        blank=True,
     )
     accepter = models.ForeignKey(
         User,
@@ -736,7 +779,7 @@ class DollarBet(models.Model):
     )
 
     description = models.TextField(
-        help_text="What the bet is about (e.g., 'Character X will die')"
+        null=True, blank=True, help_text="What the bet is about (two-party only)"
     )
     counter_description = models.TextField(
         blank=True,
@@ -750,7 +793,7 @@ class DollarBet(models.Model):
         validators=[MinValueValidator(1.00), MaxValueValidator(1.00)],
     )
 
-    status = models.CharField(max_length=12, choices=BET_STATUS_CHOICES, default="open")
+    status = models.CharField(max_length=25, choices=BET_STATUS_CHOICES, default="open")
     winner = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -783,7 +826,34 @@ class DollarBet(models.Model):
     )
 
     def __str__(self):
-        return f"${self.amount} bet on {self.book.title}: {self.description[:30]}..."
+        if self.bet_type == "multi_party":
+            question_preview = (self.question or "")[:30]
+            return f"${self.total_pot} bet on {self.book.title}: {question_preview}..."
+        return f"${self.amount} bet on {self.book.title}: {(self.description or '')[:30]}..."
+
+    @property
+    def participant_count(self):
+        """Returns number of participants based on bet type"""
+        if self.bet_type == "two_party":
+            return 2 if self.accepter else 1
+        return self.participants.count()
+
+    @property
+    def total_pot(self):
+        """Calculate total pot based on number of participants"""
+        from decimal import Decimal
+
+        return Decimal(str(self.participant_count)) * self.amount
+
+    def can_accept_participants(self):
+        """Check if bet can accept more participants"""
+        if self.status != "open":
+            return False
+        if self.bet_type == "two_party":
+            return self.accepter is None
+        if self.max_participants and self.participant_count >= self.max_participants:
+            return False
+        return True
 
     def resolve(self, winner_user, resolved_by_user):
         """Resolve the bet by setting a winner"""
@@ -823,6 +893,28 @@ class DollarBet(models.Model):
         self.resolved_at = timezone.now()
         self.resolved_by = resolved_by_user
         self.save()
+
+
+class BetParticipant(models.Model):
+    """Represents a participant in a multi-party dollar bet"""
+
+    bet = models.ForeignKey(
+        DollarBet, on_delete=models.CASCADE, related_name="participants"
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="bet_participations"
+    )
+    prediction = models.TextField(
+        help_text="This participant's prediction/answer to the bet question"
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("bet", "user")
+        ordering = ["joined_at"]
+
+    def __str__(self):
+        return f"{self.user.username} on bet #{self.bet.id}"
 
 
 class Meeting(models.Model):

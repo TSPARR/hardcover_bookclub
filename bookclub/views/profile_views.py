@@ -110,7 +110,9 @@ def profile_settings(request):
             messages.error(request, api_key_message)
             # Don't show success message if API key validation failed
         elif should_save_api_key and form.cleaned_data.get("hardcover_api_key"):
-            messages.success(request, "Hardcover API key has been updated successfully.")
+            messages.success(
+                request, "Hardcover API key has been updated successfully."
+            )
         elif should_save_api_key and not form.cleaned_data.get("hardcover_api_key"):
             messages.success(request, "Hardcover API key has been removed.")
         elif should_save_notifications or should_save_home_page:

@@ -8,52 +8,131 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookclub', '0023_alter_commentreaction_reaction'),
+        ("bookclub", "0023_alter_commentreaction_reaction"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Meeting',
+            name="Meeting",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(blank=True, max_length=200)),
-                ('place', models.CharField(blank=True, max_length=1000)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('is_public', models.BooleanField(default=False)),
-                ('meeting_number', models.PositiveIntegerField(editable=False, null=True)),
-                ('start_time', models.DateTimeField()),
-                ('end_time', models.DateTimeField(blank=True, null=True)),
-                ('book', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='meetings', to='bookclub.book')),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_meetings', to=settings.AUTH_USER_MODEL)),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='meetings', to='bookclub.bookgroup')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(blank=True, max_length=200)),
+                ("place", models.CharField(blank=True, max_length=1000)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("is_public", models.BooleanField(default=False)),
+                (
+                    "meeting_number",
+                    models.PositiveIntegerField(editable=False, null=True),
+                ),
+                ("start_time", models.DateTimeField()),
+                ("end_time", models.DateTimeField(blank=True, null=True)),
+                (
+                    "book",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="meetings",
+                        to="bookclub.book",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="created_meetings",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "group",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="meetings",
+                        to="bookclub.bookgroup",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MeetingAttendance',
+            name="MeetingAttendance",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rsvp_status', models.CharField(choices=[('yes', 'Attending'), ('maybe', 'Maybe'), ('no', 'Not Attending')], default='maybe', max_length=10)),
-                ('checked_in_at', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('meeting', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendance', to='bookclub.meeting')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "rsvp_status",
+                    models.CharField(
+                        choices=[
+                            ("yes", "Attending"),
+                            ("maybe", "Maybe"),
+                            ("no", "Not Attending"),
+                        ],
+                        default="maybe",
+                        max_length=10,
+                    ),
+                ),
+                ("checked_in_at", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "meeting",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attendance",
+                        to="bookclub.meeting",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('meeting', 'user')},
+                "unique_together": {("meeting", "user")},
             },
         ),
         migrations.AddField(
-            model_name='meeting',
-            name='members',
-            field=models.ManyToManyField(related_name='meetings', through='bookclub.MeetingAttendance', to=settings.AUTH_USER_MODEL),
+            model_name="meeting",
+            name="members",
+            field=models.ManyToManyField(
+                related_name="meetings",
+                through="bookclub.MeetingAttendance",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddConstraint(
-            model_name='meeting',
-            constraint=models.UniqueConstraint(condition=models.Q(('book__isnull', False)), fields=('group', 'book', 'meeting_number'), name='uniq_meeting_number_per_book'),
+            model_name="meeting",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("book__isnull", False)),
+                fields=("group", "book", "meeting_number"),
+                name="uniq_meeting_number_per_book",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='meeting',
-            constraint=models.UniqueConstraint(condition=models.Q(('book__isnull', True)), fields=('group', 'meeting_number'), name='uniq_meeting_number_no_book'),
+            model_name="meeting",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("book__isnull", True)),
+                fields=("group", "meeting_number"),
+                name="uniq_meeting_number_no_book",
+            ),
         ),
     ]

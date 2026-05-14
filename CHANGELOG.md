@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.8.0
+- Added new MultiBets feature
+- Dependency update: idna 3.15
+
 ## Release 0.7.1
 - Dependency update: urllib3 2.7.0
 - Dependency update: idna 3.14

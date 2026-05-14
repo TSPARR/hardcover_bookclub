@@ -18,11 +18,70 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
+
                         <div class="mb-3">
-                            <label for="description" class="form-label">What are you betting on?</label>
-                            <textarea class="form-control" id="description" name="description" 
-                                      rows="3" required placeholder="Example: 'I bet Harry Potter will die in the final chapter'"></textarea>
-                            <div class="form-text">Be specific about your prediction so it can be clearly judged later.</div>
+                            <label for="bet_type" class="form-label">Bet Type</label>
+                            <select name="bet_type" id="bet_type" class="form-select">
+                                <option value="two_party">Two-Party Bet (Classic: You vs. One Other Person)</option>
+                                <option value="multi_party">Multi-Party Bet (Multiple Players)</option>
+                            </select>
+                            <div class="form-text">
+                                Two-Party: Traditional 1v1 bet. Multi-Party: Multiple people can join with different predictions.
+                            </div>
+                        </div>
+
+                        <!-- Two-Party Fields (existing) -->
+                        <div id="two-party-fields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">What are you betting on?</label>
+                                <textarea class="form-control" id="description" name="description"
+                                          rows="3" placeholder="Example: 'I bet Harry Potter will die in the final chapter'"></textarea>
+                                <div class="form-text">Be specific about your prediction so it can be clearly judged later.</div>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Party Fields (new) -->
+                        <div id="multi-party-fields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="question" class="form-label">What's the question?</label>
+                                <textarea name="question" id="question" class="form-control" rows="3"
+                                          placeholder="Example: Who is the killer in this book?"></textarea>
+                                <div class="form-text">The question all participants will answer</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="my_prediction" class="form-label">
+                                    Your Prediction{% if not is_admin %} <span class="text-danger">*</span>{% endif %}
+                                </label>
+                                <textarea name="my_prediction" id="my_prediction" class="form-control" rows="3"
+                                          placeholder="Example: Rebecca is the killer"></textarea>
+                                <div class="form-text">
+                                    {% if is_admin %}
+                                        As an admin, you can optionally participate with your own prediction or just create the bet
+                                    {% else %}
+                                        As creator, you must participate with your own prediction
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="min_participants" class="form-label">Minimum Participants</label>
+                                        <input type="number" name="min_participants" id="min_participants"
+                                               class="form-control" value="2" min="2">
+                                        <div class="form-text">Bet needs at least this many to activate</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="max_participants" class="form-label">Maximum Participants (Optional)</label>
+                                        <input type="number" name="max_participants" id="max_participants"
+                                               class="form-control" placeholder="No limit" min="2">
+                                        <div class="form-text">Leave blank for no limit</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
@@ -58,4 +117,33 @@
         </div>
     </div>
 </div>
+
+<script>
+    const betTypeSelect = document.getElementById('bet_type');
+    const twoPartyFields = document.getElementById('two-party-fields');
+    const multiPartyFields = document.getElementById('multi-party-fields');
+
+    betTypeSelect.addEventListener('change', function() {
+        if (this.value === 'two_party') {
+            twoPartyFields.style.display = 'block';
+            multiPartyFields.style.display = 'none';
+            document.getElementById('description').required = true;
+            document.getElementById('question').required = false;
+            {% if not is_admin %}
+            document.getElementById('my_prediction').required = false;
+            {% endif %}
+        } else {
+            twoPartyFields.style.display = 'none';
+            multiPartyFields.style.display = 'block';
+            document.getElementById('description').required = false;
+            document.getElementById('question').required = true;
+            {% if not is_admin %}
+            document.getElementById('my_prediction').required = true;
+            {% endif %}
+        }
+    });
+
+    // Default to two-party on page load
+    betTypeSelect.dispatchEvent(new Event('change'));
+</script>
 {% endblock %}
