@@ -180,7 +180,7 @@
                                               {% if bet.winner_count > 1 %}
                                                   <span class="badge bg-success">{{ bet.winner_count }} Winners (Split Pot)</span>
                                               {% else %}
-                                                  <span class="badge bg-success">Winner: {{ bet.winner.username }}</span>
+                                                  <span class="badge bg-success">Winner: {{ bet.winners.0.username }}</span>
                                               {% endif %}
                                           {% else %}
                                               <span class="badge bg-secondary">Inconclusive</span>
