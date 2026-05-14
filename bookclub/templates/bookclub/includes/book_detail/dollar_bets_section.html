@@ -177,22 +177,26 @@
                                       <div class="d-flex align-items-center mb-1">
                                           <span class="badge bg-info me-2">Multi-Party</span>
                                           {% if bet.status == 'resolved_winner' %}
-                                              <span class="badge bg-success">Winner: {{ bet.winner.username }}</span>
+                                              {% with winners=bet.participants.all|selectattr:"is_winner"|list %}
+                                              {% if winners|length > 1 %}
+                                                  <span class="badge bg-success">{{ winners|length }} Winners (Split Pot)</span>
+                                              {% else %}
+                                                  <span class="badge bg-success">Winner: {{ bet.winner.username }}</span>
+                                              {% endif %}
+                                              {% endwith %}
                                           {% else %}
                                               <span class="badge bg-secondary">Inconclusive</span>
                                           {% endif %}
                                       </div>
                                       <h5 class="mb-1">{{ bet.question }}</h5>
-                                      {% if bet.winner %}
-                                          {% with winning_participant=bet.participants.all|first %}
+                                      {% if bet.status == 'resolved_winner' %}
                                           {% for p in bet.participants.all %}
-                                              {% if p.user == bet.winner %}
+                                              {% if p.is_winner %}
                                                   <p class="mb-1 text-success">
-                                                      <strong><i class="bi bi-trophy-fill me-1"></i>{{ p.user.username }}</strong> won ${{ bet.total_pot }}: "{{ p.prediction|truncatewords:10 }}"
+                                                      <strong><i class="bi bi-trophy-fill me-1"></i>{{ p.user.username }}</strong> won ${{ bet.winnings_per_winner }}: "{{ p.prediction|truncatewords:10 }}"
                                                   </p>
                                               {% endif %}
                                           {% endfor %}
-                                          {% endwith %}
                                       {% endif %}
                                       <small class="text-muted">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
                                   </div>

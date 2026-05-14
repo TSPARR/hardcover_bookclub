@@ -855,6 +855,30 @@ class DollarBet(models.Model):
             return False
         return True
 
+    @property
+    def winners(self):
+        """Get all winners for this bet"""
+        if self.bet_type == "two_party":
+            return [self.winner] if self.winner else []
+        # Multi-party: return all participants marked as winners
+        return [p.user for p in self.participants.filter(is_winner=True)]
+
+    @property
+    def winner_count(self):
+        """Get number of winners"""
+        if self.bet_type == "two_party":
+            return 1 if self.winner else 0
+        return self.participants.filter(is_winner=True).count()
+
+    def winnings_per_winner(self):
+        """Calculate how much each winner gets (pot split evenly)"""
+        from decimal import Decimal
+
+        winner_count = self.winner_count
+        if winner_count == 0:
+            return Decimal("0")
+        return self.total_pot / Decimal(str(winner_count))
+
     def resolve(self, winner_user, resolved_by_user):
         """Resolve the bet by setting a winner"""
         # Ensure the bet is in 'accepted' status
@@ -908,6 +932,10 @@ class BetParticipant(models.Model):
         help_text="This participant's prediction/answer to the bet question"
     )
     joined_at = models.DateTimeField(auto_now_add=True)
+    is_winner = models.BooleanField(
+        default=False,
+        help_text="True if this participant won the bet (supports multiple winners)",
+    )
 
     class Meta:
         unique_together = ("bet", "user")

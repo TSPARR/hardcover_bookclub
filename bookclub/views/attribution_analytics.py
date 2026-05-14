@@ -817,31 +817,39 @@ def calculate_dollar_bet_stats(group):
     # Process resolved bets
     for bet in resolved_bets:
         if bet.bet_type == "multi_party":
-            # Multi-party bet handling
+            # Multi-party bet handling - supports multiple winners
             participants = bet.participants.all()
+            winners = participants.filter(is_winner=True)
+            winner_count = winners.count()
+
+            # Calculate winnings per winner (pot split evenly)
+            net_gain_per_winner = 0
+            if winner_count > 0:
+                pot_amount = float(bet.total_pot)
+                winnings_per_winner = pot_amount / winner_count
+                net_gain_per_winner = winnings_per_winner - float(bet.amount)
 
             for participant in participants:
                 # All participants are counted in total
                 user_stats[participant.user.id]["user"] = participant.user
                 user_stats[participant.user.id]["total"] += 1
 
-                if bet.winner and participant.user == bet.winner:
-                    # Winner gets the pot
+                if participant.is_winner:
+                    # Winner gets their share of the pot
                     user_stats[participant.user.id]["won"] += 1
-                    pot_amount = float(bet.total_pot)
-                    user_stats[participant.user.id]["net"] += pot_amount - float(
-                        bet.amount
-                    )  # Pot minus their $1
+                    user_stats[participant.user.id]["net"] += net_gain_per_winner
 
-                    # Update rivalries: winner gained from each loser
+                    # Update rivalries: each winner gained proportionally from each loser
                     for loser in participants:
-                        if loser.user != bet.winner:
-                            rivalries[participant.user.id][loser.user.id] += float(
-                                bet.amount
-                            )
-                            rivalries[loser.user.id][participant.user.id] -= float(
-                                bet.amount
-                            )
+                        if not loser.is_winner:
+                            # Each winner gained (loser's $1 / number of winners) from each loser
+                            gain_from_loser = float(bet.amount) / winner_count
+                            rivalries[participant.user.id][
+                                loser.user.id
+                            ] += gain_from_loser
+                            rivalries[loser.user.id][
+                                participant.user.id
+                            ] -= gain_from_loser
                 else:
                     # Loser lost their bet
                     user_stats[participant.user.id]["lost"] += 1

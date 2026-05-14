@@ -88,14 +88,18 @@
 
                             <div id="winnerSelectionSection">
                                 {% if bet.bet_type == 'multi_party' %}
-                                    <!-- Multi-party participant selection -->
-                                    <p class="text-muted ms-4 mb-3">Select the participant whose prediction was correct:</p>
+                                    <!-- Multi-party participant selection - supports multiple winners -->
+                                    <p class="text-muted ms-4 mb-3">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Select all participants whose predictions were correct.
+                                        <strong>Multiple winners will split the pot evenly.</strong>
+                                    </p>
                                     {% for participant in bet.participants.all %}
                                     <div class="card mb-3 ms-4">
                                         <div class="card-body">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="winner"
-                                                    id="participant_{{ participant.id }}" value="{{ participant.user.id }}" required>
+                                                <input class="form-check-input winner-checkbox" type="checkbox" name="winners"
+                                                    id="participant_{{ participant.id }}" value="{{ participant.user.id }}">
                                                 <label class="form-check-label" for="participant_{{ participant.id }}">
                                                     <strong>{{ participant.user.username }}</strong> - "{{ participant.prediction }}"
                                                     <br><small class="text-muted">Joined: {{ participant.joined_at|date:"M d, Y g:i A" }}</small>
@@ -104,6 +108,9 @@
                                         </div>
                                     </div>
                                     {% endfor %}
+                                    <div id="winner-validation-error" class="alert alert-danger ms-4" style="display: none;">
+                                        Please select at least one winner.
+                                    </div>
                                 {% else %}
                                     <!-- Two-party winner selection -->
                                     <div class="card mb-3 ms-4">
@@ -183,5 +190,56 @@
 
 {% block extra_js %}
 <script type="module" src="{% static 'bookclub/js/resolve-bet.js' %}"></script>
+<script>
+    // Multi-party bet validation for multiple winners
+    {% if bet.bet_type == 'multi_party' %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const resolutionRadios = document.querySelectorAll('input[name="resolution"]');
+        const winnerCheckboxes = document.querySelectorAll('.winner-checkbox');
+        const validationError = document.getElementById('winner-validation-error');
+        const winnerSection = document.getElementById('winnerSelectionSection');
+
+        // Toggle winner section based on resolution type
+        resolutionRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'winner') {
+                    winnerSection.style.display = 'block';
+                } else {
+                    winnerSection.style.display = 'none';
+                    validationError.style.display = 'none';
+                    // Uncheck all winners when switching to inconclusive
+                    winnerCheckboxes.forEach(cb => cb.checked = false);
+                }
+            });
+        });
+
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            const resolution = document.querySelector('input[name="resolution"]:checked').value;
+
+            if (resolution === 'winner') {
+                const checkedWinners = document.querySelectorAll('.winner-checkbox:checked');
+                if (checkedWinners.length === 0) {
+                    e.preventDefault();
+                    validationError.style.display = 'block';
+                    validationError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+                validationError.style.display = 'none';
+            }
+        });
+
+        // Hide error when a checkbox is checked
+        winnerCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (document.querySelectorAll('.winner-checkbox:checked').length > 0) {
+                    validationError.style.display = 'none';
+                }
+            });
+        });
+    });
+    {% endif %}
+</script>
 {% endblock %}
 {% endblock %}

@@ -544,40 +544,60 @@ def resolve_dollar_bet(request, bet_id):
                     )
         else:
             # Regular win/loss resolution
-            winner_id = request.POST.get("winner")
-            if not winner_id:
-                return JsonResponse(
-                    {"error": "Winner must be specified for win/loss resolution"},
-                    status=400,
-                )
-
-            winner = get_object_or_404(User, id=winner_id)
-
             if bet.bet_type == "multi_party":
-                # Multi-party: validate winner is a participant
-                participant = bet.participants.filter(user=winner).first()
-                if not participant:
+                # Multi-party: support multiple winners
+                winner_ids = request.POST.getlist("winners")
+                if not winner_ids:
                     return JsonResponse(
-                        {"error": "Winner must be a participant"}, status=400
+                        {"error": "At least one winner must be specified"},
+                        status=400,
                     )
 
+                # Validate all winners are participants
+                winner_users = []
+                for winner_id in winner_ids:
+                    winner = get_object_or_404(User, id=winner_id)
+                    participant = bet.participants.filter(user=winner).first()
+                    if not participant:
+                        return JsonResponse(
+                            {"error": f"{winner.username} is not a participant"},
+                            status=400,
+                        )
+                    winner_users.append((winner, participant))
+
                 # Resolve the bet
-                bet.winner = winner
                 bet.status = "resolved_winner"
                 bet.resolved_at = timezone.now()
                 bet.resolved_by = request.user
                 if bet.spoiler_level != "finished":
                     bet.spoiler_level = "finished"
+
+                # Set first winner in winner field for backward compatibility
+                bet.winner = winner_users[0][0] if winner_users else None
                 bet.save()
 
+                # Mark all winning participants
+                for winner, participant in winner_users:
+                    participant.is_winner = True
+                    participant.save()
+
+                # Calculate winnings per winner
+                winnings_per_winner = bet.winnings_per_winner()
+
                 # Notify all participants
+                winner_user_ids = [w[0].id for w in winner_users]
                 for p in bet.participants.all():
-                    if p.user == winner:
+                    if p.user.id in winner_user_ids:
                         # Winner notification
+                        if len(winner_users) > 1:
+                            body_text = f"You won ${winnings_per_winner:.2f} (split {len(winner_users)} ways)! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
+                        else:
+                            body_text = f"You won ${winnings_per_winner:.2f}! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
+
                         send_push_notification(
                             user=p.user,
                             title=random.choice(WINNER_PHRASES),
-                            body=f"You won ${bet.total_pot}! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\"",
+                            body=body_text,
                             url=request.build_absolute_uri(
                                 f"/books/{book.id}/?tab=bets"
                             ),
@@ -586,10 +606,18 @@ def resolve_dollar_bet(request, bet_id):
                         )
                     else:
                         # Loser notification
+                        if len(winner_users) > 1:
+                            winner_names = ", ".join(
+                                [w[0].username for w in winner_users]
+                            )
+                            body_text = f"{winner_names} won (${winnings_per_winner:.2f} each) with correct predictions!"
+                        else:
+                            body_text = f"{winner_users[0][0].username} won ${winnings_per_winner:.2f} with the correct prediction!"
+
                         send_push_notification(
                             user=p.user,
                             title=random.choice(LOSER_PHRASES),
-                            body=f"{winner.username} won ${bet.total_pot} with the correct prediction!",
+                            body=body_text,
                             url=request.build_absolute_uri(
                                 f"/books/{book.id}/?tab=bets"
                             ),
@@ -597,6 +625,16 @@ def resolve_dollar_bet(request, bet_id):
                             notification_type="bet_resolved",
                         )
             else:
+                # Two-party: single winner only
+                winner_id = request.POST.get("winner")
+                if not winner_id:
+                    return JsonResponse(
+                        {"error": "Winner must be specified for win/loss resolution"},
+                        status=400,
+                    )
+
+                winner = get_object_or_404(User, id=winner_id)
+
                 # Two-party: validate winner is either proposer or accepter
                 if winner not in [bet.proposer, bet.accepter]:
                     return JsonResponse({"error": "Invalid winner"}, status=400)
