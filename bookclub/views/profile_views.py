@@ -45,14 +45,6 @@ def profile_settings(request):
         if form.is_valid():
             api_key = form.cleaned_data["hardcover_api_key"]
 
-            # Strip "Bearer " prefix if present (case-insensitive)
-            if api_key:
-                api_key = api_key.strip()
-                if api_key.lower().startswith("bearer "):
-                    api_key = api_key[7:].strip()
-                # Update the form's cleaned_data with the stripped key
-                form.cleaned_data["hardcover_api_key"] = api_key
-
             # Only validate if an API key was provided
             if api_key:
                 test_query = """
