@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Release 0.8.0
 - Added new MultiBets feature
-- Dependency update: idna 3.15
+- Fixed Hardcover API key validation
+- Dependency update: idna 3.16
+- Dependency update: certifi 2026.5.20
+- Dependency update: requests 2.34.2
 
 ## Release 0.7.1
 - Dependency update: urllib3 2.7.0
