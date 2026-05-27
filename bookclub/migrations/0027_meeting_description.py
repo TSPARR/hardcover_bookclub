@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookclub', '0026_remove_is_public_and_update_attendance'),
+        ("bookclub", "0026_remove_is_public_and_update_attendance"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='meeting',
-            name='description',
+            model_name="meeting",
+            name="description",
             field=models.TextField(blank=True),
         ),
     ]

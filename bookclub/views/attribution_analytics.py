@@ -803,7 +803,7 @@ def calculate_dollar_bet_stats(group):
 
     # Get all dollar bets for this group that have been resolved
     bets = DollarBet.objects.filter(group=group)
-    resolved_bets = bets.filter(status__in=["won", "lost"])
+    resolved_bets = bets.filter(status__in=["won", "lost", "resolved_winner"])
 
     # Statistics per user
     user_stats = defaultdict(
@@ -816,48 +816,109 @@ def calculate_dollar_bet_stats(group):
 
     # Process resolved bets
     for bet in resolved_bets:
-        # Update proposer stats
-        user_stats[bet.proposer.id]["user"] = bet.proposer
-        user_stats[bet.proposer.id]["total"] += 1
+        if bet.bet_type == "multi_party":
+            # Multi-party bet handling - supports multiple winners
+            participants = bet.participants.all()
+            winners = participants.filter(is_winner=True)
+            winner_count = winners.count()
 
-        if bet.status == "won":  # Proposer won
-            user_stats[bet.proposer.id]["won"] += 1
-            user_stats[bet.proposer.id]["net"] += float(bet.amount)
+            # Calculate winnings per winner (pot split evenly)
+            net_gain_per_winner = 0
+            if winner_count > 0:
+                pot_amount = float(bet.total_pot)
+                winnings_per_winner = pot_amount / winner_count
+                net_gain_per_winner = winnings_per_winner - float(bet.amount)
 
-            # Update accepter stats
-            if bet.accepter:
+            for participant in participants:
+                # All participants are counted in total
+                user_stats[participant.user.id]["user"] = participant.user
+                user_stats[participant.user.id]["total"] += 1
+
+                if participant.is_winner:
+                    # Winner gets their share of the pot
+                    user_stats[participant.user.id]["won"] += 1
+                    user_stats[participant.user.id]["net"] += net_gain_per_winner
+
+                    # Update rivalries: each winner gained proportionally from each loser
+                    for loser in participants:
+                        if not loser.is_winner:
+                            # Each winner gained (loser's $1 / number of winners) from each loser
+                            gain_from_loser = float(bet.amount) / winner_count
+                            rivalries[participant.user.id][
+                                loser.user.id
+                            ] += gain_from_loser
+                            rivalries[loser.user.id][
+                                participant.user.id
+                            ] -= gain_from_loser
+                else:
+                    # Loser lost their bet
+                    user_stats[participant.user.id]["lost"] += 1
+                    user_stats[participant.user.id]["net"] -= float(bet.amount)
+
+        else:
+            # Two-party bet handling (legacy)
+            # Update proposer stats
+            if bet.proposer:
+                user_stats[bet.proposer.id]["user"] = bet.proposer
+                user_stats[bet.proposer.id]["total"] += 1
+
+            # Check who won based on status or winner field
+            if bet.status == "won" or (
+                bet.status == "resolved_winner" and bet.winner == bet.proposer
+            ):
+                # Proposer won
+                if bet.proposer:
+                    user_stats[bet.proposer.id]["won"] += 1
+                    user_stats[bet.proposer.id]["net"] += float(bet.amount)
+
+                # Update accepter stats
+                if bet.accepter:
+                    user_stats[bet.accepter.id]["user"] = bet.accepter
+                    user_stats[bet.accepter.id]["lost"] += 1
+                    user_stats[bet.accepter.id]["total"] += 1
+                    user_stats[bet.accepter.id]["net"] -= float(bet.amount)
+
+                    # Update rivalries
+                    if bet.proposer:
+                        rivalries[bet.proposer.id][bet.accepter.id] += float(bet.amount)
+                        rivalries[bet.accepter.id][bet.proposer.id] -= float(bet.amount)
+
+            elif bet.status == "lost" or (
+                bet.status == "resolved_winner" and bet.winner == bet.accepter
+            ):
+                # Proposer lost
+                if bet.proposer:
+                    user_stats[bet.proposer.id]["lost"] += 1
+                    user_stats[bet.proposer.id]["net"] -= float(bet.amount)
+
+                # Update accepter stats
+                if bet.accepter:
+                    user_stats[bet.accepter.id]["user"] = bet.accepter
+                    user_stats[bet.accepter.id]["won"] += 1
+                    user_stats[bet.accepter.id]["total"] += 1
+                    user_stats[bet.accepter.id]["net"] += float(bet.amount)
+
+                    # Update rivalries
+                    if bet.proposer:
+                        rivalries[bet.proposer.id][bet.accepter.id] -= float(bet.amount)
+                        rivalries[bet.accepter.id][bet.proposer.id] += float(bet.amount)
+
+    # Process proposer stats for open and accepted/active bets
+    for bet in bets.filter(status__in=["open", "accepted", "active"]):
+        if bet.bet_type == "multi_party":
+            # Count all participants in multi-party bets
+            for participant in bet.participants.all():
+                user_stats[participant.user.id]["user"] = participant.user
+                user_stats[participant.user.id]["total"] += 1
+        else:
+            # Two-party bets
+            if bet.proposer:
+                user_stats[bet.proposer.id]["user"] = bet.proposer
+                user_stats[bet.proposer.id]["total"] += 1
+
+            if bet.status in ["accepted", "active"] and bet.accepter:
                 user_stats[bet.accepter.id]["user"] = bet.accepter
-                user_stats[bet.accepter.id]["lost"] += 1
                 user_stats[bet.accepter.id]["total"] += 1
-                user_stats[bet.accepter.id]["net"] -= float(bet.amount)
-
-                # Update rivalries
-                rivalries[bet.proposer.id][bet.accepter.id] += float(bet.amount)
-                rivalries[bet.accepter.id][bet.proposer.id] -= float(bet.amount)
-
-        elif bet.status == "lost":  # Proposer lost
-            user_stats[bet.proposer.id]["lost"] += 1
-            user_stats[bet.proposer.id]["net"] -= float(bet.amount)
-
-            # Update accepter stats
-            if bet.accepter:
-                user_stats[bet.accepter.id]["user"] = bet.accepter
-                user_stats[bet.accepter.id]["won"] += 1
-                user_stats[bet.accepter.id]["total"] += 1
-                user_stats[bet.accepter.id]["net"] += float(bet.amount)
-
-                # Update rivalries
-                rivalries[bet.proposer.id][bet.accepter.id] -= float(bet.amount)
-                rivalries[bet.accepter.id][bet.proposer.id] += float(bet.amount)
-
-    # Process proposer stats for open and accepted bets
-    for bet in bets.filter(status__in=["open", "accepted"]):
-        user_stats[bet.proposer.id]["user"] = bet.proposer
-        user_stats[bet.proposer.id]["total"] += 1
-
-        if bet.status == "accepted" and bet.accepter:
-            user_stats[bet.accepter.id]["user"] = bet.accepter
-            user_stats[bet.accepter.id]["total"] += 1
 
     # Convert to list and sort by net winnings
     user_stats_list = list(user_stats.values())

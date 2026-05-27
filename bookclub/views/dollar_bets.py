@@ -5,8 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
-from ..models import Book, BookGroup, DollarBet, User
+from ..models import Book, BookGroup, DollarBet, BetParticipant, User
 from ..notifications import send_push_notification
 
 
@@ -84,32 +85,110 @@ def create_dollar_bet(request, book_id):
     ]
 
     if request.method == "POST":
-        description = request.POST.get("description")
+        bet_type = request.POST.get("bet_type", "two_party")
         spoiler_level = request.POST.get("spoiler_level", "halfway")
 
-        if not description:
-            return JsonResponse({"error": "Description is required"}, status=400)
+        if bet_type == "multi_party":
+            # Multi-party bet creation
+            question = request.POST.get("question", "").strip()
+            my_prediction = request.POST.get("my_prediction", "").strip()
+            min_participants = request.POST.get("min_participants", "2")
+            max_participants = request.POST.get("max_participants", "").strip()
 
-        bet = DollarBet.objects.create(
-            book=book,
-            group=group,
-            proposer=request.user,
-            description=description,
-            amount=1.00,  # Fixed at $1
-            spoiler_level=spoiler_level,
-        )
+            if not question:
+                return JsonResponse({"error": "Question is required"}, status=400)
 
-        # Send notifications to all group members (except the proposer)
-        for member in group.members.all():
-            if member != request.user:  # Don't notify the proposer
-                send_push_notification(
-                    user=member,
-                    title=f"New Dollar Bet in {group.name}",
-                    body=f"{request.user.username} proposed: \"{description[:50]}{'...' if len(description) > 50 else ''}\"",
-                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
-                    icon=book.cover_image_url if book.cover_image_url else None,
-                    notification_type="new_dollar_bets",
+            # Regular users must participate with their prediction
+            if not my_prediction:
+                return JsonResponse(
+                    {"error": "Your prediction is required"}, status=400
                 )
+
+            try:
+                min_participants = int(min_participants)
+                if min_participants < 2:
+                    return JsonResponse(
+                        {"error": "Minimum participants must be at least 2"}, status=400
+                    )
+            except ValueError:
+                return JsonResponse(
+                    {"error": "Invalid minimum participants"}, status=400
+                )
+
+            max_participants_int = None
+            if max_participants:
+                try:
+                    max_participants_int = int(max_participants)
+                    if max_participants_int < min_participants:
+                        return JsonResponse(
+                            {"error": "Maximum participants must be >= minimum"},
+                            status=400,
+                        )
+                except ValueError:
+                    return JsonResponse(
+                        {"error": "Invalid maximum participants"}, status=400
+                    )
+
+            # Create the bet
+            bet = DollarBet.objects.create(
+                book=book,
+                group=group,
+                bet_type="multi_party",
+                question=question,
+                creator=request.user,
+                min_participants=min_participants,
+                max_participants=max_participants_int,
+                amount=1.00,
+                spoiler_level=spoiler_level,
+            )
+
+            # Create participant record for creator if they provided a prediction
+            if my_prediction:
+                BetParticipant.objects.create(
+                    bet=bet, user=request.user, prediction=my_prediction
+                )
+
+            # Send notifications to all group members (except the creator)
+            for member in group.members.all():
+                if member != request.user:
+                    send_push_notification(
+                        user=member,
+                        title=f"New Multi-Party Bet in {group.name}",
+                        body=f"{request.user.username} created: \"{question[:50]}{'...' if len(question) > 50 else ''}\"",
+                        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                        icon=book.cover_image_url if book.cover_image_url else None,
+                        notification_type="new_dollar_bets",
+                    )
+
+        else:
+            # Two-party bet creation (legacy)
+            description = request.POST.get("description")
+
+            if not description:
+                return JsonResponse({"error": "Description is required"}, status=400)
+
+            bet = DollarBet.objects.create(
+                book=book,
+                group=group,
+                bet_type="two_party",
+                creator=request.user,
+                proposer=request.user,
+                description=description,
+                amount=1.00,  # Fixed at $1
+                spoiler_level=spoiler_level,
+            )
+
+            # Send notifications to all group members (except the proposer)
+            for member in group.members.all():
+                if member != request.user:  # Don't notify the proposer
+                    send_push_notification(
+                        user=member,
+                        title=f"New Dollar Bet in {group.name}",
+                        body=f"{request.user.username} proposed: \"{description[:50]}{'...' if len(description) > 50 else ''}\"",
+                        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                        icon=book.cover_image_url if book.cover_image_url else None,
+                        notification_type="new_dollar_bets",
+                    )
 
         # Redirect to book detail with bets tab active
         return redirect(f"/books/{book.id}/?tab=bets")
@@ -123,6 +202,143 @@ def create_dollar_bet(request, book_id):
             "breadcrumb_items": breadcrumb_items,
         },
     )
+
+
+@login_required
+def join_dollar_bet(request, bet_id):
+    """Allow users to join a multi-party bet with their prediction"""
+    bet = get_object_or_404(DollarBet, id=bet_id)
+    group = bet.group
+    book = bet.book
+
+    # Check if dollar bets are enabled for this group
+    if not group.is_dollar_bets_enabled():
+        return HttpResponseForbidden("Dollar bets are not enabled for this group")
+
+    # Check if user is a member of the group
+    if not group.is_member(request.user):
+        return HttpResponseForbidden("You must be a group member to join")
+
+    # Validation
+    if bet.bet_type != "multi_party":
+        messages.error(request, "Only multi-party bets can be joined")
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    if not bet.can_accept_participants():
+        messages.error(request, "This bet is no longer accepting participants")
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    if bet.participants.filter(user=request.user).exists():
+        messages.error(request, "You've already joined this bet")
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    # Create breadcrumb items
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        {
+            "url": reverse("book_detail", args=[book.id]),
+            "title": book.title.split(":")[0].strip(),
+        },
+        {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
+        {"url": "#", "title": "Join Bet"},
+    ]
+
+    if request.method == "POST":
+        prediction = request.POST.get("prediction", "").strip()
+        if not prediction:
+            messages.error(request, "Prediction is required")
+            return render(
+                request,
+                "bookclub/join_dollar_bet.html",
+                {
+                    "bet": bet,
+                    "existing_participants": bet.participants.all(),
+                    "book": book,
+                    "group": group,
+                    "breadcrumb_items": breadcrumb_items,
+                },
+            )
+
+        # Create participant
+        BetParticipant.objects.create(bet=bet, user=request.user, prediction=prediction)
+
+        # Send notifications to creator and existing participants
+        notification_users = set([bet.creator])  # Always notify creator
+        for participant in bet.participants.exclude(user=request.user):
+            notification_users.add(participant.user)
+
+        for user in notification_users:
+            if user and user != request.user:  # Don't notify self
+                send_push_notification(
+                    user=user,
+                    title="Someone Joined Your Bet!",
+                    body=f"{request.user.username} joined: \"{prediction[:50]}{'...' if len(prediction) > 50 else ''}\"",
+                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="bet_participant_joined",
+                )
+
+        messages.success(request, "You've joined the bet!")
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    context = {
+        "bet": bet,
+        "existing_participants": bet.participants.all(),
+        "book": book,
+        "group": group,
+        "breadcrumb_items": breadcrumb_items,
+    }
+    return render(request, "bookclub/join_dollar_bet.html", context)
+
+
+@login_required
+def close_betting(request, bet_id):
+    """Admin manually closes betting on a multi-party bet"""
+    bet = get_object_or_404(DollarBet, id=bet_id)
+    group = bet.group
+    book = bet.book
+
+    # Validation
+    if not group.is_admin(request.user):
+        return HttpResponseForbidden("Only admins can close betting")
+
+    if bet.bet_type != "multi_party":
+        messages.error(request, "Only multi-party bets can be manually closed")
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    if bet.status != "open":
+        messages.error(request, "Only open bets can be closed")
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    # Check min participants
+    if bet.participant_count < bet.min_participants:
+        messages.error(
+            request,
+            f"Need at least {bet.min_participants} participants to close betting. "
+            f"Currently have {bet.participant_count}.",
+        )
+        return redirect(f"/books/{book.id}/?tab=bets")
+
+    # Close betting
+    bet.status = "active"
+    bet.save()
+
+    # Notify all participants
+    for participant in bet.participants.all():
+        send_push_notification(
+            user=participant.user,
+            title="Bet Activated!",
+            body=f"Betting closed for \"{bet.question[:50]}{'...' if len(bet.question) > 50 else ''}\". Good luck!",
+            url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+            icon=book.cover_image_url if book.cover_image_url else None,
+            notification_type="bet_activated",
+        )
+
+    messages.success(
+        request, "Betting closed. Bet is now active and ready for resolution."
+    )
+    return redirect(f"/books/{book.id}/?tab=bets")
 
 
 @login_required
@@ -270,8 +486,9 @@ def resolve_dollar_bet(request, bet_id):
     if not group.is_admin(request.user):
         return HttpResponseForbidden("Only group admins can resolve bets")
 
-    if bet.status != "accepted":
-        return HttpResponseForbidden("Only accepted bets can be resolved")
+    # Check status - support both old "accepted" and new "active" status
+    if bet.status not in ["accepted", "active"]:
+        return HttpResponseForbidden("Only active/accepted bets can be resolved")
 
     # Create breadcrumb items
     breadcrumb_items = [
@@ -290,104 +507,207 @@ def resolve_dollar_bet(request, bet_id):
 
         if resolution == "inconclusive":
             # Mark as inconclusive
-            bet.mark_inconclusive(request.user)
+            bet.status = "resolved_inconclusive"
+            bet.resolved_at = timezone.now()
+            bet.resolved_by = request.user
+            bet.save()
 
-            # Get notification message based on whether there was a counter-bet
-            notification_message = ""
-            if bet.counter_description:
-                notification_message = f"Neither prediction ('{bet.description[:30]}...' nor '{bet.counter_description[:30]}...') was correct. The bet was ruled inconclusive by {request.user.username}."
+            # Get notification message
+            if bet.bet_type == "multi_party":
+                notification_message = f"The bet \"{bet.question[:50]}{'...' if len(bet.question) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
+                # Notify all participants
+                for participant in bet.participants.all():
+                    send_push_notification(
+                        user=participant.user,
+                        title="Dollar Bet Ruled Inconclusive",
+                        body=notification_message,
+                        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                        icon=book.cover_image_url if book.cover_image_url else None,
+                        notification_type="bet_resolved",
+                    )
             else:
-                notification_message = f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
+                # Two-party bet
+                if bet.counter_description:
+                    notification_message = f"Neither prediction ('{bet.description[:30]}...' nor '{bet.counter_description[:30]}...') was correct. The bet was ruled inconclusive by {request.user.username}."
+                else:
+                    notification_message = f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
 
-            # Notify both participants
-            for participant in [bet.proposer, bet.accepter]:
+                # Notify both participants
+                for participant in [bet.proposer, bet.accepter]:
+                    send_push_notification(
+                        user=participant,
+                        title="Dollar Bet Ruled Inconclusive",
+                        body=notification_message,
+                        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                        icon=book.cover_image_url if book.cover_image_url else None,
+                        notification_type="bet_resolved",
+                    )
+        else:
+            # Regular win/loss resolution
+            if bet.bet_type == "multi_party":
+                # Multi-party: support multiple winners
+                winner_ids = request.POST.getlist("winners")
+                if not winner_ids:
+                    return JsonResponse(
+                        {"error": "At least one winner must be specified"},
+                        status=400,
+                    )
+
+                # Validate all winners are participants
+                winner_users = []
+                for winner_id in winner_ids:
+                    winner = get_object_or_404(User, id=winner_id)
+                    participant = bet.participants.filter(user=winner).first()
+                    if not participant:
+                        return JsonResponse(
+                            {"error": f"{winner.username} is not a participant"},
+                            status=400,
+                        )
+                    winner_users.append((winner, participant))
+
+                # Resolve the bet
+                bet.status = "resolved_winner"
+                bet.resolved_at = timezone.now()
+                bet.resolved_by = request.user
+                if bet.spoiler_level != "finished":
+                    bet.spoiler_level = "finished"
+
+                # Set first winner in winner field for backward compatibility
+                bet.winner = winner_users[0][0] if winner_users else None
+                bet.save()
+
+                # Mark all winning participants
+                for winner, participant in winner_users:
+                    participant.is_winner = True
+                    participant.save()
+
+                # Calculate winnings per winner
+                net_gain_per_winner = bet.net_gain_per_winner()
+
+                # Notify all participants
+                winner_user_ids = [w[0].id for w in winner_users]
+                for p in bet.participants.all():
+                    if p.user.id in winner_user_ids:
+                        # Winner notification
+                        if len(winner_users) > 1:
+                            body_text = f"You won ${net_gain_per_winner:.2f} (split {len(winner_users)} ways)! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
+                        else:
+                            body_text = f"You won ${net_gain_per_winner:.2f}! Your prediction was correct: \"{p.prediction[:50]}{'...' if len(p.prediction) > 50 else ''}\""
+
+                        send_push_notification(
+                            user=p.user,
+                            title=random.choice(WINNER_PHRASES),
+                            body=body_text,
+                            url=request.build_absolute_uri(
+                                f"/books/{book.id}/?tab=bets"
+                            ),
+                            icon=book.cover_image_url if book.cover_image_url else None,
+                            notification_type="bet_resolved",
+                        )
+                    else:
+                        # Loser notification
+                        if len(winner_users) > 1:
+                            winner_names = ", ".join(
+                                [w[0].username for w in winner_users]
+                            )
+                            body_text = f"{winner_names} won (${net_gain_per_winner:.2f} each) with correct predictions!"
+                        else:
+                            body_text = f"{winner_users[0][0].username} won ${net_gain_per_winner:.2f} with the correct prediction!"
+
+                        send_push_notification(
+                            user=p.user,
+                            title=random.choice(LOSER_PHRASES),
+                            body=body_text,
+                            url=request.build_absolute_uri(
+                                f"/books/{book.id}/?tab=bets"
+                            ),
+                            icon=book.cover_image_url if book.cover_image_url else None,
+                            notification_type="bet_resolved",
+                        )
+            else:
+                # Two-party: single winner only
+                winner_id = request.POST.get("winner")
+                if not winner_id:
+                    return JsonResponse(
+                        {"error": "Winner must be specified for win/loss resolution"},
+                        status=400,
+                    )
+
+                winner = get_object_or_404(User, id=winner_id)
+
+                # Two-party: validate winner is either proposer or accepter
+                if winner not in [bet.proposer, bet.accepter]:
+                    return JsonResponse({"error": "Invalid winner"}, status=400)
+
+                # If not already set as 'finished' level, upgrade spoiler level
+                if bet.spoiler_level != "finished":
+                    bet.spoiler_level = "finished"
+
+                # Resolve the bet with new status
+                bet.winner = winner
+                bet.status = "resolved_winner"
+                bet.resolved_at = timezone.now()
+                bet.resolved_by = request.user
+                bet.save()
+
+                # Determine the loser
+                loser = bet.accepter if winner == bet.proposer else bet.proposer
+
+                # Get truncated description for notifications
+                winning_prediction = (
+                    bet.description
+                    if winner == bet.proposer
+                    else (bet.counter_description or bet.description)
+                )
+                truncated_prediction = winning_prediction[:50] + (
+                    "..." if len(winning_prediction) > 50 else ""
+                )
+
+                # Select random fun phrases for winner
+                winner_title = random.choice(WINNER_PHRASES)
+                winner_body_template = random.choice(WINNER_BODY_PHRASES)
+                winner_body = winner_body_template.format(
+                    loser=loser.username, description=truncated_prediction
+                )
+
+                # Select random fun phrases for loser
+                loser_title = random.choice(LOSER_PHRASES)
+                loser_body_template = random.choice(LOSER_BODY_PHRASES)
+                loser_body = loser_body_template.format(
+                    winner=winner.username, description=truncated_prediction
+                )
+
+                # Notify the winner
                 send_push_notification(
-                    user=participant,
-                    title="Dollar Bet Ruled Inconclusive",
-                    body=notification_message,
+                    user=winner,
+                    title=winner_title,
+                    body=winner_body,
                     url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
                     icon=book.cover_image_url if book.cover_image_url else None,
                     notification_type="bet_resolved",
                 )
-        else:
-            # Regular win/loss resolution
-            winner_id = request.POST.get("winner")
-            if not winner_id:
-                return JsonResponse(
-                    {"error": "Winner must be specified for win/loss resolution"},
-                    status=400,
+
+                # Notify the loser
+                send_push_notification(
+                    user=loser,
+                    title=loser_title,
+                    body=loser_body,
+                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="bet_resolved",
                 )
-
-            winner = get_object_or_404(User, id=winner_id)
-
-            # Validate winner is either proposer or accepter
-            if winner not in [bet.proposer, bet.accepter]:
-                return JsonResponse({"error": "Invalid winner"}, status=400)
-
-            # If not already set as 'finished' level, upgrade spoiler level
-            if bet.spoiler_level != "finished":
-                bet.spoiler_level = "finished"
-
-            bet.resolve(winner, request.user)
-
-            # Determine the loser
-            loser = bet.accepter if winner == bet.proposer else bet.proposer
-
-            # Get truncated description for notifications
-            winning_prediction = (
-                bet.description
-                if winner == bet.proposer
-                else (bet.counter_description or bet.description)
-            )
-            truncated_prediction = winning_prediction[:50] + (
-                "..." if len(winning_prediction) > 50 else ""
-            )
-
-            # Select random fun phrases for winner
-            winner_title = random.choice(WINNER_PHRASES)
-            winner_body_template = random.choice(WINNER_BODY_PHRASES)
-            winner_body = winner_body_template.format(
-                loser=loser.username, description=truncated_prediction
-            )
-
-            # Select random fun phrases for loser
-            loser_title = random.choice(LOSER_PHRASES)
-            loser_body_template = random.choice(LOSER_BODY_PHRASES)
-            loser_body = loser_body_template.format(
-                winner=winner.username, description=truncated_prediction
-            )
-
-            # Notify the winner
-            send_push_notification(
-                user=winner,
-                title=winner_title,
-                body=winner_body,
-                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
-                icon=book.cover_image_url if book.cover_image_url else None,
-                notification_type="bet_resolved",
-            )
-
-            # Notify the loser
-            send_push_notification(
-                user=loser,
-                title=loser_title,
-                body=loser_body,
-                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
-                icon=book.cover_image_url if book.cover_image_url else None,
-                notification_type="bet_resolved",
-            )
 
         # Redirect to book detail with bets tab active
         return redirect(f"/books/{book.id}/?tab=bets")
 
-    return render(
-        request,
-        "bookclub/resolve_dollar_bet.html",
-        {
-            "bet": bet,
-            "breadcrumb_items": breadcrumb_items,
-        },
-    )
+    context = {
+        "bet": bet,
+        "book": book,
+        "group": group,
+        "breadcrumb_items": breadcrumb_items,
+    }
+
+    return render(request, "bookclub/resolve_dollar_bet.html", context)
 
 
 @login_required
@@ -472,63 +792,138 @@ def admin_create_dollar_bet(request, book_id):
     ]
 
     if request.method == "POST":
-        description = request.POST.get("description")
-        counter_description = request.POST.get("counter_description", "").strip()
-        proposer_id = request.POST.get("proposer")
-        accepter_id = request.POST.get("accepter")
+        bet_type = request.POST.get("bet_type", "two_party")
         spoiler_level = request.POST.get("spoiler_level", "halfway")
 
-        if not description:
-            messages.error(request, "Description is required")
-            return redirect("admin_create_dollar_bet", book_id=book.id)
+        if bet_type == "multi_party":
+            # Multi-party bet creation (admin can optionally participate)
+            question = request.POST.get("question", "").strip()
+            my_prediction = request.POST.get("my_prediction", "").strip()
+            min_participants = request.POST.get("min_participants", "2")
+            max_participants = request.POST.get("max_participants", "").strip()
 
-        if proposer_id == accepter_id:
-            messages.error(request, "Proposer and accepter must be different users")
-            return redirect("admin_create_dollar_bet", book_id=book.id)
+            if not question:
+                messages.error(request, "Question is required")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
 
-        proposer = get_object_or_404(User, id=proposer_id)
-        accepter = get_object_or_404(User, id=accepter_id)
+            try:
+                min_participants = int(min_participants)
+                if min_participants < 2:
+                    messages.error(request, "Minimum participants must be at least 2")
+                    return redirect("admin_create_dollar_bet", book_id=book.id)
+            except ValueError:
+                messages.error(request, "Invalid minimum participants")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
 
-        # Ensure both users are members of the group
-        if not group.is_member(proposer) or not group.is_member(accepter):
-            messages.error(request, "Both users must be members of the group")
-            return redirect("admin_create_dollar_bet", book_id=book.id)
+            max_participants_int = None
+            if max_participants:
+                try:
+                    max_participants_int = int(max_participants)
+                    if max_participants_int < min_participants:
+                        messages.error(
+                            request, "Maximum participants must be >= minimum"
+                        )
+                        return redirect("admin_create_dollar_bet", book_id=book.id)
+                except ValueError:
+                    messages.error(request, "Invalid maximum participants")
+                    return redirect("admin_create_dollar_bet", book_id=book.id)
 
-        # Create bet with immediately accepted status
-        bet = DollarBet.objects.create(
-            book=book,
-            group=group,
-            proposer=proposer,
-            accepter=accepter,
-            description=description,
-            counter_description=counter_description if counter_description else None,
-            amount=1.00,
-            status="accepted",
-            spoiler_level=spoiler_level,
-        )
-
-        # Customize notification message based on counter bet presence
-        notification_body = ""
-        if counter_description:
-            notification_body = f'An admin has added you to a bet: "{description[:30]}..." vs counter-bet: "{counter_description[:30]}..." in {group.name}.'
-        else:
-            notification_body = f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}."
-
-        # Notify both participants that they've been added to a bet
-        for participant in [proposer, accepter]:
-            send_push_notification(
-                user=participant,
-                title="You've Been Added to a Dollar Bet",
-                body=notification_body,
-                url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
-                icon=book.cover_image_url if book.cover_image_url else None,
-                notification_type="bet_added_to",
+            # Create the bet
+            bet = DollarBet.objects.create(
+                book=book,
+                group=group,
+                bet_type="multi_party",
+                question=question,
+                creator=request.user,
+                min_participants=min_participants,
+                max_participants=max_participants_int,
+                amount=1.00,
+                spoiler_level=spoiler_level,
             )
 
-        messages.success(
-            request, "Dollar bet created successfully between selected members"
-        )
-        return redirect(f"/books/{book.id}/?tab=bets")
+            # Admin can optionally participate
+            if my_prediction:
+                BetParticipant.objects.create(
+                    bet=bet, user=request.user, prediction=my_prediction
+                )
+
+            # Notify all group members
+            for member in group.members.all():
+                if member != request.user:
+                    send_push_notification(
+                        user=member,
+                        title=f"Admin Created Multi-Party Bet in {group.name}",
+                        body=f"New bet: \"{question[:50]}{'...' if len(question) > 50 else ''}\"",
+                        url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                        icon=book.cover_image_url if book.cover_image_url else None,
+                        notification_type="new_dollar_bets",
+                    )
+
+            messages.success(request, "Multi-party dollar bet created successfully")
+            return redirect(f"/books/{book.id}/?tab=bets")
+
+        else:
+            # Two-party bet creation (existing logic)
+            description = request.POST.get("description")
+            counter_description = request.POST.get("counter_description", "").strip()
+            proposer_id = request.POST.get("proposer")
+            accepter_id = request.POST.get("accepter")
+
+            if not description:
+                messages.error(request, "Description is required")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
+
+            if proposer_id == accepter_id:
+                messages.error(request, "Proposer and accepter must be different users")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
+
+            proposer = get_object_or_404(User, id=proposer_id)
+            accepter = get_object_or_404(User, id=accepter_id)
+
+            # Ensure both users are members of the group
+            if not group.is_member(proposer) or not group.is_member(accepter):
+                messages.error(request, "Both users must be members of the group")
+                return redirect("admin_create_dollar_bet", book_id=book.id)
+
+            # Create bet with immediately accepted status
+            bet = DollarBet.objects.create(
+                book=book,
+                group=group,
+                bet_type="two_party",
+                creator=request.user,
+                proposer=proposer,
+                accepter=accepter,
+                description=description,
+                counter_description=(
+                    counter_description if counter_description else None
+                ),
+                amount=1.00,
+                status="active",  # Use new status
+                spoiler_level=spoiler_level,
+            )
+
+            # Customize notification message based on counter bet presence
+            notification_body = ""
+            if counter_description:
+                notification_body = f'An admin has added you to a bet: "{description[:30]}..." vs counter-bet: "{counter_description[:30]}..." in {group.name}.'
+            else:
+                notification_body = f"An admin has added you to a bet about \"{description[:50]}{'...' if len(description) > 50 else ''}\" in {group.name}."
+
+            # Notify both participants that they've been added to a bet
+            for participant in [proposer, accepter]:
+                send_push_notification(
+                    user=participant,
+                    title="You've Been Added to a Dollar Bet",
+                    body=notification_body,
+                    url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
+                    icon=book.cover_image_url if book.cover_image_url else None,
+                    notification_type="bet_added_to",
+                )
+
+            messages.success(
+                request, "Dollar bet created successfully between selected members"
+            )
+            return redirect(f"/books/{book.id}/?tab=bets")
 
     return render(
         request,

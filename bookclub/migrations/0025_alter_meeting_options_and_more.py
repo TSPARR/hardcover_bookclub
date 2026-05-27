@@ -7,21 +7,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookclub', '0024_meeting_meetingattendance_meeting_members_and_more'),
+        ("bookclub", "0024_meeting_meetingattendance_meeting_members_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='meeting',
-            options={'ordering': ['start_time', 'id']},
+            name="meeting",
+            options={"ordering": ["start_time", "id"]},
         ),
         migrations.AddIndex(
-            model_name='meeting',
-            index=models.Index(fields=['group', 'book', 'meeting_number'], name='bookclub_me_group_i_59774d_idx'),
+            model_name="meeting",
+            index=models.Index(
+                fields=["group", "book", "meeting_number"],
+                name="bookclub_me_group_i_59774d_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='meeting',
-            index=models.Index(fields=['group', 'start_time'], name='bookclub_me_group_i_4b64c0_idx'),
+            model_name="meeting",
+            index=models.Index(
+                fields=["group", "start_time"], name="bookclub_me_group_i_4b64c0_idx"
+            ),
         ),
     ]

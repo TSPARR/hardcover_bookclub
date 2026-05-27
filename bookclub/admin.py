@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import (
+    BetParticipant,
     Book,
     BookEdition,
     BookGroup,
@@ -280,24 +281,65 @@ class MemberStartingPointAdmin(admin.ModelAdmin):
     raw_id_fields = ["member", "group", "starting_book", "set_by"]
 
 
+class BetParticipantInline(admin.TabularInline):
+    model = BetParticipant
+    extra = 0
+    readonly_fields = ["joined_at"]
+    fields = ["user", "prediction", "joined_at"]
+    raw_id_fields = ["user"]
+
+
 class DollarBetAdmin(admin.ModelAdmin):
     list_display = [
-        "description",
+        "id",
+        "bet_type",
+        "question_or_description",
         "book",
-        "proposer",
-        "accepter",
+        "creator",
+        "participant_count_display",
+        "total_pot_display",
         "status",
-        "amount",
         "created_at",
     ]
-    list_filter = ["status", "book", "spoiler_level"]
+    list_filter = ["bet_type", "status", "book", "spoiler_level"]
     search_fields = [
+        "question",
         "description",
         "proposer__username",
         "accepter__username",
+        "creator__username",
         "book__title",
     ]
-    raw_id_fields = ["book", "group", "proposer", "accepter", "winner", "resolved_by"]
+    raw_id_fields = [
+        "book",
+        "group",
+        "creator",
+        "proposer",
+        "accepter",
+        "winner",
+        "resolved_by",
+    ]
+    inlines = [BetParticipantInline]
+
+    def question_or_description(self, obj):
+        """Display question for multi-party or description for two-party"""
+        if obj.bet_type == "multi_party":
+            return (obj.question or "")[:50]
+        return (obj.description or "")[:50]
+
+    question_or_description.short_description = "Question/Description"
+
+    def participant_count_display(self, obj):
+        """Display participant count"""
+        return obj.participant_count
+
+    participant_count_display.short_description = "Participants"
+
+    def total_pot_display(self, obj):
+        """Display total pot"""
+        return f"${obj.total_pot}"
+
+    total_pot_display.short_description = "Pot"
 
 
 class CommentReactionAdmin(admin.ModelAdmin):

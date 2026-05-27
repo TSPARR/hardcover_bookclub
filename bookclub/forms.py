@@ -111,6 +111,15 @@ class ProfileSettingsForm(forms.ModelForm):
         model = UserProfile
         fields = ["hardcover_api_key", "enable_notifications"]
 
+    def clean_hardcover_api_key(self):
+        """Strip 'Bearer ' prefix if present (case-insensitive)"""
+        api_key = self.cleaned_data.get("hardcover_api_key", "")
+        if api_key:
+            api_key = api_key.strip()
+            if api_key.lower().startswith("bearer "):
+                api_key = api_key[7:].strip()
+        return api_key
+
 
 class GroupForm(forms.ModelForm):
     class Meta:

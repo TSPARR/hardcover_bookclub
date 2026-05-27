@@ -45,14 +45,6 @@ def profile_settings(request):
         if form.is_valid():
             api_key = form.cleaned_data["hardcover_api_key"]
 
-            # Strip "Bearer " prefix if present (case-insensitive)
-            if api_key:
-                api_key = api_key.strip()
-                if api_key.lower().startswith("bearer "):
-                    api_key = api_key[7:].strip()
-                # Update the form's cleaned_data with the stripped key
-                form.cleaned_data["hardcover_api_key"] = api_key
-
             # Only validate if an API key was provided
             if api_key:
                 test_query = """
@@ -110,7 +102,9 @@ def profile_settings(request):
             messages.error(request, api_key_message)
             # Don't show success message if API key validation failed
         elif should_save_api_key and form.cleaned_data.get("hardcover_api_key"):
-            messages.success(request, "Hardcover API key has been updated successfully.")
+            messages.success(
+                request, "Hardcover API key has been updated successfully."
+            )
         elif should_save_api_key and not form.cleaned_data.get("hardcover_api_key"):
             messages.success(request, "Hardcover API key has been removed.")
         elif should_save_notifications or should_save_home_page:

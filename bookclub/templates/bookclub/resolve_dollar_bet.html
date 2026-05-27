@@ -16,24 +16,21 @@
                     <h2><i class="bi bi-flag-fill me-2"></i>Resolve Dollar Bet</h2>
                 </div>
                 <div class="card-body">
+                    {% if bet.bet_type == 'multi_party' %}
                     <div class="alert alert-info alert-permanent">
-                        <h4 class="alert-heading mb-3">Bet Details</h4>
-                        <p class="mb-3"><strong>{{ bet.proposer.username }}'s Prediction: </strong> {{ bet.description }}</p>
-                        
-                        {% if bet.counter_description %}
-                        <p class="mb-3"><strong>{{ bet.accepter.username }}'s Counter-Prediction: </strong> {{ bet.counter_description }}</p>
-                        {% endif %}
-                        
+                        <h4 class="alert-heading mb-3">Multi-Party Bet Details</h4>
+                        <p class="mb-3"><strong>Question:</strong> {{ bet.question }}</p>
+
                         <hr>
                         <div class="row">
                             <div class="col-md-4">
-                                <p><strong>Proposed by:</strong> {{ bet.proposer.username }}</p>
+                                <p><strong>Participants:</strong> {{ bet.participant_count }}</p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>Accepted by:</strong> {{ bet.accepter.username }}</p>
+                                <p><strong>Total Pot:</strong> ${{ bet.total_pot }}</p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>Spoiler Level:</strong> 
+                                <p><strong>Spoiler Level:</strong>
                                     {% if bet.spoiler_level == 'none' %}
                                         <span class="badge bg-success">No Spoilers</span>
                                     {% elif bet.spoiler_level == 'halfway' %}
@@ -45,58 +42,117 @@
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="alert alert-info alert-permanent">
+                        <h4 class="alert-heading mb-3">Bet Details</h4>
+                        <p class="mb-3"><strong>{{ bet.proposer.username }}'s Prediction: </strong> {{ bet.description }}</p>
+
+                        {% if bet.counter_description %}
+                        <p class="mb-3"><strong>{{ bet.accepter.username }}'s Counter-Prediction: </strong> {{ bet.counter_description }}</p>
+                        {% endif %}
+
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p><strong>Proposed by:</strong> {{ bet.proposer.username }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Accepted by:</strong> {{ bet.accepter.username }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Spoiler Level:</strong>
+                                    {% if bet.spoiler_level == 'none' %}
+                                        <span class="badge bg-success">No Spoilers</span>
+                                    {% elif bet.spoiler_level == 'halfway' %}
+                                        <span class="badge bg-warning">Halfway</span>
+                                    {% elif bet.spoiler_level == 'finished' %}
+                                        <span class="badge bg-danger">Finished Book</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-4">
                             <label class="form-label fs-5">How would you like to resolve this bet?</label>
-                            
+
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="resolution" id="resolveWinLoss" value="win_loss" checked>
+                                <input class="form-check-input" type="radio" name="resolution" id="resolveWinLoss" value="winner" checked>
                                 <label class="form-check-label" for="resolveWinLoss">
                                     Declare a winner
                                 </label>
                             </div>
-                            
+
                             <div id="winnerSelectionSection">
-                                <!-- Winner selection cards - only shown when resolveWinLoss is selected -->
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="winner" 
-                                                id="proposer" value="{{ bet.proposer.id }}" required>
-                                            <label class="form-check-label" for="proposer">
-                                                <strong>{{ bet.proposer.username }}</strong> (The Proposer) - 
-                                                prediction was correct: "{{ bet.description }}"
-                                            </label>
+                                {% if bet.bet_type == 'multi_party' %}
+                                    <!-- Multi-party participant selection - supports multiple winners -->
+                                    <p class="text-muted ms-4 mb-3">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Select all participants whose predictions were correct.
+                                        <strong>Multiple winners will split the pot evenly.</strong>
+                                    </p>
+                                    {% for participant in bet.participants.all %}
+                                    <div class="card mb-3 ms-4">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input winner-checkbox" type="checkbox" name="winners"
+                                                    id="participant_{{ participant.id }}" value="{{ participant.user.id }}">
+                                                <label class="form-check-label" for="participant_{{ participant.id }}">
+                                                    <strong>{{ participant.user.username }}</strong> - "{{ participant.prediction }}"
+                                                    <br><small class="text-muted">Joined: {{ participant.joined_at|date:"M d, Y g:i A" }}</small>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="winner" 
-                                                id="accepter" value="{{ bet.accepter.id }}">
-                                            <label class="form-check-label" for="accepter">
-                                                <strong>{{ bet.accepter.username }}</strong> (The Accepter) - 
-                                                {% if bet.counter_description %}
-                                                    counter-prediction was correct: "{{ bet.counter_description }}"
-                                                {% else %}
-                                                    original prediction was incorrect
-                                                {% endif %}
-                                            </label>
+                                    {% endfor %}
+                                    <div id="winner-validation-error" class="alert alert-danger ms-4" style="display: none;">
+                                        Please select at least one winner.
+                                    </div>
+                                {% else %}
+                                    <!-- Two-party winner selection -->
+                                    <div class="card mb-3 ms-4">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="winner"
+                                                    id="proposer" value="{{ bet.proposer.id }}" required>
+                                                <label class="form-check-label" for="proposer">
+                                                    <strong>{{ bet.proposer.username }}</strong> (The Proposer) -
+                                                    prediction was correct: "{{ bet.description }}"
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                    <div class="card ms-4">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="winner"
+                                                    id="accepter" value="{{ bet.accepter.id }}">
+                                                <label class="form-check-label" for="accepter">
+                                                    <strong>{{ bet.accepter.username }}</strong> (The Accepter) -
+                                                    {% if bet.counter_description %}
+                                                        counter-prediction was correct: "{{ bet.counter_description }}"
+                                                    {% else %}
+                                                        original prediction was incorrect
+                                                    {% endif %}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-                            
+
                             <div class="form-check mt-4">
                                 <input class="form-check-input" type="radio" name="resolution" id="resolveInconclusive" value="inconclusive">
                                 <label class="form-check-label" for="resolveInconclusive">
                                     Mark as inconclusive
                                 </label>
                                 <div class="form-text ms-4">
-                                    {% if bet.counter_description %}
+                                    {% if bet.bet_type == 'multi_party' %}
+                                        Use this when none of the predictions were correct or it's impossible to determine.
+                                    {% elif bet.counter_description %}
                                         Use this when neither prediction was correct or it's impossible to determine.
                                     {% else %}
                                         Use this when it's impossible to determine if the prediction was correct.
@@ -134,5 +190,56 @@
 
 {% block extra_js %}
 <script type="module" src="{% static 'bookclub/js/resolve-bet.js' %}"></script>
+<script>
+    // Multi-party bet validation for multiple winners
+    {% if bet.bet_type == 'multi_party' %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const resolutionRadios = document.querySelectorAll('input[name="resolution"]');
+        const winnerCheckboxes = document.querySelectorAll('.winner-checkbox');
+        const validationError = document.getElementById('winner-validation-error');
+        const winnerSection = document.getElementById('winnerSelectionSection');
+
+        // Toggle winner section based on resolution type
+        resolutionRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'winner') {
+                    winnerSection.style.display = 'block';
+                } else {
+                    winnerSection.style.display = 'none';
+                    validationError.style.display = 'none';
+                    // Uncheck all winners when switching to inconclusive
+                    winnerCheckboxes.forEach(cb => cb.checked = false);
+                }
+            });
+        });
+
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            const resolution = document.querySelector('input[name="resolution"]:checked').value;
+
+            if (resolution === 'winner') {
+                const checkedWinners = document.querySelectorAll('.winner-checkbox:checked');
+                if (checkedWinners.length === 0) {
+                    e.preventDefault();
+                    validationError.style.display = 'block';
+                    validationError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return false;
+                }
+                validationError.style.display = 'none';
+            }
+        });
+
+        // Hide error when a checkbox is checked
+        winnerCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (document.querySelectorAll('.winner-checkbox:checked').length > 0) {
+                    validationError.style.display = 'none';
+                }
+            });
+        });
+    });
+    {% endif %}
+</script>
 {% endblock %}
 {% endblock %}

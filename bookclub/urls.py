@@ -33,10 +33,12 @@ from bookclub.views.comment_utils import get_comment_reaction_users
 from bookclub.views.dollar_bets import (
     accept_dollar_bet,
     admin_create_dollar_bet,
+    close_betting,
     create_dollar_bet,
     delete_dollar_bet,
     dollar_bets_group_list,
     dollar_bets_list,
+    join_dollar_bet,
     resolve_dollar_bet,
 )
 from bookclub.views.group_views import (
@@ -275,6 +277,16 @@ urlpatterns = [
         "dollar-bet/<int:bet_id>/accept/",
         accept_dollar_bet,
         name="accept_dollar_bet",
+    ),
+    path(
+        "dollar-bet/<int:bet_id>/join/",
+        join_dollar_bet,
+        name="join_dollar_bet",
+    ),
+    path(
+        "dollar-bet/<int:bet_id>/close-betting/",
+        close_betting,
+        name="close_betting",
     ),
     path(
         "dollar-bet/<int:bet_id>/resolve/",
