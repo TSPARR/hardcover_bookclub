@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.7.1
+- Dependency update: idna 3.18
+- Dependency update: django 5.2.15
+- Dependency update: bleach 6.4.0
+- Dependency update: cryptography 49.0.0
+- Dependency update: actions/checkout 7
+- Dependency update: certifi 2026.6.17
+
 ## Release 0.8.0
 - Added new MultiBets feature
 - Fixed Hardcover API key validation
