@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 ## Release 0.8.2
 - Dependency update: cffi 2.1.0
 - Dependency update: charset-normalizer 3.4.9
-- Dependency update: django 5.2.16
+- Dependency update: django 5.2.17
+- Dependency update: asgiref 3.12.1
+- Dependency update: plexapi 4.18.2
+- Dependency update: certifi 2026.7.22
+- Dependency update: markdown 3.10.3
+- Dependency update: cryptography 50.0.0
+- Dependency update: pywebpush 2.4.0
+- Dependency update: packaging 26.3
 
 ## Release 0.8.1
 - Dependency update: idna 3.18
