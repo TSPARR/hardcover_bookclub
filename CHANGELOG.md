@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.8.3
+- Dependency update: cffi 2.1.1
+- Dependency update: sqlparse 0.6.0
+- Dependency update: djangorestframework 3.18.0
+- Dependency update: charset-normalizer 3.5.1
+
 ## Release 0.8.2
 - Dependency update: cffi 2.1.0
 - Dependency update: charset-normalizer 3.4.9
