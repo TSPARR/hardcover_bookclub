@@ -16,7 +16,7 @@ PlexAPI==4.18.2
 pycparser==3.0
 python-dotenv==1.2.2
 requests==2.34.2
-sqlparse==0.5.5
+sqlparse==0.6.0
 urllib3==2.7.0
 whitenoise==6.12.0
 pywebpush==2.4.0
