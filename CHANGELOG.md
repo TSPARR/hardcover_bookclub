@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.8.4
+- Bump python-dotenv from 1.2.2 to 1.2.3
+- Bump idna from 3.18 to 3.19
+- Bump gunicorn from 26.0.0 to 26.2.0
+- Bump cryptography from 50.0.0 to 50.0.1
+
 ## Release 0.8.3
 - Dependency update: cffi 2.1.1
 - Dependency update: sqlparse 0.6.0
