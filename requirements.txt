@@ -8,7 +8,7 @@ Django==5.2.17
 django-appconf==1.2.0
 django-cryptography-django5==2.2
 djangorestframework==3.18.0
-gunicorn==26.0.0
+gunicorn==26.2.0
 idna==3.19
 markdown==3.10.3
 packaging==26.3
