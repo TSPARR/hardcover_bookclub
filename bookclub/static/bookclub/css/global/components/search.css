@@ -1,0 +1,134 @@
+/* ===========================
+ * Search Page Styles
+ * =========================== */
+
+/* Search form styling */
+.search-form {
+    margin-bottom: 1.5rem;
+}
+
+.search-form .input-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+}
+
+.search-form .input-group-text {
+    border-right: none;
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.search-form input[type="text"],
+.search-form input[type="search"] {
+    border-left: none;
+    border-right: none;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.search-form input[type="text"]:focus,
+.search-form input[type="search"]:focus {
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+}
+
+.search-form .btn {
+    border-radius: 0 0.5rem 0.5rem 0;
+    padding: 0.7rem 1.5rem;
+}
+
+.search-container-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    transition: box-shadow 0.2s ease;
+}
+
+.search-container-sticky.scrolled {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-clear-search {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.btn-clear-search:hover {
+    opacity: 0.7;
+}
+
+/* Search book card styles */
+.search-book-card {
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.search-book-card:hover {
+    transform: translateY(-5px);
+}
+
+.search-book-card .book-cover {
+    object-fit: contain;
+    object-position: center;
+    max-height: 100%;
+}
+
+.search-book-card .format-badge-overlay {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
+}
+
+/* No cover placeholder */
+.no-cover {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.no-cover i {
+    font-size: 3rem;
+}
+
+.text-truncate-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.text-truncate-3-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-empty-state {
+    text-align: center;
+    padding: 4rem 1.5rem;
+}
+
+.search-empty-state .empty-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.4;
+}
+
+.search-loading-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}

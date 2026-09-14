@@ -1,113 +1,139 @@
 {% extends 'bookclub/base.html' %}
 {% load bookclub_extras %}
+{% load static %}
 
 {% block title %}Search Books{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
+    <div class="row mb-3">
+        <div class="col-12">
             {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
-            
-            <h1 class="mb-4"><i class="bi bi-search me-2"></i>Search Books</h1>
-            
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <form method="post" class="mb-0 search-form">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            {{ form.query }}
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-search me-1"></i>Search
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <h1 class="mb-3"><i class="bi bi-search me-2"></i>Search Books</h1>
+        </div>
+    </div>
+
+    <div class="search-container-sticky py-3 mb-4">
+        <div class="row">
+            <div class="col-12">
+                <form method="post" class="search-form mb-0" id="searchForm">
+                    {% csrf_token %}
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        {{ form.query }}
+                        <button type="button" class="btn-clear-search d-none" id="clearBtn" aria-label="Clear search">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-search me-1"></i>Search
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     {% if results %}
     <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-list me-2"></i>Search Results</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        {% for book in results %}
-                        <div class="col-md-4 mb-4">
-                            <div class="card search-book-card h-100 shadow-sm">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><strong>Book ID:</strong> {{ book.document.id|default:"EMPTY" }}</span>
-                                    {% if book.document.reading_format %}
-                                    <span class="badge 
-                                        {% if book.document.reading_format == 'physical' %}bg-success{% endif %}
-                                        {% if book.document.reading_format == 'ebook' %}bg-info{% endif %}
-                                        {% if book.document.reading_format == 'audio' %}bg-warning text-dark{% endif %}
-                                    ">
-                                        {{ book.document.reading_format|title }}
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                {% if book.document.image.url %}
-                                <div class="card-img-top-container">
-                                    <img src="{{ book.document.image.url }}" class="img-fluid book-cover"
-                                        alt="{{ book.document.title }}">
-                                </div>
-                                {% else %}
-                                <div class="no-cover">
-                                    <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
-                                </div>
-                                {% endif %}
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ book.document.title }}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">
-                                        {% if book.document.contributions.0.author %}
-                                        {{ book.document.contributions.0.author.name }}
-                                        {% else %}
-                                        Unknown
-                                        {% endif %}
-                                    </h6>
-                                    <p class="card-text">{{ book.document.description|truncatechars:100 }}</p>
-                                </div>
-                                <div class="card-footer bg-white border-top-0">
-                                    {% if can_propose %}
-                                    <a href="{% url 'propose_book' group.id book.document.id %}" class="btn btn-primary w-100">
-                                        <i class="bi bi-lightbulb me-1"></i>Propose
-                                    </a>
-                                    {% else %}
-                                    <a href="{% url 'add_book_to_group' group.id book.document.id %}" class="btn btn-success w-100">
-                                        <i class="bi bi-plus-circle me-1"></i>Add to Group
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 text-muted">
+                    <i class="bi bi-check-circle me-2"></i>Found {{ results|length }} book{{ results|length|pluralize }}
+                </h5>
             </div>
         </div>
     </div>
-    {% elif request.method == 'POST' %}
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="alert alert-warning">
-                <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>No Results</h5>
-                <p>No books found matching your search. Try different keywords or check your spelling.</p>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+        {% for book in results %}
+        <div class="col">
+            <div class="card search-book-card h-100 shadow-sm border-0">
+                <div class="position-relative card-img-top-container">
+                    {% if book.document.image.url %}
+                    <img src="{{ book.document.image.url }}"
+                         class="img-fluid book-cover"
+                         alt="{{ book.document.title }}"
+                         loading="lazy">
+                    {% else %}
+                    <div class="no-cover">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    {% endif %}
+
+                    {% if book.document.reading_format %}
+                    <span class="format-badge-overlay
+                        {% if book.document.reading_format == 'physical' %}bg-success{% endif %}
+                        {% if book.document.reading_format == 'ebook' %}bg-info{% endif %}
+                        {% if book.document.reading_format == 'audio' %}bg-warning text-dark{% endif %}">
+                        <i class="bi bi-{% if book.document.reading_format == 'audio' %}headphones{% elif book.document.reading_format == 'ebook' %}tablet{% else %}book{% endif %} me-1"></i>
+                        {{ book.document.reading_format|title }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title fw-bold mb-2 text-truncate-2-lines">
+                        {{ book.document.title }}
+                    </h6>
+
+                    <div class="mb-2 small text-muted">
+                        <i class="bi bi-person me-1"></i>
+                        <span class="text-truncate-2-lines">
+                            {% if book.document.contributions.0.author %}
+                                {{ book.document.contributions.0.author.name }}
+                            {% else %}
+                                Unknown Author
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <p class="card-text small text-truncate-3-lines flex-grow-1 mb-3">
+                        {{ book.document.description|default:"No description available."|truncatechars:180 }}
+                    </p>
+                </div>
+
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    {% if can_propose %}
+                    <a href="{% url 'propose_book' group.id book.document.id %}"
+                       class="btn btn-primary w-100">
+                        <i class="bi bi-lightbulb me-1"></i>Propose
+                    </a>
+                    {% else %}
+                    <a href="{% url 'add_book_to_group' group.id book.document.id %}"
+                       class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle me-1"></i>Add to Group
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
+        {% endfor %}
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="search-empty-state">
+        <i class="bi bi-search empty-icon"></i>
+        <h4>No books found</h4>
+        <p class="empty-message text-muted">
+            Try adjusting your search terms or check your spelling.
+        </p>
+        <button type="button" class="btn btn-outline-primary" id="clearEmptyBtn">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Clear Search
+        </button>
     </div>
     {% endif %}
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-12">
             <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Back to Group
             </a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'bookclub/js/search.js' %}"></script>
 {% endblock %}

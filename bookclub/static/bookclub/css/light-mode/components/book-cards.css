@@ -29,34 +29,24 @@
     background-color: #f8f9fa;
 }
 
-/* Search and edition card styles - Light Mode */
-.light-mode .search-book-card,
+/* Edition card styles - Light Mode */
 .light-mode .edition-card {
     background-color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.light-mode .search-book-card:hover,
 .light-mode .edition-card:hover {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-.light-mode .search-book-card .card-header,
 .light-mode .edition-card .card-header {
     background-color: rgba(0, 0, 0, 0.03);
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.light-mode .search-book-card .card-footer,
 .light-mode .edition-card .card-footer {
     background-color: #ffffff;
     border-top: none;
-}
-
-/* No cover placeholder */
-.light-mode .no-cover {
-    background-color: #f8f9fa;
-    color: #6c757d;
 }
 
 /* Format filter buttons */

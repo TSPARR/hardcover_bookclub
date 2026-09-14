@@ -84,30 +84,14 @@
     margin-bottom: 1.5rem;
 }
 
-/* Search book and edition card styles */
-.search-book-card,
+/* Edition card styles */
 .edition-card {
     height: 100%;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.search-book-card:hover,
 .edition-card:hover {
     transform: translateY(-5px);
-}
-
-.search-book-card .book-cover {
-    object-fit: contain;
-    object-position: center;
-    max-height: 100%;
-}
-
-/* No cover placeholder */
-.no-cover {
-    height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 /* Format filter buttons */

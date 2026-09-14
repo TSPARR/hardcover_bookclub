@@ -1,0 +1,72 @@
+/* ===========================
+ * Light Mode Search Styles
+ * =========================== */
+
+.light-mode .search-form .input-group {
+    background-color: #ffffff;
+}
+
+.light-mode .search-form .input-group-text {
+    background-color: #ffffff;
+    border-color: #ced4da;
+}
+
+.light-mode .search-form input[type="text"],
+.light-mode .search-form input[type="search"] {
+    background-color: #ffffff;
+    border-color: #ced4da;
+    color: #212529;
+}
+
+.light-mode .search-container-sticky {
+    background-color: #f8f9fa;
+}
+
+.light-mode .search-container-sticky.scrolled {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.light-mode .btn-clear-search {
+    color: #6c757d;
+}
+
+.light-mode .btn-clear-search:hover {
+    color: #495057;
+}
+
+.light-mode .search-book-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .search-book-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .search-book-card .card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .search-book-card .card-footer {
+    background-color: #ffffff;
+    border-top: none;
+}
+
+.light-mode .no-cover {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.light-mode .format-badge-overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+}
+
+.light-mode .search-empty-state .empty-icon {
+    color: #adb5bd;
+}
+
+.light-mode .search-empty-state .empty-message {
+    color: #6c757d;
+}
