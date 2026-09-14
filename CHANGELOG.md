@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - Adjusting the search page for a more consistent design
 - Adjusting invitations pages for a more consistent design
 - Adjusting profile settings page for a more consistent design
+- Adjusing the login page for a more consistent design
 
 ## Release 0.8.3
 - Dependency update: cffi 2.1.1
