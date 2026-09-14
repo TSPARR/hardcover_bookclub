@@ -20,6 +20,8 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     border-right: 0;
+    height: 38px;
+    min-height: 38px;
 }
 
 /* Remove left border radius from button when next to Choices.js */
