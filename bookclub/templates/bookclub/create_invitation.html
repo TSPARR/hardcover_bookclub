@@ -1,79 +1,89 @@
 {% extends 'bookclub/base.html' %}
+{% load static %}
 
 {% block title %}Create Invitation - {{ group.name }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/global/components/invitations.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="h3"><i class="bi bi-envelope-plus me-2"></i>Create New Invitation</h1>
+    <div class="row mb-3">
+        <div class="col-12">
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+            <h1 class="h3 mb-2"><i class="bi bi-envelope-plus me-2"></i>Create New Invitation</h1>
             <p class="text-muted">For group: {{ group.name }}</p>
         </div>
     </div>
-    
+
     <div class="row">
-        <div class="col-md-8 mb-4">
-            <div class="mb-4">
+        <div class="col-lg-8 mb-4">
+            <div class="mb-3">
                 <a href="{% url 'manage_invitations' group.id %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1"></i> Back to Invitations
                 </a>
             </div>
-            
+
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
                     <h5 class="mb-0">Invitation Details</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body invitation-form-container">
                     <form method="post">
                         {% csrf_token %}
-                        
+
                         <div class="mb-3">
-                            <label for="expiry_days" class="form-label">Invitation Expires In (days)</label>
+                            <label for="expiry_days" class="form-label">Invitation Expires In</label>
                             <select id="expiry_days" name="expiry_days" class="form-select">
                                 <option value="1">1 day</option>
                                 <option value="3">3 days</option>
-                                <option value="7" selected>7 days</option>
+                                <option value="7" selected>7 days (recommended)</option>
                                 <option value="14">14 days</option>
                                 <option value="30">30 days</option>
                             </select>
                             <div class="form-text">
-                                Choose how long this invitation should be valid.
+                                Choose how long this invitation link will remain valid.
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
+
+                        <div class="mb-4">
                             <label for="email" class="form-label">Recipient Email (optional)</label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="user@example.com">
                             <div class="form-text">
-                                If provided, this email will be pre-filled when the user registers.
+                                If provided, this email will be pre-filled during registration.
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary">
+
+                        <button type="submit" class="btn btn-primary btn-lg">
                             <i class="bi bi-plus-circle me-1"></i> Create Invitation
                         </button>
                     </form>
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4">
+
+        <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
                     <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Invitations</h5>
                 </div>
                 <div class="card-body">
-                    <p>Invitations allow new users to join your book group.</p>
-                    <p>Each invitation:</p>
+                    <p class="mb-3">Invitations allow new users to join your book group.</p>
+                    <h6 class="fw-bold mb-2">Each invitation:</h6>
                     <ul class="mb-0">
-                        <li>Can be used only once</li>
-                        <li>Expires after the specified time period</li>
-                        <li>Can be revoked at any time by group admins</li>
-                        <li>Can be shared via a unique link</li>
+                        <li class="mb-2">Can be used only once</li>
+                        <li class="mb-2">Expires after the specified time period</li>
+                        <li class="mb-2">Can be revoked at any time by group admins</li>
+                        <li class="mb-2">Can be shared via a unique link</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'bookclub/js/invitations.js' %}"></script>
 {% endblock %}

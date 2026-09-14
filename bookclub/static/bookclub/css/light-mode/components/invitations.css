@@ -1,0 +1,60 @@
+/* ===========================
+ * Light Mode Invitation Styles
+ * =========================== */
+
+.light-mode .invitations-table {
+    background-color: #ffffff;
+}
+
+.light-mode .invitations-table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+}
+
+.light-mode .invitations-table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.light-mode .invitations-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.light-mode .invitations-table tbody tr.text-muted {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.light-mode .invitation-mobile-card {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .invitation-mobile-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.light-mode .invitation-info-group {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.light-mode .invitation-info-label {
+    color: #6c757d;
+}
+
+.light-mode .invitation-info-value {
+    color: #212529;
+}
+
+.light-mode .invitation-link-input {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    color: #495057;
+}
+
+.light-mode .invitation-link-display {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+}

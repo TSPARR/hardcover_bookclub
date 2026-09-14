@@ -1,18 +1,24 @@
 {% extends 'bookclub/base.html' %}
+{% load static %}
 
 {% block title %}Manage Invitations - {{ group.name }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/global/components/invitations.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="h3"><i class="bi bi-envelope me-2"></i>Manage Invitations</h1>
+    <div class="row mb-3">
+        <div class="col-12">
+            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
+            <h1 class="h3 mb-2"><i class="bi bi-envelope me-2"></i>Manage Invitations</h1>
             <p class="text-muted">Group: {{ group.name }}</p>
         </div>
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-6 mb-2 mb-md-0">
             <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Back to Group
             </a>
@@ -24,6 +30,27 @@
         </div>
     </div>
 
+    {% if new_invitation_link %}
+    <div class="card shadow-sm border-success mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Invitation Created Successfully!</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">Share this link with the person you want to invite:</p>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control invitation-link-input" value="{{ new_invitation_link }}" readonly id="newInvitationLink">
+                <button class="btn btn-primary" type="button" onclick="copyInviteLink('{{ new_invitation_link }}')">
+                    <i class="bi bi-clipboard me-1"></i> Copy Link
+                </button>
+            </div>
+            <p class="text-muted small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                This link can be used once and will appear in the invitations table below.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">All Invitations</h5>
@@ -31,74 +58,136 @@
             <span class="badge bg-primary">{{ invitations|length }} total</span>
             {% endif %}
         </div>
-        
+
         <div class="card-body p-0">
             {% if invitations %}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Created</th>
-                                <th>Expires</th>
-                                <th>Status</th>
-                                <th>Created By</th>
-                                <th>Email</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for invitation in invitations %}
-                            <tr{% if invitation.is_revoked or invitation.is_used or invitation.expires_at < now %} class="text-muted"{% endif %}>
-                                <td>{{ invitation.created_at|date:"M d, Y" }}</td>
-                                <td>
-                                    {{ invitation.expires_at|date:"M d, Y" }}
-                                    {% if invitation.is_valid %}
-                                        <span class="badge bg-success">{{ invitation.days_until_expiry }} days left</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if invitation.is_revoked %}
-                                        <span class="badge bg-danger">Revoked</span>
-                                    {% elif invitation.is_used %}
-                                        <span class="badge bg-secondary">Used</span>
-                                    {% elif invitation.expires_at < now %}
-                                        <span class="badge bg-warning text-dark">Expired</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ invitation.created_by.username }}</td>
-                                <td>{{ invitation.email|default:"-" }}</td>
-                                <td>
-                                    {% if invitation.is_valid %}
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                onclick="copyInviteLink('{{ request.scheme }}://{{ request.get_host }}{% url "register_with_invite" invitation.code %}')">
-                                                <i class="bi bi-clipboard me-1"></i> Copy Link
-                                            </button>
-                                            
-                                            <form method="post" action="{% url 'revoke_invitation' group.id invitation.id %}" 
-                                                onsubmit="return confirm('Are you sure you want to revoke this invitation?');">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-x-circle me-1"></i> Revoke
+                <!-- Desktop Table View -->
+                <div class="invitations-table-wrapper">
+                    <div class="table-responsive">
+                        <table class="table invitations-table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Created</th>
+                                    <th>Expires</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invitation in invitations %}
+                                <tr{% if invitation.is_revoked or invitation.is_used or invitation.expires_at < now %} class="text-muted"{% endif %}>
+                                    <td>{{ invitation.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {{ invitation.expires_at|date:"M d, Y" }}
+                                        {% if invitation.is_valid %}
+                                            <span class="badge bg-success days-remaining-badge">{{ invitation.days_until_expiry }} days left</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if invitation.is_revoked %}
+                                            <span class="badge bg-danger">Revoked</span>
+                                        {% elif invitation.is_used %}
+                                            <span class="badge bg-secondary">Used</span>
+                                        {% elif invitation.expires_at < now %}
+                                            <span class="badge bg-warning text-dark">Expired</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ invitation.created_by.username }}</td>
+                                    <td>{{ invitation.email|default:"-" }}</td>
+                                    <td>
+                                        {% if invitation.is_valid %}
+                                            <div class="invitation-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    onclick="copyInviteLink('{{ request.scheme }}://{{ request.get_host }}{% url "register_with_invite" invitation.code %}')">
+                                                    <i class="bi bi-clipboard me-1"></i> Copy Link
                                                 </button>
-                                            </form>
-                                        </div>
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+                                                <form method="post" action="{% url 'revoke_invitation' group.id invitation.id %}" class="d-inline"
+                                                    onsubmit="return confirm('Are you sure you want to revoke this invitation?');">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-x-circle me-1"></i> Revoke
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+                <!-- Mobile Card View -->
+                {% for invitation in invitations %}
+                <div class="invitation-mobile-card{% if invitation.is_revoked or invitation.is_used or invitation.expires_at < now %} text-muted{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                {% if invitation.is_revoked %}
+                                    <span class="badge bg-danger">Revoked</span>
+                                {% elif invitation.is_used %}
+                                    <span class="badge bg-secondary">Used</span>
+                                {% elif invitation.expires_at < now %}
+                                    <span class="badge bg-warning text-dark">Expired</span>
+                                {% else %}
+                                    <span class="badge bg-success">Active</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ invitation.created_at|date:"M d, Y" }}</small>
+                        </div>
+
+                        <div class="invitation-info-group">
+                            <div class="invitation-info-label">Expires</div>
+                            <div class="invitation-info-value">
+                                {{ invitation.expires_at|date:"M d, Y" }}
+                                {% if invitation.is_valid %}
+                                    <span class="badge bg-success days-remaining-badge">{{ invitation.days_until_expiry }} days left</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="invitation-info-group">
+                            <div class="invitation-info-label">Created By</div>
+                            <div class="invitation-info-value">{{ invitation.created_by.username }}</div>
+                        </div>
+
+                        <div class="invitation-info-group">
+                            <div class="invitation-info-label">Email</div>
+                            <div class="invitation-info-value">{{ invitation.email|default:"Not specified" }}</div>
+                        </div>
+
+                        {% if invitation.is_valid %}
+                        <div class="invitation-actions mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                onclick="copyInviteLink('{{ request.scheme }}://{{ request.get_host }}{% url "register_with_invite" invitation.code %}')">
+                                <i class="bi bi-clipboard me-1"></i> Copy Link
+                            </button>
+
+                            <form method="post" action="{% url 'revoke_invitation' group.id invitation.id %}"
+                                onsubmit="return confirm('Are you sure you want to revoke this invitation?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-circle me-1"></i> Revoke
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
             {% else %}
                 <div class="p-4">
-                    <div class="text-center py-4">
+                    <div class="text-center py-5">
                         <div class="mb-3">
-                            <i class="bi bi-envelope" style="font-size: 2.5rem; color: #ccc;"></i>
+                            <i class="bi bi-envelope text-muted invitations-empty-icon"></i>
                         </div>
                         <h5>No invitations have been created yet</h5>
                         <p class="text-muted mb-4">Create an invitation to allow new members to join this group.</p>
@@ -111,4 +200,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'bookclub/js/invitations.js' %}"></script>
 {% endblock %}

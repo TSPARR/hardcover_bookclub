@@ -22,6 +22,7 @@
 @import 'components/star_ratings.css';
 @import 'components/refresh.css';
 @import 'components/search.css';
+@import 'components/invitations.css';
 
 /* Add a class to the body for any body-level styling */
 html.light-mode,
