@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Bump idna from 3.18 to 3.19
 - Bump gunicorn from 26.0.0 to 26.2.0
 - Bump cryptography from 50.0.0 to 50.0.1
+- Bump pywebpush from 2.4.0 to 2.5.0
 
 ## Release 0.8.3
 - Dependency update: cffi 2.1.1
