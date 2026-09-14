@@ -385,6 +385,8 @@
 /* Card header improvements */
 .previous-books-desktop .card-header {
     padding: 1rem 1.25rem;
+    position: relative;
+    z-index: 2;
 }
 
 /* Book image styling */
