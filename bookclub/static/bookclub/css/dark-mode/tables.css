@@ -4,28 +4,17 @@
 /* Base Progress Bar Styles - Dark Mode */
 .dark-mode .progress {
     background-color: rgba(255, 255, 255, 0.15);
-    height: 1.75rem;
-    position: relative;
 }
 
 .dark-mode .progress-bar {
     background-color: rgba(13, 110, 253, 0.7);
-    transition: width 0.6s ease;
 }
 
 /* Only apply percentage display to specific progress bars */
 .dark-mode .progress.progress-styled::after,
 .dark-mode .progress.group-members-progress::after {
-    content: attr(data-progress) "%";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     color: #ffffff;
-    font-weight: bold;
-    font-size: 0.875rem;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
-    z-index: 1;
 }
 
 /* Base Table Styles - Dark Mode */
@@ -136,26 +125,12 @@
 .dark-mode .group-members-progress-card .progress.group-members-progress,
 .dark-mode #bookDetailsAccordion .progress.progress-styled {
     background-color: rgba(255, 255, 255, 0.15);
-    position: relative;
-    border-radius: 0.25rem;
-    margin: 0.75rem 0;
-    overflow: hidden;
-    height: 1.75rem;
 }
 
 .dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar,
 .dark-mode #bookDetailsAccordion .progress.progress-styled .progress-bar {
     background-color: rgba(13, 110, 253, 0.7);
     color: #fff;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transition: width 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
 }
 
 .dark-mode .group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
