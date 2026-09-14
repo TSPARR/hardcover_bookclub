@@ -1,0 +1,35 @@
+/* ===========================
+ * Dark Mode Home Page Overrides
+ * =========================== */
+
+/* Book placeholder background and icon colors */
+html.dark-mode .home-book-placeholder {
+    background-color: #2a2a2a;
+}
+
+html.dark-mode .home-book-placeholder-icon,
+html.dark-mode .home-empty-state-icon {
+    color: #666;
+}
+
+/* Card headers */
+html.dark-mode .home-card-header {
+    background-color: #1e1e1e;
+    border-bottom-color: #333;
+}
+
+/* Group badge styling */
+html.dark-mode .home-group-badge {
+    background-color: #0a8ca8;
+    color: #e1e1e1;
+}
+
+html.dark-mode .home-active-badge {
+    background-color: #146c43;
+    color: #e1e1e1;
+}
+
+html.dark-mode .home-member-badge {
+    background-color: #495057;
+    color: #e1e1e1;
+}

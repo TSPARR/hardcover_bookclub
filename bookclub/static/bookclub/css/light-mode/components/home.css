@@ -1,0 +1,34 @@
+/* ===========================
+ * Light Mode Home Page Overrides
+ * =========================== */
+
+/* Book placeholder background and icon colors */
+html.light-mode .home-book-placeholder {
+    background-color: #f8f9fa;
+}
+
+html.light-mode .home-book-placeholder-icon,
+html.light-mode .home-empty-state-icon {
+    color: #ccc;
+}
+
+/* Card headers */
+html.light-mode .home-card-header {
+    background-color: white;
+}
+
+/* Group badge styling */
+html.light-mode .home-group-badge {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+html.light-mode .home-active-badge {
+    background-color: #198754;
+    color: white;
+}
+
+html.light-mode .home-member-badge {
+    background-color: #6c757d;
+    color: white;
+}

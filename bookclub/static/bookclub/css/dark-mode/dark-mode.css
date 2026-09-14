@@ -29,6 +29,7 @@
 @import 'components/invitations.css';
 @import 'components/toast.css';
 @import 'components/profile-settings.css';
+@import 'components/home.css';
 
 /* Apply dark mode styling */
 html.dark-mode,

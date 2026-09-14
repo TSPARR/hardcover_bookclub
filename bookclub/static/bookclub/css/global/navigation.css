@@ -69,7 +69,8 @@
 }
 
 /* Dark mode toggle button base styles */
-#dark-mode-toggle {
+#dark-mode-toggle,
+.dark-mode-toggle {
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -77,4 +78,10 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+}
+
+/* Utility class for nav link buttons */
+.nav-link-button {
+    background: none;
+    border: none;
 }

@@ -1,0 +1,42 @@
+/* ===========================
+ * Global Home Page Styles
+ * =========================== */
+/* Home page specific structural styles */
+
+/* Book cover and placeholder styles */
+.home-book-cover {
+    width: 100%;
+    object-fit: contain;
+}
+
+.home-book-placeholder {
+    min-height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.375rem;
+}
+
+.home-book-placeholder-icon {
+    font-size: 2rem;
+}
+
+/* Progress bar styling */
+.home-progress-bar {
+    height: 8px;
+}
+
+/* Active book title truncation */
+.home-active-book-title {
+    max-width: 85%;
+}
+
+/* Empty state icon */
+.home-empty-state-icon {
+    font-size: 2.5rem;
+}
+
+.home-empty-state {
+    text-align: center;
+    padding: 2rem 0;
+}
