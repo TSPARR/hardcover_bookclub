@@ -38,7 +38,7 @@
                             {% if form.username.errors %}
                             <div class="text-danger">{{ form.username.errors }}</div>
                             {% endif %}
-                            <div class="form-text">Choose a unique username for your account.</div>
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Choose a unique username for your account.</div>
                         </div>
 
                         <div class="mb-3">
@@ -47,7 +47,7 @@
                             {% if form.email.errors %}
                             <div class="text-danger">{{ form.email.errors }}</div>
                             {% endif %}
-                            <div class="form-text">Your email will be used for account recovery and notifications.</div>
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Your email will be used for account recovery and notifications.</div>
                         </div>
 
                         <div class="mb-3">
@@ -56,7 +56,7 @@
                             {% if form.password1.errors %}
                             <div class="text-danger">{{ form.password1.errors }}</div>
                             {% endif %}
-                            <div class="form-text">{{ form.password1.help_text }}</div>
+                            <div class="form-text">{% if form.password1.help_text %}<i class="bi bi-info-circle me-1"></i>{{ form.password1.help_text }}{% endif %}</div>
                         </div>
 
                         <div class="mb-3">
@@ -73,7 +73,7 @@
                             {% if form.invitation_code.errors %}
                             <div class="text-danger">{{ form.invitation_code.errors }}</div>
                             {% endif %}
-                            <div class="form-text">{{ form.invitation_code.help_text|default:"A valid invitation code is required to register." }}</div>
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>{{ form.invitation_code.help_text|default:"A valid invitation code is required to register." }}</div>
                         </div>
 
                         <div class="d-grid">
