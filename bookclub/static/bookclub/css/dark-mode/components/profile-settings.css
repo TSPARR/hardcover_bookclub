@@ -1,0 +1,32 @@
+/* Profile Settings - Dark Mode */
+
+/* Help text */
+html.dark-mode .settings-help-text {
+    color: #adb5bd;
+}
+
+/* Advanced section */
+html.dark-mode .advanced-section {
+    border-top-color: #495057;
+}
+
+html.dark-mode .advanced-section .card-header {
+    background-color: #4d3d1a;
+    color: #ffda6a;
+}
+
+/* Notification status badges */
+html.dark-mode .notification-status-badge.badge-enabled {
+    background-color: #1a3d2e;
+    color: #75b798;
+}
+
+html.dark-mode .notification-status-badge.badge-disabled {
+    background-color: #3d3d3d;
+    color: #adb5bd;
+}
+
+/* Section titles */
+html.dark-mode .notification-section-title {
+    color: #ced4da;
+}

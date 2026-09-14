@@ -1,6 +1,6 @@
-<div class="card mb-4">
+<div class="card profile-settings-card">
     <div class="card-header">
-        <h4>Integration Settings</h4>
+        <h5><i class="bi bi-plug me-2"></i>Integration Settings</h5>
     </div>
     <div class="card-body">
         <form method="post">
@@ -35,14 +35,11 @@
                 <div class="form-text">{{ form.hardcover_api_key.help_text }}</div>
             </div>
 
-            <div class="card-footer text-muted mb-3">
-                <small>
-                    To obtain your Hardcover API Key, please visit
-                    <a href="https://hardcover.app/account/api"
-                        target="_blank">https://hardcover.app/account/api</a>
-                    and grab the bearer token to put into this field.
-                </small>
-            </div>
+            <small class="settings-help-text">
+                <i class="bi bi-info-circle"></i>To obtain your Hardcover API Key, please visit
+                <a href="https://hardcover.app/account/api" target="_blank">https://hardcover.app/account/api</a>
+                and grab the bearer token to put into this field.
+            </small>
             
             <button type="submit" class="btn btn-primary">Save API Settings</button>
         </form>

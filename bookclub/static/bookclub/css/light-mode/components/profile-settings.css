@@ -1,0 +1,32 @@
+/* Profile Settings - Light Mode */
+
+/* Help text */
+html.light-mode .settings-help-text {
+    color: #6c757d;
+}
+
+/* Advanced section */
+html.light-mode .advanced-section {
+    border-top-color: #dee2e6;
+}
+
+html.light-mode .advanced-section .card-header {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+/* Notification status badges */
+html.light-mode .notification-status-badge.badge-enabled {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+html.light-mode .notification-status-badge.badge-disabled {
+    background-color: #e2e3e5;
+    color: #6c757d;
+}
+
+/* Section titles */
+html.light-mode .notification-section-title {
+    color: #495057;
+}

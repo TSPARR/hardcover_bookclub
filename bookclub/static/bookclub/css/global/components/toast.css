@@ -1,0 +1,76 @@
+/* Toast Notifications - Global Styles */
+
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 350px;
+}
+
+.toast {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.toast-header {
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.toast-header .bi {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+.toast-body {
+    padding: 0.75rem 1rem;
+}
+
+.toast .btn-close {
+    margin-left: auto;
+}
+
+/* Toast animation */
+.toast.showing {
+    opacity: 1;
+}
+
+.toast:not(.show) {
+    display: none;
+}
+
+/* Success toast */
+.toast.toast-success .toast-header {
+    border-left: 4px solid #198754;
+}
+
+/* Error toast */
+.toast.toast-error .toast-header {
+    border-left: 4px solid #dc3545;
+}
+
+/* Warning toast */
+.toast.toast-warning .toast-header {
+    border-left: 4px solid #ffc107;
+}
+
+/* Info toast */
+.toast.toast-info .toast-header {
+    border-left: 4px solid #0dcaf0;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    .toast-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}

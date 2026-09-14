@@ -1,0 +1,113 @@
+/* Profile Settings - Global Styles */
+
+/* Card header with icon layout */
+.profile-settings-card .card-header h5 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.profile-settings-card .card-header .bi {
+    font-size: 1.25rem;
+}
+
+/* Help text styling */
+.settings-help-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.settings-help-text .bi {
+    margin-right: 0.25rem;
+}
+
+/* Advanced/Developer section */
+.advanced-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top-width: 2px;
+    border-top-style: solid;
+}
+
+.advanced-section .card-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.advanced-section .card-header:hover {
+    opacity: 0.9;
+}
+
+.advanced-section .collapse-icon {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+.advanced-section .collapse-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+/* Notification status indicator */
+.notification-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.notification-status-badge .bi {
+    margin-right: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Notification options container */
+.notification-options {
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+    max-height: 1000px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+}
+
+.notification-options-hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.notification-section-title {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* Group select conditional visibility */
+.group-select-container {
+    display: block;
+}
+
+.group-select-container.hidden {
+    display: none;
+}
+
+/* Button spacing */
+.profile-settings-card .btn {
+    min-width: 120px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notification-options {
+        padding-left: 1rem;
+    }
+}

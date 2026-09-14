@@ -23,6 +23,8 @@
 @import 'components/refresh.css';
 @import 'components/search.css';
 @import 'components/invitations.css';
+@import 'components/toast.css';
+@import 'components/profile-settings.css';
 
 /* Add a class to the body for any body-level styling */
 html.light-mode,

@@ -5,13 +5,14 @@
 
 // Import necessary functions from modules
 import { getCsrfToken } from './common/utils.js';
-import { 
-    arePushNotificationsSupported, 
-    checkPushNotificationsAvailable, 
+import {
+    arePushNotificationsSupported,
+    checkPushNotificationsAvailable,
     getCurrentPushSubscription,
     subscribeToPushNotifications,
     unsubscribeFromPushNotifications
 } from './common/push-notifications.js';
+import { showSuccessToast, showErrorToast, showInfoToast } from './common/toast.js';
 
 // Function to clear JS/CSS cache
 function clearBrowserCache() {
@@ -60,12 +61,12 @@ function clearBrowserCache() {
     document.body.appendChild(iframe);
     
     // Show feedback to user
-    alert('Cache cleared! Page will now reload.');
-    
+    showSuccessToast('Cache Cleared', 'Page will now reload with fresh assets.', 2000);
+
     // Reload the page after a short delay
     setTimeout(() => {
         window.location.reload(true);
-    }, 1000);
+    }, 2000);
     
     console.log('Cache clearing initiated');
 }
@@ -73,19 +74,46 @@ function clearBrowserCache() {
 // Expose clearBrowserCache globally
 window.clearBrowserCache = clearBrowserCache;
 
+// Function to update notification status badge
+function updateNotificationStatusBadge(enabled) {
+    const badge = document.getElementById('notification-status-badge');
+    if (badge) {
+        if (enabled) {
+            badge.className = 'notification-status-badge badge-enabled';
+            badge.innerHTML = '<i class="bi bi-bell-fill"></i>Enabled';
+        } else {
+            badge.className = 'notification-status-badge badge-disabled';
+            badge.innerHTML = '<i class="bi bi-bell-slash"></i>Disabled';
+        }
+    }
+}
+
 // Function to toggle notification options visibility
 function toggleNotificationOptions(enabled) {
     const optionsDiv = document.getElementById('notification-options');
     const testContainer = document.getElementById('notification-test-container');
-    
+
     if (optionsDiv) {
-        optionsDiv.style.display = enabled ? 'block' : 'none';
+        if (enabled) {
+            optionsDiv.classList.remove('notification-options-hidden');
+            optionsDiv.setAttribute('aria-hidden', 'false');
+        } else {
+            optionsDiv.classList.add('notification-options-hidden');
+            optionsDiv.setAttribute('aria-hidden', 'true');
+        }
     }
-    
+
     if (testContainer) {
-        testContainer.style.display = enabled ? 'block' : 'none';
+        if (enabled) {
+            testContainer.classList.remove('notification-options-hidden');
+        } else {
+            testContainer.classList.add('notification-options-hidden');
+        }
     }
-    
+
+    // Update status badge
+    updateNotificationStatusBadge(enabled);
+
     // If notifications are disabled, uncheck all option checkboxes
     if (!enabled) {
         document.querySelectorAll('#notification-options input[type="checkbox"]').forEach(checkbox => {
@@ -139,8 +167,8 @@ async function initNotificationUI() {
     // Check current subscription status
     const subscription = await getCurrentPushSubscription();
     notificationCheckbox.checked = !!subscription;
-    
-    // Update visibility based on checkbox state
+
+    // Update visibility and status badge based on checkbox state
     toggleNotificationOptions(notificationCheckbox.checked);
     
     // Remove any existing listeners to prevent duplicates
@@ -189,15 +217,15 @@ async function initNotificationUI() {
             });
             
             const data = await response.json();
-            
+
             if (response.ok) {
-                alert('Notification sent! Check your device.');
+                showSuccessToast('Test Notification Sent', 'Check your device for the notification.');
             } else {
-                alert(`Error: ${data.message || 'Could not send notification'}`);
+                showErrorToast('Notification Error', data.message || 'Could not send notification');
             }
         } catch (error) {
             console.error('Error sending test notification:', error);
-            alert('Failed to send test notification. Check console for details.');
+            showErrorToast('Request Failed', 'Failed to send test notification. Check console for details.');
         } finally {
             // Restore button state
             button.disabled = false;
@@ -245,13 +273,15 @@ function initNotificationOptions() {
 
 // Expose functions globally
 window.toggleNotificationOptions = toggleNotificationOptions;
+window.updateNotificationStatusBadge = updateNotificationStatusBadge;
 window.initNotificationUI = initNotificationUI;
 window.initNotificationOptions = initNotificationOptions;
 
 // Export functions if needed
-export { 
-    clearBrowserCache, 
+export {
+    clearBrowserCache,
     toggleNotificationOptions,
+    updateNotificationStatusBadge,
     initNotificationUI,
     initNotificationOptions
 };

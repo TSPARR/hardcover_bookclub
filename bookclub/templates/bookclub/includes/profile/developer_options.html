@@ -1,14 +1,36 @@
-<div class="card mt-3">
-    <div class="card-header">
-        <h4>Developer Options</h4>
+<div class="card profile-settings-card advanced-section">
+    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#developerOptionsCollapse" aria-expanded="false" aria-controls="developerOptionsCollapse">
+        <h5>
+            <i class="bi bi-code-slash me-2"></i>Developer Options
+            <i class="bi bi-chevron-down collapse-icon collapsed"></i>
+        </h5>
     </div>
-    <div class="card-body">
-        <p>If you're experiencing issues with styles or scripts not updating:</p>
-        <button class="btn btn-warning" onclick="clearBrowserCache()">
-            <i class="bi bi-arrow-clockwise me-1"></i> Clear Browser Cache
-        </button>
-        <p class="mt-2 small text-muted">
-            This will refresh all CSS and JavaScript files by forcing the browser to load the latest versions.
-        </p>
+    <div class="collapse" id="developerOptionsCollapse">
+        <div class="card-body">
+            <p>If you're experiencing issues with styles or scripts not updating:</p>
+            <button class="btn btn-warning" onclick="clearBrowserCache()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Clear Browser Cache
+            </button>
+            <small class="settings-help-text">
+                <i class="bi bi-info-circle"></i>This will refresh all CSS and JavaScript files by forcing the browser to load the latest versions.
+            </small>
+        </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const collapseElement = document.getElementById('developerOptionsCollapse');
+    const collapseIcon = document.querySelector('.advanced-section .collapse-icon');
+
+    if (collapseElement && collapseIcon) {
+        collapseElement.addEventListener('show.bs.collapse', function() {
+            collapseIcon.classList.remove('collapsed');
+        });
+
+        collapseElement.addEventListener('hide.bs.collapse', function() {
+            collapseIcon.classList.add('collapsed');
+        });
+    }
+});
+</script>

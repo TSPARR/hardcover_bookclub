@@ -28,5 +28,7 @@
 @import 'global/components/member-labels.css';
 @import 'global/components/search.css';
 @import 'global/components/invitations.css';
+@import 'global/components/toast.css';
+@import 'global/components/profile-settings.css';
 
 @import 'global/adaptive-layout.css';
