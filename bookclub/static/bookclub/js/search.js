@@ -38,8 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (searchContainer) {
-        let lastScrollTop = 0;
-
         window.addEventListener('scroll', function() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
@@ -48,13 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 searchContainer.classList.remove('scrolled');
             }
-
-            lastScrollTop = scrollTop;
         });
     }
 
     if (searchInput) {
-        searchInput.setAttribute('placeholder', 'Search by title, author, or ISBN...');
         searchInput.setAttribute('autocomplete', 'off');
     }
 });

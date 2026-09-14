@@ -7,21 +7,21 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from ..forms import GroupForm
 from ..models import (
     Book,
     BookGroup,
+    Meeting,
+    MeetingAttendance,
     MemberStartingPoint,
     User,
     UserBookProgress,
-    Meeting,
-    MeetingAttendance,
 )
-from django.db.models import Count, Q
-from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

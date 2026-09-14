@@ -1,15 +1,15 @@
 import logging
 
-from django.http import JsonResponse, HttpResponseForbidden
-from django.views.decorators.http import require_GET, require_POST
-from django.contrib.auth.decorators import login_required
-from django.db.models import Max
-from django.utils.dateparse import parse_datetime
-from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db.models import Max
+from django.http import HttpResponseForbidden, JsonResponse
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from django.views.decorators.http import require_GET, require_POST
 
-from bookclub.models import BookGroup, Book, Meeting, MeetingAttendance
+from bookclub.models import Book, BookGroup, Meeting, MeetingAttendance
 
 logger = logging.getLogger(__name__)
 

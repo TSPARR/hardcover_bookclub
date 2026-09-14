@@ -2,20 +2,20 @@
  * Light Mode Search Styles
  * =========================== */
 
-.light-mode .search-form .input-group {
-    background-color: #ffffff;
-}
-
 .light-mode .search-form .input-group-text {
     background-color: #ffffff;
     border-color: #ced4da;
 }
 
-.light-mode .search-form input[type="text"],
-.light-mode .search-form input[type="search"] {
+.light-mode .search-form .form-control {
     background-color: #ffffff;
-    border-color: #ced4da;
+    border-top-color: #ced4da;
+    border-bottom-color: #ced4da;
     color: #212529;
+}
+
+.light-mode .search-form .btn-primary {
+    border-left-color: #0d6efd;
 }
 
 .light-mode .search-container-sticky {
@@ -28,6 +28,8 @@
 
 .light-mode .btn-clear-search {
     color: #6c757d;
+    border-top-color: #ced4da;
+    border-bottom-color: #ced4da;
 }
 
 .light-mode .btn-clear-search:hover {

@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 
-from ..models import Book, BookGroup, DollarBet, BetParticipant, User
+from ..models import BetParticipant, Book, BookGroup, DollarBet, User
 from ..notifications import send_push_notification
 
 

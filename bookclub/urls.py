@@ -55,6 +55,15 @@ from bookclub.views.invitation_views import (
     manage_invitations,
     revoke_invitation,
 )
+from bookclub.views.meeting_views import (
+    create_meeting,
+    delete_meeting,
+    join_meeting,
+    leave_meeting,
+    meeting_detail,
+    next_meeting_info,
+    update_meeting,
+)
 from bookclub.views.profile_views import (
     get_vapid_public_key,
     profile_settings,
@@ -62,20 +71,11 @@ from bookclub.views.profile_views import (
     push_unsubscribe,
     test_push_notification,
 )
-from bookclub.views.meeting_views import (
-    next_meeting_info,
-    create_meeting,
-    update_meeting,
-    delete_meeting,
-    join_meeting,
-    leave_meeting,
-    meeting_detail,
-)
 from bookclub.views.proposal_views import (
-    propose_book,
-    group_proposals,
-    review_proposal,
     delete_proposal,
+    group_proposals,
+    propose_book,
+    review_proposal,
 )
 
 

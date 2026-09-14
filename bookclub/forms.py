@@ -16,7 +16,16 @@ class CommentForm(forms.ModelForm):
 
 
 class BookSearchForm(forms.Form):
-    query = forms.CharField(label="Search for books", max_length=100)
+    query = forms.CharField(
+        label="Search for books",
+        max_length=100,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control form-control-lg",
+                "placeholder": "Search by title, author, or ISBN...",
+            }
+        ),
+    )
 
 
 class UserRegistrationForm(UserCreationForm):
