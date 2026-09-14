@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initBookAttribution();
     initAddBookForm();
     initEditModeToggle();
+    initConfirmationModal();
 });
 
 // Initialize edit mode toggle in the group detail page
@@ -248,8 +249,129 @@ function initAddBookForm() {
     }
 }
 
+// Initialize confirmation modal for destructive actions
+function initConfirmationModal() {
+    const confirmationModal = document.getElementById('confirmationModal');
+    if (!confirmationModal) return;
+
+    const modal = new bootstrap.Modal(confirmationModal);
+    const confirmButton = document.getElementById('confirmationModalConfirm');
+    const messageElement = document.getElementById('confirmationModalMessage');
+
+    let currentAction = null;
+    let currentForm = null;
+
+    // Helper function to show confirmation modal
+    function showConfirmation(message, action, form = null) {
+        messageElement.textContent = message;
+        currentAction = action;
+        currentForm = form;
+        modal.show();
+    }
+
+    // Handle remove book actions from dropdown
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-book-action') ||
+            e.target.closest('.remove-book-action')) {
+            e.preventDefault();
+            const button = e.target.classList.contains('remove-book-action') ?
+                          e.target : e.target.closest('.remove-book-action');
+            const bookId = button.getAttribute('data-book-id');
+            const groupId = button.getAttribute('data-group-id');
+
+            showConfirmation(
+                'Are you sure you want to remove this book? This action cannot be undone.',
+                () => {
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/group/${groupId}/book/${bookId}/remove/`;
+
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        }
+    });
+
+    // Handle refresh book actions from dropdown
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('refresh-book-action') ||
+            e.target.closest('.refresh-book-action')) {
+            e.preventDefault();
+            const button = e.target.classList.contains('refresh-book-action') ?
+                          e.target : e.target.closest('.refresh-book-action');
+            const bookId = button.getAttribute('data-book-id');
+
+            showConfirmation(
+                'Are you sure you want to refresh book details from Hardcover? This will update the book information.',
+                () => {
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/book/${bookId}/refresh/`;
+
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        }
+    });
+
+    // Intercept forms with confirmation class
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+
+        // Check if form or submit button has data-confirm attribute
+        const submitButton = e.submitter;
+        const confirmMessage = submitButton?.getAttribute('data-confirm') ||
+                             form.getAttribute('data-confirm');
+
+        if (confirmMessage && !form.hasAttribute('data-confirmed')) {
+            e.preventDefault();
+            showConfirmation(confirmMessage, null, form);
+        }
+    });
+
+    // Handle confirmation button click
+    confirmButton.addEventListener('click', function() {
+        if (currentAction) {
+            currentAction();
+            currentAction = null;
+        } else if (currentForm) {
+            // Mark form as confirmed to bypass the confirmation check
+            currentForm.setAttribute('data-confirmed', 'true');
+            currentForm.submit();
+            currentForm = null;
+        }
+        modal.hide();
+    });
+
+    // Reset state when modal is hidden
+    confirmationModal.addEventListener('hidden.bs.modal', function() {
+        currentAction = null;
+        currentForm = null;
+        messageElement.textContent = 'Are you sure you want to proceed with this action?';
+    });
+}
+
 // Expose functions globally to maintain compatibility
 window.initBookSorting = initBookSorting;
 window.initBookAttribution = initBookAttribution;
 window.initAddBookForm = initAddBookForm;
 window.initEditModeToggle = initEditModeToggle;
+window.initConfirmationModal = initConfirmationModal;

@@ -1,0 +1,26 @@
+/* Light Mode - Group Detail Overrides */
+
+.light-mode .group-tabs-mobile .nav-tabs {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .group-tabs-mobile .nav-tabs .nav-link {
+    color: #6c757d;
+}
+
+.light-mode .group-tabs-mobile .nav-tabs .nav-link:hover {
+    border-bottom-color: #0d6efd;
+    color: #495057;
+}
+
+.light-mode .group-tabs-mobile .nav-tabs .nav-link.active {
+    color: #0d6efd;
+}
+
+.light-mode .admin-actions-dropdown .dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.light-mode .admin-actions-dropdown .dropdown-divider {
+    border-top-color: rgba(0, 0, 0, 0.125);
+}

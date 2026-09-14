@@ -84,10 +84,9 @@
         </form>
         {% endif %}
         
-        <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
+        <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger"
-                onclick="return confirm('Are you sure you want to remove this book?')">
+            <button type="submit" class="btn btn-outline-danger">
                 Remove
             </button>
         </form>

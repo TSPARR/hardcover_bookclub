@@ -55,7 +55,8 @@
 
                                                 {% if member in admins %}
                                                 <button type="submit" name="action" value="remove_admin"
-                                                    class="btn btn-sm btn-outline-warning">
+                                                    class="btn btn-sm btn-outline-warning"
+                                                    data-confirm="Are you sure you want to remove admin privileges from {{ member.username }}?">
                                                     <i class="bi bi-shield-minus me-1"></i> Remove Admin
                                                 </button>
                                                 {% else %}
@@ -66,7 +67,8 @@
                                                 {% endif %}
 
                                                 <button type="submit" name="action" value="remove"
-                                                    class="btn btn-sm btn-outline-danger">
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    data-confirm="Are you sure you want to remove {{ member.username }} from this group? This action cannot be undone.">
                                                     <i class="bi bi-person-dash me-1"></i> Remove
                                                 </button>
                                             </form>
@@ -97,8 +99,8 @@
                     <form method="post" action="{% url 'add_group_member' group.id %}">
                         {% csrf_token %}
                         <div class="input-group">
-                            <select name="user_id" class="form-select">
-                                <option selected disabled>Choose a user to add...</option>
+                            <select name="user_id" id="userSelect" class="form-select">
+                                <option value="">Choose a user to add...</option>
                                 {% for user in available_users %}
                                 <option value="{{ user.id }}">{{ user.username }}</option>
                                 {% endfor %}
@@ -140,4 +142,18 @@
         </div>
     </div>
 </div>
+
+<!-- Confirmation Modal -->
+{% include "bookclub/includes/confirmation_modal.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css">
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/scripts/choices.min.js"></script>
+<script type="module" src="{% static 'bookclub/js/book-management.js' %}"></script>
+<script type="module" src="{% static 'bookclub/js/member-management.js' %}"></script>
 {% endblock %}

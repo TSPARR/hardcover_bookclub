@@ -1,0 +1,36 @@
+/* Dark Mode - Group Detail Overrides */
+
+.dark-mode .group-tabs-mobile .nav-tabs {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .group-tabs-mobile .nav-tabs .nav-link {
+    color: #adb5bd;
+}
+
+.dark-mode .group-tabs-mobile .nav-tabs .nav-link:hover {
+    border-bottom-color: #6ea8fe;
+    color: #e1e1e1;
+}
+
+.dark-mode .group-tabs-mobile .nav-tabs .nav-link.active {
+    color: #6ea8fe;
+    border-bottom-color: #6ea8fe;
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-menu {
+    background-color: #2c2c2c;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-item {
+    color: #e1e1e1;
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-item:hover {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-divider {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,51 @@
+<!-- Books Section Content -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h3 class="h5 mb-0"><i class="bi bi-book me-2"></i>Books</h3>
+        <div class="group-books-header-actions">
+            {% if group.is_book_proposals_enabled %}
+            <a href="{% url 'group_proposals' group.id %}" class="btn btn-outline-primary btn-sm me-2">
+                <i class="bi bi-lightbulb"></i> <span class="d-none d-md-inline">View Proposals</span>
+            </a>
+            {% endif %}
+            {% if is_admin %}
+            <a href="{% url 'search_books' group.id %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle"></i> <span class="d-none d-md-inline">Add Book</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if books %}
+            {% with active_books=books|dictsortreversed:"is_active" %}
+
+            <!-- Currently Reading Section -->
+            {% for book in active_books %}
+                {% if book.is_active %}
+                    {% include "bookclub/includes/groups/active_book_card.html" with book=book group=group is_admin=is_admin book_progress=book_progress %}
+                {% endif %}
+            {% endfor %}
+
+            <!-- Meetings Section-->
+            {% if group.is_meetings_enabled %}
+                {% include "bookclub/includes/groups/group_meetings_list.html" with meetings=meetings user_joined_meetings=user_joined_meetings %}
+            {% endif %}
+
+            <!-- Previous Books Section -->
+            {% with previous_books=books|rejectattr:"is_active" %}
+                {% if previous_books %}
+                    {% include "bookclub/includes/groups/previous_books.html" with books=books previous_books=previous_books group=group is_admin=is_admin book_progress=book_progress members=members %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Past Meetings Section (below previous books) -->
+            {% if group.is_meetings_enabled %}
+                {% include "bookclub/includes/groups/group_past_meetings_list.html" with past_meetings=past_meetings %}
+            {% endif %}
+
+            {% endwith %}
+        {% else %}
+            {% include "bookclub/includes/groups/empty_books_state.html" with group=group is_admin=is_admin %}
+        {% endif %}
+    </div>
+</div>

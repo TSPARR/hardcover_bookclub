@@ -102,31 +102,37 @@
                                 <!-- Admin Action Buttons -->
                                 {% if is_admin %}
                                 <div class="mt-2 admin-actions">
-                                    {% if group.is_meetings_enabled %}
-                                    <button type="button" class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#scheduleMeetingModal-{{ book.id }}">
-                                        <i class="bi bi-calendar-plus"></i> Schedule Meeting
-                                    </button>
-                                    {% endif %}
-                                    
-                                    <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-outline-info btn-sm editions-btn">
-                                        <i class="bi bi-star"></i> Editions
-                                    </a>
-
-                                    <form method="post" action="{% url 'refresh_book_from_hardcover' book.id %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm refresh-btn" 
-                                                onclick="return confirm('Are you sure you want to refresh book details from Hardcover?')">
-                                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                                    <div class="dropdown admin-actions-dropdown d-inline-block">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="adminActionsDropdown-{{ book.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-gear-fill"></i> Admin Actions
                                         </button>
-                                    </form>
-                                    
-                                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline mt-2">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger btn-sm remove-btn"
-                                            onclick="return confirm('Are you sure you want to remove this book?')">
-                                            Remove
-                                        </button>
-                                    </form>
+                                        <ul class="dropdown-menu" aria-labelledby="adminActionsDropdown-{{ book.id }}">
+                                            {% if group.is_meetings_enabled %}
+                                            <li>
+                                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#scheduleMeetingModal-{{ book.id }}">
+                                                    <i class="bi bi-calendar-plus me-2"></i>Schedule Meeting
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            {% endif %}
+                                            <li>
+                                                <a class="dropdown-item" href="{% url 'manage_promoted_editions' book.id %}">
+                                                    <i class="bi bi-star me-2"></i>Manage Editions
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="dropdown-item refresh-book-action" data-book-id="{{ book.id }}">
+                                                    <i class="bi bi-arrow-clockwise me-2"></i>Refresh from Hardcover
+                                                </button>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <button type="button" class="dropdown-item text-danger remove-book-action" data-book-id="{{ book.id }}" data-group-id="{{ group.id }}">
+                                                    <i class="bi bi-trash me-2"></i>Remove Book
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                                 {% endif %}
                             </div>

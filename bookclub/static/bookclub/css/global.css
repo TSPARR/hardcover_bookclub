@@ -18,6 +18,8 @@
 @import 'global/components/progress.css';
 @import 'global/components/edition-info.css';
 @import 'global/components/group-members.css';
+@import 'global/components/group-detail.css';
+@import 'global/components/member-select.css';
 @import 'global/components/comments.css';
 @import 'global/components/dollar-bets.css';
 @import 'global/components/reactions.css';
