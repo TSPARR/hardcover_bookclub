@@ -6,6 +6,11 @@
     color: #e1e1e1;
 }
 
+/* Maintain border in dark mode for input-group */
+.dark-mode .input-group .member-select-choices .choices__inner {
+    border-right: 0;
+}
+
 .dark-mode .member-select-choices.is-focused .choices__inner {
     border-color: #6ea8fe;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);

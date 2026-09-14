@@ -285,7 +285,7 @@ function initConfirmationModal() {
                     // Create and submit form
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/group/${groupId}/book/${bookId}/remove/`;
+                    form.action = `/groups/${groupId}/books/${bookId}/remove/`;
 
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                     const csrfInput = document.createElement('input');
@@ -316,7 +316,7 @@ function initConfirmationModal() {
                     // Create and submit form
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/book/${bookId}/refresh/`;
+                    form.action = `/book/${bookId}/refresh`;
 
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                     const csrfInput = document.createElement('input');
