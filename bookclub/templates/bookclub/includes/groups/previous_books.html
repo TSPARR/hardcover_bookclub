@@ -2,12 +2,14 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="h5 mb-0 previous-books-title"><i class="bi bi-clock-history me-2"></i>Previous Books</h3>
     </div>
-    
+
     <!-- Toggle button for both mobile and desktop -->
-    <button class="btn btn-outline-secondary mb-3 btn-previous-books-toggle" type="button" 
-            data-bs-toggle="collapse" data-bs-target="#previousBooksCollapse" 
+    <button class="btn btn-outline-secondary mb-3 btn-previous-books-toggle" type="button"
+            data-bs-toggle="collapse" data-bs-target="#previousBooksCollapse"
             aria-expanded="false" aria-controls="previousBooksCollapse">
-        <span>Show Previous Books <span class="badge badge-book-count ms-2">{{ previous_books|length }}</span></span>
+        <span>Show Previous Books <span class="badge badge-book-count ms-2">
+        {% for book in books %}{% if not book.is_active %}{% if forloop.last %}{{ forloop.counter }}{% endif %}{% endif %}{% endfor %}
+        </span></span>
         <i class="bi bi-chevron-down collapse-indicator"></i>
     </button>
     
@@ -67,20 +69,15 @@
                     
                     <!-- Mobile book list -->
                     <div id="mobileReadOnlyBooks">
-                        {% if previous_books %}
-                            <div class="list-group list-group-flush">
-                                {% for book in previous_books %}
+                        <div class="list-group list-group-flush">
+                            {% for book in books %}
+                                {% if not book.is_active %}
                                     <div class="list-group-item p-3">
                                         {% include "bookclub/includes/groups/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group %}
                                     </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="empty-previous-books p-4 text-center">
-                                <i class="bi bi-book mb-2" style="font-size: 1.5rem;"></i>
-                                <p class="mb-0">No previous books yet.</p>
-                            </div>
-                        {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>

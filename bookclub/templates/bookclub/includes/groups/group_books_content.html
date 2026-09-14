@@ -32,11 +32,14 @@
             {% endif %}
 
             <!-- Previous Books Section -->
-            {% with previous_books=books|rejectattr:"is_active" %}
-                {% if previous_books %}
-                    {% include "bookclub/includes/groups/previous_books.html" with books=books previous_books=previous_books group=group is_admin=is_admin book_progress=book_progress members=members %}
+            {% comment %}Check if any previous books exist{% endcomment %}
+            {% for book in books %}
+                {% if not book.is_active %}
+                    {% if forloop.first %}
+                        {% include "bookclub/includes/groups/previous_books.html" with books=books group=group is_admin=is_admin book_progress=book_progress members=members %}
+                    {% endif %}
                 {% endif %}
-            {% endwith %}
+            {% endfor %}
 
             <!-- Past Meetings Section (below previous books) -->
             {% if group.is_meetings_enabled %}
