@@ -29,6 +29,10 @@
     background-color: #f8f9fa;
 }
 
+.light-mode .book-cover-placeholder {
+    background-color: #f8f9fa;
+}
+
 /* Edition card styles - Light Mode */
 .light-mode .edition-card {
     background-color: #ffffff;

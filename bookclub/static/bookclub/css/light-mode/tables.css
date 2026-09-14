@@ -567,3 +567,54 @@
     font-size: 0.875rem;
     color: #6c757d;
 }
+
+/* ===========================
+ * Semantic Badge Colors - Light Mode
+ * =========================== */
+/* Status badges */
+.light-mode .badge-status-finished {
+    background-color: #198754;
+    color: #fff;
+}
+
+.light-mode .badge-status-reading {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+.light-mode .badge-status-not-started {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+/* Attribution badges */
+.light-mode .badge-group-pick {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+.light-mode .badge-user-pick {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+/* Role badges */
+.light-mode .badge-admin {
+    background-color: #198754;
+    color: #fff;
+}
+
+.light-mode .badge-member-count {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.light-mode .badge-book-number {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.light-mode .badge-active {
+    background-color: #0d6efd;
+    color: #fff;
+}

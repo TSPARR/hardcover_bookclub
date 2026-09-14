@@ -84,3 +84,49 @@
 .admin-actions-dropdown .dropdown-item.text-danger:hover {
     background-color: rgba(220, 53, 69, 0.1);
 }
+
+/* ===========================
+ * Active Book Card Layout
+ * =========================== */
+/* Active book card sections */
+.active-book-content {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.active-book-cover-section {
+    flex: 0 0 auto;
+    width: 120px;
+}
+
+.active-book-info-section {
+    flex: 1;
+    padding-right: 1rem;
+    border-right: 1px solid;
+}
+
+.active-book-progress-section {
+    flex: 0 0 280px;
+    padding: 1rem;
+    border-radius: 0.375rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 991px) {
+    .active-book-content {
+        flex-direction: column;
+    }
+
+    .active-book-info-section {
+        border-right: none;
+        border-bottom: 1px solid;
+        padding-right: 0;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .active-book-progress-section {
+        flex: 1;
+    }
+}

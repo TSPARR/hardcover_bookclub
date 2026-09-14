@@ -24,3 +24,16 @@
 .light-mode .admin-actions-dropdown .dropdown-divider {
     border-top-color: rgba(0, 0, 0, 0.125);
 }
+
+/* ===========================
+ * Active Book Card Colors - Light Mode
+ * =========================== */
+.light-mode .active-book-info-section {
+    border-right-color: rgba(0, 0, 0, 0.125);
+    border-bottom-color: rgba(0, 0, 0, 0.125);
+}
+
+.light-mode .active-book-progress-section {
+    background-color: rgba(13, 110, 253, 0.05);
+    border: 1px solid rgba(13, 110, 253, 0.15);
+}

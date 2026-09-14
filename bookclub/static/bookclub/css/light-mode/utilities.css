@@ -180,3 +180,14 @@
     line-height: 1.2;
     color: #212529;
 }
+
+/* ===========================
+ * Semantic Text Utility Colors - Light Mode
+ * =========================== */
+.light-mode .text-subtle {
+    color: #6c757d !important;
+}
+
+.light-mode .text-destructive {
+    color: #dc3545 !important;
+}

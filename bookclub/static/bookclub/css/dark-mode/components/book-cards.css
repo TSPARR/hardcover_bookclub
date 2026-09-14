@@ -22,7 +22,11 @@
     background-color: #252525;
 }
 
-/* Fix for book cover placeholder */
+.dark-mode .book-cover-placeholder {
+    background-color: #2c2c2c;
+}
+
+/* Fix for book cover placeholder (legacy) */
 .dark-mode .bg-light.d-flex.justify-content-center.align-items-center {
     background-color: #2c2c2c !important;
 }

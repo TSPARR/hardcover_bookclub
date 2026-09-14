@@ -176,13 +176,13 @@ def group_detail(request, group_id):
         # Determine progress status
         if progress.normalized_progress == 0:
             status = "Not Started"
-            status_class = "bg-secondary"
+            status_class = "badge-status-not-started"
         elif progress.normalized_progress == 100:
             status = "Finished"
-            status_class = "bg-success"
+            status_class = "badge-status-finished"
         else:
             status = "Reading"
-            status_class = "bg-info"
+            status_class = "badge-status-reading"
 
         book_progress[progress.book_id] = {
             "progress": progress,
@@ -196,7 +196,7 @@ def group_detail(request, group_id):
             book_progress[book.id] = {
                 "progress": None,
                 "status": "Not Started",
-                "status_class": "bg-secondary",
+                "status_class": "badge-status-not-started",
             }
 
     # Handle book order updates

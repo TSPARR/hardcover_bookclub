@@ -6,10 +6,10 @@
                 <p class="lead mb-3">{{ group.description }}</p>
                 
                 <div class="d-flex gap-2 mb-3">
-                    <span class="badge bg-secondary">{{ members.count }} Members</span>
-                    <span class="badge bg-primary">{{ books.count }} Books</span>
+                    <span class="badge badge-member-count">{{ members.count }} Members</span>
+                    <span class="badge badge-book-count">{{ books.count }} Books</span>
                     {% if is_admin %}
-                    <span class="badge bg-success">Admin</span>
+                    <span class="badge badge-admin">Admin</span>
                     {% endif %}
                 </div>
             </div>

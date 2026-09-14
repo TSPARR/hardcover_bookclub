@@ -577,3 +577,27 @@
     font-weight: 600;
     z-index: 1;
 }
+
+/* ===========================
+ * Semantic Badge Styles
+ * =========================== */
+/* Base badge structure */
+.badge-status-reading,
+.badge-status-finished,
+.badge-status-not-started,
+.badge-group-pick,
+.badge-user-pick,
+.badge-admin,
+.badge-member-count,
+.badge-book-number,
+.badge-active {
+    padding: 0.35em 0.65em;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+    display: inline-block;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+}

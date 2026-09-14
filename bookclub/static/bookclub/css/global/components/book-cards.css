@@ -27,6 +27,11 @@
     object-position: center;
 }
 
+.book-cover-placeholder {
+    min-height: 150px;
+    width: 100%;
+}
+
 /* Book details page - structural elements */
 .book-header .subtitle {
     font-size: 1.5rem;

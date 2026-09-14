@@ -1,7 +1,7 @@
 {% load bookclub_extras %}
 <div class="mb-4">
-    <div class="card border-primary shadow-sm active-book-card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+    <div class="card border-emphasis shadow-sm active-book-card">
+        <div class="card-header card-header-primary d-flex justify-content-between align-items-center py-2">
             <span><i class="bi bi-bookmark-fill me-2"></i>Currently Reading</span>
             {% if is_admin %}
             <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="m-0">
@@ -14,79 +14,76 @@
         </div>
         <div class="card-body p-0">
             <div class="list-group-item p-3">
-                <div class="row g-0">
-                    <!-- Book Cover Column -->
-                    <div class="col-md-2 col-sm-3 col-4 book-cover-container">
+                <div class="active-book-content">
+                    <!-- Book Cover Section -->
+                    <div class="active-book-cover-section">
                         {% with prog=book_progress|get_item:book.id %}
                             {% if prog.progress.selected_edition and prog.progress.selected_edition.cover_image_url %}
-                                <img src="{{ prog.progress.selected_edition.cover_image_url }}" class="img-fluid rounded book-cover" 
+                                <img src="{{ prog.progress.selected_edition.cover_image_url }}" class="img-fluid rounded book-cover"
                                 alt="{{ book.title|split:":"|first|trim }}">
                             {% elif book.cover_image_url %}
-                                <img src="{{ book.cover_image_url }}" class="img-fluid rounded book-cover" 
+                                <img src="{{ book.cover_image_url }}" class="img-fluid rounded book-cover"
                                 alt="{{ book.title|split:":"|first|trim }}">
                             {% else %}
-                            <div class="bg-light d-flex justify-content-center align-items-center rounded book-cover-placeholder">
-                                <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                            <div class="d-flex justify-content-center align-items-center rounded book-cover-placeholder">
+                                <i class="bi bi-book text-subtle" style="font-size: 2rem;"></i>
                             </div>
                             {% endif %}
                         {% endwith %}
                     </div>
-                    
-                    <!-- Book Details Column -->
-                    <div class="col-md-10 col-sm-9 col-8 ps-3 book-details">
-                        <div class="row book-content-row">
-                            <!-- Book Info Section -->
-                            <div class="col-md-7 book-info">
-                                <h4 class="book-title mb-1">{{ book.title|split:":"|first|trim }}</h4>
-                                <p class="text-muted author-name mb-2">{{ book.author }}</p>
-                                
-                                <!-- Book Attribution Information -->
-                                <div class="attribution-container mb-3">
-                                    {% if book.is_collective_pick %}
-                                    <span class="badge bg-info">Group Pick</span>
-                                    {% elif book.picked_by %}
-                                    <span class="badge bg-secondary">Picked by: {{ book.picked_by.username }}</span>
+
+                    <!-- Book Info Section -->
+                    <div class="active-book-info-section">
+                        <h4 class="book-title mb-1">{{ book.title|split:":"|first|trim }}</h4>
+                        <p class="text-subtle author-name mb-2">{{ book.author }}</p>
+
+                        <!-- Book Attribution Information -->
+                        <div class="attribution-container mb-3">
+                            {% if book.is_collective_pick %}
+                            <span class="badge badge-group-pick">Group Pick</span>
+                            {% elif book.picked_by %}
+                            <span class="badge badge-user-pick">Picked by: {{ book.picked_by.username }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% with prog=book_progress|get_item:book.id %}
+                            {% if prog.progress.effective_rating %}
+                                <div class="rating-container mb-2">
+                                    {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
+                                    {% if prog.progress.hardcover_rating %}
+                                    <span class="text-subtle small d-block">Hardcover</span>
+                                    {% elif prog.progress.local_rating %}
+                                    <span class="text-subtle small d-block">Local</span>
                                     {% endif %}
                                 </div>
-                                
-                                {% with prog=book_progress|get_item:book.id %}
-                                    {% if prog.progress.effective_rating %}
-                                        <div class="rating-container mb-2">
-                                            {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
-                                            {% if prog.progress.hardcover_rating %}
-                                            <span class="text-muted small d-block">Hardcover</span>
-                                            {% elif prog.progress.local_rating %}
-                                            <span class="text-muted small d-block">Local</span>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                {% endwith %}
-                            </div>
-                            
-                            <!-- Reading Progress Section -->
-                            <div class="col-md-5 reading-progress">
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <!-- Reading Progress Section -->
+                    <div class="active-book-progress-section">
                                 {% with prog=book_progress|get_item:book.id %}
                                     {% if prog.progress %}
                                     <div class="progress-container mb-2">
                                         <span class="badge {{ prog.status_class }} mb-2 reading-status">{{ prog.status }}</span>
                                         
                                         {% if prog.progress.normalized_progress > 0 %}
-                                        <div class="progress mb-2" style="height: 8px;" 
+                                        <div class="progress mb-2" style="height: 8px;"
                                             data-bs-toggle="tooltip" title="{{ prog.progress.normalized_progress|floatformat:1 }}% complete">
-                                            <div class="progress-bar bg-success" role="progressbar"
+                                            <div class="progress-bar" role="progressbar"
                                                 style="width: {{ prog.progress.normalized_progress }}%;"
-                                                aria-valuenow="{{ prog.progress.normalized_progress }}" 
+                                                aria-valuenow="{{ prog.progress.normalized_progress }}"
                                                 aria-valuemin="0" aria-valuemax="100">
                                             </div>
                                         </div>
                                         {% endif %}
-                                        
+
                                         {% if prog.progress.progress_type == 'page' %}
-                                        <small class="text-muted progress-detail">Page {{ prog.progress.progress_value }}</small>
+                                        <small class="text-subtle progress-detail">Page {{ prog.progress.progress_value }}</small>
                                         {% elif prog.progress.progress_type == 'audio' %}
-                                        <small class="text-muted progress-detail">Audio: {{ prog.progress.progress_value }}</small>
+                                        <small class="text-subtle progress-detail">Audio: {{ prog.progress.progress_value }}</small>
                                         {% else %}
-                                        <small class="text-muted progress-detail">{{ prog.progress.progress_value }}% complete</small>
+                                        <small class="text-subtle progress-detail">{{ prog.progress.progress_value }}% complete</small>
                                         {% endif %}
                                     </div>
                                     {% endif %}
@@ -127,7 +124,7 @@
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <button type="button" class="dropdown-item text-danger remove-book-action" data-book-id="{{ book.id }}" data-group-id="{{ group.id }}">
+                                                <button type="button" class="dropdown-item text-destructive remove-book-action" data-book-id="{{ book.id }}" data-group-id="{{ group.id }}">
                                                     <i class="bi bi-trash me-2"></i>Remove Book
                                                 </button>
                                             </li>
@@ -135,8 +132,6 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

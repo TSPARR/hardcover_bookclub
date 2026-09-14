@@ -32,3 +32,24 @@
 .light-mode .accordion-body {
     padding: 1rem;
 }
+
+/* ===========================
+ * Semantic Card Class Colors - Light Mode
+ * =========================== */
+/* Card header variants */
+.light-mode .card-header-neutral {
+    background-color: #ffffff;
+    border-bottom-color: rgba(0, 0, 0, 0.125);
+    color: #212529;
+}
+
+.light-mode .card-header-primary {
+    background-color: #0d6efd;
+    border-bottom-color: #0a58ca;
+    color: #ffffff;
+}
+
+/* Border emphasis */
+.light-mode .border-emphasis {
+    border-color: #0d6efd;
+}
