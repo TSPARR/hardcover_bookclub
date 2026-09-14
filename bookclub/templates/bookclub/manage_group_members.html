@@ -99,7 +99,7 @@
                     <form method="post" action="{% url 'add_group_member' group.id %}">
                         {% csrf_token %}
                         <div class="input-group">
-                            <select name="user_id" id="userSelect" class="form-select">
+                            <select name="user_id" class="form-select" required>
                                 <option value="">Choose a user to add...</option>
                                 {% for user in available_users %}
                                 <option value="{{ user.id }}">{{ user.username }}</option>
@@ -147,13 +147,7 @@
 {% include "bookclub/includes/confirmation_modal.html" %}
 {% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css">
-{% endblock %}
-
 {% block extra_js %}
 {% load static %}
-<script src="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/scripts/choices.min.js"></script>
 <script type="module" src="{% static 'bookclub/js/book-management.js' %}"></script>
-<script type="module" src="{% static 'bookclub/js/member-management.js' %}"></script>
 {% endblock %}
