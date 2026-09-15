@@ -296,7 +296,7 @@
  * =========================== */
 /* Desktop table styling */
 .previous-books-desktop .table-responsive {
-    overflow-x: visible;
+    overflow: visible;
 }
 
 .previous-books-desktop .book-list-table {

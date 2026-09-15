@@ -55,7 +55,8 @@
  * =========================== */
 /* Card header variants */
 .card-header-neutral,
-.card-header-primary {
+.card-header-primary,
+.card-header-success {
   font-weight: 500;
   padding: 1rem 1.25rem;
   border-bottom-width: 1px;

@@ -33,5 +33,6 @@
 @import 'global/components/profile-settings.css';
 @import 'global/components/home.css';
 @import 'global/components/reorder-books.css';
+@import 'global/components/password-change.css';
 
 @import 'global/adaptive-layout.css';
