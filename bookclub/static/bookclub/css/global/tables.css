@@ -302,42 +302,61 @@
 .previous-books-desktop .book-list-table {
     table-layout: fixed;
     width: 100%;
+    font-size: 0.875rem;
 }
 
 .previous-books-desktop .book-list-table th,
 .previous-books-desktop .book-list-table td {
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.4rem;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* Column widths */
+/* Column widths - optimized for fitting with Order column */
 .book-list-table .col-number {
-    width: 40px;
+    width: 30px;
+    text-align: center;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 .book-list-table .col-order {
-    width: 80px;
+    width: 60px;
+    text-align: center;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 .book-list-table .col-picked-by {
-    width: 120px;
-}
-
-.book-list-table .col-rating {
     width: 100px;
 }
 
+.book-list-table .col-rating {
+    width: 85px;
+}
+
 .book-list-table .col-progress {
-    width: 120px;
+    width: 100px;
 }
 
 .book-list-table .col-actions {
-    width: 240px;
+    width: 220px;
 }
 
 /* col-book and col-author are flexible and will share remaining space */
+
+/* Compact reorder buttons */
+.book-list-table .btn-reorder {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    border-radius: 0.2rem;
+}
+
+.book-list-table .btn-group-sm {
+    gap: 0.1rem;
+}
 
 /* Make buttons wrap nicely in Actions column */
 .previous-books-desktop .book-list-table td form {
@@ -348,8 +367,27 @@
 
 .previous-books-desktop .book-list-table td .btn-sm {
     white-space: nowrap;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.35rem;
+}
+
+/* Compact rating display */
+.book-list-table .rating-container {
+    font-size: 0.8rem;
+}
+
+.book-list-table .rating-stars {
     font-size: 0.75rem;
-    padding: 0.25rem 0.4rem;
+}
+
+/* Compact progress display */
+.book-list-table .progress-container {
+    font-size: 0.8rem;
+}
+
+.book-list-table .progress-badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.5em;
 }
 
 /* Mobile table adjustments */
