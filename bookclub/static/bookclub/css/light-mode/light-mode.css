@@ -27,6 +27,7 @@
 @import 'components/toast.css';
 @import 'components/profile-settings.css';
 @import 'components/home.css';
+@import 'components/reorder-books.css';
 
 /* Add a class to the body for any body-level styling */
 html.light-mode,

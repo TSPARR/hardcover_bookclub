@@ -63,7 +63,23 @@
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bookActions{{ book.id }}">
+                        <li>
+                            <button type="button" class="dropdown-item edit-attribution"
+                                    data-book-id="{{ book.id }}"
+                                    data-book-title="{{ book.title|split:":"|first|trim }}"
+                                    data-picked-by="{{ book.picked_by.id|default:'' }}"
+                                    data-collective="{{ book.is_collective_pick|yesno:'true,false' }}"
+                                    data-bs-toggle="modal" data-bs-target="#attributionModal">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Attribution
+                            </button>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'manage_promoted_editions' book.id %}">
+                                <i class="bi bi-star me-2"></i>Manage Editions
+                            </a>
+                        </li>
                         {% if not book.is_active %}
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="dropdown-item-form">
                                 {% csrf_token %}
@@ -73,11 +89,6 @@
                             </form>
                         </li>
                         {% endif %}
-                        <li>
-                            <a class="dropdown-item" href="{% url 'manage_promoted_editions' book.id %}">
-                                <i class="bi bi-star me-2"></i>Manage Editions
-                            </a>
-                        </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="post" action="{% url 'remove_book' group.id book.id %}" class="dropdown-item-form" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">

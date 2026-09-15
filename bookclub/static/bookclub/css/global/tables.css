@@ -371,14 +371,6 @@
 }
 
 /* ===========================
- * Book Reordering Page
- * =========================== */
-.btn-reorder {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* ===========================
  * Mobile Book Card Styles
  * =========================== */
 .mobile-book-card {

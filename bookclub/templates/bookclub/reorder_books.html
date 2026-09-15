@@ -8,9 +8,12 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-lg-8 offset-lg-2">
+            <!-- CSRF token for AJAX requests -->
+            {% csrf_token %}
+
             <!-- Header -->
-            <div class="mb-4">
-                <h2><i class="bi bi-arrows-move me-2"></i>Reorder Books</h2>
+            <div class="reorder-header">
+                <h2><i class="bi bi-arrows-move"></i>Reorder Books</h2>
                 <p class="text-subtle">Use the arrows to change the order of books in {{ group.name }}</p>
             </div>
 
@@ -19,65 +22,64 @@
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for book in books %}
-                        <div class="list-group-item">
-                            <div class="d-flex align-items-center gap-3">
-                                <!-- Book number -->
-                                <span class="badge badge-book-number" style="min-width: 32px;">
-                                    {{ forloop.counter }}
-                                </span>
+                        <div class="list-group-item reorder-list-item">
+                            <!-- Book number -->
+                            <span class="badge badge-book-number reorder-book-number">
+                                {{ forloop.counter }}
+                            </span>
 
-                                <!-- Book cover -->
-                                <div style="width: 50px; height: 75px; flex-shrink: 0;">
-                                    {% if book.cover_image_url %}
-                                    <img src="{{ book.cover_image_url }}"
-                                         class="img-fluid rounded"
-                                         style="max-height: 75px; max-width: 50px; object-fit: cover;"
-                                         alt="{{ book.title|split:":"|first|trim }}">
-                                    {% else %}
-                                    <div class="book-cover-placeholder d-flex justify-content-center align-items-center h-100 w-100 rounded">
-                                        <i class="bi bi-book text-subtle"></i>
-                                    </div>
-                                    {% endif %}
+                            <!-- Book cover -->
+                            <div class="reorder-book-cover-wrapper">
+                                {% if book.cover_image_url %}
+                                <img src="{{ book.cover_image_url }}"
+                                     class="img-fluid rounded reorder-book-cover"
+                                     alt="{{ book.title|split:":"|first|trim }}">
+                                {% else %}
+                                <div class="book-cover-placeholder d-flex justify-content-center align-items-center h-100 w-100 rounded">
+                                    <i class="bi bi-book text-subtle"></i>
                                 </div>
+                                {% endif %}
+                            </div>
 
-                                <!-- Book info -->
-                                <div class="flex-grow-1">
-                                    <strong class="d-block">{{ book.title|split:":"|first|trim }}</strong>
-                                    <small class="text-subtle d-block">{{ book.author }}</small>
-                                </div>
+                            <!-- Book info -->
+                            <div class="reorder-book-info">
+                                <strong class="reorder-book-title">{{ book.title|split:":"|first|trim }}</strong>
+                                <small class="reorder-book-author">{{ book.author }}</small>
+                            </div>
 
-                                <!-- Badges -->
-                                <div class="d-flex gap-1 flex-wrap">
-                                    {% if book.is_active %}
-                                    <span class="badge badge-active">Active</span>
-                                    {% endif %}
+                            <!-- Badges -->
+                            <div class="reorder-badges">
+                                {% if book.is_active %}
+                                <span class="badge badge-active">Active</span>
+                                {% endif %}
 
-                                    {% if book.is_collective_pick %}
-                                    <span class="badge badge-group-pick">Group Pick</span>
-                                    {% elif book.picked_by %}
-                                    <span class="badge badge-user-pick">{{ book.picked_by.username }}</span>
-                                    {% endif %}
-                                </div>
+                                {% if book.is_collective_pick %}
+                                <span class="badge badge-group-pick">Group Pick</span>
+                                {% elif book.picked_by %}
+                                <span class="badge badge-user-pick">{{ book.picked_by.username }}</span>
+                                {% endif %}
+                            </div>
 
-                                <!-- Reorder buttons -->
-                                <div class="btn-group" role="group">
-                                    {% if not forloop.first %}
-                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-reorder"
-                                            data-book-id="{{ book.id }}"
-                                            data-direction="up"
-                                            title="Move up">
-                                        <i class="bi bi-arrow-up"></i>
-                                    </button>
-                                    {% endif %}
-                                    {% if not forloop.last %}
-                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-reorder"
-                                            data-book-id="{{ book.id }}"
-                                            data-direction="down"
-                                            title="Move down">
-                                        <i class="bi bi-arrow-down"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
+                            <!-- Reorder buttons -->
+                            <div class="btn-group reorder-controls" role="group">
+                                {% if not forloop.first %}
+                                <button type="button" class="btn btn-outline-secondary btn-sm btn-reorder"
+                                        data-book-id="{{ book.id }}"
+                                        data-direction="up"
+                                        title="Move up"
+                                        aria-label="Move {{ book.title|split:":"|first|trim }} up">
+                                    <i class="bi bi-arrow-up"></i>
+                                </button>
+                                {% endif %}
+                                {% if not forloop.last %}
+                                <button type="button" class="btn btn-outline-secondary btn-sm btn-reorder"
+                                        data-book-id="{{ book.id }}"
+                                        data-direction="down"
+                                        title="Move down"
+                                        aria-label="Move {{ book.title|split:":"|first|trim }} down">
+                                    <i class="bi bi-arrow-down"></i>
+                                </button>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}

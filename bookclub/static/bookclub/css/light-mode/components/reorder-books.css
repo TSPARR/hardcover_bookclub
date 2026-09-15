@@ -1,0 +1,15 @@
+/* ===========================
+ * Reorder Books Page - Light Mode Colors
+ * =========================== */
+
+.light-mode .reorder-header h2 {
+    color: #212529;
+}
+
+.light-mode .reorder-book-title {
+    color: #212529;
+}
+
+.light-mode .reorder-book-author {
+    color: #6c757d;
+}
