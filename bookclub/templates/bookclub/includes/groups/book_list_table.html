@@ -1,18 +1,18 @@
 {% load bookclub_extras %}
-<table class="table table-hover">
+<table class="table table-hover book-list-table">
     <thead>
         <tr>
-            <th width="5%">#</th>
+            <th class="col-number">#</th>
             {% if is_admin %}
-            <th width="8%">Order</th>
+            <th class="col-order">Order</th>
             {% endif %}
-            <th width="20%">Book</th>
-            <th width="15%">Author</th>
-            <th width="12%">Picked By</th>
-            <th width="12%">Rating</th>
-            <th width="13%">Your Progress</th>
+            <th class="col-book">Book</th>
+            <th class="col-author">Author</th>
+            <th class="col-picked-by">Picked By</th>
+            <th class="col-rating">Rating</th>
+            <th class="col-progress">Progress</th>
             {% if is_admin %}
-            <th width="15%">Actions</th>
+            <th class="col-actions">Actions</th>
             {% endif %}
         </tr>
     </thead>

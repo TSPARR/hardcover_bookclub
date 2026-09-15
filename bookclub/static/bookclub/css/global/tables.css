@@ -299,15 +299,57 @@
     overflow-x: visible;
 }
 
-.previous-books-desktop .table {
-    table-layout: auto;
+.previous-books-desktop .book-list-table {
+    table-layout: fixed;
     width: 100%;
 }
 
-.previous-books-desktop .table th,
-.previous-books-desktop .table td {
+.previous-books-desktop .book-list-table th,
+.previous-books-desktop .book-list-table td {
     padding: 0.75rem 0.5rem;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Column widths */
+.book-list-table .col-number {
+    width: 40px;
+}
+
+.book-list-table .col-order {
+    width: 80px;
+}
+
+.book-list-table .col-picked-by {
+    width: 120px;
+}
+
+.book-list-table .col-rating {
+    width: 100px;
+}
+
+.book-list-table .col-progress {
+    width: 120px;
+}
+
+.book-list-table .col-actions {
+    width: 240px;
+}
+
+/* col-book and col-author are flexible and will share remaining space */
+
+/* Make buttons wrap nicely in Actions column */
+.previous-books-desktop .book-list-table td form {
+    display: inline-block;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.previous-books-desktop .book-list-table td .btn-sm {
+    white-space: nowrap;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
 }
 
 /* Mobile table adjustments */
