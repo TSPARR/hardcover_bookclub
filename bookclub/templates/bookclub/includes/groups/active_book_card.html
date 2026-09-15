@@ -26,7 +26,7 @@
                                 alt="{{ book.title|split:":"|first|trim }}">
                             {% else %}
                             <div class="d-flex justify-content-center align-items-center rounded book-cover-placeholder">
-                                <i class="bi bi-book text-subtle" style="font-size: 2rem;"></i>
+                                <i class="bi bi-book text-subtle book-placeholder-icon"></i>
                             </div>
                             {% endif %}
                         {% endwith %}
@@ -68,10 +68,9 @@
                                         <span class="badge {{ prog.status_class }} mb-2 reading-status">{{ prog.status }}</span>
                                         
                                         {% if prog.progress.normalized_progress > 0 %}
-                                        <div class="progress mb-2" style="height: 8px;"
-                                            data-bs-toggle="tooltip" title="{{ prog.progress.normalized_progress|floatformat:1 }}% complete">
+                                        <div class="progress mb-2 active-book-progress-bar"
+                                            data-bs-toggle="tooltip" title="{{ prog.progress.normalized_progress|floatformat:1 }}% complete" data-progress="{{ prog.progress.normalized_progress }}">
                                             <div class="progress-bar" role="progressbar"
-                                                style="width: {{ prog.progress.normalized_progress }}%;"
                                                 aria-valuenow="{{ prog.progress.normalized_progress }}"
                                                 aria-valuemin="0" aria-valuemax="100">
                                             </div>
@@ -100,10 +99,10 @@
                                 {% if is_admin %}
                                 <div class="mt-2 admin-actions">
                                     <div class="dropdown admin-actions-dropdown d-inline-block">
-                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="adminActionsDropdown-{{ book.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-gear-fill"></i> Admin Actions
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle admin-dropdown-btn" type="button" id="adminActionsDropdown-{{ book.id }}" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" title="Admin Actions" aria-label="Admin actions menu">
+                                            <i class="bi bi-gear-fill"></i>
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="adminActionsDropdown-{{ book.id }}">
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminActionsDropdown-{{ book.id }}">
                                             {% if group.is_meetings_enabled %}
                                             <li>
                                                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#scheduleMeetingModal-{{ book.id }}">

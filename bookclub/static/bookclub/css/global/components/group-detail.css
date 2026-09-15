@@ -67,8 +67,14 @@
     z-index: 1;
 }
 
-.admin-actions-dropdown .dropdown-toggle::after {
-    margin-left: 0.5rem;
+.admin-actions-dropdown .admin-dropdown-btn {
+    min-width: 2.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.admin-actions-dropdown .admin-dropdown-btn::after {
+    margin-left: 0.25rem;
 }
 
 .admin-actions-dropdown .dropdown-menu {
@@ -90,10 +96,6 @@
     margin: 0.5rem 0;
 }
 
-/* Destructive action styling in dropdown */
-.admin-actions-dropdown .dropdown-item.text-danger:hover {
-    background-color: rgba(220, 53, 69, 0.1);
-}
 
 /* ===========================
  * Active Book Card Layout
@@ -120,6 +122,31 @@
     flex: 0 0 280px;
     padding: 1rem;
     border-radius: 0.375rem;
+}
+
+/* Book placeholder icon */
+.book-placeholder-icon {
+    font-size: 2rem;
+}
+
+/* Empty state icon */
+.empty-state-icon {
+    font-size: 2.5rem;
+}
+
+/* Active book progress bar */
+.active-book-progress-bar {
+    height: 8px;
+}
+
+.active-book-progress-bar .progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Progress bars - width set via JavaScript from data attribute */
+.progress[data-progress] .progress-bar,
+.group-members-progress .progress-bar {
+    transition: width 0.3s ease;
 }
 
 /* Mobile responsive */

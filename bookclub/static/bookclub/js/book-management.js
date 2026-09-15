@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initBookAttribution();
     initAddBookForm();
     initConfirmationModal();
+    initProgressBars();
+    initTooltips();
 });
 
 // Initialize book reordering functionality
@@ -277,8 +279,32 @@ function initConfirmationModal() {
     });
 }
 
+// Initialize progress bars to set width from data attribute
+function initProgressBars() {
+    const progressBars = document.querySelectorAll('.progress[data-progress]');
+
+    progressBars.forEach(progressContainer => {
+        const progressValue = progressContainer.getAttribute('data-progress');
+        const progressBar = progressContainer.querySelector('.progress-bar');
+
+        if (progressBar && progressValue) {
+            progressBar.style.width = `${progressValue}%`;
+        }
+    });
+}
+
+// Initialize Bootstrap tooltips
+function initTooltips() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+
 // Expose functions globally to maintain compatibility
 window.initBookReordering = initBookReordering;
 window.initBookAttribution = initBookAttribution;
 window.initAddBookForm = initAddBookForm;
 window.initConfirmationModal = initConfirmationModal;
+window.initProgressBars = initProgressBars;
+window.initTooltips = initTooltips;

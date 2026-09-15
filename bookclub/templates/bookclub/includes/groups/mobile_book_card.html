@@ -52,7 +52,7 @@
         {% if prog.progress and prog.progress.normalized_progress > 0 %}
         <div class="book-progress-section">
             <div class="progress group-members-progress" data-progress="{{ prog.progress.normalized_progress|floatformat:0 }}">
-                <div class="progress-bar" role="progressbar" style="width: {{ prog.progress.normalized_progress }}%"></div>
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ prog.progress.normalized_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
         {% endif %}

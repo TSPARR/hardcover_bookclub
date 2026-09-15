@@ -25,6 +25,11 @@
     border-top-color: rgba(0, 0, 0, 0.125);
 }
 
+.light-mode .admin-actions-dropdown .dropdown-item.text-danger:hover,
+.light-mode .admin-actions-dropdown .dropdown-item.text-destructive:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
 /* ===========================
  * Active Book Card Colors - Light Mode
  * =========================== */
@@ -36,4 +41,9 @@
 .light-mode .active-book-progress-section {
     background-color: rgba(13, 110, 253, 0.05);
     border: 1px solid rgba(13, 110, 253, 0.15);
+}
+
+/* Empty state icon color */
+.light-mode .empty-state-icon {
+    color: #0dcaf0;
 }
