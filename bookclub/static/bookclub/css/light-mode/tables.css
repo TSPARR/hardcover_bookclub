@@ -535,3 +535,18 @@
     background-color: #0d6efd;
     color: #fff;
 }
+
+/* ===========================
+ * Mobile Book Actions Dropdown - Light Mode
+ * =========================== */
+.light-mode .mobile-book-actions .dropdown-toggle {
+    color: #495057;
+    border-color: #6c757d;
+    background-color: #fff;
+}
+
+.light-mode .mobile-book-actions .dropdown-toggle:hover {
+    background-color: #f8f9fa;
+    border-color: #495057;
+    color: #212529;
+}

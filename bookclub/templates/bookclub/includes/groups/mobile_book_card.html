@@ -61,35 +61,51 @@
     
     <!-- Action buttons -->
     <div class="mobile-book-actions">
-        <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">View Details</a>
+        <a href="{% url 'book_detail' book.id %}" class="btn btn-primary btn-block-mobile">View Details</a>
 
         {% if is_admin %}
-        <button type="button" class="btn btn-outline-secondary edit-attribution" 
-                data-book-id="{{ book.id }}"
-                data-book-title="{{ book.title|split:":"|first|trim }}"
-                data-picked-by="{{ book.picked_by.id|default:'' }}"
-                data-collective="{{ book.is_collective_pick|yesno:'true,false' }}"
-                data-bs-toggle="modal" data-bs-target="#attributionModal">
-            <i class="bi bi-pencil-square"></i> Edit
-        </button>
-        
-        <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-outline-info">
-            <i class="bi bi-star"></i> Editions
-        </a>
-        
-        {% if not book.is_active %}
-        <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-primary">Set Active</button>
-        </form>
-        {% endif %}
-        
-        <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger">
-                Remove
+        <div class="dropdown w-100">
+            <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="mobileBookActions{{ book.id }}" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Book actions menu">
+                <i class="bi bi-gear me-2"></i>Admin Actions
             </button>
-        </form>
+            <ul class="dropdown-menu w-100" aria-labelledby="mobileBookActions{{ book.id }}">
+                <li>
+                    <button type="button" class="dropdown-item edit-attribution"
+                            data-book-id="{{ book.id }}"
+                            data-book-title="{{ book.title|split:":"|first|trim }}"
+                            data-picked-by="{{ book.picked_by.id|default:'' }}"
+                            data-collective="{{ book.is_collective_pick|yesno:'true,false' }}"
+                            data-bs-toggle="modal" data-bs-target="#attributionModal">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Attribution
+                    </button>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'manage_promoted_editions' book.id %}">
+                        <i class="bi bi-star me-2"></i>Manage Editions
+                    </a>
+                </li>
+                {% if not book.is_active %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="dropdown-item-form">
+                        {% csrf_token %}
+                        <button type="submit" class="dropdown-item">
+                            <i class="bi bi-play-circle me-2"></i>Set Active
+                        </button>
+                    </form>
+                </li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="dropdown-item-form" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
+                        {% csrf_token %}
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-trash me-2"></i>Remove Book
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
         {% endif %}
     </div>
 </div>

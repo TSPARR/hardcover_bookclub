@@ -58,24 +58,36 @@
             </td>
             {% if is_admin %}
             <td>
-                <div class="book-actions">
-                    {% if not book.is_active %}
-                    <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                            Set Active
-                        </button>
-                    </form>
-                    {% endif %}
-                    <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
-                        <i class="bi bi-star"></i> Editions
-                    </a>
-                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                            Remove
-                        </button>
-                    </form>
+                <div class="dropdown admin-actions-dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="bookActions{{ book.id }}" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Book actions menu">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bookActions{{ book.id }}">
+                        {% if not book.is_active %}
+                        <li>
+                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="dropdown-item-form">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-play-circle me-2"></i>Set Active
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'manage_promoted_editions' book.id %}">
+                                <i class="bi bi-star me-2"></i>Manage Editions
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'remove_book' group.id book.id %}" class="dropdown-item-form" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-trash me-2"></i>Remove Book
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </td>
             {% endif %}

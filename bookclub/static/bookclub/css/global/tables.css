@@ -309,20 +309,36 @@
     vertical-align: middle;
 }
 
-/* Actions column alignment */
-.book-list-table .book-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    align-items: center;
+/* Table dropdown button - hide caret for icon-only button */
+.book-list-table .admin-actions-dropdown .dropdown-toggle::after {
+    display: none;
 }
 
-.book-list-table .book-actions form {
+/* Dropdown item forms (for submit buttons styled as dropdown items) */
+.dropdown-item-form {
     margin: 0;
+    padding: 0;
 }
 
-.book-list-table .book-actions .btn-sm {
-    white-space: nowrap;
+.dropdown-item-form .dropdown-item {
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+}
+
+/* Mobile book actions dropdown */
+.mobile-book-actions .dropdown {
+    margin-bottom: 0.75rem;
+}
+
+.mobile-book-actions .dropdown:last-child {
+    margin-bottom: 0;
+}
+
+.mobile-book-actions .btn-block-mobile {
+    width: 100%;
+    margin-bottom: 0.75rem;
 }
 
 /* Mobile table adjustments */
@@ -394,90 +410,6 @@
 
 .mobile-book-actions {
     padding: 1rem;
-}
-
-.mobile-book-actions .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.75rem;
-    padding: 0.6rem 1rem;
-    text-align: center;
-    border-radius: 0.375rem;
-}
-
-.mobile-book-actions .btn:last-child {
-    margin-bottom: 0;
-}
-
-.mobile-book-actions form.d-inline {
-    display: block !important;
-    width: 100%;
-    margin-bottom: 0.75rem;
-}
-
-.mobile-book-actions form.d-inline:last-child {
-    margin-bottom: 0;
-}
-
-.mobile-book-actions form.d-inline .btn {
-    width: 100%;
-    margin-bottom: 0;
-}
-
-/* ===========================
- * Mobile Book Actions Styles
- * =========================== */
-/* Improve mobile book actions layout */
-.mobile-book-actions .d-flex.flex-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    /* Reduced from 0.5rem for tighter spacing */
-    justify-content: space-between;
-    align-items: stretch;
-}
-
-/* Make all buttons have consistent size and alignment */
-.mobile-book-actions .btn,
-.mobile-book-actions form.d-inline .btn {
-    margin-bottom: 0.25rem;
-    /* Reduced from 0.5rem */
-    flex-basis: calc(50% - 0.125rem);
-    /* Adjusted for tighter gap */
-    max-width: calc(50% - 0.125rem);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px;
-}
-
-/* Fix inline forms in the flex container */
-.mobile-book-actions form.d-inline {
-    display: flex !important;
-    flex-basis: calc(50% - 0.125rem);
-    /* Adjusted for tighter gap */
-    max-width: calc(50% - 0.125rem);
-    margin-bottom: 0.35rem;
-    /* Reduced from 0.5rem */
-}
-
-.mobile-book-actions form.d-inline .btn {
-    width: 100%;
-    flex-basis: 100%;
-    max-width: 100%;
-    margin-bottom: 0;
-}
-
-/* Add more space before the Remove button */
-.mobile-book-actions .w-100 {
-    margin-top: 0.25rem;
-}
-
-/* Make Remove button stand out more */
-.mobile-book-actions .btn-outline-danger {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    font-weight: 500;
 }
 
 /* Mobile book progress bar styling */
