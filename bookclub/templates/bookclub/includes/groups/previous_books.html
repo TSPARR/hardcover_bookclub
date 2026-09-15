@@ -20,7 +20,14 @@
         <div class="previous-books-desktop">
             <div class="card shadow-sm mb-4">
                 <div class="card-header card-header-neutral">
-                    <h4 class="h6 mb-0">Book History</h4>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="h6 mb-0">Book History</h4>
+                        {% if is_admin %}
+                        <a href="{% url 'reorder_books' group.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-arrows-move"></i> Reorder Books
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     {% if books %}
@@ -40,7 +47,14 @@
         <div class="previous-books-mobile">
             <div class="card shadow-sm mb-4">
                 <div class="card-header card-header-neutral">
-                    <h4 class="h6 mb-0">Book History</h4>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="h6 mb-0">Book History</h4>
+                        {% if is_admin %}
+                        <a href="{% url 'reorder_books' group.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-arrows-move"></i> Reorder
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     {% if books %}
@@ -48,7 +62,7 @@
                             {% for book in books %}
                                 {% if not book.is_active %}
                                     <div class="list-group-item p-0">
-                                        {% include "bookclub/includes/groups/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group is_first=forloop.first is_last=forloop.last %}
+                                        {% include "bookclub/includes/groups/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group %}
                                     </div>
                                 {% endif %}
                             {% endfor %}

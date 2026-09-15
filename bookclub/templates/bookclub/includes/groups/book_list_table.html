@@ -3,9 +3,6 @@
     <thead>
         <tr>
             <th class="col-number">#</th>
-            {% if is_admin %}
-            <th class="col-order">Order</th>
-            {% endif %}
             <th class="col-book">Book</th>
             <th class="col-author">Author</th>
             <th class="col-picked-by">Picked By</th>
@@ -20,28 +17,6 @@
         {% for book in books %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            {% if is_admin %}
-            <td>
-                <div class="btn-group btn-group-sm" role="group">
-                    {% if not forloop.first %}
-                    <button type="button" class="btn btn-outline-secondary btn-reorder"
-                            data-book-id="{{ book.id }}"
-                            data-direction="up"
-                            title="Move up">
-                        <i class="bi bi-arrow-up"></i>
-                    </button>
-                    {% endif %}
-                    {% if not forloop.last %}
-                    <button type="button" class="btn btn-outline-secondary btn-reorder"
-                            data-book-id="{{ book.id }}"
-                            data-direction="down"
-                            title="Move down">
-                        <i class="bi bi-arrow-down"></i>
-                    </button>
-                    {% endif %}
-                </div>
-            </td>
-            {% endif %}
             <td>
                 <a href="{% url 'book_detail' book.id %}">{{ book.title|split:":"|first|trim}}</a>
             </td>

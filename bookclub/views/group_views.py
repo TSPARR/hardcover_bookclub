@@ -543,6 +543,27 @@ def update_group_settings(request, group_id):
 
 
 @login_required
+def reorder_books_page(request, group_id):
+    """Dedicated page for reordering books."""
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is admin
+    if request.user not in group.admins.all():
+        messages.error(request, "You must be a group admin to reorder books.")
+        return redirect("group_detail", group_id=group.id)
+
+    # Get all books ordered by display_order
+    books = group.books.all().order_by("display_order")
+
+    context = {
+        "group": group,
+        "books": books,
+    }
+
+    return render(request, "bookclub/reorder_books.html", context)
+
+
+@login_required
 def reorder_book(request, group_id, book_id):
     """Move a book up or down in the order."""
     if request.method != "POST":

@@ -49,6 +49,7 @@ from bookclub.views.group_views import (
     manage_group_members,
     manage_member_starting_points,
     reorder_book,
+    reorder_books_page,
     update_group_settings,
 )
 from bookclub.views.invitation_views import (
@@ -160,6 +161,11 @@ urlpatterns = [
         "group/<int:group_id>/settings/update/",
         update_group_settings,
         name="update_group_settings",
+    ),
+    path(
+        "groups/<int:group_id>/reorder-books/",
+        reorder_books_page,
+        name="reorder_books",
     ),
     path(
         "groups/<int:group_id>/books/<int:book_id>/reorder/",
