@@ -473,6 +473,10 @@
     border-top: 1px solid #3a3a3a;
 }
 
+.dark-mode .mobile-reorder-buttons {
+    border-bottom-color: #3a3a3a;
+}
+
 /* Mobile Book Card Progress Bar - Dark Mode */
 .dark-mode .mobile-book-card .book-progress-section {
     margin-bottom: 0.75rem;

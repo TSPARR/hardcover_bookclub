@@ -5,100 +5,56 @@
 // Document ready event handler
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all book management features
-    initBookOrderModal();
+    initBookReordering();
     initBookAttribution();
     initAddBookForm();
     initConfirmationModal();
 });
 
-// Initialize book order modal functionality
-function initBookOrderModal() {
-    const modal = document.getElementById('bookOrderModal');
-    if (!modal) {
-        console.log('Book order modal not found');
-        return;
-    }
+// Initialize book reordering functionality
+function initBookReordering() {
+    const reorderButtons = document.querySelectorAll('.btn-reorder');
 
-    console.log('Initializing book order modal');
-    const booksList = document.getElementById('sortableBooksModal');
-    const saveBtn = document.getElementById('saveBookOrder');
-    let sortableInstance = null;
+    reorderButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookId = this.getAttribute('data-book-id');
+            const direction = this.getAttribute('data-direction');
 
-    // Debug: Log when modal is triggered
-    const modalTriggers = document.querySelectorAll('[data-bs-target="#bookOrderModal"]');
-    modalTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function() {
-            console.log('Modal trigger clicked');
-        });
-    });
+            // Get group ID from URL
+            const pathParts = window.location.pathname.split('/');
+            const groupId = pathParts[pathParts.indexOf('groups') + 1];
 
-    // Initialize sortable when modal is shown
-    modal.addEventListener('shown.bs.modal', function() {
-        console.log('Modal shown event fired');
-        if (booksList && !sortableInstance) {
-            sortableInstance = new Sortable(booksList, {
-                animation: 150,
-                handle: '.handle',
-                ghostClass: 'sortable-ghost',
-                onEnd: function() {
-                    updateBookNumbers();
-                }
-            });
-            console.log('Sortable initialized');
-        }
-    });
+            // Disable button while processing
+            this.disabled = true;
 
-    // Save button handler
-    if (saveBtn) {
-        saveBtn.addEventListener('click', function() {
+            // Get CSRF token
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const bookItems = document.querySelectorAll('#sortableBooksModal > li');
 
-            // Get book IDs in current order
-            const bookIds = Array.from(bookItems).map(item => item.getAttribute('data-id'));
-
-            // Create FormData
-            const formData = new FormData();
-            bookIds.forEach(id => {
-                formData.append('book_order', id);
-            });
-
-            // Submit
-            fetch(window.location.href, {
+            // Make AJAX request
+            fetch(`/groups/${groupId}/books/${bookId}/reorder/`, {
                 method: 'POST',
-                body: formData,
                 headers: {
                     'X-CSRFToken': csrfToken,
-                }
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `direction=${direction}`
             })
-            .then(response => {
-                if (response.ok) {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload page to show new order
                     window.location.reload();
                 } else {
-                    console.error('Error saving book order');
-                    alert('Failed to save book order. Please try again.');
+                    alert('Error reordering book: ' + (data.error || 'Unknown error'));
+                    this.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert('An error occurred while reordering the book.');
+                this.disabled = false;
             });
         });
-    }
-}
-
-// Function to update book numbers after reordering
-function updateBookNumbers() {
-    const bookItems = document.querySelectorAll('#sortableBooksModal li');
-    bookItems.forEach((item, index) => {
-        // Update the data-order attribute
-        item.setAttribute('data-order', index + 1);
-        
-        // Update the visible number badge
-        const numberBadge = item.querySelector('.book-number');
-        if (numberBadge) {
-            numberBadge.textContent = index + 1;
-        }
     });
 }
 
@@ -322,7 +278,7 @@ function initConfirmationModal() {
 }
 
 // Expose functions globally to maintain compatibility
-window.initBookOrderModal = initBookOrderModal;
+window.initBookReordering = initBookReordering;
 window.initBookAttribution = initBookAttribution;
 window.initAddBookForm = initAddBookForm;
 window.initConfirmationModal = initConfirmationModal;

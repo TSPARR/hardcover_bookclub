@@ -61,8 +61,30 @@
     
     <!-- Action buttons -->
     <div class="mobile-book-actions">
+        {% if is_admin %}
+        <!-- Reorder buttons -->
+        <div class="mobile-reorder-buttons mb-3">
+            <div class="btn-group w-100" role="group">
+                {% if not is_first %}
+                <button type="button" class="btn btn-outline-secondary btn-reorder"
+                        data-book-id="{{ book.id }}"
+                        data-direction="up">
+                    <i class="bi bi-arrow-up"></i> Move Up
+                </button>
+                {% endif %}
+                {% if not is_last %}
+                <button type="button" class="btn btn-outline-secondary btn-reorder"
+                        data-book-id="{{ book.id }}"
+                        data-direction="down">
+                    <i class="bi bi-arrow-down"></i> Move Down
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">View Details</a>
-        
+
         {% if is_admin %}
         <button type="button" class="btn btn-outline-secondary edit-attribution" 
                 data-book-id="{{ book.id }}"

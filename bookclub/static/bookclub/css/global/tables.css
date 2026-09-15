@@ -254,6 +254,25 @@
     margin-bottom: 2rem;
 }
 
+/* Desktop/Mobile visibility */
+.previous-books-desktop {
+    display: block;
+}
+
+.previous-books-mobile {
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .previous-books-desktop {
+        display: none;
+    }
+
+    .previous-books-mobile {
+        display: block;
+    }
+}
+
 /* Better toggle button styling */
 .btn-previous-books-toggle {
     width: 100%;
@@ -309,26 +328,16 @@
 }
 
 /* ===========================
- * Book Order Modal Styles
+ * Book Reordering Buttons
  * =========================== */
-/* Sortable books list in modal */
-#sortableBooksModal {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+.btn-reorder {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.875rem;
 }
 
-#sortableBooksModal .handle {
-    cursor: grab;
-}
-
-#sortableBooksModal .handle:active {
-    cursor: grabbing;
-}
-
-/* Sortable ghost class for dragging */
-.sortable-ghost {
-    opacity: 0.5;
+.mobile-reorder-buttons {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid;
 }
 
 /* ===========================

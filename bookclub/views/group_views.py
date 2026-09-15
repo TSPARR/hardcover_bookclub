@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -540,3 +540,49 @@ def update_group_settings(request, group_id):
 
     # If not a POST request, redirect to group detail
     return redirect("group_detail", group_id=group.id)
+
+
+@login_required
+def reorder_book(request, group_id, book_id):
+    """Move a book up or down in the order."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    group = get_object_or_404(BookGroup, id=group_id)
+
+    # Check if user is admin
+    if request.user not in group.admins.all():
+        return JsonResponse({"error": "Admin access required"}, status=403)
+
+    direction = request.POST.get("direction")
+    if direction not in ["up", "down"]:
+        return JsonResponse({"error": "Invalid direction"}, status=400)
+
+    try:
+        book = get_object_or_404(Book, id=book_id, group=group)
+
+        # Get all books in order
+        books = list(group.books.all().order_by("order"))
+        current_index = books.index(book)
+
+        # Calculate new index
+        if direction == "up" and current_index > 0:
+            new_index = current_index - 1
+        elif direction == "down" and current_index < len(books) - 1:
+            new_index = current_index + 1
+        else:
+            return JsonResponse({"error": "Cannot move in that direction"}, status=400)
+
+        # Swap the books
+        books[current_index], books[new_index] = books[new_index], books[current_index]
+
+        # Update order field for all books
+        for index, b in enumerate(books):
+            b.order = index + 1
+            b.save(update_fields=["order"])
+
+        return JsonResponse({"success": True})
+
+    except Exception as e:
+        logger.error(f"Error reordering book: {e}")
+        return JsonResponse({"error": str(e)}, status=500)

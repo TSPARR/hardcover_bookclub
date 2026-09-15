@@ -3,11 +3,14 @@
     <thead>
         <tr>
             <th width="5%">#</th>
+            {% if is_admin %}
+            <th width="8%">Order</th>
+            {% endif %}
             <th width="20%">Book</th>
             <th width="15%">Author</th>
-            <th width="15%">Picked By</th>
-            <th width="15%">Rating</th>
-            <th width="15%">Your Progress</th>
+            <th width="12%">Picked By</th>
+            <th width="12%">Rating</th>
+            <th width="13%">Your Progress</th>
             {% if is_admin %}
             <th width="15%">Actions</th>
             {% endif %}
@@ -17,6 +20,28 @@
         {% for book in books %}
         <tr>
             <td>{{ forloop.counter }}</td>
+            {% if is_admin %}
+            <td>
+                <div class="btn-group btn-group-sm" role="group">
+                    {% if not forloop.first %}
+                    <button type="button" class="btn btn-outline-secondary btn-reorder"
+                            data-book-id="{{ book.id }}"
+                            data-direction="up"
+                            title="Move up">
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
+                    {% endif %}
+                    {% if not forloop.last %}
+                    <button type="button" class="btn btn-outline-secondary btn-reorder"
+                            data-book-id="{{ book.id }}"
+                            data-direction="down"
+                            title="Move down">
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </td>
+            {% endif %}
             <td>
                 <a href="{% url 'book_detail' book.id %}">{{ book.title|split:":"|first|trim}}</a>
             </td>

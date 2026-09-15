@@ -16,33 +16,50 @@
 
     <!-- Collapsible container -->
     <div class="collapse" id="previousBooksCollapse">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header card-header-neutral">
-                <div class="d-flex justify-content-between align-items-center">
+        <!-- Desktop Table View -->
+        <div class="previous-books-desktop">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header card-header-neutral">
                     <h4 class="h6 mb-0">Book History</h4>
-                    {% if is_admin %}
-                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bookOrderModal">
-                        <i class="bi bi-arrows-move"></i> Reorder Books
-                    </button>
+                </div>
+                <div class="card-body p-0">
+                    {% if books %}
+                        <div class="table-responsive">
+                            {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
+                        </div>
+                    {% else %}
+                        <div class="p-3 text-center text-subtle">
+                            <p class="mb-0">No previous books yet.</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
-            <div class="card-body p-0">
-                {% if books %}
-                    <div class="table-responsive">
-                        {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
-                    </div>
-                {% else %}
-                    <div class="p-3 text-center text-subtle">
-                        <p class="mb-0">No previous books yet.</p>
-                    </div>
-                {% endif %}
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="previous-books-mobile">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header card-header-neutral">
+                    <h4 class="h6 mb-0">Book History</h4>
+                </div>
+                <div class="card-body p-0">
+                    {% if books %}
+                        <div class="list-group list-group-flush">
+                            {% for book in books %}
+                                {% if not book.is_active %}
+                                    <div class="list-group-item p-0">
+                                        {% include "bookclub/includes/groups/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group is_first=forloop.first is_last=forloop.last %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-3 text-center text-subtle">
+                            <p class="mb-0">No previous books yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Include the book order modal -->
-{% if is_admin %}
-{% include "bookclub/includes/groups/book_order_modal.html" with books=books book_progress=book_progress %}
-{% endif %}
