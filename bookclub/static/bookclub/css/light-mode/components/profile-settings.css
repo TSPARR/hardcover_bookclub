@@ -30,3 +30,8 @@ html.light-mode .notification-status-badge.badge-disabled {
 html.light-mode .notification-section-title {
     color: #495057;
 }
+
+/* Password form container */
+html.light-mode .password-form-container {
+    border-top-color: #dee2e6;
+}

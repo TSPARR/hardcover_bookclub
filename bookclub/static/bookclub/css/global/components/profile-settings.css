@@ -105,6 +105,36 @@
     min-width: 120px;
 }
 
+/* Password form container */
+.password-form-container {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top-width: 1px;
+    border-top-style: solid;
+    max-height: 1000px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+}
+
+.password-form-container.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.password-requirements-list {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+}
+
+.password-requirements-list li {
+    margin-bottom: 0.25rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .notification-options {

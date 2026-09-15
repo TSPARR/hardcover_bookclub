@@ -31,7 +31,6 @@
 @import 'components/profile-settings.css';
 @import 'components/home.css';
 @import 'components/reorder-books.css';
-@import 'components/password-change.css';
 
 /* Apply dark mode styling */
 html.dark-mode,

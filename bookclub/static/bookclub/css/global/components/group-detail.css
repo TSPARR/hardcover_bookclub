@@ -58,12 +58,22 @@
 }
 
 /* Admin actions dropdown styling */
+.admin-actions-dropdown {
+    position: relative;
+}
+
+.admin-actions-dropdown .dropdown-toggle {
+    position: relative;
+    z-index: 1;
+}
+
 .admin-actions-dropdown .dropdown-toggle::after {
     margin-left: 0.5rem;
 }
 
 .admin-actions-dropdown .dropdown-menu {
     min-width: 200px;
+    z-index: 1050;
 }
 
 .admin-actions-dropdown .dropdown-item {

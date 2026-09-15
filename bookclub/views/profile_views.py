@@ -9,6 +9,7 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_protect
@@ -31,89 +32,117 @@ VAPID_PUBLIC_KEY = getattr(settings, "VAPID_PUBLIC_KEY", "")
 
 @login_required
 def profile_settings(request):
+    password_changed = False
+
     if request.method == "POST":
         form = ProfileSettingsForm(request.POST, instance=request.user.profile)
         notification_form = NotificationPreferencesForm(
             request.POST, user=request.user, push_enabled=is_push_enabled()
         )
         home_page_form = HomePagePreferenceForm(request.POST, user=request.user)
+        password_form = PasswordChangeForm(user=request.user, data=request.POST)
 
         api_key_valid = True
         api_key_message = None
 
-        # Process main profile form with API key
-        if form.is_valid():
-            api_key = form.cleaned_data["hardcover_api_key"]
+        # Check if this is a password change submission
+        if "old_password" in request.POST:
+            if password_form.is_valid():
+                password_form.save()
+                password_changed = True
+                messages.success(
+                    request, "Your password has been changed successfully."
+                )
+                return redirect("profile_settings")
+            # If password form is invalid, add Bootstrap classes and show errors
+            for field in password_form.fields.values():
+                field.widget.attrs["class"] = "form-control"
+        else:
+            # Not a password change, process other forms
+            password_form = PasswordChangeForm(user=request.user)
+            for field in password_form.fields.values():
+                field.widget.attrs["class"] = "form-control"
 
-            # Only validate if an API key was provided
-            if api_key:
-                test_query = """
-                query ValidateAuth {
-                  me {
-                    id
-                    username
-                  }
-                }
-                """
+            # Process main profile form with API key
+            if form.is_valid():
+                api_key = form.cleaned_data["hardcover_api_key"]
 
-                headers = {"Authorization": f"Bearer {api_key}"}
-                try:
-                    response = requests.post(
-                        HardcoverAPI.BASE_URL,
-                        headers=headers,
-                        json={"query": test_query},
-                        timeout=5,
-                    )
+                # Only validate if an API key was provided
+                if api_key:
+                    test_query = """
+                    query ValidateAuth {
+                      me {
+                        id
+                        username
+                      }
+                    }
+                    """
 
-                    data = response.json()
-                    if (
-                        response.status_code == 200
-                        and "data" in data
-                        and "me" in data["data"]
-                    ):
-                        # API key is valid - save will happen below
-                        pass
-                    else:
+                    headers = {"Authorization": f"Bearer {api_key}"}
+                    try:
+                        response = requests.post(
+                            HardcoverAPI.BASE_URL,
+                            headers=headers,
+                            json={"query": test_query},
+                            timeout=5,
+                        )
+
+                        data = response.json()
+                        if (
+                            response.status_code == 200
+                            and "data" in data
+                            and "me" in data["data"]
+                        ):
+                            # API key is valid - save will happen below
+                            pass
+                        else:
+                            api_key_valid = False
+                            api_key_message = (
+                                "Invalid API key. Please check and try again."
+                            )
+                    except Exception as e:
                         api_key_valid = False
-                        api_key_message = "Invalid API key. Please check and try again."
-                except Exception as e:
-                    api_key_valid = False
-                    api_key_message = f"Could not validate API key: {str(e)}"
+                        api_key_message = f"Could not validate API key: {str(e)}"
 
-        # Determine if we should save the forms
-        should_save_api_key = form.is_valid() and (
-            api_key_valid or not form.cleaned_data["hardcover_api_key"]
-        )
-        should_save_notifications = notification_form.is_valid()
-        should_save_home_page = home_page_form.is_valid()
-
-        # Save the forms if appropriate
-        if should_save_api_key:
-            form.save()
-
-        if should_save_notifications:
-            notification_form.save()
-
-        if should_save_home_page:
-            home_page_form.save()
-
-        # Display appropriate messages
-        if not api_key_valid and api_key_message:
-            messages.error(request, api_key_message)
-            # Don't show success message if API key validation failed
-        elif should_save_api_key and form.cleaned_data.get("hardcover_api_key"):
-            messages.success(
-                request, "Hardcover API key has been updated successfully."
+            # Determine if we should save the forms
+            should_save_api_key = form.is_valid() and (
+                api_key_valid or not form.cleaned_data["hardcover_api_key"]
             )
-        elif should_save_api_key and not form.cleaned_data.get("hardcover_api_key"):
-            messages.success(request, "Hardcover API key has been removed.")
-        elif should_save_notifications or should_save_home_page:
-            messages.success(request, "Settings have been updated successfully.")
+            should_save_notifications = notification_form.is_valid()
+            should_save_home_page = home_page_form.is_valid()
 
-        return redirect("profile_settings")
+            # Save the forms if appropriate
+            if should_save_api_key:
+                form.save()
+
+            if should_save_notifications:
+                notification_form.save()
+
+            if should_save_home_page:
+                home_page_form.save()
+
+            # Display appropriate messages
+            if not api_key_valid and api_key_message:
+                messages.error(request, api_key_message)
+                # Don't show success message if API key validation failed
+            elif should_save_api_key and form.cleaned_data.get("hardcover_api_key"):
+                messages.success(
+                    request, "Hardcover API key has been updated successfully."
+                )
+            elif should_save_api_key and not form.cleaned_data.get("hardcover_api_key"):
+                messages.success(request, "Hardcover API key has been removed.")
+            elif should_save_notifications or should_save_home_page:
+                messages.success(request, "Settings have been updated successfully.")
+
+            return redirect("profile_settings")
     else:
         # GET request - initialize forms
         form = ProfileSettingsForm(instance=request.user.profile)
+        password_form = PasswordChangeForm(user=request.user)
+
+        # Add Bootstrap classes to password form fields
+        for field in password_form.fields.values():
+            field.widget.attrs["class"] = "form-control"
 
         # Initialize notification form with current preferences
         initial_data = {
@@ -166,6 +195,7 @@ def profile_settings(request):
         "form": form,
         "notification_form": notification_form,
         "home_page_form": home_page_form,
+        "password_form": password_form,
         "push_notifications_enabled": is_push_enabled(),
         "user_has_dollar_bet_groups": user_has_dollar_bet_groups,
     }

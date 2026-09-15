@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Adjusting profile settings page for a more consistent design
 - Adjusing the login page for a more consistent design
 - Adjusting various group pages for a more consistent design
+- Adjusting the password change pages for a more consistent design
 
 ## Release 0.8.3
 - Dependency update: cffi 2.1.1
