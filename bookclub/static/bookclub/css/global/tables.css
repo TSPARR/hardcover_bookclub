@@ -294,15 +294,27 @@
 /* ===========================
  * Responsive Table Styles
  * =========================== */
-/* Ensure tables scroll horizontally on mobile */
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+/* Desktop: no scroll needed */
+.previous-books-desktop .table-responsive {
+    overflow-x: visible;
+}
+
+.previous-books-desktop .table {
+    table-layout: auto;
+    width: 100%;
+}
+
+.previous-books-desktop .table th,
+.previous-books-desktop .table td {
+    padding: 0.75rem 0.5rem;
+    vertical-align: middle;
 }
 
 /* Mobile table adjustments */
 @media (max-width: 767.98px) {
     .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         margin: 0 -0.5rem;
     }
 

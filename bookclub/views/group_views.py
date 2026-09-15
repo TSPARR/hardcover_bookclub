@@ -562,7 +562,7 @@ def reorder_book(request, group_id, book_id):
         book = get_object_or_404(Book, id=book_id, group=group)
 
         # Get all books in order
-        books = list(group.books.all().order_by("order"))
+        books = list(group.books.all().order_by("display_order"))
         current_index = books.index(book)
 
         # Calculate new index
@@ -576,10 +576,10 @@ def reorder_book(request, group_id, book_id):
         # Swap the books
         books[current_index], books[new_index] = books[new_index], books[current_index]
 
-        # Update order field for all books
+        # Update display_order field for all books
         for index, b in enumerate(books):
-            b.order = index + 1
-            b.save(update_fields=["order"])
+            b.display_order = index + 1
+            b.save(update_fields=["display_order"])
 
         return JsonResponse({"success": True})
 
