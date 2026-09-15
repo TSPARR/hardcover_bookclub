@@ -462,6 +462,17 @@
     color: #adb5bd;
 }
 
+/* Mobile Book Card Styling - Dark Mode */
+.dark-mode .mobile-book-card {
+    background-color: #1e1e1e;
+    border: 1px solid #3a3a3a;
+}
+
+.dark-mode .mobile-book-details,
+.dark-mode .mobile-book-actions {
+    border-top: 1px solid #3a3a3a;
+}
+
 /* Mobile Book Card Progress Bar - Dark Mode */
 .dark-mode .mobile-book-card .book-progress-section {
     margin-bottom: 0.75rem;

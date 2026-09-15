@@ -446,6 +446,17 @@
     margin-top: 0.75rem;
 }
 
+/* Mobile Book Card Styling - Light Mode */
+.light-mode .mobile-book-card {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+}
+
+.light-mode .mobile-book-details,
+.light-mode .mobile-book-actions {
+    border-top: 1px solid #dee2e6;
+}
+
 /* Mobile Book Card Progress Bar - Light Mode */
 .light-mode .mobile-book-card .progress.group-members-progress {
     height: 1.25rem;

@@ -14,14 +14,27 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize book order modal functionality
 function initBookOrderModal() {
     const modal = document.getElementById('bookOrderModal');
-    if (!modal) return;
+    if (!modal) {
+        console.log('Book order modal not found');
+        return;
+    }
 
+    console.log('Initializing book order modal');
     const booksList = document.getElementById('sortableBooksModal');
     const saveBtn = document.getElementById('saveBookOrder');
     let sortableInstance = null;
 
+    // Debug: Log when modal is triggered
+    const modalTriggers = document.querySelectorAll('[data-bs-target="#bookOrderModal"]');
+    modalTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function() {
+            console.log('Modal trigger clicked');
+        });
+    });
+
     // Initialize sortable when modal is shown
     modal.addEventListener('shown.bs.modal', function() {
+        console.log('Modal shown event fired');
         if (booksList && !sortableInstance) {
             sortableInstance = new Sortable(booksList, {
                 animation: 150,
@@ -31,6 +44,7 @@ function initBookOrderModal() {
                     updateBookNumbers();
                 }
             });
+            console.log('Sortable initialized');
         }
     });
 
