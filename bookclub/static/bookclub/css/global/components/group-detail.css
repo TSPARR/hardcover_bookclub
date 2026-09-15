@@ -67,6 +67,12 @@
     z-index: 1;
 }
 
+/* Elevate the entire dropdown container when open to appear above other dropdowns */
+.admin-actions-dropdown:has(.dropdown-toggle[aria-expanded="true"]),
+.admin-actions-dropdown:has(.dropdown-menu.show) {
+    z-index: 1000 !important;
+}
+
 .admin-actions-dropdown .admin-dropdown-btn {
     min-width: 2.5rem;
     padding-left: 0.5rem;
