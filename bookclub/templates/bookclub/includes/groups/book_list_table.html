@@ -58,23 +58,25 @@
             </td>
             {% if is_admin %}
             <td>
-                {% if not book.is_active %}
-                <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                        Set Active
-                    </button>
-                </form>
-                {% endif %}
-                <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
-                    <i class="bi bi-star"></i> Editions
-                </a>
-                <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                        Remove
-                    </button>
-                </form>
+                <div class="book-actions">
+                    {% if not book.is_active %}
+                    <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            Set Active
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-star"></i> Editions
+                    </a>
+                    <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Remove
+                        </button>
+                    </form>
+                </div>
             </td>
             {% endif %}
         </tr>

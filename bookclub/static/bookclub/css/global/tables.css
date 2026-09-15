@@ -309,14 +309,19 @@
     vertical-align: middle;
 }
 
-/* Make buttons in Actions column display nicely */
-.previous-books-desktop .book-list-table td form {
-    display: inline-block;
-    margin-right: 0.25rem;
-    margin-bottom: 0.25rem;
+/* Actions column alignment */
+.book-list-table .book-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
 }
 
-.previous-books-desktop .book-list-table td .btn-sm {
+.book-list-table .book-actions form {
+    margin: 0;
+}
+
+.book-list-table .book-actions .btn-sm {
     white-space: nowrap;
 }
 
