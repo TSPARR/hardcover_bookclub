@@ -446,55 +446,6 @@
     margin-top: 0.75rem;
 }
 
-/* Previous Books Table Improvements - Light Mode */
-/* Card and border styling */
-.light-mode .previous-books-desktop .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-    padding: 1rem 1.25rem;
-}
-
-/* Text styling */
-.light-mode .previous-books-desktop .book-author {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-.light-mode .previous-books-desktop .book-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    display: block;
-}
-
-/* Table styling */
-.light-mode .previous-books-desktop table thead {
-    background-color: #f0f0f0;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.light-mode .previous-books-desktop table th {
-    background-color: #f0f0f0;
-    color: #333333;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.light-mode .previous-books-desktop table td {
-    border-top: 1px solid #dee2e6;
-}
-
-/* Button styling */
-.light-mode .previous-books-desktop .btn-outline-primary {
-    color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.light-mode .previous-books-desktop .btn-outline-primary:hover {
-    background-color: #0d6efd;
-    color: #fff;
-}
-
 /* Mobile Book Card Progress Bar - Light Mode */
 .light-mode .mobile-book-card .progress.group-members-progress {
     height: 1.25rem;
@@ -521,51 +472,6 @@
     font-size: 0.875rem;
     font-weight: 600;
     z-index: 1;
-}
-
-/* Book Reordering Form Styles - Light Mode */
-.light-mode #reorderForm,
-.light-mode #mobileReorderForm {
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    border-radius: 0.375rem;
-    transition: display 0.2s ease;
-}
-
-.light-mode #sortableBooks {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.light-mode #sortableBooks li {
-    padding: 0.75rem 1rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    margin-bottom: 0.5rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-}
-
-.light-mode #sortableBooks .handle {
-    cursor: grab;
-    margin-right: 0.75rem;
-    color: #6c757d;
-}
-
-.light-mode #sortableBooks .book-info {
-    flex-grow: 1;
-}
-
-.light-mode #sortableBooks .book-title {
-    font-weight: 600;
-    display: block;
-}
-
-.light-mode #sortableBooks .book-author {
-    font-size: 0.875rem;
-    color: #6c757d;
 }
 
 /* ===========================

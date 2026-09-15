@@ -462,56 +462,6 @@
     color: #adb5bd;
 }
 
-/* Previous Books Table Improvements - Dark Mode */
-.dark-mode .previous-books-desktop .card-header.bg-white {
-    background-color: #2c2c2c !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 1rem 1.25rem;
-}
-
-.dark-mode .previous-books-desktop .book-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    display: block;
-}
-
-.dark-mode .previous-books-desktop .book-author {
-    font-size: 0.875rem;
-    color: #b0b0b0;
-}
-
-.dark-mode .previous-books-desktop table thead {
-    background-color: #222222;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.dark-mode .previous-books-desktop table th {
-    background-color: #222222;
-    color: #ffffff;
-    border-bottom: 1px solid #3a3a3a;
-}
-
-.dark-mode .previous-books-desktop table td {
-    border-top: 1px solid #3a3a3a;
-    color: #e1e1e1;
-}
-
-.dark-mode .previous-books-desktop .btn-outline-primary {
-    color: #6ea8fe;
-    border-color: #6ea8fe;
-}
-
-.dark-mode .previous-books-desktop .btn-outline-primary:hover {
-    background-color: #0d6efd;
-    color: #ffffff;
-}
-
-.dark-mode .previous-books-desktop tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
 /* Mobile Book Card Progress Bar - Dark Mode */
 .dark-mode .mobile-book-card .book-progress-section {
     margin-bottom: 0.75rem;
@@ -586,68 +536,6 @@
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     font-weight: 500;
-}
-
-/* Book Reordering Form Styles - Dark Mode */
-.dark-mode #reorderForm,
-.dark-mode #mobileReorderForm {
-    padding: 1rem;
-    background-color: rgba(255, 255, 255, 0.03);
-}
-
-.dark-mode #sortableBooks {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.dark-mode #sortableBooks li {
-    padding: 0.75rem 1rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
-    margin-bottom: 0.5rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-}
-
-.dark-mode #sortableBooks li:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-.dark-mode #sortableBooks .handle {
-    cursor: grab;
-    margin-right: 0.75rem;
-    color: #adb5bd;
-}
-
-.dark-mode #sortableBooks .book-info {
-    flex-grow: 1;
-}
-
-.dark-mode #sortableBooks .book-title {
-    font-weight: 600;
-    display: block;
-}
-
-.dark-mode #sortableBooks .book-author {
-    font-size: 0.875rem;
-    color: #adb5bd;
-}
-
-.dark-mode #sortableBooks .book-number {
-    display: inline-block;
-    min-width: 1.5rem;
-    text-align: center;
-    margin-right: 0.75rem;
-    font-weight: 600;
-}
-
-.dark-mode .reorder-actions {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
 }
 
 /* ===========================

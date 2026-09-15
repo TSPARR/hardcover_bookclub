@@ -291,12 +291,6 @@
     flex-basis: 100%;
     max-width: 100%;
   }
-  
-  /* Further simplify the book list items - works for both themes */
-  #sortableBooks li {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 /* ===========================
@@ -352,198 +346,11 @@
     height: 1.25rem;
     margin: 0;
   }
-  
+
   /* Make status badges more compact */
   .group-members-progress-card .badge {
     padding: 0.35em 0.5em;
     font-size: 0.75rem;
-  }
-  
-  /* Previous books table visibility and styling */
-  .previous-books-desktop {
-    display: none !important;
-  }
-
-  .previous-books-mobile {
-    display: block !important;
-  }
-  
-  /* Specific mobile styling for previous books mobile view */
-  .previous-books-mobile .mobile-book-card {
-    margin-bottom: 0.75rem;
-  }
-  
-  /* Mobile book card styling */
-  .mobile-book-card {
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-    background-color: var(--card-bg, #1e1e1e);
-    border: 1px solid var(--card-border-color, #333);
-  }
-  
-  /* Book information header */
-  .mobile-book-header {
-    padding: 1rem;
-  }
-  
-  .mobile-book-header .book-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    line-height: 1.3;
-  }
-  
-  .mobile-book-header .book-author {
-    font-size: 0.95rem;
-    opacity: 0.8;
-    margin-bottom: 0;
-  }
-  
-  /* Book details section */
-  .mobile-book-details {
-    padding: 0.75rem 1rem;
-    border-top: 1px solid rgba(128, 128, 128, 0.2);
-  }
-  
-  /* Action buttons section */
-  .mobile-book-actions {
-    padding: 1rem;
-    border-top: 1px solid rgba(128, 128, 128, 0.2);
-  }
-  
-  /* Action button styling */
-  .mobile-book-actions .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.75rem;
-    padding: 0.6rem 1rem;
-    text-align: center;
-    border-radius: 0.375rem;
-  }
-  
-  .mobile-book-actions .btn:last-child {
-    margin-bottom: 0;
-  }
-  
-  /* Inline form fixes */
-  .mobile-book-actions form.d-inline {
-    display: block !important;
-    width: 100%;
-    margin-bottom: 0.75rem;
-  }
-  
-  .mobile-book-actions form.d-inline:last-child {
-    margin-bottom: 0;
-  }
-  
-  .mobile-book-actions form.d-inline .btn {
-    width: 100%;
-    margin-bottom: 0;
-  }
-  
-  /* Special spacing for Remove button - ADDED FIX */
-  .mobile-book-actions form.d-inline:last-of-type {
-    margin-top: 0.25rem;
-  }
-  
-  /* Mobile book reordering fixes */
-  #mobileReorderForm {
-    padding: 0.75rem;
-    background-color: rgba(0, 0, 0, 0.02);
-  }
-  
-  .dark-mode #mobileReorderForm {
-    background-color: #1e1e1e;
-  }
-  
-  /* Mobile specific styles for reorder form */
-  #reorderForm {
-    padding: 0.75rem;
-    overflow-x: hidden;
-  }
-
-  /* Sortable books structure */
-  #sortableBooks {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  #sortableBooks li {
-    padding: 0.5rem;
-    flex-wrap: wrap;
-  }
-  
-  /* Handle and number column */
-  #sortableBooks li .handle {
-    font-size: 1rem;
-  }
-  
-  #sortableBooks li .book-number {
-    min-width: 24px;
-    height: 24px;
-    font-size: 0.8rem;
-  }
-  
-  /* Force flex column on smaller screens for book info */
-  #sortableBooks li .d-flex.justify-content-between {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  /* Adjust book info display */
-  #sortableBooks li strong {
-    font-size: 0.9rem;
-    display: block;
-    white-space: normal;
-    word-break: break-word;
-  }
-  
-  #sortableBooks li small {
-    font-size: 0.8rem;
-  }
-  
-  /* Fix badge display */
-  #sortableBooks li .badge {
-    font-size: 0.7rem;
-    margin-top: 0.25rem;
-    white-space: normal;
-    text-align: center;
-    display: inline-block;
-  }
-  
-  /* Stack buttons on small screens */
-  #sortableBooks li .d-flex.align-items-center:last-child {
-    margin-top: 0.5rem;
-    width: 100%;
-    justify-content: flex-end;
-  }
-  
-  /* Ensure buttons are properly sized */
-  #sortableBooks li .btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-  }
-  
-  /* Action buttons at bottom of form */
-  #reorderForm>div:last-child,
-  #mobileReorderForm>div:last-child {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
-  
-  #reorderForm>div:last-child .btn,
-  #mobileReorderForm>div:last-child .btn {
-    width: 48%;
-  }
-  
-  /* Ensure alert message is readable */
-  #reorderForm .alert,
-  #mobileReorderForm .alert {
-    font-size: 0.85rem;
-    padding: 0.5rem;
   }
 }
 
@@ -586,19 +393,6 @@
   .read-only-indicator {
     margin-left: 0;
     margin-top: 0.5rem;
-  }
-  
-  /* Make book cover smaller for sortable books */
-  #sortableBooks li .me-3[style*="width: 40px"] {
-    width: 30px !important;
-    height: 45px !important;
-    min-width: 30px;
-  }
-  
-  /* Improve text wrapping */
-  #sortableBooks li div:not(.d-flex) {
-    width: 100%;
-    word-break: break-word;
   }
 }
 

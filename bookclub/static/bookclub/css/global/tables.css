@@ -209,14 +209,7 @@
     content: none;
 }
 
-/* Previous books visibility structure */
-.previous-books-desktop {
-    display: block;
-}
-
-.previous-books-mobile {
-    display: none;
-}
+/* Previous books structure - unified for all screen sizes */
 
 /* Collapse button structure */
 .btn-previous-books-toggle {
@@ -278,219 +271,28 @@
     border-radius: 50rem;
 }
 
-/* Desktop table view improvements */
-.previous-books-desktop .card-body {
-    padding: 0;
-}
-
-.previous-books-desktop #readOnlyBooks {
-    width: 100%;
-    overflow-x: visible;
-    /* Only allow scrolling if absolutely needed */
-}
-
-.previous-books-desktop table {
-    margin-bottom: 0;
-    width: 100%;
-    max-width: 100%;
-    table-layout: auto;
-}
-
-/* Add proper spacing in table cells */
-.previous-books-desktop table th,
-.previous-books-desktop table td {
-    padding: 0.75rem 1rem;
-    vertical-align: middle;
-}
-
-/* Column width distribution for desktop - optimized layout */
-.previous-books-desktop table th:nth-child(1),
-.previous-books-desktop table td:nth-child(1) {
-    width: 5%;
-    min-width: 40px;
-}
-
-.previous-books-desktop table th:nth-child(2),
-.previous-books-desktop table td:nth-child(2) {
-    width: 20%;
-}
-
-.previous-books-desktop table th:nth-child(3),
-.previous-books-desktop table td:nth-child(3) {
-    width: 15%;
-}
-
-.previous-books-desktop table th:nth-child(4),
-.previous-books-desktop table td:nth-child(4) {
-    width: 15%;
-}
-
-/* Remove Status column as it's not needed for Previous Books */
-.previous-books-desktop table th:nth-child(5),
-.previous-books-desktop table td:nth-child(5) {
-    display: none;
-}
-
-/* Style for stacked rating display */
-.previous-books-desktop .rating-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.previous-books-desktop .rating-stars {
-    margin-bottom: 0.25rem;
-}
-
-.previous-books-desktop .rating-value {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-/* Style for stacked progress display */
-.previous-books-desktop .progress-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.previous-books-desktop .progress-badge {
-    margin-bottom: 0.25rem;
-}
-
-.previous-books-desktop .progress-value {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-/* Ensure proper button spacing and alignment in desktop view */
-.previous-books-desktop table td:last-child .btn {
-    margin: 0.15rem;
-}
-
-/* Make the table header sticky for better usability */
-.previous-books-desktop table thead {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-/* Book title styling */
-.previous-books-desktop .book-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    display: block;
-}
-
-/* Card header improvements */
-.previous-books-desktop .card-header {
-    padding: 1rem 1.25rem;
-    position: relative;
-    z-index: 2;
-}
-
-/* Book image styling */
-.previous-books-desktop .book-cover-img {
-    max-height: 75px;
-    width: auto;
-    object-fit: contain;
-    border-radius: 0.25rem;
-}
-
-/* Ensure consistent height for rows */
-.previous-books-desktop tbody tr {
-    height: 100px;
-}
-
-/* Improve hover states */
-.previous-books-desktop tbody tr:hover {
-    transition: background-color 0.15s ease-in-out;
-}
 
 /* ===========================
- * Book Reordering Form Styles
+ * Book Order Modal Styles
  * =========================== */
-/* Add spacing when reorder form is visible */
-#reorderForm,
-#mobileReorderForm {
-    padding: 1rem;
-}
-
-/* Improved sortable functionality styling */
-#sortableBooks {
+/* Sortable books list in modal */
+#sortableBooksModal {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-#sortableBooks li {
-    padding: 0.75rem 1rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    margin-bottom: 0.5rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-}
-
-#sortableBooks .handle {
+#sortableBooksModal .handle {
     cursor: grab;
-    margin-right: 0.75rem;
-    color: #6c757d;
 }
 
-#sortableBooks .book-number {
-    display: inline-block;
-    min-width: 1.5rem;
-    text-align: center;
-    margin-right: 0.75rem;
-    font-weight: 600;
+#sortableBooksModal .handle:active {
+    cursor: grabbing;
 }
 
-/* Mobile toggle button */
-.mobile-edit-btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-
-/* Ensure reorder form is properly styled when visible */
-#reorderForm {
-    background-color: rgba(0, 0, 0, 0.02);
-    border-radius: 0.375rem;
-    padding: 1rem;
-    transition: display 0.2s ease;
-}
-
-#reorderForm.d-none {
-    display: none;
-}
-
-/* Additional styling for sortable items */
-#sortableBooks .book-info {
-    flex-grow: 1;
-}
-
-#sortableBooks .book-title {
-    font-weight: 600;
-    display: block;
-}
-
-#sortableBooks .book-author {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-/* Form buttons container */
-.reorder-actions {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
-/* Ensure form inputs are visible */
-#bookOrderInput {
-    width: 100%;
+/* Sortable ghost class for dragging */
+.sortable-ghost {
+    opacity: 0.5;
 }
 
 /* ===========================

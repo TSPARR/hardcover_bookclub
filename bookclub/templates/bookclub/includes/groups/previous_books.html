@@ -1,9 +1,10 @@
+{% load bookclub_extras %}
 <div class="mb-4 previous-books-container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="h5 mb-0 previous-books-title"><i class="bi bi-clock-history me-2"></i>Previous Books</h3>
+        <h3 class="h5 mb-0"><i class="bi bi-clock-history me-2"></i>Previous Books</h3>
     </div>
 
-    <!-- Toggle button for both mobile and desktop -->
+    <!-- Toggle button -->
     <button class="btn btn-outline-secondary mb-3 btn-previous-books-toggle" type="button"
             data-bs-toggle="collapse" data-bs-target="#previousBooksCollapse"
             aria-expanded="false" aria-controls="previousBooksCollapse">
@@ -12,75 +13,36 @@
         </span></span>
         <i class="bi bi-chevron-down collapse-indicator"></i>
     </button>
-    
-    <!-- Main collapsible container -->
+
+    <!-- Collapsible container -->
     <div class="collapse" id="previousBooksCollapse">
-        <!-- Desktop Book Management Table -->
-        <div class="previous-books-desktop">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header card-header-neutral">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="h6 mb-0">Book Order</h4>
-                        {% if is_admin %}
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="toggleEditMode">
-                            <i class="bi bi-pencil"></i> Edit Order
-                        </button>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="card-body p-0">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header card-header-neutral">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="h6 mb-0">Book History</h4>
                     {% if is_admin %}
-                    <!-- Admin reorder form -->
-                    <div id="reorderForm" class="d-none">
-                        {% include "bookclub/includes/groups/book_reorder_form.html" with books=books %}
-                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bookOrderModal">
+                        <i class="bi bi-arrows-move"></i> Reorder Books
+                    </button>
                     {% endif %}
-                    
-                    <!-- Read-only book list -->
-                    <div id="readOnlyBooks">
-                        <div class="table-responsive">
-                            {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Mobile display for previous books -->
-        <div class="previous-books-mobile">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header card-header-neutral">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="h6 mb-0">Book Order</h4>
-                        {% if is_admin %}
-                        <button type="button" class="btn btn-sm btn-outline-primary mobile-edit-btn" id="mobileToggleEditMode">
-                            <i class="bi bi-pencil"></i> Edit
-                        </button>
-                        {% endif %}
+            <div class="card-body p-0">
+                {% if books %}
+                    <div class="table-responsive">
+                        {% include "bookclub/includes/groups/book_list_table.html" with books=books book_progress=book_progress is_admin=is_admin group=group %}
                     </div>
-                </div>
-                <div class="card-body p-0">
-                    {% if is_admin %}
-                    <!-- Mobile reorder form -->
-                    <div id="mobileReorderForm" class="d-none">
-                        {% include "bookclub/includes/groups/book_reorder_form.html" with books=books mobile=True %}
+                {% else %}
+                    <div class="p-3 text-center text-subtle">
+                        <p class="mb-0">No previous books yet.</p>
                     </div>
-                    {% endif %}
-                    
-                    <!-- Mobile book list -->
-                    <div id="mobileReadOnlyBooks">
-                        <div class="list-group list-group-flush">
-                            {% for book in books %}
-                                {% if not book.is_active %}
-                                    <div class="list-group-item p-3">
-                                        {% include "bookclub/includes/groups/mobile_book_card.html" with book=book book_progress=book_progress is_admin=is_admin group=group %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Include the book order modal -->
+{% if is_admin %}
+{% include "bookclub/includes/groups/book_order_modal.html" with books=books book_progress=book_progress %}
+{% endif %}

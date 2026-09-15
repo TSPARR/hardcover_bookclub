@@ -5,115 +5,52 @@
 // Document ready event handler
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all book management features
-    initBookSorting();
+    initBookOrderModal();
     initBookAttribution();
     initAddBookForm();
-    initEditModeToggle();
     initConfirmationModal();
 });
 
-// Initialize edit mode toggle in the group detail page
-function initEditModeToggle() {
-    // Desktop edit mode toggle
-    const toggleEditModeBtn = document.getElementById('toggleEditMode');
-    const cancelEditBtn = document.getElementById('cancelEdit');
-    const reorderForm = document.getElementById('reorderForm');
-    const readOnlyBooks = document.getElementById('readOnlyBooks');
-    
-    if (toggleEditModeBtn && reorderForm && readOnlyBooks) {
-        toggleEditModeBtn.addEventListener('click', function() {
-            reorderForm.classList.remove('d-none');
-            readOnlyBooks.classList.add('d-none');
-            toggleEditModeBtn.classList.add('d-none');
-        });
-        
-        if (cancelEditBtn) {
-            cancelEditBtn.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent form submission
-                reorderForm.classList.add('d-none');
-                readOnlyBooks.classList.remove('d-none');
-                toggleEditModeBtn.classList.remove('d-none');
-            });
-        }
-    }
-    
-    // Mobile edit mode toggle
-    const mobileToggleBtn = document.getElementById('mobileToggleEditMode');
-    const mobileCancelBtn = document.getElementById('mobileCancelEdit');
-    const mobileReorderForm = document.getElementById('mobileReorderForm');
-    const mobileReadOnlyBooks = document.getElementById('mobileReadOnlyBooks');
-    
-    if (mobileToggleBtn && mobileReorderForm && mobileReadOnlyBooks) {
-        mobileToggleBtn.addEventListener('click', function() {
-            mobileReorderForm.classList.remove('d-none');
-            mobileReadOnlyBooks.classList.add('d-none');
-            mobileToggleBtn.classList.add('d-none');
-        });
-        
-        if (mobileCancelBtn) {
-            mobileCancelBtn.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent form submission
-                mobileReorderForm.classList.add('d-none');
-                mobileReadOnlyBooks.classList.remove('d-none');
-                mobileToggleBtn.classList.remove('d-none');
-            });
-        }
-    }
-}
+// Initialize book order modal functionality
+function initBookOrderModal() {
+    const modal = document.getElementById('bookOrderModal');
+    if (!modal) return;
 
-// Initialize book sorting functionality
-function initBookSorting() {
-    const booksList = document.getElementById('sortableBooks');
-    if (!booksList) return;
-    
-    // Set up sortable for book reordering
-    new Sortable(booksList, {
-        animation: 150,
-        handle: '.handle',
-        ghostClass: 'sortable-ghost',
-        onEnd: function() {
-            // Update the book numbers
-            updateBookNumbers();
-        }
-    });
-    
-    // Get the save button
-    const saveOrderBtn = document.getElementById('saveOrderBtn');
-    if (saveOrderBtn) {
-        saveOrderBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            // Get the current order of books (only from sortableBooks)
-            const bookItems = document.querySelectorAll('#sortableBooks > li');
-            
-            // Use a Set to ensure no duplicate book IDs
-            const uniqueBookIds = new Set();
-            bookItems.forEach(item => {
-                const bookId = item.getAttribute('data-id');
-                if (bookId) {
-                    uniqueBookIds.add(bookId);
+    const booksList = document.getElementById('sortableBooksModal');
+    const saveBtn = document.getElementById('saveBookOrder');
+    let sortableInstance = null;
+
+    // Initialize sortable when modal is shown
+    modal.addEventListener('shown.bs.modal', function() {
+        if (booksList && !sortableInstance) {
+            sortableInstance = new Sortable(booksList, {
+                animation: 150,
+                handle: '.handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: function() {
+                    updateBookNumbers();
                 }
             });
-            
-            // Convert the Set to an Array
-            const bookIds = Array.from(uniqueBookIds);
-            
-            // Debug info
-            
+        }
+    });
+
+    // Save button handler
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const bookItems = document.querySelectorAll('#sortableBooksModal > li');
+
+            // Get book IDs in current order
+            const bookIds = Array.from(bookItems).map(item => item.getAttribute('data-id'));
+
             // Create FormData
             const formData = new FormData();
             bookIds.forEach(id => {
                 formData.append('book_order', id);
             });
-            
-            // Get the current URL (which should be the group detail page)
-            const url = window.location.href;
-            
-            // Submit with fetch
-            fetch(url, {
+
+            // Submit
+            fetch(window.location.href, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -122,14 +59,15 @@ function initBookSorting() {
             })
             .then(response => {
                 if (response.ok) {
-                    // If successful, reload the page
                     window.location.reload();
                 } else {
                     console.error('Error saving book order');
+                    alert('Failed to save book order. Please try again.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert('An error occurred. Please try again.');
             });
         });
     }
@@ -137,7 +75,7 @@ function initBookSorting() {
 
 // Function to update book numbers after reordering
 function updateBookNumbers() {
-    const bookItems = document.querySelectorAll('#sortableBooks li');
+    const bookItems = document.querySelectorAll('#sortableBooksModal li');
     bookItems.forEach((item, index) => {
         // Update the data-order attribute
         item.setAttribute('data-order', index + 1);
@@ -370,8 +308,7 @@ function initConfirmationModal() {
 }
 
 // Expose functions globally to maintain compatibility
-window.initBookSorting = initBookSorting;
+window.initBookOrderModal = initBookOrderModal;
 window.initBookAttribution = initBookAttribution;
 window.initAddBookForm = initAddBookForm;
-window.initEditModeToggle = initEditModeToggle;
 window.initConfirmationModal = initConfirmationModal;
