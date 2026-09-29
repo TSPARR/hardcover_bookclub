@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 - Bump gunicorn from 26.0.0 to 26.2.0
 - Bump cryptography from 50.0.0 to 50.0.1
 - Bump pywebpush from 2.4.0 to 2.5.0
+- Bump idna from 3.19 to 3.20
+- Bump djangorestframework from 3.18.0 to 3.18.1
+- Bumps urllib3 from 2.7.0 to 2.8.0
 - Adjusting the search page for a more consistent design
 - Adjusting invitations pages for a more consistent design
 - Adjusting profile settings page for a more consistent design
