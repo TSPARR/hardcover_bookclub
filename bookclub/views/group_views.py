@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from ..forms import GroupForm
@@ -28,6 +29,11 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
+    # Check if user has a custom home page preference and redirect if needed
+    redirect_url = request.user.profile.get_home_redirect_url()
+    if redirect_url != reverse("home"):
+        return redirect(redirect_url)
+
     # Get groups where the user is a member
     user_groups = list(request.user.book_groups.all())
     logger.debug(f"User {request.user.username} has {len(user_groups)} groups")
@@ -295,7 +301,19 @@ def create_group(request):
     else:
         form = GroupForm()
 
-    return render(request, "bookclub/create_group.html", {"form": form})
+    breadcrumb_items = [
+        {"title": "Home", "url": "/"},
+        {"title": "Create New Group", "url": ""},
+    ]
+
+    return render(
+        request,
+        "bookclub/create_group.html",
+        {
+            "form": form,
+            "breadcrumb_items": breadcrumb_items,
+        },
+    )
 
 
 @login_required
@@ -350,6 +368,12 @@ def manage_group_members(request, group_id):
         id__in=group.members.all().values_list("id", flat=True)
     )
 
+    breadcrumb_items = [
+        {"title": "Home", "url": "/"},
+        {"title": group.name, "url": f"/groups/{group.id}/"},
+        {"title": "Manage Members", "url": ""},
+    ]
+
     return render(
         request,
         "bookclub/manage_group_members.html",
@@ -358,6 +382,7 @@ def manage_group_members(request, group_id):
             "members": group.members.all(),
             "admins": group.admins.all(),
             "available_users": all_users,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -493,6 +518,12 @@ def manage_member_starting_points(request, group_id):
 
         return redirect("manage_member_starting_points", group_id=group.id)
 
+    breadcrumb_items = [
+        {"title": "Home", "url": "/"},
+        {"title": group.name, "url": f"/groups/{group.id}/"},
+        {"title": "Manage Member Starting Points", "url": ""},
+    ]
+
     return render(
         request,
         "bookclub/manage_member_starting_points.html",
@@ -501,6 +532,7 @@ def manage_member_starting_points(request, group_id):
             "books": books,
             "members": members,
             "starting_points_dict": starting_points_dict,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 

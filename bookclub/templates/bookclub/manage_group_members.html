@@ -1,104 +1,159 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
+{% load static %}
 
 {% block title %}Manage {{ group.name }} Members{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/manage-group-members.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="h3"><i class="bi bi-people-fill me-2"></i>Manage Members</h1>
-            <p class="text-muted">Group: {{ group.name }}</p>
-        </div>
+<div class="manage-members-page">
+    <div class="manage-members-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="manage-members-title">
+            <i class="bi bi-people-fill"></i>
+            Manage Members
+        </h1>
+        <p class="manage-members-subtitle">Group: {{ group.name }}</p>
     </div>
 
-    <div class="mb-4">
-        <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Group
-        </a>
-    </div>
-    
-    <div class="row">
-        <div class="col-lg-8 mb-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-person-check me-2"></i>Current Members</h5>
-                    <span class="badge bg-primary">{{ members.count }} members</span>
+    <div class="manage-members-content">
+        <div class="manage-members-main">
+            <div class="members-card">
+                <div class="members-card-header">
+                    <h2 class="members-card-title">
+                        <i class="bi bi-person-check"></i>
+                        Current Members
+                    </h2>
+                    <span class="members-count-badge">{{ members.count }} members</span>
                 </div>
-                <div class="card-body p-0">
+
+                <div class="members-card-body">
                     {% if members %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Role</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for member in members %}
-                                <tr>
-                                    <td class="align-middle">{{ member.username }}</td>
-                                    <td class="align-middle">
-                                        {% if member in admins %}
-                                        <span class="badge bg-success">Admin</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Member</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-wrap gap-2">
+                        <div class="table-wrapper">
+                            <table class="members-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in members %}
+                                    <tr>
+                                        <td>{{ member.username }}</td>
+                                        <td>
+                                            {% if member in admins %}
+                                            <span class="role-badge admin">Admin</span>
+                                            {% else %}
+                                            <span class="role-badge member">Member</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="actions-cell">
                                             {% if member != user %}
-                                            <form method="post" class="d-inline">
+                                            <form method="post" class="member-actions-form">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="user_id" value="{{ member.id }}">
 
                                                 {% if member in admins %}
                                                 <button type="submit" name="action" value="remove_admin"
-                                                    class="btn btn-sm btn-outline-warning"
+                                                    class="btn btn-sm btn-outline-warning confirm-action"
                                                     data-confirm="Are you sure you want to remove admin privileges from {{ member.username }}?">
-                                                    <i class="bi bi-shield-minus me-1"></i> Remove Admin
+                                                    <i class="bi bi-shield-minus"></i> Remove Admin
                                                 </button>
                                                 {% else %}
                                                 <button type="submit" name="action" value="make_admin"
                                                     class="btn btn-sm btn-outline-success">
-                                                    <i class="bi bi-shield-plus me-1"></i> Make Admin
+                                                    <i class="bi bi-shield-plus"></i> Make Admin
                                                 </button>
                                                 {% endif %}
 
                                                 <button type="submit" name="action" value="remove"
-                                                    class="btn btn-sm btn-outline-danger"
+                                                    class="btn btn-sm btn-outline-danger confirm-action"
                                                     data-confirm="Are you sure you want to remove {{ member.username }} from this group? This action cannot be undone.">
-                                                    <i class="bi bi-person-dash me-1"></i> Remove
+                                                    <i class="bi bi-person-dash"></i> Remove
                                                 </button>
                                             </form>
                                             {% else %}
-                                            <span class="text-muted">You</span>
+                                            <span class="current-user-indicator">You</span>
                                             {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% for member in members %}
+                        <div class="member-mobile-card">
+                            <div class="mobile-card-header">
+                                <span class="member-name">{{ member.username }}</span>
+                                {% if member in admins %}
+                                <span class="role-badge admin">Admin</span>
+                                {% else %}
+                                <span class="role-badge member">Member</span>
+                                {% endif %}
+                            </div>
+
+                            {% if member != user %}
+                            <div class="mobile-card-actions">
+                                <form method="post" class="member-actions-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ member.id }}">
+
+                                    {% if member in admins %}
+                                    <button type="submit" name="action" value="remove_admin"
+                                        class="btn btn-sm btn-outline-warning confirm-action"
+                                        data-confirm="Are you sure you want to remove admin privileges from {{ member.username }}?">
+                                        <i class="bi bi-shield-minus"></i> Remove Admin
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" name="action" value="make_admin"
+                                        class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-shield-plus"></i> Make Admin
+                                    </button>
+                                    {% endif %}
+
+                                    <button type="submit" name="action" value="remove"
+                                        class="btn btn-sm btn-outline-danger confirm-action"
+                                        data-confirm="Are you sure you want to remove {{ member.username }} from this group? This action cannot be undone.">
+                                        <i class="bi bi-person-dash"></i> Remove
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <div class="mobile-card-current-user">
+                                <span class="current-user-indicator">This is you</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     {% else %}
-                    <div class="p-4 text-center">
-                        <p class="text-muted mb-0">No members in this group yet.</p>
+                    <div class="members-empty">
+                        <div class="members-empty-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <p class="members-empty-text">No members in this group yet.</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Add Members</h5>
+            <div class="add-members-card">
+                <div class="add-members-card-header">
+                    <h2 class="add-members-card-title">
+                        <i class="bi bi-person-plus"></i>
+                        Add Members
+                    </h2>
                 </div>
-                <div class="card-body">
+
+                <div class="add-members-card-body">
                     {% if available_users %}
-                    <form method="post" action="{% url 'add_group_member' group.id %}">
+                    <form method="post" action="{% url 'add_group_member' group.id %}" class="add-member-form">
                         {% csrf_token %}
-                        <div class="input-group">
+                        <div class="add-member-input-group">
                             <select name="user_id" class="form-select" required>
                                 <option value="">Choose a user to add...</option>
                                 {% for user in available_users %}
@@ -106,48 +161,81 @@
                                 {% endfor %}
                             </select>
                             <button class="btn btn-primary" type="submit">
-                                <i class="bi bi-plus-lg me-1"></i> Add
+                                <i class="bi bi-plus-lg"></i> Add
                             </button>
                         </div>
                     </form>
                     {% else %}
-                    <p class="text-center mb-0">No more users available to add.</p>
+                    <p class="no-users-message">No more users available to add.</p>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card shadow-sm sticky-top" style="top: 1rem;">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Group Roles</h5>
+        <div class="manage-members-sidebar">
+            <div class="roles-info-card">
+                <div class="roles-info-header">
+                    <h3 class="roles-info-title">
+                        <i class="bi bi-info-circle"></i>
+                        Group Roles
+                    </h3>
                 </div>
-                <div class="card-body">
-                    <h6 class="fw-bold"><i class="bi bi-shield-fill me-2 text-success"></i>Admins Can:</h6>
-                    <ul class="mb-4">
-                        <li>Add and remove members</li>
-                        <li>Promote members to admins</li>
-                        <li>Add or remove books</li>
-                        <li>Edit group settings</li>
-                    </ul>
 
-                    <h6 class="fw-bold"><i class="bi bi-person-fill me-2 text-secondary"></i>Members Can:</h6>
-                    <ul class="mb-0">
-                        <li>View group books</li>
-                        <li>Post comments</li>
-                        <li>Track their reading progress</li>
-                    </ul>
+                <div class="roles-info-body">
+                    <div class="role-section">
+                        <h4 class="role-section-title">
+                            <i class="bi bi-shield-fill admin-icon"></i>
+                            Admins Can:
+                        </h4>
+                        <ul class="role-list">
+                            <li>Add and remove members</li>
+                            <li>Promote members to admins</li>
+                            <li>Add or remove books</li>
+                            <li>Edit group settings</li>
+                        </ul>
+                    </div>
+
+                    <div class="role-section">
+                        <h4 class="role-section-title">
+                            <i class="bi bi-person-fill member-icon"></i>
+                            Members Can:
+                        </h4>
+                        <ul class="role-list">
+                            <li>View group books</li>
+                            <li>Post comments</li>
+                            <li>Track their reading progress</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Confirmation Modal -->
-{% include "bookclub/includes/confirmation_modal.html" %}
+<div class="modal" id="confirmationModal">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Action</h3>
+                <button type="button" class="modal-close" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p id="confirmationMessage"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                <button type="button" class="btn btn-primary modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
-{% block extra_js %}
-{% load static %}
-<script type="module" src="{% static 'bookclub/js/book-management.js' %}"></script>
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/manage-group-members.js' %}"></script>
 {% endblock %}

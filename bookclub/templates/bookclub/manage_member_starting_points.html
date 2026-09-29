@@ -1,125 +1,166 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load bookclub_extras %}
+{% load static %}
 
 {% block title %}Manage Member Starting Points - {{ group.name }}{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/manage-member-starting-points.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="h3"><i class="bi bi-people-fill me-2"></i>Manage Member Starting Points</h1>
-            <p class="text-muted">Group: {{ group.name }}</p>
+<div class="starting-points-page">
+    <div class="starting-points-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="starting-points-title">
+            <i class="bi bi-people-fill"></i>
+            Manage Member Starting Points
+        </h1>
+        <p class="starting-points-subtitle">Group: {{ group.name }}</p>
+    </div>
+
+    <div class="starting-points-card">
+        <div class="starting-points-card-header">
+            <h2 class="starting-points-card-title">
+                <i class="bi bi-clock-history"></i>
+                Member Starting Points
+            </h2>
+            <span class="member-count-badge">{{ members|length }} members</span>
         </div>
-    </div>
 
-    <div class="mb-4">
-        <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Group
-        </a>
-    </div>
+        <div class="starting-points-card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>Use this interface to specify which book each member was first eligible to pick. This helps provide more accurate rotation analysis.</span>
+            </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Member Starting Points</h5>
-                    <span class="badge bg-primary">{{ members|length }} members</span>
+            <div class="table-wrapper">
+                <table class="starting-points-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Starting Book</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td>{{ member.username }}</td>
+                            <td>
+                                {% if member.id in starting_points_dict %}
+                                    <span class="book-title">{{ starting_points_dict|get_item:member.id|get_attr:"starting_book"|get_attr:"title"|split:":"|first|trim }}</span>
+                                {% else %}
+                                    <span class="not-set">Not set</span>
+                                {% endif %}
+                            </td>
+                            <td class="notes-cell">
+                                {% if member.id in starting_points_dict and starting_points_dict|get_item:member.id|get_attr:"notes" %}
+                                    {{ starting_points_dict|get_item:member.id|get_attr:"notes" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn btn-sm btn-outline-primary edit-btn"
+                                        data-member-id="{{ member.id }}"
+                                        data-member-name="{{ member.username }}">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% for member in members %}
+            <div class="member-mobile-card">
+                <div class="mobile-card-header">
+                    <span class="member-name">{{ member.username }}</span>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info mb-4">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Use this interface to specify which book each member was first eligible to pick. 
-                        This helps provide more accurate rotation analysis.
+
+                <div class="mobile-info-group">
+                    <div class="mobile-info-label">Starting Book</div>
+                    <div class="mobile-info-value">
+                        {% if member.id in starting_points_dict %}
+                            <span class="book-title">{{ starting_points_dict|get_item:member.id|get_attr:"starting_book"|get_attr:"title"|split:":"|first|trim }}</span>
+                        {% else %}
+                            <span class="not-set">Not set</span>
+                        {% endif %}
                     </div>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Member</th>
-                                    <th>Starting Book</th>
-                                    <th>Notes</th>
-                                    <th class="text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for member in members %}
-                                <tr>
-                                    <td class="align-middle">{{ member.username }}</td>
-                                    <td class="align-middle">
-                                        {% if member.id in starting_points_dict %}
-                                            <span class="text-success">{{ starting_points_dict|get_item:member.id|get_attr:"starting_book"|get_attr:"title"|split:":"|first|trim }}</span>
-                                        {% else %}
-                                            <span class="text-muted fst-italic">Not set</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="align-middle small">
-                                        {% if member.id in starting_points_dict and starting_points_dict|get_item:member.id|get_attr:"notes" %}
-                                            {{ starting_points_dict|get_item:member.id|get_attr:"notes" }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#setStartingPointModal"
-                                                data-member-id="{{ member.id }}"
-                                                data-member-name="{{ member.username }}">
-                                            <i class="bi bi-pencil-square me-1"></i> Edit
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                </div>
+
+                <div class="mobile-info-group">
+                    <div class="mobile-info-label">Notes</div>
+                    <div class="mobile-info-value">
+                        {% if member.id in starting_points_dict and starting_points_dict|get_item:member.id|get_attr:"notes" %}
+                            {{ starting_points_dict|get_item:member.id|get_attr:"notes" }}
+                        {% else %}
+                            -
+                        {% endif %}
                     </div>
+                </div>
+
+                <div class="mobile-card-actions">
+                    <button class="btn btn-sm btn-outline-primary edit-btn"
+                            data-member-id="{{ member.id }}"
+                            data-member-name="{{ member.username }}">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
-<!-- Modal for Setting Starting Point -->
-<div class="modal fade" id="setStartingPointModal" tabindex="-1" aria-hidden="true">
+<div class="modal" id="setStartingPointModal">
+    <div class="modal-overlay"></div>
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post">
+            <form method="post" id="startingPointForm">
                 {% csrf_token %}
                 <input type="hidden" name="member_id" id="memberIdInput">
-                
+
                 <div class="modal-header">
-                    <h5 class="modal-title">Set Starting Point for <span id="memberNameDisplay"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h3 class="modal-title">Set Starting Point for <span id="memberNameDisplay"></span></h3>
+                    <button type="button" class="modal-close" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
+
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="bookSelect" class="form-label">Starting Book:</label>
+                    <div class="form-group">
+                        <label for="bookSelect" class="form-label">Starting Book</label>
                         <select class="form-select" id="bookSelect" name="book_id" required>
                             <option value="">-- Select book --</option>
                             {% for book in books %}
                             <option value="{{ book.id }}">{{ book.title|split:":"|first|trim }}</option>
                             {% endfor %}
                         </select>
-                        <div class="form-text">
-                            Choose the first book this member was eligible to pick in the rotation.
-                        </div>
+                        <p class="form-hint">Choose the first book this member was eligible to pick in the rotation.</p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="notesInput" class="form-label">Notes (optional):</label>
-                        <textarea class="form-control" id="notesInput" name="notes" rows="2"></textarea>
+
+                    <div class="form-group">
+                        <label for="notesInput" class="form-label">Notes (optional)</label>
+                        <textarea class="form-textarea" id="notesInput" name="notes" rows="3"></textarea>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save me-1"></i> Save
+                        <i class="bi bi-save"></i> Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/manage-member-starting-points.js' %}"></script>
 {% endblock %}

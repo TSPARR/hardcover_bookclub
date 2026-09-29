@@ -21,7 +21,7 @@ class BookSearchForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(
             attrs={
-                "class": "form-control form-control-lg",
+                "class": "form-input",
                 "placeholder": "Search by title, author, or ISBN...",
             }
         ),
@@ -34,19 +34,19 @@ class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(
         max_length=30,
         required=True,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={"class": "form-input"}),
     )
     last_name = forms.CharField(
         max_length=30,
         required=True,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={"class": "form-input"}),
     )
     email = forms.EmailField(
-        required=True, widget=forms.EmailInput(attrs={"class": "form-control"})
+        required=True, widget=forms.EmailInput(attrs={"class": "form-input"})
     )
     invitation_code = forms.UUIDField(
         required=True,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={"class": "form-input"}),
         help_text="Enter the invitation code you received",
     )
 
@@ -62,8 +62,13 @@ class UserRegistrationForm(UserCreationForm):
             "invitation_code",
         ]
         widgets = {
-            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "username": forms.TextInput(attrs={"class": "form-input"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password1"].widget.attrs.update({"class": "form-input"})
+        self.fields["password2"].widget.attrs.update({"class": "form-input"})
 
     def clean_invitation_code(self):
         """Validate the invitation code"""
@@ -107,7 +112,7 @@ class UserRegistrationForm(UserCreationForm):
 
 class ProfileSettingsForm(forms.ModelForm):
     hardcover_api_key = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 3, "cols": 40}),
+        widget=forms.Textarea(attrs={"rows": 3, "class": "form-textarea"}),
         required=False,
         help_text="Paste your Hardcover API bearer token here. It will be stored securely.",
     )
@@ -135,8 +140,8 @@ class GroupForm(forms.ModelForm):
         model = BookGroup
         fields = ["name", "description", "is_public"]
         widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control"}),
-            "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "name": forms.TextInput(attrs={"class": "form-input"}),
+            "description": forms.Textarea(attrs={"class": "form-textarea", "rows": 4}),
             "is_public": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 

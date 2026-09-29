@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 
 from bookclub.views.api_views import get_hardcover_progress
 from bookclub.views.attribution_analytics import attribution_analytics
-from bookclub.views.auth_views import landing_page, register_with_invite
+from bookclub.views.auth_views import join_with_invite, landing_page
 from bookclub.views.book_views import (
     add_book_to_group,
     book_detail,
@@ -112,9 +112,9 @@ urlpatterns = [
         name="logout",
     ),
     path(
-        "register/<uuid:invite_code>/",
-        register_with_invite,
-        name="register_with_invite",
+        "join/<uuid:invite_code>/",
+        join_with_invite,
+        name="join_with_invite",
     ),
     path(
         "groups/<int:group_id>/invitations/",

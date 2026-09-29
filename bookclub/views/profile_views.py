@@ -64,11 +64,14 @@ def profile_settings(request):
                 field.widget.attrs["class"] = "form-control"
 
             # Process main profile form with API key
+            api_key_changed = False
             if form.is_valid():
                 api_key = form.cleaned_data["hardcover_api_key"]
+                old_api_key = request.user.profile.hardcover_api_key or ""
+                api_key_changed = api_key != old_api_key
 
-                # Only validate if an API key was provided
-                if api_key:
+                # Only validate if an API key was provided and it changed
+                if api_key and api_key_changed:
                     test_query = """
                     query ValidateAuth {
                       me {
@@ -118,20 +121,41 @@ def profile_settings(request):
             if should_save_notifications:
                 notification_form.save()
 
+            home_page_saved = False
             if should_save_home_page:
-                home_page_form.save()
+                home_page_saved = home_page_form.save()
 
             # Display appropriate messages
             if not api_key_valid and api_key_message:
                 messages.error(request, api_key_message)
                 # Don't show success message if API key validation failed
-            elif should_save_api_key and form.cleaned_data.get("hardcover_api_key"):
+            elif (
+                api_key_changed
+                and should_save_api_key
+                and form.cleaned_data.get("hardcover_api_key")
+            ):
                 messages.success(
                     request, "Hardcover API key has been updated successfully."
                 )
-            elif should_save_api_key and not form.cleaned_data.get("hardcover_api_key"):
+            elif (
+                api_key_changed
+                and should_save_api_key
+                and not form.cleaned_data.get("hardcover_api_key")
+            ):
                 messages.success(request, "Hardcover API key has been removed.")
-            elif should_save_notifications or should_save_home_page:
+            elif home_page_saved:
+                messages.success(
+                    request, "Home page preference has been updated successfully."
+                )
+            elif should_save_notifications:
+                messages.success(
+                    request, "Notification preferences have been updated successfully."
+                )
+            elif (
+                should_save_api_key
+                or should_save_notifications
+                or should_save_home_page
+            ):
                 messages.success(request, "Settings have been updated successfully.")
 
             return redirect("profile_settings")
@@ -191,6 +215,11 @@ def profile_settings(request):
                 user_has_dollar_bet_groups = True
                 break
 
+    breadcrumb_items = [
+        {"title": "Home", "url": "/"},
+        {"title": "Profile Settings", "url": ""},
+    ]
+
     context = {
         "form": form,
         "notification_form": notification_form,
@@ -198,6 +227,7 @@ def profile_settings(request):
         "password_form": password_form,
         "push_notifications_enabled": is_push_enabled(),
         "user_has_dollar_bet_groups": user_has_dollar_bet_groups,
+        "breadcrumb_items": breadcrumb_items,
     }
 
     return render(request, "bookclub/profile_settings.html", context)

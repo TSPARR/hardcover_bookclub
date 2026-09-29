@@ -1,61 +1,96 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
+{% load static %}
 
 {% block title %}Login{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/login.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h2 class="h3 mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Login</h2>
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-brand">
+            <div class="brand-content">
+                <h1 class="brand-title">Book Club</h1>
+                <p class="brand-subtitle">Members Portal</p>
+                <div class="brand-quote">
+                    "A reader lives a thousand lives before he dies. The man who never reads lives only one."
+                    <span class="quote-author">— George R.R. Martin</span>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
+            </div>
+        </div>
 
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            Your username and password didn't match. Please try again.
-                        </div>
-                        {% endif %}
+        <div class="login-form-panel">
+            <div class="login-form-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to continue your literary journey</p>
+            </div>
 
-                        {% if next %}
-                        {% if user.is_authenticated %}
-                        <div class="alert alert-info">
-                            Your account doesn't have access to this page. To proceed,
-                            please login with an account that has access.
-                        </div>
-                        {% else %}
-                        <div class="alert alert-info">
-                            Please login to see this page.
-                        </div>
-                        {% endif %}
-                        {% endif %}
+            <form method="post" id="loginForm">
+                {% csrf_token %}
 
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">Username</label>
-                            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">Password</label>
-                            <input type="password" name="password" id="id_password" class="form-control" required>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
-                            </button>
-                        </div>
-                        <input type="hidden" name="next" value="{{ next }}">
-                    </form>
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    Your username and password didn't match. Please try again.
                 </div>
-                <div class="card-footer bg-white text-center">
-                    <p class="mb-0">Don't have an account? Contact an existing member for an invitation.</p>
+                {% endif %}
+
+                {% if next %}
+                    {% if user.is_authenticated %}
+                    <div class="alert alert-info">
+                        Your account doesn't have access to this page. To proceed,
+                        please login with an account that has access.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        Please login to see this page.
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="id_username" class="form-label">Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="id_username"
+                        class="form-input"
+                        required
+                        autofocus
+                        autocomplete="username"
+                    >
                 </div>
+
+                <div class="form-group">
+                    <label for="id_password" class="form-label">Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="id_password"
+                        class="form-input"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    <span>Enter</span>
+                </button>
+
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+
+            <div class="login-footer">
+                Don't have an account?<br>
+                Contact an existing member for an invitation.
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/login.js' %}"></script>
 {% endblock %}

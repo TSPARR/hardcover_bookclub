@@ -547,6 +547,13 @@ def add_book_to_group(request, group_id, hardcover_id):
     # For GET requests, show confirmation form with attribution options
     members = group.members.all()
 
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        {"title": "Search Books", "url": reverse("search_books", args=[group.id])},
+        {"title": "Confirm Add Book", "url": ""},
+    ]
+
     return render(
         request,
         "bookclub/confirm_add_book.html",
@@ -555,6 +562,7 @@ def add_book_to_group(request, group_id, hardcover_id):
             "book_data": book_data,
             "members": members,
             "hardcover_id": hardcover_id,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -617,6 +625,15 @@ def select_edition(request, book_id):
     # Determine current selected edition
     current_edition = user_progress.edition
 
+    # Prepare breadcrumbs
+    book_title = book.title.split(":")[0].strip() if ":" in book.title else book.title
+
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": book_title, "url": reverse("book_detail", args=[book.id])},
+        {"title": "Select Edition", "url": ""},
+    ]
+
     return render(
         request,
         "bookclub/select_edition.html",
@@ -624,6 +641,7 @@ def select_edition(request, book_id):
             "book": book,
             "editions": editions,
             "current_edition": current_edition,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 

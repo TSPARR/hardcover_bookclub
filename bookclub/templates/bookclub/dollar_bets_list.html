@@ -1,215 +1,333 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 {% load bookclub_extras %}
 
 {% block title %}Dollar Bets for {{ book.title|split:":"|first|trim }}{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/dollar-bets-list.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <!-- Breadcrumb navigation -->
-            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
-            
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2>Dollar Bets for "{{ book.title|split:":"|first|trim }}"</h2>
-                        <p class="text-muted mb-0">Place $1 wagers on predictions about what will happen in the book</p>
-                    </div>
-                    <div>
-                        {% if is_admin %}
-                            <a href="{% url 'admin_create_dollar_bet' book.id %}" class="btn btn-outline-primary me-2">
-                                <i class="bi bi-shield me-1"></i> Admin: Create Bet
-                            </a>
-                        {% endif %}
-                        {% if book.is_active or is_admin %}
-                            <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i> Create Dollar Bet
-                            </a>
-                        {% endif %}
-                    </div>
+<div class="dollar-bets-page">
+    <div class="dollar-bets-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="dollar-bets-title">
+            <i class="bi bi-currency-dollar"></i>
+            Dollar Bets
+        </h1>
+        <p class="dollar-bets-subtitle">{{ book.title|split:":"|first|trim }}</p>
+        <p class="dollar-bets-description">Place $1 wagers on predictions about what will happen in the book</p>
+    </div>
+
+    <div class="dollar-bets-actions">
+        {% if is_admin %}
+        <a href="{% url 'admin_create_dollar_bet' book.id %}" class="btn btn-outline-primary">
+            <i class="bi bi-shield"></i> Admin: Create Bet
+        </a>
+        {% endif %}
+        {% if book.is_active or is_admin %}
+        <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Dollar Bet
+        </a>
+        {% endif %}
+    </div>
+
+    {% if not book.is_active and not is_admin %}
+    <div class="info-alert">
+        <i class="bi bi-info-circle"></i>
+        <span>Regular members can only create bets for the active book. Please ask an admin to create a bet for this book.</span>
+    </div>
+    {% endif %}
+
+    <div class="bets-card">
+        <div class="bets-card-header">
+            <h2 class="bets-card-title">All Bets</h2>
+            {% if bets %}
+            <span class="bets-count-badge">{{ bets|length }} total</span>
+            {% endif %}
+        </div>
+
+        <div class="bets-card-body">
+            {% if bets %}
+                <div class="bets-table-wrapper">
+                    <table class="bets-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Question/Description</th>
+                                <th>Details</th>
+                                <th>Pot</th>
+                                <th>Spoiler</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bet in bets %}
+                            <tr class="bet-row" data-spoiler-level="{{ bet.spoiler_level }}">
+                                <td data-label="Type">
+                                    {% if bet.bet_type == 'multi_party' %}
+                                    <span class="badge badge-multi-party">Multi-Party</span>
+                                    {% else %}
+                                    <span class="badge badge-two-party">Two-Party</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Question" class="bet-question">
+                                    {% if bet.bet_type == 'multi_party' %}
+                                    <strong>{{ bet.question|truncatewords:15 }}</strong>
+                                    {% else %}
+                                    {{ bet.description|truncatewords:15 }}
+                                    {% endif %}
+                                </td>
+                                <td data-label="Details" class="bet-details">
+                                    {% if bet.bet_type == 'multi_party' %}
+                                    <div class="detail-item">
+                                        <strong>Participants:</strong> {{ bet.participant_count }}{% if bet.max_participants %}/{{ bet.max_participants }}{% endif %}
+                                    </div>
+                                    <div class="detail-participants">
+                                        {% for p in bet.participants.all|slice:":3" %}
+                                        {{ p.user.username }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                        {% if bet.participant_count > 3 %}...{% endif %}
+                                    </div>
+                                    {% else %}
+                                    <div class="detail-item">
+                                        <strong>Proposer:</strong> {{ bet.proposer.username }}
+                                    </div>
+                                    <div class="detail-item">
+                                        {% if bet.accepter %}
+                                        <strong>Accepter:</strong> {{ bet.accepter.username }}
+                                        {% else %}
+                                        <em>Waiting for accepter</em>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Pot" class="bet-pot">${{ bet.total_pot }}</td>
+                                <td data-label="Spoiler">
+                                    {% if bet.spoiler_level == 'none' %}
+                                    <span class="badge badge-spoiler-none">None</span>
+                                    {% elif bet.spoiler_level == 'halfway' %}
+                                    <span class="badge badge-spoiler-halfway">Halfway</span>
+                                    {% elif bet.spoiler_level == 'finished' %}
+                                    <span class="badge badge-spoiler-finished">Finished</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Status" class="bet-status">
+                                    {% if bet.status == 'open' %}
+                                    <span class="badge badge-status-open">Open</span>
+                                    {% elif bet.status == 'accepted' or bet.status == 'active' %}
+                                    <span class="badge badge-status-active">Active</span>
+                                    {% elif bet.status == 'won' or bet.status == 'resolved_winner' %}
+                                    <span class="badge badge-status-resolved">Resolved</span>
+                                    <div class="status-detail">
+                                        {% if bet.bet_type == 'multi_party' %}
+                                            {% if bet.winner_count > 1 %}
+                                            {{ bet.winner_count }} winners (split pot)
+                                            {% elif bet.winner_count == 1 %}
+                                            Winner: {{ bet.winners.0.username }}
+                                            {% endif %}
+                                        {% else %}
+                                        Winner: {{ bet.winner.username }}
+                                        {% endif %}
+                                    </div>
+                                    {% elif bet.status == 'lost' %}
+                                    <span class="badge badge-status-resolved">Resolved</span>
+                                    <div class="status-detail">Winner: {{ bet.winner.username }}</div>
+                                    {% elif bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}
+                                    <span class="badge badge-status-inconclusive">Inconclusive</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Created">{{ bet.created_at|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="bet-actions">
+                                    {% if bet.status == 'open' %}
+                                        {% if bet.bet_type == 'multi_party' %}
+                                            {% if bet.can_accept_participants %}
+                                            <a href="{% url 'join_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-plus-circle"></i> Join
+                                            </a>
+                                            {% endif %}
+                                            {% if is_admin %}
+                                            <a href="{% url 'close_betting' bet.id %}}" class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-lock"></i> Close
+                                            </a>
+                                            {% endif %}
+                                            {% if bet.creator == request.user or is_admin %}
+                                            <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" class="delete-form" onsubmit="return confirm('Delete this bet?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-x-circle"></i> Delete
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if request.user != bet.proposer %}
+                                            <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-check-circle"></i> Accept
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i> Delete
+                                            </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% elif bet.status == 'accepted' or bet.status == 'active' %}
+                                        {% if is_admin %}
+                                        <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-flag"></i> Resolve
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    {% if not book.is_active and not is_admin %}
-                        <div class="alert alert-info mb-4">
-                            <i class="bi bi-info-circle me-2"></i>Regular members can only create bets for the active book. Please ask an admin to create a bet for this book.
-                        </div>
-                    {% endif %}
-                    
-                    {% if bets %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Question/Description</th>
-                                        <th>Details</th>
-                                        <th>Pot</th>
-                                        <th>Spoiler</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for bet in bets %}
-                                    <tr class="dollar-bet-item" data-spoiler-level="{{ bet.spoiler_level }}">
-                                        <td>
-                                            {% if bet.bet_type == 'multi_party' %}
-                                                <span class="badge bg-info">Multi-Party</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">Two-Party</span>
-                                            {% endif %}
-                                        </td>
 
-                                        <td>
-                                            {% if bet.bet_type == 'multi_party' %}
-                                                <strong>{{ bet.question|truncatewords:15 }}</strong>
-                                            {% else %}
-                                                {{ bet.description|truncatewords:15 }}
-                                            {% endif %}
-                                        </td>
-
-                                        <td>
-                                            {% if bet.bet_type == 'multi_party' %}
-                                                <small>
-                                                    <strong>Participants:</strong> {{ bet.participant_count }}
-                                                    {% if bet.max_participants %}/ {{ bet.max_participants }}{% endif %}
-                                                    <br>
-                                                    {% for p in bet.participants.all|slice:":3" %}
-                                                        {{ p.user.username }}{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                    {% if bet.participant_count > 3 %}...{% endif %}
-                                                </small>
-                                            {% else %}
-                                                <small>
-                                                    <strong>Proposer:</strong> {{ bet.proposer.username }}<br>
-                                                    {% if bet.accepter %}
-                                                    <strong>Accepter:</strong> {{ bet.accepter.username }}
-                                                    {% else %}
-                                                    <em>Waiting for accepter</em>
-                                                    {% endif %}
-                                                </small>
-                                            {% endif %}
-                                        </td>
-
-                                        <td>${{ bet.total_pot }}</td>
-
-                                        <td>
-                                            {% if bet.spoiler_level == 'none' %}
-                                                <span class="badge bg-success">None</span>
-                                            {% elif bet.spoiler_level == 'halfway' %}
-                                                <span class="badge bg-warning">Halfway</span>
-                                            {% elif bet.spoiler_level == 'finished' %}
-                                                <span class="badge bg-danger">Finished</span>
-                                            {% endif %}
-                                        </td>
-
-                                        <td>
-                                            {% if bet.status == 'open' %}
-                                                <span class="badge bg-primary">Open</span>
-                                            {% elif bet.status == 'accepted' or bet.status == 'active' %}
-                                                <span class="badge bg-warning text-dark">Active</span>
-                                            {% elif bet.status == 'won' or bet.status == 'resolved_winner' %}
-                                                <span class="badge bg-success">Resolved</span>
-                                                {% if bet.bet_type == 'multi_party' %}
-                                                    {% if bet.winner_count > 1 %}
-                                                        <br><small>{{ bet.winner_count }} winners (split pot)</small>
-                                                    {% elif bet.winner_count == 1 %}
-                                                        <br><small>Winner: {{ bet.winners.0.username }}</small>
-                                                    {% endif %}
-                                                {% else %}
-                                                    <br><small>Winner: {{ bet.winner.username }}</small>
-                                                {% endif %}
-                                            {% elif bet.status == 'lost' %}
-                                                <span class="badge bg-success">Resolved</span>
-                                                <br><small>Winner: {{ bet.winner.username }}</small>
-                                            {% elif bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}
-                                                <span class="badge bg-secondary">Inconclusive</span>
-                                            {% endif %}
-                                        </td>
-
-                                        <td>{{ bet.created_at|date:"M d, Y" }}</td>
-
-                                        <td>
-                                            {% if bet.status == 'open' %}
-                                                {% if bet.bet_type == 'multi_party' %}
-                                                    {% if bet.can_accept_participants %}
-                                                        <a href="{% url 'join_dollar_bet' bet.id %}" class="btn btn-sm btn-primary">
-                                                            <i class="bi bi-plus-circle me-1"></i> Join
-                                                        </a>
-                                                    {% endif %}
-                                                    {% if is_admin %}
-                                                        <a href="{% url 'close_betting' bet.id %}" class="btn btn-sm btn-warning">
-                                                            <i class="bi bi-lock me-1"></i> Close
-                                                        </a>
-                                                    {% endif %}
-                                                    {% if bet.creator == request.user or is_admin %}
-                                                        <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" style="display: inline;" onsubmit="return confirm('Delete this bet?');">
-                                                            {% csrf_token %}
-                                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                                <i class="bi bi-x-circle me-1"></i> Delete
-                                                            </button>
-                                                        </form>
-                                                    {% endif %}
-                                                {% else %}
-                                                    {# Two-party accept logic #}
-                                                    {% if request.user != bet.proposer %}
-                                                        <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-sm btn-success">
-                                                            <i class="bi bi-check-circle me-1"></i> Accept
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-sm btn-danger">
-                                                            <i class="bi bi-x-circle me-1"></i> Delete
-                                                        </a>
-                                                    {% endif %}
-                                                {% endif %}
-                                            {% elif bet.status == 'accepted' or bet.status == 'active' %}
-                                                {% if is_admin %}
-                                                    <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-sm btn-primary">
-                                                        <i class="bi bi-flag me-1"></i> Resolve
-                                                    </a>
-                                                {% endif %}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <div class="empty-bets-icon">
-                                <i class="bi bi-currency-dollar"></i>
-                            </div>
-                            <h4 class="mt-3">No bets yet!</h4>
-                            <p class="text-muted">Be the first to create a dollar bet for this book.</p>
-                            {% if book.is_active or is_admin %}
-                            <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary mt-2">
-                                Create Your First Bet
-                            </a>
-                            {% elif not is_admin %}
-                            <p class="text-muted">Regular members can only create bets for the active book.</p>
+                {% for bet in bets %}
+                <div class="bet-mobile-card" data-spoiler-level="{{ bet.spoiler_level }}">
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-type">
+                            {% if bet.bet_type == 'multi_party' %}
+                            <span class="badge badge-multi-party">Multi-Party</span>
+                            {% else %}
+                            <span class="badge badge-two-party">Two-Party</span>
                             {% endif %}
                         </div>
+                        <div class="mobile-card-pot">${{ bet.total_pot }}</div>
+                    </div>
+                    <div class="mobile-card-question">
+                        {% if bet.bet_type == 'multi_party' %}
+                        <strong>{{ bet.question|truncatewords:15 }}</strong>
+                        {% else %}
+                        {{ bet.description|truncatewords:15 }}
+                        {% endif %}
+                    </div>
+                    <div class="mobile-card-details">
+                        {% if bet.bet_type == 'multi_party' %}
+                        <div class="detail-row">
+                            <span class="detail-label">Participants:</span>
+                            <span class="detail-value">{{ bet.participant_count }}{% if bet.max_participants %}/{{ bet.max_participants }}{% endif %}</span>
+                        </div>
+                        <div class="detail-participants-mobile">
+                            {% for p in bet.participants.all|slice:":3" %}
+                            {{ p.user.username }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            {% if bet.participant_count > 3 %}...{% endif %}
+                        </div>
+                        {% else %}
+                        <div class="detail-row">
+                            <span class="detail-label">Proposer:</span>
+                            <span class="detail-value">{{ bet.proposer.username }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Accepter:</span>
+                            <span class="detail-value">
+                                {% if bet.accepter %}
+                                {{ bet.accepter.username }}
+                                {% else %}
+                                <em>Waiting...</em>
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mobile-card-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Spoiler:</span>
+                            {% if bet.spoiler_level == 'none' %}
+                            <span class="badge badge-spoiler-none">None</span>
+                            {% elif bet.spoiler_level == 'halfway' %}
+                            <span class="badge badge-spoiler-halfway">Halfway</span>
+                            {% elif bet.spoiler_level == 'finished' %}
+                            <span class="badge badge-spoiler-finished">Finished</span>
+                            {% endif %}
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Status:</span>
+                            {% if bet.status == 'open' %}
+                            <span class="badge badge-status-open">Open</span>
+                            {% elif bet.status == 'accepted' or bet.status == 'active' %}
+                            <span class="badge badge-status-active">Active</span>
+                            {% elif bet.status == 'won' or bet.status == 'resolved_winner' %}
+                            <span class="badge badge-status-resolved">Resolved</span>
+                            {% elif bet.status == 'lost' %}
+                            <span class="badge badge-status-resolved">Resolved</span>
+                            {% elif bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}
+                            <span class="badge badge-status-inconclusive">Inconclusive</span>
+                            {% endif %}
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Created:</span>
+                            <span>{{ bet.created_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    {% if bet.status == 'open' or bet.status == 'accepted' or bet.status == 'active' %}
+                    <div class="mobile-card-actions">
+                        {% if bet.status == 'open' %}
+                            {% if bet.bet_type == 'multi_party' %}
+                                {% if bet.can_accept_participants %}
+                                <a href="{% url 'join_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus-circle"></i> Join
+                                </a>
+                                {% endif %}
+                                {% if is_admin %}
+                                <a href="{% url 'close_betting' bet.id %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-lock"></i> Close
+                                </a>
+                                {% endif %}
+                                {% if bet.creator == request.user or is_admin %}
+                                <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" class="delete-form" onsubmit="return confirm('Delete this bet?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Delete
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% else %}
+                                {% if request.user != bet.proposer %}
+                                <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-circle"></i> Accept
+                                </a>
+                                {% else %}
+                                <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-circle"></i> Delete
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        {% elif bet.status == 'accepted' or bet.status == 'active' %}
+                            {% if is_admin %}
+                            <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-flag"></i> Resolve
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                     {% endif %}
                 </div>
-            </div>
-            
-            <!-- Navigation buttons -->
-            <div class="d-flex justify-content-between mb-4">
-                <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Back to Book
-                </a>
-                
+                {% endfor %}
+            {% else %}
+            <div class="bets-empty">
+                <i class="bi bi-currency-dollar bets-empty-icon"></i>
+                <h3 class="bets-empty-title">No bets yet!</h3>
+                <p class="bets-empty-text">Be the first to create a dollar bet for this book.</p>
                 {% if book.is_active or is_admin %}
                 <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i> Create Dollar Bet
+                    Create Your First Bet
                 </a>
+                {% elif not is_admin %}
+                <p class="bets-empty-note">Regular members can only create bets for the active book.</p>
                 {% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/dollar-bets-list.js' %}"></script>
 {% endblock %}

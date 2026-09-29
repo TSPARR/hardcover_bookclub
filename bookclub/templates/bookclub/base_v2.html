@@ -1,0 +1,190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light-mode">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Bookclub">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'bookclub/images/icon-192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'bookclub/images/icon-512.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'bookclub/images/icon-192.png' %}">
+    <meta name="current-username" content="{{ request.user.username }}">
+
+    <title>{% block title %}Book Club{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+
+    <script>
+        (function() {
+            const storedMode = localStorage.getItem('darkMode');
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            const shouldUseDarkMode = storedMode === 'true' ||
+                (storedMode === null && prefersDarkMode);
+
+            // Always add to documentElement
+            document.documentElement.classList.add(shouldUseDarkMode ? 'dark-mode' : 'light-mode');
+            document.documentElement.classList.remove(shouldUseDarkMode ? 'light-mode' : 'dark-mode');
+
+            // Use MutationObserver to add classes when body becomes available
+            const observer = new MutationObserver(function(mutations) {
+                const body = document.body;
+                if (body) {
+                    body.classList.add(shouldUseDarkMode ? 'dark-mode' : 'light-mode');
+                    body.classList.remove(shouldUseDarkMode ? 'light-mode' : 'dark-mode');
+                    observer.disconnect();
+                }
+            });
+
+            // Start observing the document with the configured parameters
+            observer.observe(document.documentElement, { childList: true });
+        })();
+    </script>
+
+    <link rel="stylesheet" href="{% static 'bookclub/css/v2/tokens.css' %}">
+    <link rel="stylesheet" href="{% static 'bookclub/css/v2/reset.css' %}">
+
+    <style>
+        html.dark-mode .light-mode-only {
+            display: none !important;
+        }
+
+        html.light-mode .dark-mode-only {
+            display: none !important;
+        }
+    </style>
+
+    {% block page_css %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-book"></i>
+                <span>Book Club</span>
+            </a>
+            <button class="navbar-toggle" type="button" id="navbarToggle">
+                <span class="navbar-toggle-icon"></span>
+            </button>
+            <div class="navbar-menu" id="navbarMenu">
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile_settings' %}">
+                            <i class="bi bi-gear"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form method="post" action="{% url 'logout' %}" class="nav-form">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link nav-link-button">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <button id="dark-mode-toggle" class="dark-mode-toggle" title="Toggle dark mode">
+                            <i class="bi bi-moon-fill"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message message-{{ message.tags }}">
+            {{ message }}
+            <button type="button" class="message-close" aria-label="Close">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const html = document.documentElement;
+        const body = document.body;
+
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', function() {
+                const isDarkMode = html.classList.contains('dark-mode');
+
+                if (isDarkMode) {
+                    html.classList.remove('dark-mode');
+                    html.classList.add('light-mode');
+                    body.classList.remove('dark-mode');
+                    body.classList.add('light-mode');
+                    localStorage.setItem('darkMode', 'false');
+                    darkModeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+                } else {
+                    html.classList.remove('light-mode');
+                    html.classList.add('dark-mode');
+                    body.classList.remove('light-mode');
+                    body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'true');
+                    darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                }
+            });
+
+            // Set initial icon state
+            if (html.classList.contains('dark-mode')) {
+                darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            }
+        }
+
+        // Mobile navbar toggle
+        const navbarToggle = document.getElementById('navbarToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+
+        if (navbarToggle && navbarMenu) {
+            navbarToggle.addEventListener('click', function() {
+                navbarMenu.classList.toggle('active');
+            });
+        }
+
+        // Message close buttons
+        document.querySelectorAll('.message-close').forEach(button => {
+            button.addEventListener('click', function() {
+                this.parentElement.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => {
+                    this.parentElement.remove();
+                }, 300);
+            });
+        });
+    </script>
+
+    {% block page_js %}{% endblock %}
+</body>
+
+</html>

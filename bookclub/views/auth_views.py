@@ -36,51 +36,49 @@ def landing_page(request):
     # If user is already logged in, redirect to their preferred home
     if request.user.is_authenticated:
         return redirect(request.user.profile.get_home_redirect_url())
-    return render(request, "bookclub/landing.html")
+    # Not authenticated - redirect to login
+    return redirect("login")
 
 
-def register_with_invite(request, invite_code=None):
-    """Handle registration with an invitation code"""
+def join_with_invite(request, invite_code):
+    """Handle joining with an invitation code"""
 
     # If user is already logged in, redirect to home
     if request.user.is_authenticated:
         return redirect("home")
 
-    initial_data = {}
+    # Validate invitation code
+    try:
+        invitation = GroupInvitation.objects.get(code=invite_code)
 
-    # If invitation code is provided in URL, pre-fill form
-    if invite_code:
-        try:
-            invitation = GroupInvitation.objects.get(code=invite_code)
-
-            # Check if invitation is valid
-            if not invitation.is_valid:
-                if invitation.is_used:
-                    messages.error(request, "This invitation has already been used.")
-                elif invitation.is_revoked:
-                    messages.error(request, "This invitation has been revoked.")
-                else:
-                    messages.error(request, "This invitation has expired.")
-                return redirect("landing_page")
-
-            # Pre-fill invitation code and email if available
-            initial_data = {
-                "invitation_code": invite_code,
-                "email": invitation.email,
-            }
-
-        except GroupInvitation.DoesNotExist:
-            messages.error(request, "Invalid invitation code.")
+        # Check if invitation is valid
+        if not invitation.is_valid:
+            if invitation.is_used:
+                messages.error(request, "This invitation has already been used.")
+            elif invitation.is_revoked:
+                messages.error(request, "This invitation has been revoked.")
+            else:
+                messages.error(request, "This invitation has expired.")
             return redirect("landing_page")
+
+    except GroupInvitation.DoesNotExist:
+        messages.error(request, "Invalid invitation code.")
+        return redirect("landing_page")
+
+    # Pre-fill invitation code and email
+    initial_data = {
+        "invitation_code": invite_code,
+        "email": invitation.email,
+    }
 
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Automatically log in after registration
+            login(request, user)  # Automatically log in after joining
             messages.success(request, f"Welcome to {form.invitation.group.name}!")
             return redirect(user.profile.get_home_redirect_url())
     else:
         form = UserRegistrationForm(initial=initial_data)
 
-    return render(request, "bookclub/register.html", {"form": form})
+    return render(request, "bookclub/join.html", {"form": form})

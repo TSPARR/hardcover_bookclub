@@ -1,36 +1,372 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 
 {% block title %}Profile Settings{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/profile-settings.css' %}">
+{% endblock %}
+
 {% block content %}
-<!-- Toast Container -->
-<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+<div class="profile-settings-page">
+    <div class="profile-settings-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="profile-settings-title">
+            <i class="bi bi-gear-fill"></i>
+            Profile Settings
+        </h1>
+        <p class="profile-settings-subtitle">Manage your account preferences and integrations</p>
+    </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <!-- Password Settings -->
-        {% include "bookclub/includes/profile/password_change_section.html" %}
+    <div class="profile-settings-content">
+        <div class="settings-card password-settings-card">
+            <div class="settings-card-header">
+                <h2 class="settings-card-title">
+                    <i class="bi bi-shield-lock"></i>
+                    Password Settings
+                </h2>
+            </div>
+            <div class="settings-card-body">
+                <p class="settings-help-text">
+                    <i class="bi bi-info-circle"></i> Change your password to enhance account security.
+                </p>
 
-        <!-- Home Page Settings -->
-        {% include "bookclub/includes/profile/home_page_settings.html" %}
+                <button type="button" class="btn btn-outline-primary" id="toggle-password-form">
+                    <i class="bi bi-key"></i> Change Password
+                </button>
 
-        <!-- API Key Settings -->
-        {% include "bookclub/includes/profile/api_settings.html" %}
-        
-        <!-- Notification Settings -->
+                <div class="password-form-container {% if not password_form.errors %}hidden{% endif %}" id="password-form-container">
+                    <form method="post" class="password-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="{{ form.hardcover_api_key.html_name }}" value="{{ form.hardcover_api_key.value|default:'' }}">
+                        {% if notification_form %}
+                            <input type="hidden" name="{{ notification_form.enable_notifications.html_name }}"
+                                value="{% if notification_form.enable_notifications.value %}on{% endif %}">
+                            <input type="hidden" name="{{ notification_form.notify_new_active_books.html_name }}"
+                                value="{% if notification_form.notify_new_active_books.value %}on{% endif %}">
+
+                            {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                            <input type="hidden" name="{{ notification_form.notify_new_dollar_bets.html_name }}"
+                                value="{% if notification_form.notify_new_dollar_bets.value %}on{% endif %}">
+                            <input type="hidden" name="{{ notification_form.notify_bet_accepted.html_name }}"
+                                value="{% if notification_form.notify_bet_accepted.value %}on{% endif %}">
+                            <input type="hidden" name="{{ notification_form.notify_bet_added_to.html_name }}"
+                                value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
+                            <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
+                                value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
+                            {% endif %}
+                        {% endif %}
+
+                        {% if password_form.errors %}
+                        <div class="alert alert-danger">
+                            Please correct the error{{ password_form.errors|pluralize }} below.
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="{{ password_form.old_password.id_for_label }}" class="form-label">Current Password</label>
+                            {{ password_form.old_password }}
+                            {% if password_form.old_password.errors %}
+                            <div class="form-error">
+                                {{ password_form.old_password.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ password_form.new_password1.id_for_label }}" class="form-label">New Password</label>
+                            {{ password_form.new_password1 }}
+                            {% if password_form.new_password1.errors %}
+                            <div class="form-error">
+                                {{ password_form.new_password1.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-hint">
+                                <ul class="password-requirements-list">
+                                    <li>Your password can't be too similar to your other personal information.</li>
+                                    <li>Your password must contain at least 8 characters.</li>
+                                    <li>Your password can't be a commonly used password.</li>
+                                    <li>Your password can't be entirely numeric.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ password_form.new_password2.id_for_label }}" class="form-label">Confirm New Password</label>
+                            {{ password_form.new_password2 }}
+                            {% if password_form.new_password2.errors %}
+                            <div class="form-error">
+                                {{ password_form.new_password2.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-password-change">
+                                <i class="bi bi-x-lg"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card home-page-settings-card">
+            <div class="settings-card-header">
+                <h2 class="settings-card-title">
+                    <i class="bi bi-house-door"></i>
+                    Home Page Settings
+                </h2>
+            </div>
+            <div class="settings-card-body">
+                <p class="settings-help-text">
+                    <i class="bi bi-info-circle"></i> Choose where you want to go after logging in.
+                </p>
+                <form method="post" class="home-page-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="{{ form.hardcover_api_key.html_name }}" value="{{ form.hardcover_api_key.value|default:'' }}">
+                    {% if notification_form %}
+                        <input type="hidden" name="{{ notification_form.enable_notifications.html_name }}"
+                            value="{% if notification_form.enable_notifications.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_new_active_books.html_name }}"
+                            value="{% if notification_form.notify_new_active_books.value %}on{% endif %}">
+
+                        {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                        <input type="hidden" name="{{ notification_form.notify_new_dollar_bets.html_name }}"
+                            value="{% if notification_form.notify_new_dollar_bets.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_bet_accepted.html_name }}"
+                            value="{% if notification_form.notify_bet_accepted.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_bet_added_to.html_name }}"
+                            value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
+                            value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="form-group">
+                        {% for radio in home_page_form.preference_type %}
+                        <div class="form-check">
+                            {{ radio.tag }}
+                            <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                <span class="radio-label-main">{{ radio.choice_label }}</span>
+                                {% if radio.data.value == "default" %}
+                                    <span class="radio-label-sub">Go to /home/</span>
+                                {% elif radio.data.value == "group" %}
+                                    <span class="radio-label-sub">Go to a specific group's page</span>
+                                {% elif radio.data.value == "active_book" %}
+                                    <span class="radio-label-sub">Go to the currently active book of a group</span>
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endfor %}
+                        {% if home_page_form.preference_type.errors %}
+                        <div class="form-error">{{ home_page_form.preference_type.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group group-select-container{% if home_page_form.preference_type.value == 'default' %} hidden{% endif %}" id="group-select-container">
+                        <label for="{{ home_page_form.group_id.id_for_label }}" class="form-label">Select Group</label>
+                        {{ home_page_form.group_id }}
+                        {% if home_page_form.group_id.errors %}
+                        <div class="form-error">{{ home_page_form.group_id.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if home_page_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ home_page_form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save Home Page Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="settings-card api-settings-card">
+            <div class="settings-card-header">
+                <h2 class="settings-card-title">
+                    <i class="bi bi-plug"></i>
+                    Integration Settings
+                </h2>
+            </div>
+            <div class="settings-card-body">
+                <form method="post" class="api-form">
+                    {% csrf_token %}
+                    {% if notification_form %}
+                        <input type="hidden" name="{{ notification_form.enable_notifications.html_name }}"
+                            value="{% if notification_form.enable_notifications.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_new_active_books.html_name }}"
+                            value="{% if notification_form.notify_new_active_books.value %}on{% endif %}">
+
+                        {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                        <input type="hidden" name="{{ notification_form.notify_new_dollar_bets.html_name }}"
+                            value="{% if notification_form.notify_new_dollar_bets.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_bet_accepted.html_name }}"
+                            value="{% if notification_form.notify_bet_accepted.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_bet_added_to.html_name }}"
+                            value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
+                            value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="{{ form.hardcover_api_key.id_for_label }}" class="form-label">Hardcover API Key</label>
+                        {{ form.hardcover_api_key }}
+                        {% if form.hardcover_api_key.errors %}
+                        <div class="form-error">{{ form.hardcover_api_key.errors }}</div>
+                        {% endif %}
+                        <div class="form-hint">{{ form.hardcover_api_key.help_text }}</div>
+                    </div>
+
+                    <p class="settings-help-text">
+                        <i class="bi bi-info-circle"></i> To obtain your Hardcover API Key, please visit
+                        <a href="https://hardcover.app/account/api" target="_blank" rel="noopener noreferrer">https://hardcover.app/account/api</a>
+                        and grab the bearer token to put into this field.
+                    </p>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save API Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+
         {% if push_notifications_enabled %}
-            {% include "bookclub/includes/profile/notification_settings.html" %}
+        <div class="settings-card notification-settings-card">
+            <div class="settings-card-header">
+                <h2 class="settings-card-title">
+                    <i class="bi bi-bell"></i>
+                    Notification Settings
+                </h2>
+                <span class="notification-status-badge badge-disabled" id="notification-status-badge" role="status" aria-live="polite">
+                    <i class="bi bi-bell-slash"></i>Disabled
+                </span>
+            </div>
+            <div class="settings-card-body">
+                <form method="post" class="notification-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="{{ form.hardcover_api_key.html_name }}"
+                        value="{{ form.hardcover_api_key.value|default:'' }}">
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.enable_notifications.id_for_label }}"
+                                name="{{ notification_form.enable_notifications.html_name }}"
+                                {% if notification_form.enable_notifications.value %}checked{% endif %}
+                                aria-describedby="notification-help-text">
+                            <label class="form-check-label" for="{{ notification_form.enable_notifications.id_for_label }}">
+                                {{ notification_form.enable_notifications.label }}
+                            </label>
+                        </div>
+                        <div class="form-hint" id="notification-help-text">{{ notification_form.enable_notifications.help_text }}</div>
+                    </div>
+
+                    <div id="notification-options" class="notification-options" role="group" aria-labelledby="notification-options-title">
+                        <div class="notification-section-title" id="notification-options-title">What would you like to be notified about?</div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_active_books.id_for_label }}"
+                                name="{{ notification_form.notify_new_active_books.html_name }}"
+                                {% if notification_form.notify_new_active_books.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_new_active_books.id_for_label }}">
+                                {{ notification_form.notify_new_active_books.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_new_active_books.help_text }}</div>
+                        </div>
+
+                        {% if ENABLE_DOLLAR_BETS and user_has_dollar_bet_groups %}
+                        <div class="notification-section-title">Dollar Bets Notifications</div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_dollar_bets.id_for_label }}"
+                                name="{{ notification_form.notify_new_dollar_bets.html_name }}"
+                                {% if notification_form.notify_new_dollar_bets.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_new_dollar_bets.id_for_label }}">
+                                {{ notification_form.notify_new_dollar_bets.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_new_dollar_bets.help_text }}</div>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_accepted.id_for_label }}"
+                                name="{{ notification_form.notify_bet_accepted.html_name }}"
+                                {% if notification_form.notify_bet_accepted.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_bet_accepted.id_for_label }}">
+                                {{ notification_form.notify_bet_accepted.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_bet_accepted.help_text }}</div>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_added_to.id_for_label }}"
+                                name="{{ notification_form.notify_bet_added_to.html_name }}"
+                                {% if notification_form.notify_bet_added_to.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_bet_added_to.id_for_label }}">
+                                {{ notification_form.notify_bet_added_to.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_bet_added_to.help_text }}</div>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_bet_resolved.id_for_label }}"
+                                name="{{ notification_form.notify_bet_resolved.html_name }}"
+                                {% if notification_form.notify_bet_resolved.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_bet_resolved.id_for_label }}">
+                                {{ notification_form.notify_bet_resolved.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_bet_resolved.help_text }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="notification-test-container" id="notification-test-container">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="test-notification-button">
+                            <i class="bi bi-bell"></i> Test Notifications
+                        </button>
+                        <span class="settings-help-text">Send a test notification to verify your settings.</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save Notification Settings
+                    </button>
+                </form>
+            </div>
+        </div>
         {% endif %}
-        
-        <!-- Developer Options -->
-        {% include "bookclub/includes/profile/developer_options.html" %}
+
+        <div class="settings-card developer-options-card">
+            <div class="settings-card-header collapsible" id="developer-options-header">
+                <h2 class="settings-card-title">
+                    <i class="bi bi-code-slash"></i>
+                    Developer Options
+                </h2>
+                <i class="bi bi-chevron-down collapse-icon"></i>
+            </div>
+            <div class="settings-card-body collapsible-content" id="developer-options-content">
+                <p class="settings-help-text">If you're experiencing issues with styles or scripts not updating:</p>
+                <button class="btn btn-warning" onclick="clearBrowserCache()">
+                    <i class="bi bi-arrow-clockwise"></i> Clear Browser Cache
+                </button>
+                <p class="settings-help-text">
+                    <i class="bi bi-info-circle"></i> This will refresh all CSS and JavaScript files by forcing the browser to load the latest versions.
+                </p>
+            </div>
+        </div>
     </div>
 </div>
-
-{% block extra_js %}
-{% if push_notifications_enabled %}
-<script type="module" src="{% static 'bookclub/js/profile-settings.js' %}"></script>
-{% endif %}
 {% endblock %}
+
+{% block page_js %}
+{% if push_notifications_enabled %}
+<script type="module" src="{% static 'bookclub/js/v2/pages/profile-settings.js' %}"></script>
+{% else %}
+<script src="{% static 'bookclub/js/v2/pages/profile-settings.js' %}"></script>
+{% endif %}
 {% endblock %}

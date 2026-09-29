@@ -1,127 +1,125 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 
 {% block title %}Confirm Add Book - {{ group.name }}{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/confirm-add-book.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col">
-            <h1 class="h3"><i class="bi bi-book-fill me-2"></i>Add Book to {{ group.name }}</h1>
-        </div>
+<div class="confirm-add-book-page">
+    <div class="page-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="page-title">
+            <i class="bi bi-plus-circle"></i>
+            Add Book to {{ group.name }}
+        </h1>
     </div>
 
-    <div class="mb-4">
-        <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back to Group
-        </a>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Confirm Book Details</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-4 mb-3 mb-md-0">
-                            {% if book_data.cover_image_url %}
-                            <img src="{{ book_data.cover_image_url }}" class="img-fluid rounded shadow-sm" alt="{{ book_data.title }}">
-                            {% else %}
-                            <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 200px;">
-                                <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
-                            </div>
-                            {% endif %}
+    <div class="confirm-add-content">
+        <div class="main-section">
+            <div class="book-preview-card">
+                <h5 class="section-title">Book Details</h5>
+                <div class="book-preview">
+                    <div class="book-cover-section">
+                        {% if book_data.cover_image_url %}
+                        <img src="{{ book_data.cover_image_url }}"
+                             class="book-cover-img"
+                             alt="{{ book_data.title }}"
+                             loading="lazy">
+                        {% else %}
+                        <div class="book-cover-placeholder">
+                            <i class="bi bi-book"></i>
                         </div>
-                        <div class="col-md-8">
-                            <h3 class="h4 mb-2">{{ book_data.title }}</h3>
-                            <p class="text-muted mb-3">
-                                by {{ book_data.author.name|default:"Unknown Author" }}
-                            </p>
-                            
-                            <div>
-                                <h4 class="h6 fw-bold">Description</h4>
-                                <p class="mb-0">
-                                    {{ book_data.description|default:"No description available." }}
-                                </p>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
-                    
-                    <hr>
-                    
-                    <form method="post" action="{% url 'add_book_to_group' group.id hardcover_id %}">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <h4 class="h5 fw-bold"><i class="bi bi-person-fill me-2"></i>Book Attribution</h4>
-                            <p class="text-muted">Who picked or suggested this book?</p>
+                    <div class="book-info-section">
+                        <h3 class="book-title">{{ book_data.title }}</h3>
+                        <p class="book-author">
+                            by {{ book_data.author.name|default:"Unknown Author" }}
+                        </p>
+                        {% if book_data.description %}
+                        <div class="book-description-section">
+                            <h6 class="description-label">Description</h6>
+                            <p class="book-description">{{ book_data.description }}</p>
                         </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="id_is_collective_pick" name="is_collective_pick">
-                                <label class="form-check-label" for="id_is_collective_pick">
-                                    This is a collective group pick
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3" id="pickedBySection">
-                            <label class="form-label" for="id_picked_by">Picked by:</label>
-                            <select class="form-select" id="id_picked_by" name="picked_by">
-                                <option value="">-- Not attributed --</option>
-                                {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.username }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="form-text">Select a member who suggested or picked this book.</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="id_set_active" name="set_active">
-                                <label class="form-check-label" for="id_set_active">
-                                    Set as active book
-                                </label>
-                            </div>
-                            <div class="form-text" id="setActiveSection">
-                                This will make this book the currently reading book and deactivate any other active books.
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i> Add to Group
-                            </button>
-                            <a href="{% url 'search_books' group.id %}" class="btn btn-outline-secondary">Cancel</a>
-                        </div>
-                    </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+
+            <div class="attribution-card">
+                <h5 class="section-title">
+                    <i class="bi bi-person-fill"></i>
+                    Book Attribution
+                </h5>
+                <p class="section-description">Who picked or suggested this book?</p>
+
+                <form method="post" action="{% url 'add_book_to_group' group.id hardcover_id %}" id="addBookForm">
+                    {% csrf_token %}
+
+                    <div class="form-section">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="id_is_collective_pick" name="is_collective_pick">
+                            <label class="form-check-label" for="id_is_collective_pick">
+                                This is a collective group pick
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="pickedBySection">
+                        <label class="form-label" for="id_picked_by">Picked by</label>
+                        <select class="form-select" id="id_picked_by" name="picked_by">
+                            <option value="">-- Not attributed --</option>
+                            {% for member in members %}
+                            <option value="{{ member.id }}">{{ member.username }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-hint">Select the member who suggested or picked this book.</div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="id_set_active" name="set_active">
+                            <label class="form-check-label" for="id_set_active">
+                                Set as active book
+                            </label>
+                        </div>
+                        <div class="form-hint" id="setActiveHint">
+                            This will make this book the currently reading book and deactivate any other active books.
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add to Group
+                        </button>
+                        <a href="{% url 'search_books' group.id %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
         </div>
-        
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Adding Books</h5>
-                </div>
-                <div class="card-body">
-                    <p>When you add a book to your group:</p>
-                    <ul class="mb-0">
-                        <li>All members can track their reading progress</li>
-                        <li>Members can post comments and discuss the book</li>
-                        <li>You can attribute the book to the member who suggested it</li>
-                        <li>You can set it as the active book for the group</li>
-                    </ul>
-                </div>
+
+        <div class="sidebar-section">
+            <div class="info-card">
+                <h5 class="info-title">
+                    <i class="bi bi-info-circle"></i>
+                    About Adding Books
+                </h5>
+                <p>When you add a book to your group:</p>
+                <ul class="info-list">
+                    <li>All members can track their reading progress</li>
+                    <li>Members can post comments and discuss the book</li>
+                    <li>You can attribute the book to the member who suggested it</li>
+                    <li>You can set it as the active book for the group</li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
-
-{% block extra_js %}
-<script type="module" src="{% static 'bookclub/js/book-management.js' %}"></script>
 {% endblock %}
+
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/confirm-add-book.js' %}"></script>
 {% endblock %}

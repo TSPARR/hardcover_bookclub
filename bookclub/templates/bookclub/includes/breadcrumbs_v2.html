@@ -1,0 +1,95 @@
+{% comment %}
+  V2 Breadcrumbs - Design System Component
+
+  Parameters:
+  - items: List of dictionaries with 'url' and 'title' keys.
+           The last item is automatically marked as active.
+
+  Usage example:
+  {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+{% endcomment %}
+
+<nav aria-label="breadcrumb" class="breadcrumbs-nav">
+  <ol class="breadcrumbs-list">
+    {% for item in items %}
+      {% if forloop.last %}
+        <li class="breadcrumb-item active" aria-current="page">{{ item.title }}</li>
+      {% else %}
+        <li class="breadcrumb-item">
+          <a href="{{ item.url }}" class="breadcrumb-link">{{ item.title }}</a>
+        </li>
+        <li class="breadcrumb-separator" aria-hidden="true">
+          <i class="bi bi-chevron-right"></i>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+</nav>
+
+<style>
+/* Breadcrumbs Styles - Inline for component isolation */
+.breadcrumbs-nav {
+    margin-bottom: var(--spacing-lg);
+    animation: fadeIn 0.5s var(--ease-out-expo);
+}
+
+.breadcrumbs-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--ink-black);
+}
+
+.breadcrumb-link {
+    color: var(--burgundy);
+    text-decoration: none;
+    transition: all var(--transition-fast) ease;
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.breadcrumb-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--burgundy);
+    transition: width var(--transition-normal) var(--ease-out-expo);
+}
+
+.breadcrumb-link:hover {
+    color: var(--forest-green);
+}
+
+.breadcrumb-link:hover::after {
+    width: 100%;
+    background: var(--forest-green);
+}
+
+.breadcrumb-separator {
+    color: var(--ink-black);
+    opacity: 0.3;
+    font-size: 0.75rem;
+}
+
+.breadcrumb-item.active {
+    opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+    .breadcrumbs-list {
+        font-size: 0.75rem;
+    }
+}
+</style>

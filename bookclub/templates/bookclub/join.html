@@ -1,0 +1,94 @@
+{% extends 'bookclub/base_v2.html' %}
+{% load static %}
+
+{% block title %}Join the Club{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/join.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="join-wrapper">
+    <div class="join-container">
+        <div class="join-header">
+            <div class="join-badge">Invitation Only</div>
+            <h1>Join the Club</h1>
+            <p>Create your account to begin your literary journey</p>
+        </div>
+
+        <form method="post" id="joinForm" class="join-form">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                    <div class="form-error">{{ form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                    <div class="form-error">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <div class="form-error">{{ form.username.errors.0 }}</div>
+                {% endif %}
+                <div class="form-hint">Choose a unique username for your account</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <div class="form-error">{{ form.email.errors.0 }}</div>
+                {% endif %}
+                <div class="form-hint">Used for account recovery and notifications</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                <div class="form-error">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+                {% if form.password1.help_text %}
+                <div class="form-hint">{{ form.password1.help_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                <div class="form-error">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <input type="hidden" name="invitation_code" value="{{ form.invitation_code.value }}">
+
+            <button type="submit" class="btn-join">
+                <i class="bi bi-person-check"></i>
+                <span>Join Now</span>
+            </button>
+        </form>
+
+        <div class="join-footer">
+            Already have an account? <a href="{% url 'login' %}">Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/join.js' %}"></script>
+{% endblock %}

@@ -93,12 +93,12 @@ def create_invitation(request, group_id):
 
         # Generate invite URL
         invite_url = request.build_absolute_uri(
-            reverse("register_with_invite", kwargs={"invite_code": invitation.code})
+            reverse("join_with_invite", kwargs={"invite_code": invitation.code})
         )
 
         # Store the invitation link in the session for display on the next page
         request.session["new_invitation_link"] = invite_url
-        request.session["new_invitation_code"] = invitation.code
+        request.session["new_invitation_code"] = str(invitation.code)
 
         messages.success(
             request,
