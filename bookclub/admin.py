@@ -10,11 +10,11 @@ from .models import (
     CommentReaction,
     DollarBet,
     GroupInvitation,
+    Meeting,
+    MeetingAttendance,
     MemberStartingPoint,
     UserBookProgress,
     UserProfile,
-    Meeting,
-    MeetingAttendance,
 )
 from .views.book_utils import _get_progress_value_for_sorting
 

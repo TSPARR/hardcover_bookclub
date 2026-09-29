@@ -32,12 +32,30 @@ def manage_invitations(request, group_id):
     # Get all invitations for this group
     invitations = GroupInvitation.objects.filter(group=group)
 
+    # Build breadcrumbs
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {
+            "url": reverse("group_detail", kwargs={"group_id": group.id}),
+            "title": group.name,
+        },
+        {"url": "", "title": "Manage Invitations"},
+    ]
+
+    # Check for newly created invitation in session
+    new_invitation_link = request.session.pop("new_invitation_link", None)
+    new_invitation_code = request.session.pop("new_invitation_code", None)
+
     return render(
         request,
         "bookclub/manage_invitations.html",
         {
             "group": group,
             "invitations": invitations,
+            "breadcrumb_items": breadcrumb_items,
+            "now": timezone.now(),
+            "new_invitation_link": new_invitation_link,
+            "new_invitation_code": new_invitation_code,
         },
     )
 
@@ -78,22 +96,36 @@ def create_invitation(request, group_id):
             reverse("register_with_invite", kwargs={"invite_code": invitation.code})
         )
 
-        # Safely escape the URL to prevent XSS
-        escaped_invite_url = escape(invite_url)
+        # Store the invitation link in the session for display on the next page
+        request.session["new_invitation_link"] = invite_url
+        request.session["new_invitation_code"] = invitation.code
 
-        # Use a template-friendly message that can be rendered safely
         messages.success(
             request,
-            f"Invitation created! Link: {escaped_invite_url}",
-            extra_tags="invitation-link",
+            "Invitation created successfully! Copy the link below to share it.",
         )
         return redirect("manage_invitations", group_id=group.id)
+
+    # Build breadcrumbs
+    breadcrumb_items = [
+        {"url": reverse("home"), "title": "Home"},
+        {
+            "url": reverse("group_detail", kwargs={"group_id": group.id}),
+            "title": group.name,
+        },
+        {
+            "url": reverse("manage_invitations", kwargs={"group_id": group.id}),
+            "title": "Manage Invitations",
+        },
+        {"url": "", "title": "Create Invitation"},
+    ]
 
     return render(
         request,
         "bookclub/create_invitation.html",
         {
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 

@@ -1,0 +1,59 @@
+/* Dark Mode - Group Detail Overrides */
+
+.dark-mode .group-tabs-mobile .nav-tabs {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .group-tabs-mobile .nav-tabs .nav-link {
+    color: #adb5bd;
+}
+
+.dark-mode .group-tabs-mobile .nav-tabs .nav-link:hover {
+    border-bottom-color: #6ea8fe;
+    color: #e1e1e1;
+}
+
+.dark-mode .group-tabs-mobile .nav-tabs .nav-link.active {
+    color: #6ea8fe;
+    border-bottom-color: #6ea8fe;
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-menu {
+    background-color: #2c2c2c;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-item {
+    color: #e1e1e1;
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-item:hover {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-divider {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .admin-actions-dropdown .dropdown-item.text-danger:hover,
+.dark-mode .admin-actions-dropdown .dropdown-item.text-destructive:hover {
+    background-color: rgba(220, 53, 69, 0.15);
+}
+
+/* ===========================
+ * Active Book Card Colors - Dark Mode
+ * =========================== */
+.dark-mode .active-book-info-section {
+    border-right-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .active-book-progress-section {
+    background-color: rgba(13, 110, 253, 0.1);
+    border: 1px solid rgba(13, 110, 253, 0.2);
+}
+
+/* Empty state icon color */
+.dark-mode .empty-state-icon {
+    color: #6ea8fe;
+}

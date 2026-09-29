@@ -107,3 +107,24 @@
 .dark-mode .list-group-flush .list-group-item {
     border-color: rgba(255, 255, 255, 0.05);
 }
+
+/* ===========================
+ * Semantic Card Class Colors - Dark Mode
+ * =========================== */
+/* Card header variants */
+.dark-mode .card-header-neutral {
+    background-color: #2c2c2c;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.dark-mode .card-header-primary {
+    background-color: #0a58ca;
+    border-bottom-color: #084298;
+    color: #ffffff;
+}
+
+/* Border emphasis */
+.dark-mode .border-emphasis {
+    border-color: #6ea8fe;
+}

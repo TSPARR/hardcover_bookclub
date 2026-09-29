@@ -1,9 +1,9 @@
-<div class="card mb-4">
+<div class="card profile-settings-card">
     <div class="card-header">
-        <h4>Home Page Settings</h4>
+        <h5><i class="bi bi-house-door me-2"></i>Home Page Settings</h5>
     </div>
     <div class="card-body">
-        <p class="text-muted mb-3">Choose where you want to go after logging in.</p>
+        <p class="settings-help-text"><i class="bi bi-info-circle"></i>Choose where you want to go after logging in.</p>
         <form method="post">
             {% csrf_token %}
             <!-- Hidden fields to preserve other form values -->
@@ -47,7 +47,7 @@
                 {% endif %}
             </div>
 
-            <div class="mb-3" id="group-select-container" style="{% if home_page_form.preference_type.value == 'default' %}display: none;{% endif %}">
+            <div class="mb-3 group-select-container{% if home_page_form.preference_type.value == 'default' %} hidden{% endif %}" id="group-select-container">
                 <label for="{{ home_page_form.group_id.id_for_label }}" class="form-label">Select Group</label>
                 {{ home_page_form.group_id }}
                 {% if home_page_form.group_id.errors %}
@@ -74,9 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleGroupSelect() {
         const selectedValue = document.querySelector('input[name="preference_type"]:checked')?.value;
         if (selectedValue === 'default') {
-            groupSelectContainer.style.display = 'none';
+            groupSelectContainer.classList.add('hidden');
         } else {
-            groupSelectContainer.style.display = 'block';
+            groupSelectContainer.classList.remove('hidden');
         }
     }
 

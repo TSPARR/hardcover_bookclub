@@ -1,0 +1,43 @@
+/* Toast Notifications - Dark Mode */
+
+html.dark-mode .toast {
+    background-color: #2b3035;
+    color: #e9ecef;
+}
+
+html.dark-mode .toast-header {
+    background-color: #1e2125;
+    color: #e9ecef;
+}
+
+html.dark-mode .toast-body {
+    background-color: #2b3035;
+}
+
+html.dark-mode .toast .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Success toast colors */
+html.dark-mode .toast.toast-success .toast-header {
+    background-color: #1a3d2e;
+    color: #75b798;
+}
+
+/* Error toast colors */
+html.dark-mode .toast.toast-error .toast-header {
+    background-color: #3d1a1e;
+    color: #ea868f;
+}
+
+/* Warning toast colors */
+html.dark-mode .toast.toast-warning .toast-header {
+    background-color: #4d3d1a;
+    color: #ffda6a;
+}
+
+/* Info toast colors */
+html.dark-mode .toast.toast-info .toast-header {
+    background-color: #1a3d4d;
+    color: #6edff6;
+}

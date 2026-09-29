@@ -1,0 +1,15 @@
+/* ===========================
+ * Reorder Books Page - Dark Mode Colors
+ * =========================== */
+
+.dark-mode .reorder-header h2 {
+    color: #e1e1e1;
+}
+
+.dark-mode .reorder-book-title {
+    color: #e1e1e1;
+}
+
+.dark-mode .reorder-book-author {
+    color: #9e9e9e;
+}

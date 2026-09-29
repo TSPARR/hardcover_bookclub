@@ -1,0 +1,43 @@
+/* Toast Notifications - Light Mode */
+
+html.light-mode .toast {
+    background-color: #ffffff;
+    color: #333;
+}
+
+html.light-mode .toast-header {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+html.light-mode .toast-body {
+    background-color: #ffffff;
+}
+
+html.light-mode .toast .btn-close {
+    filter: none;
+}
+
+/* Success toast colors */
+html.light-mode .toast.toast-success .toast-header {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+/* Error toast colors */
+html.light-mode .toast.toast-error .toast-header {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* Warning toast colors */
+html.light-mode .toast.toast-warning .toast-header {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+/* Info toast colors */
+html.light-mode .toast.toast-info .toast-header {
+    background-color: #cff4fc;
+    color: #055160;
+}

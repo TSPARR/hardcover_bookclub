@@ -137,3 +137,24 @@
     font-size: 0.8rem;
     margin-bottom: 0.25rem;
 }
+
+/* Hardcover progress options - structural styles */
+.hardcover-progress-container .hardcover-progress-option,
+#hardcoverSyncModalBody .progress-option {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.hardcover-progress-container .hardcover-progress-option:hover,
+#hardcoverSyncModalBody .progress-option:hover {
+    box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
+}
+
+.hardcover-progress-container .hardcover-progress-option.selected,
+#hardcoverSyncModalBody .progress-option.selected {
+    box-shadow: 0 0 0 1px #0d6efd;
+}

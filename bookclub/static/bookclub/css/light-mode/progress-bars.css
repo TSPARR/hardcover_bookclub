@@ -4,7 +4,6 @@
 /* Base Progress Bar Styles - Light Mode */
 .light-mode .progress {
     background-color: rgba(0, 0, 0, 0.1);
-    height: 1.5rem;
 }
 
 .light-mode .progress-bar {
@@ -109,25 +108,18 @@
 .light-mode .hardcover-progress-container .hardcover-progress-option,
 .light-mode #hardcoverSyncModalBody .progress-option {
     background-color: #f8f9fa !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
     color: #333333 !important;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .light-mode .hardcover-progress-container .hardcover-progress-option:hover,
 .light-mode #hardcoverSyncModalBody .progress-option:hover {
     background-color: #e9ecef !important;
     border-color: rgba(13, 110, 253, 0.5) !important;
-    box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.25);
 }
 
 .light-mode .hardcover-progress-container .hardcover-progress-option.selected,
 .light-mode #hardcoverSyncModalBody .progress-option.selected {
     background-color: rgba(13, 110, 253, 0.1) !important;
     border-color: #0d6efd !important;
-    box-shadow: 0 0 0 1px #0d6efd;
 }

@@ -89,3 +89,14 @@
 .z-index-2 {
     z-index: 2 !important;
 }
+
+/* ===========================
+ * Semantic Text Utilities
+ * =========================== */
+.text-subtle {
+    font-weight: 400;
+}
+
+.text-destructive {
+    font-weight: 400;
+}

@@ -20,9 +20,9 @@
 
 /* Ensure modals appear above dropdowns */
 .modal {
-    z-index: 10500 !important;
+    z-index: 1055 !important;
 }
 
 .modal-backdrop {
-    z-index: 10490 !important;
+    z-index: 1050 !important;
 }

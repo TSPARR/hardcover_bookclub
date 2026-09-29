@@ -7,12 +7,11 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django_cryptography.fields import encrypt
-from django.db.models import Q, Count, Max
 
 
 class BookGroup(models.Model):

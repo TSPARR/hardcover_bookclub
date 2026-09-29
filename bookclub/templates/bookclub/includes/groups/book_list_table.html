@@ -1,15 +1,15 @@
 {% load bookclub_extras %}
-<table class="table table-hover">
+<table class="table table-hover book-list-table">
     <thead>
         <tr>
-            <th width="5%">#</th>
-            <th width="20%">Book</th>
-            <th width="15%">Author</th>
-            <th width="15%">Picked By</th>
-            <th width="15%">Rating</th>
-            <th width="15%">Your Progress</th>
+            <th class="col-number">#</th>
+            <th class="col-book">Book</th>
+            <th class="col-author">Author</th>
+            <th class="col-picked-by">Picked By</th>
+            <th class="col-rating">Rating</th>
+            <th class="col-progress">Progress</th>
             {% if is_admin %}
-            <th width="15%">Actions</th>
+            <th class="col-actions">Actions</th>
             {% endif %}
         </tr>
     </thead>
@@ -23,7 +23,7 @@
             <td>{{ book.author }}</td>
             <td>
                 {% if book.is_collective_pick %}
-                <span class="badge bg-info text-dark">Group Pick</span>
+                <span class="badge badge-group-pick">Group Pick</span>
                 {% elif book.picked_by %}
                 {{ book.picked_by.username }}
                 {% endif %}
@@ -36,13 +36,13 @@
                                 {% include "bookclub/includes/star_rating.html" with rating=prog.progress.effective_rating small=True %}
                             </div>
                             {% if prog.progress.hardcover_rating %}
-                            <span class="text-muted small d-block">Hardcover</span>
+                            <span class="text-subtle small d-block">Hardcover</span>
                             {% elif prog.progress.local_rating %}
-                            <span class="text-muted small d-block">Local</span>
+                            <span class="text-subtle small d-block">Local</span>
                             {% endif %}
                         </div>
                     {% else %}
-                        <span class="text-muted small">-</span>
+                        <span class="text-subtle small">-</span>
                     {% endif %}
                 {% endwith %}
             </td>
@@ -58,24 +58,48 @@
             </td>
             {% if is_admin %}
             <td>
-                {% if not book.is_active %}
-                <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                        Set Active
+                <div class="dropdown admin-actions-dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="bookActions{{ book.id }}" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Book actions menu">
+                        <i class="bi bi-three-dots-vertical"></i>
                     </button>
-                </form>
-                {% endif %}
-                <a href="{% url 'manage_promoted_editions' book.id %}" class="btn btn-sm btn-outline-info">
-                    <i class="bi bi-star"></i> Editions
-                </a>
-                <form method="post" action="{% url 'remove_book' group.id book.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                        onclick="return confirm('Are you sure you want to remove this book?')">
-                        Remove
-                    </button>
-                </form>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bookActions{{ book.id }}">
+                        <li>
+                            <button type="button" class="dropdown-item edit-attribution"
+                                    data-book-id="{{ book.id }}"
+                                    data-book-title="{{ book.title|split:":"|first|trim }}"
+                                    data-picked-by="{{ book.picked_by.id|default:'' }}"
+                                    data-collective="{{ book.is_collective_pick|yesno:'true,false' }}"
+                                    data-bs-toggle="modal" data-bs-target="#attributionModal">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Attribution
+                            </button>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'manage_promoted_editions' book.id %}">
+                                <i class="bi bi-star me-2"></i>Manage Editions
+                            </a>
+                        </li>
+                        {% if not book.is_active %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" class="dropdown-item-form">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-play-circle me-2"></i>Set Active
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'remove_book' group.id book.id %}" class="dropdown-item-form" data-confirm="Are you sure you want to remove this book? This action cannot be undone.">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-trash me-2"></i>Remove Book
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </td>
             {% endif %}
         </tr>

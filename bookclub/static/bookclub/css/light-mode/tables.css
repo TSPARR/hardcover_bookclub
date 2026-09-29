@@ -4,29 +4,18 @@
 /* Base Progress Bar Styles - Light Mode */
 .light-mode .progress {
     background-color: rgba(0, 0, 0, 0.1);
-    height: 1.5rem;
-    position: relative;
 }
 
 /* Only apply percentage display to specific progress bars - Light Mode */
 .light-mode .progress.progress-styled::after,
 .light-mode .progress.group-members-progress::after {
-    content: attr(data-progress) "%";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     color: #555555;
-    font-weight: bold;
-    font-size: 0.875rem;
     text-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
-    z-index: 1;
 }
 
 .light-mode .progress-bar {
     background-color: #0d6efd;
     color: white;
-    transition: width 0.6s ease;
 }
 
 /* Table Structure */
@@ -109,26 +98,12 @@
 .light-mode .group-members-progress-card .progress.group-members-progress,
 .light-mode #bookDetailsAccordion .progress.progress-styled {
     background-color: rgba(0, 0, 0, 0.1);
-    position: relative;
-    border-radius: 0.25rem;
-    margin: 0.75rem 0;
-    overflow: hidden;
-    height: 1.75rem;
 }
 
 .light-mode .group-members-progress-card .progress.group-members-progress .progress-bar,
 .light-mode #bookDetailsAccordion .progress.progress-styled .progress-bar {
     background-color: rgba(13, 110, 253, 0.7);
     color: #fff;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transition: width 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
 }
 
 .light-mode .group-members-progress-card .progress.group-members-progress .progress-bar.bg-secondary,
@@ -400,8 +375,6 @@
 /* Target the specific progress bar in home.html - Light Mode */
 .light-mode .list-group-item .progress {
     background-color: rgba(0, 0, 0, 0.1);
-    height: 8px;
-    position: relative;
     overflow: hidden;
 }
 
@@ -473,53 +446,15 @@
     margin-top: 0.75rem;
 }
 
-/* Previous Books Table Improvements - Light Mode */
-/* Card and border styling */
-.light-mode .previous-books-desktop .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-    padding: 1rem 1.25rem;
+/* Mobile Book Card Styling - Light Mode */
+.light-mode .mobile-book-card {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
 }
 
-/* Text styling */
-.light-mode .previous-books-desktop .book-author {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-.light-mode .previous-books-desktop .book-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    display: block;
-}
-
-/* Table styling */
-.light-mode .previous-books-desktop table thead {
-    background-color: #f0f0f0;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.light-mode .previous-books-desktop table th {
-    background-color: #f0f0f0;
-    color: #333333;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.light-mode .previous-books-desktop table td {
+.light-mode .mobile-book-details,
+.light-mode .mobile-book-actions {
     border-top: 1px solid #dee2e6;
-}
-
-/* Button styling */
-.light-mode .previous-books-desktop .btn-outline-primary {
-    color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.light-mode .previous-books-desktop .btn-outline-primary:hover {
-    background-color: #0d6efd;
-    color: #fff;
 }
 
 /* Mobile Book Card Progress Bar - Light Mode */
@@ -550,47 +485,68 @@
     z-index: 1;
 }
 
-/* Book Reordering Form Styles - Light Mode */
-.light-mode #reorderForm,
-.light-mode #mobileReorderForm {
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    border-radius: 0.375rem;
-    transition: display 0.2s ease;
+/* ===========================
+ * Semantic Badge Colors - Light Mode
+ * =========================== */
+/* Status badges */
+.light-mode .badge-status-finished {
+    background-color: #198754;
+    color: #fff;
 }
 
-.light-mode #sortableBooks {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+.light-mode .badge-status-reading {
+    background-color: #0dcaf0;
+    color: #000;
 }
 
-.light-mode #sortableBooks li {
-    padding: 0.75rem 1rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    margin-bottom: 0.5rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
+.light-mode .badge-status-not-started {
+    background-color: #6c757d;
+    color: #fff;
 }
 
-.light-mode #sortableBooks .handle {
-    cursor: grab;
-    margin-right: 0.75rem;
-    color: #6c757d;
+/* Attribution badges */
+.light-mode .badge-group-pick {
+    background-color: #0dcaf0;
+    color: #000;
 }
 
-.light-mode #sortableBooks .book-info {
-    flex-grow: 1;
+.light-mode .badge-user-pick {
+    background-color: #6c757d;
+    color: #fff;
 }
 
-.light-mode #sortableBooks .book-title {
-    font-weight: 600;
-    display: block;
+/* Role badges */
+.light-mode .badge-admin {
+    background-color: #198754;
+    color: #fff;
 }
 
-.light-mode #sortableBooks .book-author {
-    font-size: 0.875rem;
-    color: #6c757d;
+.light-mode .badge-member-count {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.light-mode .badge-book-number {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.light-mode .badge-active {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* ===========================
+ * Mobile Book Actions Dropdown - Light Mode
+ * =========================== */
+.light-mode .mobile-book-actions .dropdown-toggle {
+    color: #495057;
+    border-color: #6c757d;
+    background-color: #fff;
+}
+
+.light-mode .mobile-book-actions .dropdown-toggle:hover {
+    background-color: #f8f9fa;
+    border-color: #495057;
+    color: #212529;
 }

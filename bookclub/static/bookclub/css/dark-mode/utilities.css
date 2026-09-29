@@ -179,3 +179,14 @@
     line-height: 1.2;
     color: #ffffff;
 }
+
+/* ===========================
+ * Semantic Text Utility Colors - Dark Mode
+ * =========================== */
+.dark-mode .text-subtle {
+    color: #9e9e9e !important;
+}
+
+.dark-mode .text-destructive {
+    color: #ea868f !important;
+}

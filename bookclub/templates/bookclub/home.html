@@ -9,7 +9,7 @@
     <!-- Reading progress section -->
     {% if active_books %}
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card-header home-card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-bookmark me-2"></i>Currently Reading</h5>
         </div>
         <div class="card-body p-0">
@@ -19,15 +19,14 @@
                     <div class="row g-0">
                         <div class="col-md-1 col-sm-2 col-3">
                             {% if book_data.progress.edition and book_data.progress.edition.cover_image_url %}
-                            <img src="{{ book_data.progress.edition.cover_image_url }}" class="img-fluid rounded" 
-                                style="width: 100%; object-fit: contain;" alt="{{ book_data.book.title|split:":"|first|trim }}">
+                            <img src="{{ book_data.progress.edition.cover_image_url }}" class="img-fluid rounded home-book-cover"
+                                alt="{{ book_data.book.title|split:":"|first|trim }}">
                             {% elif book_data.book.cover_image_url %}
-                            <img src="{{ book_data.book.cover_image_url }}" class="img-fluid rounded" 
-                                style="width: 100%; object-fit: contain;" alt="{{ book_data.book.title|split:":"|first|trim }}">
+                            <img src="{{ book_data.book.cover_image_url }}" class="img-fluid rounded home-book-cover"
+                                alt="{{ book_data.book.title|split:":"|first|trim }}">
                             {% else %}
-                            <div class="bg-light d-flex justify-content-center align-items-center h-100 rounded" 
-                                style="min-height: 100px;">
-                                <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                            <div class="home-book-placeholder h-100 rounded">
+                                <i class="bi bi-book text-muted home-book-placeholder-icon"></i>
                             </div>
                             {% endif %}
                         </div>
@@ -39,7 +38,7 @@
                                             <h5 class="mb-1">{{ book_data.book.title|split:":"|first|trim }}</h5>
                                             <p class="text-muted mb-1">{{ book_data.book.author }}</p>
                                         </div>
-                                        <span class="badge bg-info text-dark">{{ book_data.book.group.name }}</span>
+                                        <span class="badge home-group-badge">{{ book_data.book.group.name }}</span>
                                     </div>
                                 </div>
                                 
@@ -56,9 +55,9 @@
                                                 {{ book_data.progress.progress_value }}% complete
                                                 {% endif %}
                                             </div>
-                                            
+
                                             <!-- Progress bar with percentage tooltip -->
-                                            <div class="progress mb-2" style="height: 8px;" 
+                                            <div class="progress mb-2 home-progress-bar"
                                                 data-bs-toggle="tooltip" title="{{ book_data.progress.normalized_progress|floatformat:1 }}% complete">
                                                 <div class="progress-bar bg-success" role="progressbar"
                                                     style="width: {{ book_data.progress.normalized_progress }}%;"
@@ -88,7 +87,7 @@
 
     <!-- My groups section -->
     <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card-header home-card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-people me-2"></i>My Groups</h5>
             {% if can_create_groups %}
             <a href="{% url 'create_group' %}" class="btn btn-sm btn-primary">
@@ -111,8 +110,8 @@
                         <div class="col-md-5">
                             {% if group.active_book %}
                             <div class="d-flex align-items-center">
-                                <span class="badge bg-success me-2">Active Book</span>
-                                <span class="text-truncate d-inline-block" style="max-width: 85%;">{{ group.active_book.title|split:":"|first|trim }}</span>
+                                <span class="badge home-active-badge me-2">Active Book</span>
+                                <span class="text-truncate d-inline-block home-active-book-title">{{ group.active_book.title|split:":"|first|trim }}</span>
                             </div>
                             {% else %}
                             <span class="text-muted">No active book</span>
@@ -121,7 +120,7 @@
                         
                         <div class="col-md-2 text-md-end">
                             <div class="d-flex justify-content-md-end align-items-center">
-                                <span class="badge bg-secondary me-2">{{ group.members.count }} <span class="members-text">Members</span></span>
+                                <span class="badge home-member-badge me-2">{{ group.members.count }} <span class="members-text">Members</span></span>
                                 <a href="{% url 'group_detail' group.id %}" class="btn btn-sm btn-outline-primary">
                                     View
                                 </a>
@@ -134,9 +133,9 @@
         </div>
         {% else %}
         <div class="card-body">
-            <div class="text-center py-4">
+            <div class="home-empty-state">
                 <div class="mb-3">
-                    <i class="bi bi-people-fill" style="font-size: 2.5rem; color: #ccc;"></i>
+                    <i class="bi bi-people-fill home-empty-state-icon"></i>
                 </div>
                 <h5>You're not a member of any groups yet</h5>
                 <p class="text-muted">Join a group to start reading and discussing books with others.</p>

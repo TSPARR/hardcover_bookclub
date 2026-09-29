@@ -48,12 +48,23 @@ from bookclub.views.group_views import (
     home,
     manage_group_members,
     manage_member_starting_points,
+    reorder_book,
+    reorder_books_page,
     update_group_settings,
 )
 from bookclub.views.invitation_views import (
     create_invitation,
     manage_invitations,
     revoke_invitation,
+)
+from bookclub.views.meeting_views import (
+    create_meeting,
+    delete_meeting,
+    join_meeting,
+    leave_meeting,
+    meeting_detail,
+    next_meeting_info,
+    update_meeting,
 )
 from bookclub.views.profile_views import (
     get_vapid_public_key,
@@ -62,20 +73,11 @@ from bookclub.views.profile_views import (
     push_unsubscribe,
     test_push_notification,
 )
-from bookclub.views.meeting_views import (
-    next_meeting_info,
-    create_meeting,
-    update_meeting,
-    delete_meeting,
-    join_meeting,
-    leave_meeting,
-    meeting_detail,
-)
 from bookclub.views.proposal_views import (
-    propose_book,
-    group_proposals,
-    review_proposal,
     delete_proposal,
+    group_proposals,
+    propose_book,
+    review_proposal,
 )
 
 
@@ -108,21 +110,6 @@ urlpatterns = [
         "accounts/logout/",
         auth_views.LogoutView.as_view(next_page="landing_page"),
         name="logout",
-    ),
-    path(
-        "accounts/password_change/",
-        auth_views.PasswordChangeView.as_view(
-            template_name="bookclub/password_change_form.html",
-            success_url="/accounts/password_change/done/",
-        ),
-        name="password_change",
-    ),
-    path(
-        "accounts/password_change/done/",
-        auth_views.PasswordChangeDoneView.as_view(
-            template_name="bookclub/password_change_done.html"
-        ),
-        name="password_change_done",
     ),
     path(
         "register/<uuid:invite_code>/",
@@ -159,6 +146,16 @@ urlpatterns = [
         "group/<int:group_id>/settings/update/",
         update_group_settings,
         name="update_group_settings",
+    ),
+    path(
+        "groups/<int:group_id>/reorder-books/",
+        reorder_books_page,
+        name="reorder_books",
+    ),
+    path(
+        "groups/<int:group_id>/books/<int:book_id>/reorder/",
+        reorder_book,
+        name="reorder_book",
     ),
     # Book related URLs
     path("books/<int:book_id>/", book_detail, name="book_detail"),

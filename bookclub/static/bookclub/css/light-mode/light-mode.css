@@ -18,9 +18,16 @@
 @import 'components/reactions.css';
 @import 'components/analytics.css';
 @import 'components/group-members.css';
+@import 'components/group-detail.css';
 @import 'components/dollar-bets.css';
 @import 'components/star_ratings.css';
 @import 'components/refresh.css';
+@import 'components/search.css';
+@import 'components/invitations.css';
+@import 'components/toast.css';
+@import 'components/profile-settings.css';
+@import 'components/home.css';
+@import 'components/reorder-books.css';
 
 /* Add a class to the body for any body-level styling */
 html.light-mode,
