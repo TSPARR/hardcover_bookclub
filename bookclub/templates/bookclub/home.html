@@ -1,153 +1,146 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 {% load bookclub_extras %}
 
 {% block title %}Book Club - Home{% endblock %}
 
-{% block content %}
-<div class="container py-4">
-    <!-- Reading progress section -->
-    {% if active_books %}
-    <div class="card shadow-sm mb-4">
-        <div class="card-header home-card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-bookmark me-2"></i>Currently Reading</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="list-group list-group-flush">
-                {% for book_data in active_books %}
-                <div class="list-group-item p-3">
-                    <div class="row g-0">
-                        <div class="col-md-1 col-sm-2 col-3">
-                            {% if book_data.progress.edition and book_data.progress.edition.cover_image_url %}
-                            <img src="{{ book_data.progress.edition.cover_image_url }}" class="img-fluid rounded home-book-cover"
-                                alt="{{ book_data.book.title|split:":"|first|trim }}">
-                            {% elif book_data.book.cover_image_url %}
-                            <img src="{{ book_data.book.cover_image_url }}" class="img-fluid rounded home-book-cover"
-                                alt="{{ book_data.book.title|split:":"|first|trim }}">
-                            {% else %}
-                            <div class="home-book-placeholder h-100 rounded">
-                                <i class="bi bi-book text-muted home-book-placeholder-icon"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-11 col-sm-10 col-9 ps-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h5 class="mb-1">{{ book_data.book.title|split:":"|first|trim }}</h5>
-                                            <p class="text-muted mb-1">{{ book_data.book.author }}</p>
-                                        </div>
-                                        <span class="badge home-group-badge">{{ book_data.book.group.name }}</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="row align-items-center h-100">
-                                        <div class="col-md-8">
-                                            {% if book_data.progress %}
-                                            <div class="mb-2 small">
-                                                {% if book_data.progress.progress_type == 'page' %}
-                                                Page {{ book_data.progress.progress_value }}
-                                                {% elif book_data.progress.progress_type == 'audio' %}
-                                                Audio: {{ book_data.progress.progress_value }}
-                                                {% else %}
-                                                {{ book_data.progress.progress_value }}% complete
-                                                {% endif %}
-                                            </div>
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/home.css' %}">
+{% endblock %}
 
-                                            <!-- Progress bar with percentage tooltip -->
-                                            <div class="progress mb-2 home-progress-bar"
-                                                data-bs-toggle="tooltip" title="{{ book_data.progress.normalized_progress|floatformat:1 }}% complete">
-                                                <div class="progress-bar bg-success" role="progressbar"
-                                                    style="width: {{ book_data.progress.normalized_progress }}%;"
-                                                    aria-valuenow="{{ book_data.progress.normalized_progress }}" 
-                                                    aria-valuemin="0" aria-valuemax="100">
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        
-                                        <div class="col-md-4 text-md-end">
-                                            <a href="{% url 'book_detail' book_data.book.id %}" class="btn btn-sm btn-primary">
-                                                Continue
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+{% block content %}
+<div class="home-page">
+    {% if active_books %}
+    <div class="home-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="bi bi-bookmark-fill"></i>
+                Currently Reading
+            </h2>
+        </div>
+
+        <div class="reading-list">
+            {% for book_data in active_books %}
+            <div class="reading-item">
+                <div class="book-cover-container">
+                    {% if book_data.progress.edition and book_data.progress.edition.cover_image_url %}
+                    <img src="{{ book_data.progress.edition.cover_image_url }}" class="book-cover"
+                        alt="{{ book_data.book.title|split:":"|first|trim }}">
+                    {% elif book_data.book.cover_image_url %}
+                    <img src="{{ book_data.book.cover_image_url }}" class="book-cover"
+                        alt="{{ book_data.book.title|split:":"|first|trim }}">
+                    {% else %}
+                    <div class="book-placeholder">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="book-info">
+                    <div class="book-header">
+                        <div class="book-title-section">
+                            <h3 class="book-title">{{ book_data.book.title|split:":"|first|trim }}</h3>
+                            <p class="book-author">{{ book_data.book.author }}</p>
+                        </div>
+                        <span class="group-badge">{{ book_data.book.group.name }}</span>
+                    </div>
+
+                    <div class="progress-section">
+                        {% if book_data.progress %}
+                        <div class="progress-info">
+                            <span class="progress-text">
+                                {% if book_data.progress.progress_type == 'page' %}
+                                Page {{ book_data.progress.progress_value }}
+                                {% elif book_data.progress.progress_type == 'audio' %}
+                                Audio: {{ book_data.progress.progress_value }}
+                                {% else %}
+                                {{ book_data.progress.progress_value }}% complete
+                                {% endif %}
+                            </span>
+                            <span class="progress-percentage">{{ book_data.progress.normalized_progress|floatformat:1 }}%</span>
+                        </div>
+
+                        <div class="progress-bar-container" title="{{ book_data.progress.normalized_progress|floatformat:1 }}% complete">
+                            <div class="progress-bar-fill" style="width: {{ book_data.progress.normalized_progress }}%;"
+                                role="progressbar"
+                                aria-valuenow="{{ book_data.progress.normalized_progress }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
+
+                <div class="book-actions">
+                    <a href="{% url 'book_detail' book_data.book.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-arrow-right-circle"></i> Continue
+                    </a>
+                </div>
             </div>
+            {% endfor %}
         </div>
     </div>
     {% endif %}
 
-    <!-- My groups section -->
-    <div class="card shadow-sm">
-        <div class="card-header home-card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-people me-2"></i>My Groups</h5>
+    <div class="home-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="bi bi-people-fill"></i>
+                My Groups
+            </h2>
             {% if can_create_groups %}
-            <a href="{% url 'create_group' %}" class="btn btn-sm btn-primary">
+            <a href="{% url 'create_group' %}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-circle"></i> Create Group
             </a>
             {% endif %}
         </div>
-        
+
         {% if groups %}
-        <div class="card-body p-0">
-            <div class="list-group list-group-flush">
-                {% for group in groups %}
-                <div class="list-group-item p-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-5">
-                            <h5 class="mb-1">{{ group.name }}</h5>
-                            <p class="mb-2">{{ group.description|truncatechars:100 }}</p>
-                        </div>
-                        
-                        <div class="col-md-5">
-                            {% if group.active_book %}
-                            <div class="d-flex align-items-center">
-                                <span class="badge home-active-badge me-2">Active Book</span>
-                                <span class="text-truncate d-inline-block home-active-book-title">{{ group.active_book.title|split:":"|first|trim }}</span>
-                            </div>
-                            {% else %}
-                            <span class="text-muted">No active book</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-2 text-md-end">
-                            <div class="d-flex justify-content-md-end align-items-center">
-                                <span class="badge home-member-badge me-2">{{ group.members.count }} <span class="members-text">Members</span></span>
-                                <a href="{% url 'group_detail' group.id %}" class="btn btn-sm btn-outline-primary">
-                                    View
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <div class="groups-list">
+            {% for group in groups %}
+            <div class="group-item">
+                <div class="group-main">
+                    <h3 class="group-name">{{ group.name }}</h3>
+                    <p class="group-description">{{ group.description|truncatechars:100 }}</p>
                 </div>
-                {% endfor %}
+
+                <div class="group-status">
+                    {% if group.active_book %}
+                    <div class="active-book">
+                        <span class="active-badge">Active Book</span>
+                        <span class="active-book-title">{{ group.active_book.title|split:":"|first|trim }}</span>
+                    </div>
+                    {% else %}
+                    <span class="no-active-book">No active book</span>
+                    {% endif %}
+                </div>
+
+                <div class="group-actions">
+                    <span class="member-badge">{{ group.members.count }} <span class="members-text">Members</span></span>
+                    <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-primary btn-sm">
+                        View
+                    </a>
+                </div>
             </div>
+            {% endfor %}
         </div>
         {% else %}
-        <div class="card-body">
-            <div class="home-empty-state">
-                <div class="mb-3">
-                    <i class="bi bi-people-fill home-empty-state-icon"></i>
-                </div>
-                <h5>You're not a member of any groups yet</h5>
-                <p class="text-muted">Join a group to start reading and discussing books with others.</p>
-                {% if can_create_groups %}
-                <a href="{% url 'create_group' %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Create Your First Group
-                </a>
-                {% endif %}
-            </div>
+        <div class="empty-state">
+            <i class="bi bi-people-fill"></i>
+            <h3>You're not a member of any groups yet</h3>
+            <p>Join a group to start reading and discussing books with others.</p>
+            {% if can_create_groups %}
+            <a href="{% url 'create_group' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Your First Group
+            </a>
+            {% endif %}
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/home.js' %}"></script>
 {% endblock %}

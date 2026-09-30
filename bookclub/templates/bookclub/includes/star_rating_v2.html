@@ -1,0 +1,26 @@
+{% load bookclub_extras %}
+
+{% if rating is not None %}
+    {% with full_stars=rating|floor %}
+    {% with remainder=rating|to_float|subtract:full_stars|to_float %}
+    <div class="rating-display{% if small %} small{% endif %}" title="{{ rating|floatformat:2 }} / 5" data-rating="{{ rating|floatformat:2 }}">
+        {% for i in "12345" %}
+            {% if forloop.counter <= full_stars %}
+                <i class="bi bi-star-fill"></i>
+            {% elif forloop.counter == full_stars|add:1 and remainder >= 0.5 %}
+                <i class="bi bi-star-half"></i>
+            {% elif forloop.counter == full_stars|add:1 and remainder > 0 %}
+                <i class="bi bi-star-half"></i>
+            {% else %}
+                <i class="bi bi-star"></i>
+            {% endif %}
+        {% endfor %}
+        <span class="rating-value">{{ rating|floatformat:2 }}</span>
+    </div>
+    {% endwith %}
+    {% endwith %}
+{% else %}
+    <div class="rating-display{% if small %} small{% endif %}">
+        <small class="text-muted">No rating</small>
+    </div>
+{% endif %}

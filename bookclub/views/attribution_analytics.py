@@ -312,11 +312,18 @@ def attribution_analytics(request, group_id):
     # Add calculation of media statistics
     kavita_stats, plex_stats = calculate_media_stats(group)
 
+    breadcrumb_items = [
+        {"url": "/", "title": "Home"},
+        {"url": f"/groups/{group.id}/", "title": group.name},
+        {"url": "", "title": "Analytics"},
+    ]
+
     return render(
         request,
         "bookclub/attribution_analytics.html",
         {
             "group": group,
+            "breadcrumb_items": breadcrumb_items,
             "member_stats": member_stats,
             "collective_count": collective_count,
             "unattributed_count": unattributed_count,

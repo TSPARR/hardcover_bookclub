@@ -1,99 +1,764 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load bookclub_extras %}
 {% load static %}
 
 {% block title %}{{ group.name }} - Pick Analytics{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script src="{% static 'bookclub/js/analytics/attribution_analytics.js' %}"></script>
-<script src="{% static 'bookclub/js/analytics/rating_chart.js' %}"></script>
-<script src="{% static 'bookclub/js/analytics/collapsible_tables.js' %}"></script>
-<script src="{% static 'bookclub/js/analytics/bet_rivalries.js' %}"></script>
-<script src="{% static 'bookclub/js/analytics/bet_rivalries_chart.js' %}"></script>
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/components/star-rating.css' %}">
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/attribution-analytics.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Header and quick stats -->
-    <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1>{{ group.name }}: Book Pick Analytics</h1>
-                <div>
-                    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">Back to Group</a>
+<div class="analytics-page">
+    <div class="analytics-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <div class="header-top">
+            <h1 class="analytics-title">
+                <i class="bi bi-graph-up-arrow"></i>
+                {{ group.name }}: Book Pick Analytics
+            </h1>
+            <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Back to Group
+            </a>
+        </div>
+        <p class="analytics-subtitle">Analysis of book picks and rotation patterns</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_books }}</div>
+            <div class="stat-label">Total Books</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ collective_count }}</div>
+            <div class="stat-label">Group Picks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ unattributed_count }}</div>
+            <div class="stat-label">Unattributed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ member_stats|length }}</div>
+            <div class="stat-label">Pickers</div>
+        </div>
+    </div>
+
+    <!-- Group Rating Summary (if available) -->
+    {% if group_rating_stats %}
+    <div class="analytics-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-stars"></i>
+                Group Rating Summary
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="rating-summary-grid">
+                <div class="rating-summary-item">
+                    <div class="summary-value">
+                        {{ group_rating_stats.avg_rating|floatformat:2 }}
+                        <span class="summary-max">/5</span>
+                    </div>
+                    <div class="summary-label">Average Rating</div>
+                </div>
+                <div class="rating-summary-item">
+                    <div class="summary-value">
+                        {{ group_rating_stats.median_rating|floatformat:2 }}
+                        <span class="summary-max">/5</span>
+                    </div>
+                    <div class="summary-label">Median Rating</div>
+                </div>
+                <div class="rating-summary-item">
+                    <div class="summary-value">{{ group_rating_stats.count }}</div>
+                    <div class="summary-label">Total Ratings</div>
+                </div>
+                <div class="rating-summary-item">
+                    <div class="summary-value">{{ group_rating_stats.books_rated }}</div>
+                    <div class="summary-label">Books Rated</div>
                 </div>
             </div>
-            
-            <p class="lead">Analysis of book picks and rotation patterns</p>
-            
-            <!-- Quick Stats -->
-            {% include "bookclub/includes/analytics/quick_stats.html" %}
-            
-            <!-- Group Rating Summary (if available) -->
-            {% if group_rating_stats %}
-                {% include "bookclub/includes/analytics/group_rating_summary.html" %}
-            {% endif %}
         </div>
     </div>
+    {% endif %}
 
-    <!-- Media Stats (Kavita and Plex) -->
-    <div class="row mb-4">
-        <div class="col-12">
-            {% include "bookclub/includes/analytics/media_stats.html" %}
+    <!-- Media Stats -->
+    {% if KAVITA_ENABLED or PLEX_ENABLED %}
+    <div class="analytics-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-bar-chart-fill"></i>
+                Media Analytics
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="media-stats-grid">
+                {% if KAVITA_ENABLED %}
+                <div class="media-stats-section">
+                    <h3 class="section-subtitle">Reading Stats</h3>
+                    <div class="stats-list">
+                        <div class="stats-item">
+                            <span class="stats-item-label">Total Pages Read:</span>
+                            <span class="stats-item-value">{{ kavita_stats.total_pages }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Average Pages Per Book:</span>
+                            <span class="stats-item-value">{{ kavita_stats.avg_pages|floatformat:0 }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Longest Book:</span>
+                            <span class="stats-item-value">{{ kavita_stats.longest_book.title|split:":"|first|trim }} ({{ kavita_stats.longest_book.pages }} pages)</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Shortest Book:</span>
+                            <span class="stats-item-value">{{ kavita_stats.shortest_book.title|split:":"|first|trim }} ({{ kavita_stats.shortest_book.pages }} pages)</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if PLEX_ENABLED %}
+                <div class="media-stats-section">
+                    <h3 class="section-subtitle">Listening Stats</h3>
+                    <div class="stats-list">
+                        <div class="stats-item">
+                            <span class="stats-item-label">Total Listening Time:</span>
+                            <span class="stats-item-value">{{ plex_stats.total_time_formatted }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Average Time Per Book:</span>
+                            <span class="stats-item-value">{{ plex_stats.avg_time_formatted }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Longest Audiobook:</span>
+                            <span class="stats-item-value">{{ plex_stats.longest_book.title|split:":"|first|trim }} ({{ plex_stats.longest_book.duration }})</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Shortest Audiobook:</span>
+                            <span class="stats-item-value">{{ plex_stats.shortest_book.title|split:":"|first|trim }} ({{ plex_stats.shortest_book.duration }})</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Dollar Betting Analytics -->
-    <div class="row mb-4">
-        <div class="col-12">
-            {% include "bookclub/includes/analytics/betting_analytics.html" %}
+    {% if group.is_dollar_bets_enabled %}
+    <div class="analytics-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-currency-dollar"></i>
+                Dollar Bet Analytics
+            </h2>
         </div>
-    </div>
-    
-    <!-- Dollar Betting Rivalries -->
-    <div class="row mb-4">
-        <div class="col-12">
-            {% include "bookclub/includes/analytics/bet_rivalries.html" %}
+        <div class="card-body">
+            <div class="betting-grid">
+                <div class="betting-section">
+                    <h3 class="section-subtitle">Betting Leaders</h3>
+                    <div class="table-wrapper">
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Won</th>
+                                    <th>Lost</th>
+                                    <th>Total</th>
+                                    <th>Net ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in dollar_bet_stats %}
+                                <tr>
+                                    <td>{{ stat.user.username }}</td>
+                                    <td>{{ stat.won }}</td>
+                                    <td>{{ stat.lost }}</td>
+                                    <td>{{ stat.total }}</td>
+                                    <td class="{% if stat.net > 0 %}text-success{% elif stat.net < 0 %}text-danger{% endif %}">
+                                        ${{ stat.net|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="betting-section">
+                    <h3 class="section-subtitle">Betting Stats</h3>
+                    <div class="stats-list">
+                        <div class="stats-item">
+                            <span class="stats-item-label">Total Bets:</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.total_bets }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Resolved Bets:</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.resolved_bets }}</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Biggest Winner:</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.biggest_winner.user.username }} (${{ dollar_bet_summary.biggest_winner.net|floatformat:2 }})</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Biggest Loser:</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.biggest_loser.user.username }} (${{ dollar_bet_summary.biggest_loser.net|floatformat:2 }})</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Most Bets Placed:</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.most_active.user.username }} ({{ dollar_bet_summary.most_active.total }})</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-item-label">Most Profitable Rivalry:</span>
+                            <span class="stats-item-value">
+                                {% if dollar_bet_summary.most_profitable_rivalry %}
+                                    {{ dollar_bet_summary.most_profitable_rivalry.winner }} vs {{ dollar_bet_summary.most_profitable_rivalry.loser }}
+                                    (${{ dollar_bet_summary.most_profitable_rivalry.amount|floatformat:2 }})
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Attribution and Fairness Analysis -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            {% include "bookclub/includes/analytics/attribution_counts.html" %}
+    <!-- Dollar Betting Rivalries -->
+    <div class="analytics-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-trophy-fill"></i>
+                Betting Rivalries
+            </h2>
         </div>
-        
-        <div class="col-md-6">
-            {% include "bookclub/includes/analytics/fairness_analysis.html" %}
+        <div class="card-body">
+            <div class="rivalries-chart">
+                <div class="chart-container">
+                    <canvas id="rivalriesChart" data-rivalries="{{ dollar_rivalries|stringifyjson }}"></canvas>
+                </div>
+                <p class="chart-caption">Top 5 most significant betting rivalries</p>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="betting-rivalries-table" class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Nemesis</th>
+                            <th>Net Loss ($)</th>
+                            <th>Cash Cow</th>
+                            <th>Net Gain ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if dollar_rivalries %}
+                            {% for rivalry in dollar_rivalries %}
+                                <tr>
+                                    <td>{{ rivalry.user.username }}</td>
+                                    <td>
+                                        {% if rivalry.nemesis %}
+                                            {{ rivalry.nemesis.username }}
+                                        {% else %}
+                                            <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-danger">
+                                        {% if rivalry.nemesis_loss %}
+                                            -${{ rivalry.nemesis_loss|floatformat:2 }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if rivalry.cash_cow %}
+                                            {{ rivalry.cash_cow.username }}
+                                        {% else %}
+                                            <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-success">
+                                        {% if rivalry.cash_cow_gain %}
+                                            +${{ rivalry.cash_cow_gain|floatformat:2 }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="empty-message">
+                                    <i class="bi bi-info-circle"></i>
+                                    Not enough resolved bets to show rivalries.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="rivalries-legend">
+                <div class="legend-item">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span><strong>Nemesis:</strong> The member you've lost the most money to in bets.</span>
+                </div>
+                <div class="legend-separator">|</div>
+                <div class="legend-item">
+                    <span><strong>Cash Cow:</strong> The member you've gained the most money from in bets.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Attribution and Fairness Analysis -->
+    <div class="two-column-section">
+        <div class="analytics-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="bi bi-person-check-fill"></i>
+                    Book Picks by Member
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 250px; margin-bottom: var(--spacing-xl);">
+                    <canvas id="attributionChart"></canvas>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="analytics-table" id="memberStatsTable">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Books Picked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in member_stats %}
+                            <tr>
+                                <td>
+                                    {{ stat.user.username }}
+                                    {% if stat.is_admin %}
+                                    <span class="badge badge-success">Admin</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="empty-message">
+                                    <i class="bi bi-info-circle"></i>
+                                    No individual book picks yet. As members pick books, their stats will appear here.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="bi bi-balance-scale"></i>
+                    Pick Fairness Analysis
+                </h2>
+            </div>
+            <div class="card-body">
+                <p class="card-description">This shows how each member's pick count deviates from the "fair share"</p>
+                <div class="table-wrapper">
+                    <table class="analytics-table fairness-table">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Picked</th>
+                                <th>Deviation</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for metric in fairness_metrics %}
+                                <tr class="fairness-row-{{ metric.status }}">
+                                    <td>
+                                        {{ metric.user.username }}
+                                        {% if metric.is_admin %}
+                                        <span class="badge badge-success">Admin</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ metric.count }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ metric.status }}">
+                                            {{ metric.deviation|floatformat:1 }} ({{ metric.deviation_percent|floatformat:0 }}%)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ metric.recommendation }}</small>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Rotation Analysis -->
-    <div class="row mb-4">
-        <div class="col-12">
-            {% include "bookclub/includes/analytics/rotation_analysis.html" %}
+    <div class="analytics-card">
+        <div class="card-header">
+            <div class="card-header-content">
+                <h2 class="card-title">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Rotation Analysis
+                </h2>
+                {% if next_picker %}
+                <span class="next-picker-badge">
+                    <i class="bi bi-person-check"></i> Next Suggested: <strong>{{ next_picker.username }}</strong>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alert {% if rotation_analysis.has_pattern %}alert-success{% else %}alert-info{% endif %}">
+                <i class="bi {% if rotation_analysis.has_pattern %}bi-check-circle{% else %}bi-info-circle{% endif %}"></i>
+                {{ rotation_analysis.message }}
+            </div>
+
+            {% if rotation_analysis.rotations %}
+            <div class="rotation-cycles">
+                <h3 class="section-subtitle">Detected Rotation Cycles</h3>
+                <p class="text-muted">Each row represents one complete rotation of picks</p>
+
+                <div class="table-wrapper">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Cycle</th>
+                                <th>Picking Order</th>
+                                <th>Quality</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rotation in rotation_analysis.rotations %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    {% for picker_id in rotation.picks %}
+                                    <span class="badge {% if rotation.is_clean %}badge-success{% else %}badge-secondary{% endif %}">
+                                        {{ picker_id|get_username_from_id }}
+                                    </span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <small>
+                                        Balance: {{ rotation.balance|floatformat:2 }}<br>
+                                        Coverage: {{ rotation.coverage|floatformat:2 }}
+                                    </small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% for rotation in rotation_analysis.rotations %}
+                    {% if rotation.sub_patterns.pairs %}
+                    <div class="cycle-pairs">
+                        <strong>Cycle {{ forloop.counter }} common pairs:</strong>
+                        {% for pair in rotation.sub_patterns.pairs %}
+                        <span class="badge badge-info">
+                            {{ pair.0|get_username_from_id }} → {{ pair.1|get_username_from_id }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% if rotation_analysis.non_participating %}
+            <div class="alert alert-warning">
+                <h5>Members Who Haven't Picked Books</h5>
+                <ul>
+                    {% for member_id in rotation_analysis.non_participating %}
+                    <li>{{ member_id|get_username_from_id }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
         </div>
     </div>
-    
+
     <!-- Book Sequence Timeline -->
-    <div class="row mb-4">
-        <div class="col-12">
-            {% include "bookclub/includes/analytics/book_timeline.html" %}
+    <div class="analytics-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-clock-history"></i>
+                Book Pick Timeline with Ratings
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="table-wrapper">
+                <table id="book-timeline-table" class="analytics-table book-timeline-table collapsible-table" data-show-limit="10">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>#</th>
+                            <th>Book</th>
+                            <th>Picked By</th>
+                            <th>Streak</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for picker_id, book, streak, rating_data in book_sequence %}
+                        <tr class="book-timeline-row collapsible-row" data-row-index="{{ forloop.counter }}">
+                            <td class="expand-cell">
+                                {% if rating_data and rating_data.user_ratings and rating_data.count > 0 %}
+                                <button class="btn-expand"
+                                        data-target="book-ratings-{{ book.id }}"
+                                        aria-expanded="false"
+                                        aria-label="Show individual ratings">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <a href="{% url 'book_detail' book.id %}" class="book-title">{{ book.title|split:":"|first|trim }}</a>
+                                <small class="book-author">{{ book.author }}</small>
+                            </td>
+                            <td>
+                                {% if picker_id == "collective" %}
+                                <span class="badge badge-info">Group Pick</span>
+                                {% elif picker_id %}
+                                {{ picker_id|get_username_from_id }}
+                                {% else %}
+                                <span class="badge badge-light">Unattributed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if streak > 1 %}
+                                <span class="badge badge-warning">
+                                    {% if streak > 2 %}
+                                    <i class="bi bi-lightning-charge-fill"></i> {{ streak }} streak
+                                    {% else %}
+                                    <i class="bi bi-lightning"></i> {{ streak }} streak
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if rating_data %}
+                                    {% include "bookclub/includes/star_rating_v2.html" with rating=rating_data.avg_rating|floatformat:2 small=True %}
+                                    <small class="text-muted">({{ rating_data.count }})</small>
+                                {% else %}
+                                    <span class="text-muted small">Not rated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- Individual ratings row -->
+                        {% if rating_data and rating_data.user_ratings %}
+                        <tr class="ratings-detail-row" id="book-ratings-{{ book.id }}" style="display: none;">
+                            <td colspan="6">
+                                <div class="member-ratings-container">
+                                    <h6 class="member-ratings-title">Individual Member Ratings</h6>
+                                    <div class="member-ratings-list">
+                                        {% for user_id, user_rating in rating_data.user_ratings.items %}
+                                        <div class="member-rating-item">
+                                            <div class="rating-header">
+                                                <span class="member-name">{{ user_id|get_username_from_id }}</span>
+                                                <div class="member-rating">
+                                                    {% include "bookclub/includes/star_rating_v2.html" with rating=user_rating.value small=True %}
+                                                </div>
+                                            </div>
+                                            {% if user_rating.comment %}
+                                            <div class="member-comment">
+                                                "{{ user_rating.comment }}"
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="empty-message">
+                                <i class="bi bi-info-circle"></i>
+                                No books found for this group.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-toggle-container" style="display: none;">
+                <button class="btn-toggle-table btn btn-secondary btn-sm">
+                    <i class="bi bi-chevron-down"></i>
+                    <span class="toggle-text">Show More</span>
+                </button>
+            </div>
         </div>
     </div>
-    
+
     <!-- Rating Analysis (if available) -->
     {% if group_rating_stats %}
-    <div class="row mb-4">
-        <div class="col-md-6">
-            {% include "bookclub/includes/analytics/top_rated_books.html" %}
+    <div class="two-column-section">
+        <div class="analytics-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="bi bi-star-fill"></i>
+                    Top Rated Books
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="table-wrapper">
+                    <table id="top-rated-books-table" class="analytics-table top-rated-books-table collapsible-table" data-show-limit="5">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Rating</th>
+                                <th>Picked By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% with rated_books=sorted_book_sequence|books_with_ratings %}
+                                {% if rated_books %}
+                                    {% for rating_value, books in rated_books %}
+                                        <tr class="rating-group-header collapsible-row" data-row-index="{{ forloop.counter }}">
+                                            <td colspan="3">
+                                                <button class="btn-expand-group"
+                                                        data-target="rating-{{ rating_value|floatformat:1|slugify }}"
+                                                        aria-expanded="false">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </button>
+                                                <div class="rating-summary">
+                                                    {% include "bookclub/includes/star_rating_v2.html" with rating=rating_value|floatformat:2 small=True %}
+                                                    <small class="text-muted">({{ books|length }} book{{ books|length|pluralize }})</small>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="rating-group-content collapsible-row" id="rating-{{ rating_value|floatformat:1|slugify }}" data-row-index="{{ forloop.counter }}" style="display: none;">
+                                            <td colspan="3" class="p-0">
+                                                <div class="book-list">
+                                                    {% for book_tuple in books %}
+                                                        <div class="book-entry">
+                                                            <div class="book-info">
+                                                                <a href="{% url 'book_detail' book_tuple.1.id %}" class="book-title">{{ book_tuple.1.title|split:":"|first|trim }}</a>
+                                                                <small class="book-author">{{ book_tuple.1.author }}</small>
+                                                            </div>
+                                                            <div class="book-rating">
+                                                                {% include "bookclub/includes/star_rating_v2.html" with rating=book_tuple.3.avg_rating|floatformat:2 small=True %}
+                                                                <small class="text-muted">({{ book_tuple.3.count }})</small>
+                                                            </div>
+                                                            <div class="book-picker">
+                                                                {% if book_tuple.0 == "collective" %}
+                                                                <span class="badge badge-info">Group Pick</span>
+                                                                {% elif book_tuple.0 %}
+                                                                {{ book_tuple.0|get_username_from_id }}
+                                                                {% else %}
+                                                                <span class="badge badge-light">Unattributed</span>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="empty-message">
+                                            <i class="bi bi-info-circle"></i>
+                                            Books need at least 2 ratings to appear in the Top Rated list.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endwith %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-toggle-container" style="display: none;">
+                    <button class="btn-toggle-table btn btn-secondary btn-sm">
+                        <i class="bi bi-chevron-down"></i>
+                        <span class="toggle-text">Show More</span>
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <div class="col-md-6">
-            {% include "bookclub/includes/analytics/rating_distribution.html" %}
+
+        <div class="analytics-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="bi bi-graph-up"></i>
+                    Rating Distribution
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 200px;">
+                    {% if rating_distribution %}
+                        <canvas id="ratingDistributionChart" data-distribution="{{ rating_distribution|join:"," }}"></canvas>
+                    {% else %}
+                        <canvas id="ratingDistributionChart" data-distribution="0,0,0,0,0"></canvas>
+                    {% endif %}
+                </div>
+                {% if not rating_distribution %}
+                <p class="text-muted text-center" style="margin-top: var(--spacing-md);">No rating data available yet</p>
+                {% endif %}
+
+                {% if member_rating_stats %}
+                <div class="rating-patterns">
+                    <h3 class="section-subtitle">Member Rating Patterns</h3>
+                    <div class="table-wrapper">
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Rated</th>
+                                    <th>Avg Given</th>
+                                    <th>Picked</th>
+                                    <th>Avg Received</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in member_rating_stats %}
+                                    <tr>
+                                        <td>{{ stat.user.username }}</td>
+                                        <td>{{ stat.count }}</td>
+                                        <td>
+                                            {% include "bookclub/includes/star_rating_v2.html" with rating=stat.avg_rating|floatformat:2 small=True %}
+                                        </td>
+                                        <td>{{ stat.books_selected_count|default:0 }}</td>
+                                        <td>
+                                            {% if stat.avg_selection_rating %}
+                                                {% include "bookclub/includes/star_rating_v2.html" with rating=stat.avg_selection_rating|floatformat:2 small=True %}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block page_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="{% static 'bookclub/js/v2/pages/attribution-analytics.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,33 @@
+.rating-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--gold-accent);
+    font-size: 1rem;
+}
+
+.rating-display.small {
+    font-size: 0.875rem;
+}
+
+.rating-display i {
+    line-height: 1;
+}
+
+.rating-display .rating-value {
+    margin-left: 0.25rem;
+    font-size: 0.875em;
+    color: var(--ink-black);
+    opacity: 0.6;
+    font-family: var(--font-body);
+}
+
+.rating-display.small .rating-value {
+    font-size: 0.8em;
+}
+
+.rating-display .text-muted {
+    color: var(--ink-black);
+    opacity: 0.5;
+    font-family: var(--font-body);
+}

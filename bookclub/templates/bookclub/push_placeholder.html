@@ -1,19 +1,21 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
+{% load static %}
 
 {% block title %}Notifications{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/push-placeholder.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h4>Push Notifications</h4>
-                    <p>This page is part of the notification system.</p>
-                    <a href="/" class="btn btn-primary">Return to Home</a>
-                </div>
-            </div>
-        </div>
+<div class="push-placeholder-page">
+    <div class="placeholder-card">
+        <i class="bi bi-bell-fill"></i>
+        <h1>Push Notifications</h1>
+        <p>This page is part of the notification system.</p>
+        <a href="/" class="btn btn-primary">
+            <i class="bi bi-house-fill"></i> Return to Home
+        </a>
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,518 @@
+.home-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+}
+
+.home-section {
+    background: var(--paper-cream);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+    overflow: hidden;
+    margin-bottom: var(--spacing-xl);
+    animation: fadeIn 0.6s var(--ease-out-expo);
+}
+
+.home-section:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.section-header {
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--burgundy), var(--forest-green));
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.section-title i {
+    font-size: 1.5rem;
+}
+
+.section-header .btn {
+    background: white;
+    color: var(--burgundy);
+    border: none;
+    font-weight: 600;
+}
+
+.section-header .btn:hover {
+    background: var(--paper-cream);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.reading-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.reading-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid rgba(26, 21, 20, 0.08);
+    transition: background var(--transition-normal) ease;
+}
+
+.reading-item:last-child {
+    border-bottom: none;
+}
+
+.reading-item:hover {
+    background: rgba(201, 169, 97, 0.05);
+}
+
+.book-cover-container {
+    width: 80px;
+    min-width: 80px;
+}
+
+.book-cover {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-subtle);
+    box-shadow: 0 2px 8px var(--shadow-soft);
+}
+
+.book-placeholder {
+    width: 80px;
+    height: 120px;
+    background: rgba(26, 21, 20, 0.05);
+    border-radius: var(--radius-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(26, 21, 20, 0.3);
+    font-size: 2rem;
+}
+
+.book-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.book-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+}
+
+.book-title-section {
+    flex: 1;
+}
+
+.book-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-xs) 0;
+    line-height: 1.3;
+}
+
+.book-author {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    opacity: 0.7;
+    margin: 0;
+}
+
+.group-badge {
+    background: linear-gradient(135deg, var(--burgundy), var(--forest-green));
+    color: white;
+    padding: 0.375rem var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.progress-text {
+    color: var(--ink-black);
+    opacity: 0.8;
+}
+
+.progress-percentage {
+    color: var(--forest-green);
+    font-weight: 600;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: rgba(26, 21, 20, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--burgundy), var(--forest-green));
+    border-radius: 4px;
+    transition: width var(--transition-slow) var(--ease-out-expo);
+}
+
+.book-actions {
+    display: flex;
+    align-items: center;
+}
+
+.groups-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.group-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid rgba(26, 21, 20, 0.08);
+    align-items: center;
+    transition: background var(--transition-normal) ease;
+}
+
+.group-item:last-child {
+    border-bottom: none;
+}
+
+.group-item:hover {
+    background: rgba(201, 169, 97, 0.05);
+}
+
+.group-main {
+    min-width: 0;
+}
+
+.group-name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.group-description {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    opacity: 0.7;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.group-status {
+    min-width: 0;
+}
+
+.active-book {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.active-badge {
+    background: var(--forest-green);
+    color: white;
+    padding: 0.25rem var(--spacing-sm);
+    border-radius: var(--radius-subtle);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.active-book-title {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-active-book {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    opacity: 0.5;
+}
+
+.group-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.member-badge {
+    background: rgba(107, 44, 44, 0.12);
+    color: var(--burgundy);
+    padding: 0.375rem var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid rgba(107, 44, 44, 0.15);
+}
+
+.btn {
+    padding: 0.5rem var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    border: none;
+}
+
+.btn-sm {
+    padding: 0.375rem var(--spacing-sm);
+    font-size: 0.8125rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--burgundy);
+    border: 1.5px solid var(--burgundy);
+}
+
+.btn-outline-primary:hover {
+    background: var(--burgundy);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--shadow-soft);
+}
+
+.empty-state {
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--burgundy);
+    opacity: 0.3;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    color: var(--ink-black);
+    opacity: 0.7;
+    margin: 0 0 var(--spacing-xl) 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 991px) {
+    .group-item {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .group-status {
+        order: -1;
+    }
+
+    .group-actions {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 767px) {
+    .home-page {
+        padding: var(--spacing-lg);
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+        padding: var(--spacing-lg);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .section-title i {
+        font-size: 1.25rem;
+    }
+
+    .reading-item {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
+    }
+
+    .book-cover-container {
+        width: 60px;
+        min-width: 60px;
+    }
+
+    .book-placeholder {
+        width: 60px;
+        height: 90px;
+        font-size: 1.5rem;
+    }
+
+    .book-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .group-badge {
+        align-self: flex-start;
+    }
+
+    .book-actions {
+        justify-content: stretch;
+    }
+
+    .book-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .book-title {
+        font-size: 1.125rem;
+    }
+
+    .group-name {
+        font-size: 1.125rem;
+    }
+
+    .members-text {
+        display: none;
+    }
+
+    .empty-state {
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem;
+    }
+}
+
+html.dark-mode .home-section {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .reading-item {
+    border-bottom-color: rgba(232, 228, 221, 0.08);
+}
+
+html.dark-mode .reading-item:hover {
+    background: rgba(212, 183, 118, 0.05);
+}
+
+html.dark-mode .book-placeholder {
+    background: rgba(232, 228, 221, 0.05);
+    color: rgba(232, 228, 221, 0.3);
+}
+
+html.dark-mode .progress-bar-container {
+    background: rgba(232, 228, 221, 0.08);
+}
+
+html.dark-mode .group-item {
+    border-bottom-color: rgba(232, 228, 221, 0.08);
+}
+
+html.dark-mode .group-item:hover {
+    background: rgba(212, 183, 118, 0.05);
+}
+
+html.dark-mode .member-badge {
+    background: rgba(168, 88, 88, 0.2);
+    color: var(--burgundy);
+    border-color: rgba(168, 88, 88, 0.25);
+}
+
+html.dark-mode .btn-outline-primary {
+    background: transparent;
+    color: var(--burgundy);
+    border-color: var(--burgundy);
+}
+
+html.dark-mode .btn-outline-primary:hover {
+    background: var(--burgundy);
+    color: white;
+}
+
+html.dark-mode .section-header .btn {
+    background: rgba(30, 27, 24, 0.95);
+    color: var(--gold-accent);
+    border: 1px solid rgba(212, 183, 118, 0.3);
+}
+
+html.dark-mode .section-header .btn:hover {
+    background: rgba(30, 27, 24, 1);
+    border-color: var(--gold-accent);
+}
