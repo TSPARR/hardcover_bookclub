@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initExpandableRows();
     initExpandableGroups();
     initCollapsibleTables();
+    initMobileToggle();
 });
 
 function initAttributionChart() {
@@ -441,4 +442,39 @@ function initCollapsibleTables() {
             });
         }
     });
+}
+
+function initMobileToggle() {
+    const mobileCards = document.querySelectorAll('.collapsible-mobile-card');
+    const mobileToggleContainer = document.querySelector('.mobile-toggle-container');
+
+    if (mobileCards.length <= 10 || !mobileToggleContainer) {
+        return;
+    }
+
+    mobileToggleContainer.style.display = 'block';
+    const toggleButton = mobileToggleContainer.querySelector('.btn-toggle-mobile');
+
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function() {
+            const isExpanded = this.classList.contains('expanded');
+            const icon = this.querySelector('i');
+            const text = this.querySelector('.toggle-text');
+
+            mobileCards.forEach(function(card, index) {
+                const cardIndex = parseInt(card.dataset.mobileIndex);
+                if (cardIndex > 10) {
+                    card.style.display = isExpanded ? 'none' : 'block';
+                }
+            });
+
+            if (isExpanded) {
+                this.classList.remove('expanded');
+                text.textContent = 'Show More';
+            } else {
+                this.classList.add('expanded');
+                text.textContent = 'Show Less';
+            }
+        });
+    }
 }

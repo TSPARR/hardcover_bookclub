@@ -221,7 +221,7 @@ html.dark-mode .stats-item {
 
 .betting-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--spacing-2xl);
 }
 
@@ -278,7 +278,7 @@ html.dark-mode .rivalries-legend {
 
 .two-column-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: var(--spacing-2xl);
 }
 
@@ -737,6 +737,18 @@ html.dark-mode .table-toggle-container {
     }
 }
 
+.betting-mobile-card,
+.rivalry-mobile-card,
+.timeline-mobile-card,
+.fairness-mobile-card,
+.rating-patterns-mobile-card {
+    display: none;
+}
+
+.mobile-toggle-container {
+    display: none;
+}
+
 @media (max-width: 991px) {
     .two-column-section {
         grid-template-columns: 1fr;
@@ -805,6 +817,264 @@ html.dark-mode .table-toggle-container {
 
     .legend-separator {
         display: none;
+    }
+
+    .bets-table-wrapper,
+    .table-wrapper.hide-mobile {
+        display: none;
+    }
+
+    .table-toggle-container {
+        display: none !important;
+    }
+
+    .betting-mobile-card,
+    .rivalry-mobile-card,
+    .timeline-mobile-card,
+    .fairness-mobile-card,
+    .rating-patterns-mobile-card {
+        display: block;
+        border-bottom: 1px solid rgba(26, 21, 20, 0.08);
+        padding: var(--spacing-lg);
+    }
+
+    html.dark-mode .betting-mobile-card,
+    html.dark-mode .rivalry-mobile-card,
+    html.dark-mode .timeline-mobile-card,
+    html.dark-mode .fairness-mobile-card,
+    html.dark-mode .rating-patterns-mobile-card {
+        border-bottom: 1px solid rgba(232, 228, 221, 0.08);
+    }
+
+    .betting-mobile-card:last-child,
+    .rivalry-mobile-card:last-child,
+    .timeline-mobile-card:last-of-type,
+    .fairness-mobile-card:last-child,
+    .rating-patterns-mobile-card:last-child {
+        border-bottom: none;
+    }
+
+    .collapsible-mobile-card[data-mobile-index]:nth-of-type(n+11) {
+        display: none;
+    }
+
+    .mobile-toggle-container {
+        display: block;
+        text-align: center;
+        margin-top: var(--spacing-lg);
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid rgba(26, 21, 20, 0.08);
+    }
+
+    html.dark-mode .mobile-toggle-container {
+        border-top-color: rgba(232, 228, 221, 0.08);
+    }
+
+    .btn-toggle-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        transition: all var(--transition-normal) ease;
+    }
+
+    .btn-toggle-mobile i {
+        transition: transform var(--transition-normal) ease;
+    }
+
+    .btn-toggle-mobile.expanded i {
+        transform: rotate(180deg);
+    }
+
+    .mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+
+    .mobile-card-title {
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ink-black);
+        flex: 1;
+    }
+
+    .timeline-mobile-card .mobile-card-title {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .timeline-mobile-card .book-author {
+        display: block;
+        color: var(--ink-black);
+        opacity: 0.6;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        margin-top: var(--spacing-xs);
+    }
+
+    .fairness-mobile-card .mobile-card-header {
+        align-items: center;
+    }
+
+    .fairness-mobile-card .mobile-card-title {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        flex-wrap: wrap;
+    }
+
+    .fairness-mobile-card .mobile-card-title .badge {
+        margin-left: 0;
+    }
+
+    .mobile-card-value {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--burgundy);
+        white-space: nowrap;
+    }
+
+    .mobile-card-details {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: var(--spacing-sm);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        gap: var(--spacing-md);
+    }
+
+    .detail-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--burgundy);
+        flex-shrink: 0;
+    }
+
+    html.dark-mode .detail-label {
+        color: var(--gold-accent);
+    }
+
+    .detail-value {
+        color: var(--ink-black);
+        text-align: right;
+    }
+
+    .detail-value .badge {
+        margin-left: 0;
+    }
+
+    .detail-value .text-muted {
+        font-size: 0.875rem;
+    }
+
+    .rating-patterns-mobile-card .detail-value,
+    .timeline-mobile-card .detail-value {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--spacing-xs);
+    }
+
+    .mobile-card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .mobile-card-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .chart-container {
+        height: 200px;
+    }
+
+    .rivalries-chart .chart-container {
+        height: 250px;
+    }
+
+    .mobile-ratings-details {
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-md);
+        border-top: 1px solid rgba(26, 21, 20, 0.08);
+    }
+
+    html.dark-mode .mobile-ratings-details {
+        border-top-color: rgba(232, 228, 221, 0.08);
+    }
+
+    .mobile-ratings-summary {
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--burgundy);
+        cursor: pointer;
+        list-style: none;
+        padding: var(--spacing-sm);
+        background: rgba(107, 44, 44, 0.05);
+        border-radius: var(--radius-subtle);
+        transition: background var(--transition-fast) ease;
+    }
+
+    html.dark-mode .mobile-ratings-summary {
+        color: var(--gold-accent);
+        background: rgba(168, 88, 88, 0.1);
+    }
+
+    .mobile-ratings-summary:hover {
+        background: rgba(107, 44, 44, 0.1);
+    }
+
+    html.dark-mode .mobile-ratings-summary:hover {
+        background: rgba(168, 88, 88, 0.15);
+    }
+
+    .mobile-ratings-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .mobile-ratings-summary::before {
+        content: '\F282';
+        font-family: 'bootstrap-icons';
+        margin-right: var(--spacing-xs);
+        transition: transform var(--transition-fast) ease;
+        display: inline-block;
+    }
+
+    details[open] .mobile-ratings-summary::before {
+        transform: rotate(90deg);
+    }
+
+    .mobile-ratings-details .member-ratings-list {
+        margin-top: var(--spacing-md);
+    }
+
+    .btn-expand,
+    .btn-expand-group,
+    .btn-toggle-table {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .btn-sm {
+        padding: 0.5rem var(--spacing-md);
+        font-size: 0.875rem;
     }
 }
 

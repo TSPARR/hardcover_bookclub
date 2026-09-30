@@ -159,7 +159,7 @@
             <div class="betting-grid">
                 <div class="betting-section">
                     <h3 class="section-subtitle">Betting Leaders</h3>
-                    <div class="table-wrapper">
+                    <div class="table-wrapper bets-table-wrapper">
                         <table class="analytics-table">
                             <thead>
                                 <tr>
@@ -185,6 +185,31 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {% for stat in dollar_bet_stats %}
+                    <div class="betting-mobile-card">
+                        <div class="mobile-card-header">
+                            <div class="mobile-card-title">{{ stat.user.username }}</div>
+                            <div class="mobile-card-value {% if stat.net > 0 %}text-success{% elif stat.net < 0 %}text-danger{% endif %}">
+                                ${{ stat.net|floatformat:2 }}
+                            </div>
+                        </div>
+                        <div class="mobile-card-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Won:</span>
+                                <span class="detail-value">{{ stat.won }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Lost:</span>
+                                <span class="detail-value">{{ stat.lost }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Total Bets:</span>
+                                <span class="detail-value">{{ stat.total }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 <div class="betting-section">
                     <h3 class="section-subtitle">Betting Stats</h3>
@@ -242,7 +267,7 @@
                 <p class="chart-caption">Top 5 most significant betting rivalries</p>
             </div>
 
-            <div class="table-wrapper">
+            <div class="table-wrapper hide-mobile">
                 <table id="betting-rivalries-table" class="analytics-table">
                     <thead>
                         <tr>
@@ -299,6 +324,65 @@
                     </tbody>
                 </table>
             </div>
+
+            {% if dollar_rivalries %}
+                {% for rivalry in dollar_rivalries %}
+                <div class="rivalry-mobile-card">
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">{{ rivalry.user.username }}</div>
+                    </div>
+                    <div class="mobile-card-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Nemesis:</span>
+                            <span class="detail-value">
+                                {% if rivalry.nemesis %}
+                                    {{ rivalry.nemesis.username }}
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Net Loss:</span>
+                            <span class="detail-value text-danger">
+                                {% if rivalry.nemesis_loss %}
+                                    -${{ rivalry.nemesis_loss|floatformat:2 }}
+                                {% else %}
+                                    $0.00
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Cash Cow:</span>
+                            <span class="detail-value">
+                                {% if rivalry.cash_cow %}
+                                    {{ rivalry.cash_cow.username }}
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Net Gain:</span>
+                            <span class="detail-value text-success">
+                                {% if rivalry.cash_cow_gain %}
+                                    +${{ rivalry.cash_cow_gain|floatformat:2 }}
+                                {% else %}
+                                    $0.00
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="rivalry-mobile-card">
+                    <div class="empty-message">
+                        <i class="bi bi-info-circle"></i>
+                        Not enough resolved bets to show rivalries.
+                    </div>
+                </div>
+            {% endif %}
 
             <div class="rivalries-legend">
                 <div class="legend-item">
@@ -370,7 +454,7 @@
             </div>
             <div class="card-body">
                 <p class="card-description">This shows how each member's pick count deviates from the "fair share"</p>
-                <div class="table-wrapper">
+                <div class="table-wrapper hide-mobile">
                     <table class="analytics-table fairness-table">
                         <thead>
                             <tr>
@@ -403,6 +487,34 @@
                         </tbody>
                     </table>
                 </div>
+
+                {% for metric in fairness_metrics %}
+                <div class="fairness-mobile-card">
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            {{ metric.user.username }}
+                            {% if metric.is_admin %}
+                            <span class="badge badge-success">Admin</span>
+                            {% endif %}
+                        </div>
+                        <span class="badge badge-{{ metric.status }}">{{ metric.status|title }}</span>
+                    </div>
+                    <div class="mobile-card-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Picked:</span>
+                            <span class="detail-value">{{ metric.count }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Deviation:</span>
+                            <span class="detail-value">{{ metric.deviation|floatformat:1 }} ({{ metric.deviation_percent|floatformat:0 }}%)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value"><small class="text-muted">{{ metric.recommendation }}</small></span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -501,7 +613,7 @@
             </h2>
         </div>
         <div class="card-body">
-            <div class="table-wrapper">
+            <div class="table-wrapper hide-mobile">
                 <table id="book-timeline-table" class="analytics-table book-timeline-table collapsible-table" data-show-limit="10">
                     <thead>
                         <tr>
@@ -600,6 +712,93 @@
                     </tbody>
                 </table>
             </div>
+
+            {% for picker_id, book, streak, rating_data in book_sequence %}
+            <div class="timeline-mobile-card collapsible-mobile-card" data-mobile-index="{{ forloop.counter }}">
+                <div class="mobile-card-header">
+                    <div class="mobile-card-title">
+                        <a href="{% url 'book_detail' book.id %}" class="book-title">{{ book.title|split:":"|first|trim }}</a>
+                        <small class="book-author">{{ book.author }}</small>
+                    </div>
+                </div>
+                <div class="mobile-card-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Picked By:</span>
+                        <span class="detail-value">
+                            {% if picker_id == "collective" %}
+                                <span class="badge badge-info">Group Pick</span>
+                            {% elif picker_id %}
+                                {{ picker_id|get_username_from_id }}
+                            {% else %}
+                                <span class="badge badge-light">Unattributed</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if streak > 1 %}
+                    <div class="detail-row">
+                        <span class="detail-label">Streak:</span>
+                        <span class="detail-value">
+                            <span class="badge badge-warning">
+                                {% if streak > 2 %}
+                                <i class="bi bi-lightning-charge-fill"></i> {{ streak }} streak
+                                {% else %}
+                                <i class="bi bi-lightning"></i> {{ streak }} streak
+                                {% endif %}
+                            </span>
+                        </span>
+                    </div>
+                    {% endif %}
+                    <div class="detail-row">
+                        <span class="detail-label">Rating:</span>
+                        <span class="detail-value">
+                            {% if rating_data %}
+                                {% include "bookclub/includes/star_rating_v2.html" with rating=rating_data.avg_rating|floatformat:2 small=True %}
+                                <small class="text-muted">({{ rating_data.count }})</small>
+                            {% else %}
+                                <span class="text-muted small">Not rated</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% if rating_data and rating_data.user_ratings %}
+                <details class="mobile-ratings-details">
+                    <summary class="mobile-ratings-summary">View Individual Ratings</summary>
+                    <div class="member-ratings-list">
+                        {% for user_id, user_rating in rating_data.user_ratings.items %}
+                        <div class="member-rating-item">
+                            <div class="rating-header">
+                                <span class="member-name">{{ user_id|get_username_from_id }}</span>
+                                <div class="member-rating">
+                                    {% include "bookclub/includes/star_rating_v2.html" with rating=user_rating.value small=True %}
+                                </div>
+                            </div>
+                            {% if user_rating.comment %}
+                            <div class="member-comment">
+                                "{{ user_rating.comment }}"
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </details>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="timeline-mobile-card">
+                <div class="empty-message">
+                    <i class="bi bi-info-circle"></i>
+                    No books found for this group.
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="mobile-toggle-container" style="display: none;">
+                <button class="btn-toggle-mobile btn btn-secondary btn-sm">
+                    <i class="bi bi-chevron-down"></i>
+                    <span class="toggle-text">Show More</span>
+                </button>
+            </div>
+
             <div class="table-toggle-container" style="display: none;">
                 <button class="btn-toggle-table btn btn-secondary btn-sm">
                     <i class="bi bi-chevron-down"></i>
@@ -717,7 +916,7 @@
                 {% if member_rating_stats %}
                 <div class="rating-patterns">
                     <h3 class="section-subtitle">Member Rating Patterns</h3>
-                    <div class="table-wrapper">
+                    <div class="table-wrapper hide-mobile">
                         <table class="analytics-table">
                             <thead>
                                 <tr>
@@ -749,6 +948,40 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {% for stat in member_rating_stats %}
+                    <div class="rating-patterns-mobile-card">
+                        <div class="mobile-card-header">
+                            <div class="mobile-card-title">{{ stat.user.username }}</div>
+                        </div>
+                        <div class="mobile-card-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Rated:</span>
+                                <span class="detail-value">{{ stat.count }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Avg Given:</span>
+                                <span class="detail-value">
+                                    {% include "bookclub/includes/star_rating_v2.html" with rating=stat.avg_rating|floatformat:2 small=True %}
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Picked:</span>
+                                <span class="detail-value">{{ stat.books_selected_count|default:0 }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Avg Received:</span>
+                                <span class="detail-value">
+                                    {% if stat.avg_selection_rating %}
+                                        {% include "bookclub/includes/star_rating_v2.html" with rating=stat.avg_selection_rating|floatformat:2 small=True %}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
             </div>
