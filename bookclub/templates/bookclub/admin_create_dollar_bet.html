@@ -1,205 +1,164 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 {% load bookclub_extras %}
 
 {% block title %}Admin Create Dollar Bet for {{ book.title|split:":"|first|trim }}{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/admin-create-dollar-bet.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <!-- Breadcrumb navigation -->
-            {% include "bookclub/includes/breadcrumbs.html" with items=breadcrumb_items %}
-            
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2><i class="bi bi-currency-dollar me-2"></i>Admin: Create Dollar Bet</h2>
-                    <p class="mb-0">Book: {{ book.title|split:":"|first|trim }}</p>
-                </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <form method="post">
-                        {% csrf_token %}
+<div class="admin-create-dollar-bet-page">
+    <div class="admin-create-dollar-bet-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="admin-create-dollar-bet-title">
+            <i class="bi bi-shield-check"></i>
+            Create Dollar Bet
+            <span class="admin-badge">Admin</span>
+        </h1>
+        <p class="admin-create-dollar-bet-subtitle">{{ book.title|split:":"|first|trim }}</p>
+    </div>
 
-                        <div class="mb-3">
-                            <label for="bet_type" class="form-label">Bet Type</label>
-                            <select name="bet_type" id="bet_type" class="form-select">
-                                <option value="two_party">Two-Party Bet (Pre-Accepted Between Two Users)</option>
-                                <option value="multi_party">Multi-Party Bet (Open to All Members)</option>
-                            </select>
-                            <div class="form-text">
-                                Two-Party: Create pre-accepted bet between two users. Multi-Party: Create open bet that members can join.
-                            </div>
-                        </div>
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
 
-                        <!-- Two-Party Fields -->
-                        <div id="two-party-fields" style="display: none;">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="proposer" class="form-label">Proposer</label>
-                                    <select class="form-select" id="proposer" name="proposer">
-                                        <option value="" selected disabled>Select proposer</option>
-                                        {% for member in members %}
-                                            <option value="{{ member.id }}">{{ member.username }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <div class="form-text">The member who proposes the bet</div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="accepter" class="form-label">Accepter</label>
-                                    <select class="form-select" id="accepter" name="accepter">
-                                        <option value="" selected disabled>Select accepter</option>
-                                        {% for member in members %}
-                                            <option value="{{ member.id }}">{{ member.username }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <div class="form-text">The member who accepts the bet</div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Proposer's Bet Description</label>
-                                <textarea class="form-control" id="description" name="description"
-                                        rows="3" placeholder="What is this bet about?"></textarea>
-                                <div class="form-text">Be specific about the prediction so it can be clearly judged later.</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="counter_description" class="form-label">Accepter's Counter-Bet (Optional)</label>
-                                <textarea class="form-control" id="counter_description" name="counter_description"
-                                        rows="3" placeholder="Alternative prediction from the accepter (if any)"></textarea>
-                                <div class="form-text">
-                                    If the accepter has a specific counter-prediction (e.g., "No, I bet Rebecca, not Allison").
-                                    Leave blank if the accepter simply accepts the original bet.
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Multi-Party Fields -->
-                        <div id="multi-party-fields" style="display: none;">
-                            <div class="mb-3">
-                                <label for="question" class="form-label">What's the question?</label>
-                                <textarea name="question" id="question" class="form-control" rows="3"
-                                          placeholder="Example: Who is the killer in this book?"></textarea>
-                                <div class="form-text">The question all participants will answer</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="my_prediction" class="form-label">Your Prediction (Optional)</label>
-                                <textarea name="my_prediction" id="my_prediction" class="form-control" rows="3"
-                                          placeholder="Example: Rebecca is the killer"></textarea>
-                                <div class="form-text">
-                                    <strong>Admin privilege:</strong> You can optionally participate with your own prediction or just create the bet without joining
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="min_participants" class="form-label">Minimum Participants</label>
-                                        <input type="number" name="min_participants" id="min_participants"
-                                               class="form-control" value="2" min="2">
-                                        <div class="form-text">Bet needs at least this many to activate</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="max_participants" class="form-label">Maximum Participants (Optional)</label>
-                                        <input type="number" name="max_participants" id="max_participants"
-                                               class="form-control" placeholder="No limit" min="2">
-                                        <div class="form-text">Leave blank for no limit</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="spoiler_level" class="form-label">Spoiler Level</label>
-                            <select class="form-select" id="spoiler_level" name="spoiler_level">
-                                {% for value, display in spoiler_levels %}
-                                    <option value="{{ value }}">{{ display }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="form-text">
-                                <ul class="mb-0 small">
-                                    <li><strong>No Spoilers:</strong> Visible to all readers</li>
-                                    <li><strong>Halfway Through Book:</strong> Only visible to readers who are at least 50% through the book</li>
-                                    <li><strong>Finished Book:</strong> Only visible to readers who have completed the book</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Bet Amount</label>
-                            <input type="text" class="form-control" value="$1.00" disabled>
-                            <div class="form-text">All bets are fixed at $1</div>
-                        </div>
-                        
-                        <div class="alert alert-info" id="two-party-alert" style="display: none;">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Note:</strong> Two-party bets will be created with "Active" status automatically (already accepted).
-                        </div>
-
-                        <div class="alert alert-info" id="multi-party-alert" style="display: none;">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Note:</strong> Multi-party bets will be created as "Open" for members to join. You can close betting when ready.
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'book_detail' book.id %}?tab=bets" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left me-1"></i> Back to Book
-                            </a>
-                            <button type="submit" class="btn btn-primary">Create Bet</button>
-                        </div>
-                    </form>
+            <div class="form-group">
+                <label for="bet_type" class="form-label">Bet Type</label>
+                <select name="bet_type" id="bet_type" class="form-select">
+                    <option value="two_party">Two-Party Bet (Pre-Accepted Between Two Users)</option>
+                    <option value="multi_party">Multi-Party Bet (Open to All Members)</option>
+                </select>
+                <div class="form-hint">
+                    Two-Party: Create pre-accepted bet between two users. Multi-Party: Create open bet that members can join.
                 </div>
             </div>
-        </div>
+
+            <div id="two-party-fields" class="field-section">
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="proposer" class="form-label">Proposer</label>
+                        <select class="form-select" id="proposer" name="proposer">
+                            <option value="" selected disabled>Select proposer</option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.username }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-hint">The member who proposes the bet</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accepter" class="form-label">Accepter</label>
+                        <select class="form-select" id="accepter" name="accepter">
+                            <option value="" selected disabled>Select accepter</option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.username }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-hint">The member who accepts the bet</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Proposer's Bet Description</label>
+                    <textarea class="form-textarea" id="description" name="description"
+                              placeholder="What is this bet about?"></textarea>
+                    <div class="form-hint">Be specific about the prediction so it can be clearly judged later.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="counter_description" class="form-label">Accepter's Counter-Bet (Optional)</label>
+                    <textarea class="form-textarea" id="counter_description" name="counter_description"
+                              placeholder="Alternative prediction from the accepter (if any)"></textarea>
+                    <div class="form-hint">
+                        If the accepter has a specific counter-prediction (e.g., "No, I bet Rebecca, not Allison").
+                        Leave blank if the accepter simply accepts the original bet.
+                    </div>
+                </div>
+            </div>
+
+            <div id="multi-party-fields" class="field-section">
+                <div class="form-group">
+                    <label for="question" class="form-label">What's the question?</label>
+                    <textarea name="question" id="question" class="form-textarea"
+                              placeholder="Example: Who is the killer in this book?"></textarea>
+                    <div class="form-hint">The question all participants will answer</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="my_prediction" class="form-label">Your Prediction (Optional)</label>
+                    <textarea name="my_prediction" id="my_prediction" class="form-textarea"
+                              placeholder="Example: Rebecca is the killer"></textarea>
+                    <div class="form-hint">
+                        <strong>Admin privilege:</strong> You can optionally participate with your own prediction or just create the bet without joining
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="min_participants" class="form-label">Minimum Participants</label>
+                        <input type="number" name="min_participants" id="min_participants"
+                               class="form-input" value="2" min="2">
+                        <div class="form-hint">Bet needs at least this many to activate</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="max_participants" class="form-label">Maximum Participants (Optional)</label>
+                        <input type="number" name="max_participants" id="max_participants"
+                               class="form-input" placeholder="No limit" min="2">
+                        <div class="form-hint">Leave blank for no limit</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="spoiler_level" class="form-label">Spoiler Level</label>
+                <select class="form-select" id="spoiler_level" name="spoiler_level">
+                    {% for value, display in spoiler_levels %}
+                        <option value="{{ value }}">{{ display }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-hint">
+                    <ul>
+                        <li><strong>No Spoilers:</strong> Visible to all readers</li>
+                        <li><strong>Halfway Through Book:</strong> Only visible to readers who are at least 50% through the book</li>
+                        <li><strong>Finished Book:</strong> Only visible to readers who have completed the book</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Bet Amount</label>
+                <div class="fixed-amount">
+                    <input type="text" class="form-input" value="$1.00" disabled>
+                </div>
+                <div class="form-hint">All bets are fixed at $1</div>
+            </div>
+
+            <div class="info-alert" id="two-party-alert">
+                <i class="bi bi-info-circle"></i>
+                <div class="info-alert-content">
+                    <strong>Note:</strong> Two-party bets will be created with "Active" status automatically (already accepted).
+                </div>
+            </div>
+
+            <div class="info-alert" id="multi-party-alert">
+                <i class="bi bi-info-circle"></i>
+                <div class="info-alert-content">
+                    <strong>Note:</strong> Multi-party bets will be created as "Open" for members to join. You can close betting when ready.
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create Bet
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+{% endblock %}
 
-<script>
-    const betTypeSelect = document.getElementById('bet_type');
-    const twoPartyFields = document.getElementById('two-party-fields');
-    const multiPartyFields = document.getElementById('multi-party-fields');
-    const twoPartyAlert = document.getElementById('two-party-alert');
-    const multiPartyAlert = document.getElementById('multi-party-alert');
-
-    betTypeSelect.addEventListener('change', function() {
-        if (this.value === 'two_party') {
-            twoPartyFields.style.display = 'block';
-            multiPartyFields.style.display = 'none';
-            twoPartyAlert.style.display = 'block';
-            multiPartyAlert.style.display = 'none';
-
-            // Set required fields for two-party
-            document.getElementById('proposer').required = true;
-            document.getElementById('accepter').required = true;
-            document.getElementById('description').required = true;
-            document.getElementById('question').required = false;
-        } else {
-            twoPartyFields.style.display = 'none';
-            multiPartyFields.style.display = 'block';
-            twoPartyAlert.style.display = 'none';
-            multiPartyAlert.style.display = 'block';
-
-            // Set required fields for multi-party
-            document.getElementById('proposer').required = false;
-            document.getElementById('accepter').required = false;
-            document.getElementById('description').required = false;
-            document.getElementById('question').required = true;
-        }
-    });
-
-    // Default to two-party on page load
-    betTypeSelect.dispatchEvent(new Event('change'));
-</script>
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/admin-create-dollar-bet.js' %}"></script>
 {% endblock %}

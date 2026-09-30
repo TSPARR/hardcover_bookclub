@@ -209,6 +209,10 @@
     top: 80px;
 }
 
+.info-card details {
+    width: 100%;
+}
+
 .info-title {
     font-family: var(--font-display);
     font-size: 1.125rem;
@@ -218,6 +222,23 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+    cursor: pointer;
+    list-style: none;
+}
+
+.info-title::-webkit-details-marker {
+    display: none;
+}
+
+.info-title::before {
+    content: '\25B6';
+    font-size: 0.75rem;
+    margin-right: var(--spacing-xs);
+    transition: transform 0.2s ease;
+}
+
+details[open] .info-title::before {
+    transform: rotate(90deg);
 }
 
 .info-title i {
@@ -257,6 +278,16 @@
 
     .info-card {
         position: static;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .info-title {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    details[open] .info-title {
+        margin-bottom: var(--spacing-md);
     }
 
     .book-preview {

@@ -16,6 +16,11 @@ function initializePage() {
             }
         });
     }
+
+    const infoDetails = document.querySelector('.info-card details');
+    if (infoDetails && window.innerWidth <= 767) {
+        infoDetails.removeAttribute('open');
+    }
 }
 
 if (document.readyState === 'loading') {

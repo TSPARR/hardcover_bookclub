@@ -145,6 +145,10 @@
     animation: slideUp 0.6s var(--ease-out-expo) 0.2s backwards;
 }
 
+.create-invitation-info-card details {
+    width: 100%;
+}
+
 .create-invitation-info-title {
     font-family: var(--font-display);
     font-size: 1.25rem;
@@ -154,6 +158,23 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+    cursor: pointer;
+    list-style: none;
+}
+
+.create-invitation-info-title::-webkit-details-marker {
+    display: none;
+}
+
+.create-invitation-info-title::before {
+    content: '\25B6';
+    font-size: 0.75rem;
+    margin-right: var(--spacing-xs);
+    transition: transform 0.2s ease;
+}
+
+details[open] .create-invitation-info-title::before {
+    transform: rotate(90deg);
 }
 
 .create-invitation-info-title i {
@@ -234,6 +255,20 @@
 
     .create-invitation-info-wrapper {
         position: static;
+        order: -1;
+    }
+
+    .create-invitation-info-card {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .create-invitation-info-title {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    details[open] .create-invitation-info-title {
+        margin-bottom: var(--spacing-md);
     }
 }
 

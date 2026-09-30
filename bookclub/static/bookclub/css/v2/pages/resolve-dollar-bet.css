@@ -1,0 +1,467 @@
+.resolve-dollar-bet-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    animation: pageReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes pageReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.resolve-dollar-bet-header {
+    margin-bottom: var(--spacing-2xl);
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.resolve-dollar-bet-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink-black);
+    margin: var(--spacing-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.resolve-dollar-bet-title i {
+    color: var(--burgundy);
+}
+
+.admin-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: var(--spacing-sm);
+}
+
+.bet-details-card {
+    background: linear-gradient(135deg,
+        rgba(45, 74, 62, 0.08) 0%,
+        rgba(107, 44, 44, 0.08) 100%);
+    border-left: 3px solid var(--forest-green);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html.dark-mode .bet-details-card {
+    background: linear-gradient(135deg,
+        rgba(74, 107, 90, 0.1) 0%,
+        rgba(168, 88, 88, 0.1) 100%);
+}
+
+.bet-details-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-lg) 0;
+    font-weight: 700;
+}
+
+.bet-question {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+}
+
+.bet-question strong {
+    color: var(--forest-green);
+}
+
+.bet-divider {
+    height: 1px;
+    background: rgba(26, 21, 20, 0.12);
+    margin: var(--spacing-lg) 0;
+}
+
+html.dark-mode .bet-divider {
+    background: rgba(232, 228, 221, 0.12);
+}
+
+.bet-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.bet-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.bet-meta-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-black);
+    opacity: 0.6;
+}
+
+.bet-meta-value {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    font-weight: 500;
+}
+
+.spoiler-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-subtle);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.spoiler-badge.none {
+    background: rgba(45, 74, 62, 0.15);
+    color: var(--forest-green);
+}
+
+.spoiler-badge.halfway {
+    background: rgba(201, 169, 97, 0.15);
+    color: var(--gold-accent);
+}
+
+.spoiler-badge.finished {
+    background: rgba(107, 44, 44, 0.15);
+    color: var(--burgundy);
+}
+
+.form-card {
+    background: var(--paper-cream);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+    padding: var(--spacing-2xl);
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s backwards;
+}
+
+html.dark-mode .form-card {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.resolution-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.resolution-label {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    color: var(--ink-black);
+    margin-bottom: var(--spacing-lg);
+    font-weight: 700;
+}
+
+.resolution-option {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-check {
+    display: flex;
+    align-items: start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.form-check:hover {
+    background: rgba(26, 21, 20, 0.02);
+    border-radius: var(--radius-subtle);
+}
+
+html.dark-mode .form-check:hover {
+    background: rgba(232, 228, 221, 0.02);
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.form-check-label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.form-check-hint {
+    font-size: 0.8125rem;
+    color: var(--ink-black);
+    opacity: 0.6;
+    margin-top: var(--spacing-xs);
+    margin-left: var(--spacing-xl);
+}
+
+.winner-selection-section {
+    margin-left: var(--spacing-xl);
+    margin-top: var(--spacing-md);
+}
+
+.winner-selection-hint {
+    background: rgba(45, 74, 62, 0.08);
+    border-left: 3px solid var(--forest-green);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.875rem;
+    color: var(--ink-black);
+    display: flex;
+    align-items: start;
+    gap: var(--spacing-sm);
+}
+
+html.dark-mode .winner-selection-hint {
+    background: rgba(74, 107, 90, 0.1);
+}
+
+.winner-selection-hint i {
+    color: var(--forest-green);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.winner-card {
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba(26, 21, 20, 0.08);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    transition: all 0.2s ease;
+}
+
+html.dark-mode .winner-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(232, 228, 221, 0.08);
+}
+
+.winner-card:hover {
+    border-color: var(--gold-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--shadow-soft);
+}
+
+.winner-card .form-check {
+    padding: 0;
+}
+
+.winner-user {
+    font-weight: 600;
+    color: var(--burgundy);
+}
+
+.winner-prediction {
+    display: block;
+    margin-top: var(--spacing-xs);
+    font-size: 0.875rem;
+    color: var(--ink-black);
+}
+
+.winner-date {
+    display: block;
+    margin-top: var(--spacing-xs);
+    font-size: 0.75rem;
+    color: var(--ink-black);
+    opacity: 0.5;
+}
+
+.validation-error {
+    display: none;
+    background: rgba(107, 44, 44, 0.1);
+    border-left: 3px solid var(--burgundy);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    color: var(--burgundy);
+    font-size: 0.875rem;
+    margin-top: var(--spacing-md);
+}
+
+.validation-error.active {
+    display: block;
+}
+
+.warning-alert {
+    background: linear-gradient(135deg,
+        rgba(201, 169, 97, 0.08) 0%,
+        rgba(107, 44, 44, 0.08) 100%);
+    border-left: 3px solid var(--gold-accent);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+html.dark-mode .warning-alert {
+    background: linear-gradient(135deg,
+        rgba(212, 183, 118, 0.1) 0%,
+        rgba(168, 88, 88, 0.1) 100%);
+}
+
+.warning-alert-icon {
+    color: var(--gold-accent);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.warning-alert-content {
+    flex: 1;
+}
+
+.warning-alert-title {
+    font-weight: 700;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 1rem;
+}
+
+.warning-alert-text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--ink-black);
+    opacity: 0.8;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+.btn {
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-medium);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+@media (max-width: 767px) {
+    .resolve-dollar-bet-page {
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
+
+    .resolve-dollar-bet-title {
+        font-size: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .admin-badge {
+        margin-left: 0;
+        margin-top: var(--spacing-xs);
+    }
+
+    .bet-details-card,
+    .form-card {
+        padding: var(--spacing-lg);
+    }
+
+    .bet-meta-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .winner-selection-section {
+        margin-left: 0;
+    }
+
+    .form-check-hint {
+        margin-left: var(--spacing-lg);
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: var(--spacing-sm);
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .resolve-dollar-bet-title {
+        font-size: 1.25rem;
+    }
+
+    .bet-details-card,
+    .form-card {
+        padding: var(--spacing-md);
+    }
+}

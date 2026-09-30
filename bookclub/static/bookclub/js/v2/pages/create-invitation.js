@@ -14,6 +14,11 @@ function initializePage() {
             }
         });
     }
+
+    const infoDetails = document.querySelector('.create-invitation-info-card details');
+    if (infoDetails && window.innerWidth <= 991) {
+        infoDetails.removeAttribute('open');
+    }
 }
 
 if (document.readyState === 'loading') {

@@ -1,0 +1,372 @@
+.join-dollar-bet-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    animation: pageReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes pageReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.join-dollar-bet-header {
+    margin-bottom: var(--spacing-2xl);
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.join-dollar-bet-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink-black);
+    margin: var(--spacing-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.join-dollar-bet-title i {
+    color: var(--burgundy);
+}
+
+.bet-details-card {
+    background: var(--paper-cream);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html.dark-mode .bet-details-card {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bet-question-section {
+    background: linear-gradient(135deg,
+        rgba(45, 74, 62, 0.08) 0%,
+        rgba(107, 44, 44, 0.08) 100%);
+    border-left: 3px solid var(--forest-green);
+    border-radius: var(--radius-subtle);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+html.dark-mode .bet-question-section {
+    background: linear-gradient(135deg,
+        rgba(74, 107, 90, 0.1) 0%,
+        rgba(168, 88, 88, 0.1) 100%);
+}
+
+.bet-question-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--forest-green);
+    margin-bottom: var(--spacing-sm);
+}
+
+.bet-question-text {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-lg) 0;
+    font-weight: 700;
+}
+
+.bet-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+}
+
+.bet-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.bet-meta-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-black);
+    opacity: 0.6;
+}
+
+.bet-meta-value {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    font-weight: 500;
+}
+
+.predictions-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.predictions-title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    color: var(--ink-black);
+    margin: 0 0 var(--spacing-md) 0;
+    font-weight: 700;
+}
+
+.prediction-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.prediction-item {
+    background: rgba(26, 21, 20, 0.02);
+    border: 1px solid rgba(26, 21, 20, 0.08);
+    border-radius: var(--radius-subtle);
+    padding: var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--spacing-md);
+    animation: fadeInItem 0.4s ease-out backwards;
+}
+
+.prediction-item:nth-child(1) { animation-delay: 0.3s; }
+.prediction-item:nth-child(2) { animation-delay: 0.35s; }
+.prediction-item:nth-child(3) { animation-delay: 0.4s; }
+.prediction-item:nth-child(4) { animation-delay: 0.45s; }
+.prediction-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInItem {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+html.dark-mode .prediction-item {
+    background: rgba(232, 228, 221, 0.02);
+    border-color: rgba(232, 228, 221, 0.08);
+}
+
+.prediction-content {
+    flex: 1;
+}
+
+.prediction-user {
+    font-weight: 600;
+    color: var(--burgundy);
+    margin-bottom: var(--spacing-xs);
+}
+
+.prediction-text {
+    color: var(--ink-black);
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+.prediction-date {
+    font-size: 0.8125rem;
+    color: var(--ink-black);
+    opacity: 0.5;
+    white-space: nowrap;
+}
+
+.form-card {
+    background: var(--paper-cream);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+    padding: var(--spacing-xl);
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s backwards;
+}
+
+html.dark-mode .form-card {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-black);
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-label .required {
+    color: var(--burgundy);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 0.875rem var(--spacing-md);
+    border: 2px solid rgba(26, 21, 20, 0.12);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    resize: vertical;
+    min-height: 120px;
+}
+
+html.dark-mode .form-textarea {
+    border-color: rgba(232, 228, 221, 0.12);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--ink-black);
+    opacity: 0.6;
+    margin-top: var(--spacing-sm);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+.btn {
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-medium);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+@media (max-width: 767px) {
+    .join-dollar-bet-page {
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
+
+    .join-dollar-bet-title {
+        font-size: 1.5rem;
+    }
+
+    .bet-details-card,
+    .form-card {
+        padding: var(--spacing-lg);
+    }
+
+    .bet-meta-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+
+    .prediction-item {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .prediction-date {
+        align-self: flex-start;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: var(--spacing-sm);
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .join-dollar-bet-title {
+        font-size: 1.25rem;
+    }
+
+    .bet-details-card,
+    .form-card {
+        padding: var(--spacing-md);
+    }
+
+    .bet-question-section {
+        padding: var(--spacing-md);
+    }
+
+    .bet-question-text {
+        font-size: 1.125rem;
+    }
+}

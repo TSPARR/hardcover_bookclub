@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const setActiveHint = document.getElementById('setActiveHint');
     const addBookForm = document.getElementById('addBookForm');
 
+    const infoDetails = document.querySelector('.info-card details');
+    if (infoDetails && window.innerWidth <= 991) {
+        infoDetails.removeAttribute('open');
+    }
+
     if (collectiveCheck && pickedBySection) {
         collectiveCheck.addEventListener('change', function() {
             if (this.checked) {

@@ -454,7 +454,12 @@ html.dark-mode .bets-card {
 }
 
 html.dark-mode .bets-table td {
-    color: var(--paper-cream);
+    color: var(--ink-black);
+}
+
+html.dark-mode .bet-question,
+html.dark-mode .bet-question strong {
+    color: var(--ink-black);
 }
 
 html.dark-mode .detail-item strong {
@@ -566,6 +571,11 @@ html.dark-mode .badge-status-inconclusive {
         line-height: 1.5;
     }
 
+    html.dark-mode .mobile-card-question,
+    html.dark-mode .mobile-card-question strong {
+        color: var(--ink-black);
+    }
+
     .mobile-card-details {
         margin-bottom: var(--spacing-md);
     }
@@ -597,7 +607,7 @@ html.dark-mode .badge-status-inconclusive {
     }
 
     html.dark-mode .detail-value {
-        color: var(--paper-cream);
+        color: var(--ink-black);
     }
 
     .detail-participants-mobile {

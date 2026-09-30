@@ -1,0 +1,337 @@
+.admin-create-dollar-bet-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    animation: pageReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes pageReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-create-dollar-bet-header {
+    margin-bottom: var(--spacing-2xl);
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-create-dollar-bet-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink-black);
+    margin: var(--spacing-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.admin-create-dollar-bet-title i {
+    color: var(--burgundy);
+}
+
+.admin-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-subtle);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: var(--spacing-sm);
+}
+
+.admin-create-dollar-bet-subtitle {
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    opacity: 0.7;
+    margin: 0;
+}
+
+.form-card {
+    background: var(--paper-cream);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+    padding: var(--spacing-2xl);
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html.dark-mode .form-card {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-xl);
+    animation: fadeInField 0.4s ease-out backwards;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.3s; }
+.form-group:nth-child(2) { animation-delay: 0.35s; }
+.form-group:nth-child(3) { animation-delay: 0.4s; }
+.form-group:nth-child(4) { animation-delay: 0.45s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }
+.form-group:nth-child(6) { animation-delay: 0.55s; }
+
+@keyframes fadeInField {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-black);
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-label .required {
+    color: var(--burgundy);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.875rem var(--spacing-md);
+    border: 2px solid rgba(26, 21, 20, 0.12);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--ink-black);
+    transition: all var(--transition-normal) var(--ease-out-expo);
+}
+
+html.dark-mode .form-input,
+html.dark-mode .form-select,
+html.dark-mode .form-textarea {
+    border-color: rgba(232, 228, 221, 0.12);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--ink-black);
+    opacity: 0.6;
+    margin-top: var(--spacing-sm);
+}
+
+.form-hint ul {
+    margin: var(--spacing-sm) 0 0 0;
+    padding-left: var(--spacing-lg);
+}
+
+.form-hint li {
+    margin-bottom: var(--spacing-xs);
+}
+
+.field-section {
+    display: none;
+}
+
+.field-section.active {
+    display: block;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.info-alert {
+    display: none;
+    background: linear-gradient(135deg,
+        rgba(45, 74, 62, 0.08) 0%,
+        rgba(107, 44, 44, 0.08) 100%);
+    border-left: 3px solid var(--forest-green);
+    border-radius: var(--radius-subtle);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.info-alert.active {
+    display: flex;
+    align-items: start;
+    gap: var(--spacing-sm);
+}
+
+html.dark-mode .info-alert {
+    background: linear-gradient(135deg,
+        rgba(74, 107, 90, 0.1) 0%,
+        rgba(168, 88, 88, 0.1) 100%);
+}
+
+.info-alert i {
+    color: var(--forest-green);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.info-alert-content {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--ink-black);
+    line-height: 1.6;
+}
+
+.info-alert-content strong {
+    color: var(--forest-green);
+}
+
+.fixed-amount {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.fixed-amount .form-input {
+    background: rgba(26, 21, 20, 0.05);
+    cursor: not-allowed;
+    flex: 1;
+}
+
+html.dark-mode .fixed-amount .form-input {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid rgba(26, 21, 20, 0.08);
+}
+
+html.dark-mode .form-actions {
+    border-top-color: rgba(232, 228, 221, 0.08);
+}
+
+.btn {
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-medium);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+@media (max-width: 767px) {
+    .admin-create-dollar-bet-page {
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
+
+    .admin-create-dollar-bet-title {
+        font-size: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .admin-badge {
+        margin-left: 0;
+        margin-top: var(--spacing-xs);
+    }
+
+    .form-card {
+        padding: var(--spacing-xl);
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-create-dollar-bet-title {
+        font-size: 1.25rem;
+    }
+
+    .form-card {
+        padding: var(--spacing-lg);
+    }
+}
