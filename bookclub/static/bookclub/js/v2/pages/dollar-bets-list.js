@@ -1,3 +1,73 @@
+let currentPendingForm = null;
+
+const confirmationModal = document.getElementById('confirmationModal');
+const confirmationModalClose = document.getElementById('confirmationModalClose');
+const confirmationModalCancel = document.getElementById('confirmationModalCancel');
+const confirmationModalConfirm = document.getElementById('confirmationModalConfirm');
+const confirmationModalMessage = document.getElementById('confirmationModalMessage');
+
+function openModal(modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function closeConfirmationModal() {
+    closeModal(confirmationModal);
+    currentPendingForm = null;
+}
+
+if (confirmationModalClose) {
+    confirmationModalClose.addEventListener('click', closeConfirmationModal);
+}
+
+if (confirmationModalCancel) {
+    confirmationModalCancel.addEventListener('click', closeConfirmationModal);
+}
+
+if (confirmationModalConfirm) {
+    confirmationModalConfirm.addEventListener('click', () => {
+        if (currentPendingForm) {
+            const submitButton = currentPendingForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Deleting...';
+            }
+            currentPendingForm.submit();
+            currentPendingForm = null;
+        }
+        closeModal(confirmationModal);
+    });
+}
+
+if (confirmationModal) {
+    confirmationModal.addEventListener('click', (e) => {
+        if (e.target === confirmationModal) {
+            closeConfirmationModal();
+        }
+    });
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && confirmationModal && confirmationModal.classList.contains('active')) {
+        closeConfirmationModal();
+    }
+});
+
+function showConfirmation(message, form) {
+    if (confirmationModalMessage) {
+        confirmationModalMessage.textContent = message;
+    }
+    currentPendingForm = form;
+    if (confirmationModal) {
+        openModal(confirmationModal);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const actionLinks = document.querySelectorAll('.bet-actions a, .bet-card-actions a');
 
@@ -22,18 +92,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     deleteForms.forEach(form => {
         form.addEventListener('submit', function(e) {
-            const confirmed = confirm('Are you sure you want to delete this bet? This action cannot be undone.');
-
-            if (!confirmed) {
-                e.preventDefault();
-                return false;
-            }
-
-            const submitButton = this.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Deleting...';
-            }
+            e.preventDefault();
+            showConfirmation('Are you sure you want to delete this bet? This action cannot be undone.', form);
         });
     });
 

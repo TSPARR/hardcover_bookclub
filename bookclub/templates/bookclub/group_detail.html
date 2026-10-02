@@ -1,76 +1,620 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load bookclub_extras %}
+{% load static %}
 
 {% block title %}{{ group.name }}{% endblock %}
 
-{% block content %}
-<div class="container py-4">
-    <!-- Group Header Section -->
-    {% include "bookclub/includes/groups/group_header.html" with group=group members=members is_admin=is_admin %}
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/group-detail.css' %}">
+{% endblock %}
 
-    <!-- Mobile/Tablet Tabs (visible on smaller screens) -->
-    <div class="group-tabs-mobile mb-4">
-        <ul class="nav nav-tabs" id="groupTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="books-tab" data-bs-toggle="tab" data-bs-target="#books-panel" type="button" role="tab" aria-controls="books-panel" aria-selected="true">
-                    <i class="bi bi-book me-1"></i>Books
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="members-tab" data-bs-toggle="tab" data-bs-target="#members-panel" type="button" role="tab" aria-controls="members-panel" aria-selected="false">
-                    <i class="bi bi-people me-1"></i>Members
-                </button>
-            </li>
-            {% if is_admin %}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-panel" type="button" role="tab" aria-controls="settings-panel" aria-selected="false">
-                    <i class="bi bi-gear me-1"></i>Settings
-                </button>
-            </li>
+{% block content %}
+<div class="group-detail-page">
+    {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="bi bi-people-fill"></i>
+                {{ group.name }}
+            </h1>
+            {% if group.description %}
+            <p class="page-subtitle">{{ group.description }}</p>
             {% endif %}
-        </ul>
-        <div class="tab-content" id="groupTabsContent">
-            <div class="tab-pane fade show active" id="books-panel" role="tabpanel" aria-labelledby="books-tab">
-                {% include "bookclub/includes/groups/group_books_content.html" with books=books group=group is_admin=is_admin book_progress=book_progress meetings=meetings user_joined_meetings=user_joined_meetings past_meetings=past_meetings members=members %}
+
+            <div class="group-meta-badges">
+                <span class="info-badge">
+                    <i class="bi bi-people"></i>
+                    {{ members.count }} Member{{ members.count|pluralize }}
+                </span>
+                <span class="info-badge">
+                    <i class="bi bi-book"></i>
+                    {{ books.count }} Book{{ books.count|pluralize }}
+                </span>
+                {% if is_admin %}
+                <span class="info-badge admin-badge">
+                    <i class="bi bi-shield-fill-check"></i>
+                    Admin
+                </span>
+                {% endif %}
             </div>
-            <div class="tab-pane fade" id="members-panel" role="tabpanel" aria-labelledby="members-tab">
-                {% include "bookclub/includes/groups/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
-            </div>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'attribution_analytics' group.id %}" class="btn btn-outline-primary">
+                <i class="bi bi-graph-up"></i>
+                Analytics
+            </a>
             {% if is_admin %}
-            <div class="tab-pane fade" id="settings-panel" role="tabpanel" aria-labelledby="settings-tab">
-                {% include "bookclub/includes/groups/group_feature_settings.html" with group=group is_admin=is_admin %}
+            <div class="dropdown-wrapper">
+                <button class="btn btn-primary dropdown-trigger" id="groupSettingsBtn" aria-expanded="false" aria-label="Group settings menu">
+                    <i class="bi bi-gear"></i>
+                    Settings
+                    <i class="bi bi-chevron-down dropdown-icon"></i>
+                </button>
+                <div class="dropdown-menu" id="groupSettingsMenu">
+                    <a class="dropdown-item" href="{% url 'manage_group_members' group.id %}">
+                        <i class="bi bi-people"></i>
+                        Manage Members
+                    </a>
+                    <a class="dropdown-item" href="{% url 'manage_invitations' group.id %}">
+                        <i class="bi bi-envelope"></i>
+                        Invitations
+                    </a>
+                    <a class="dropdown-item" href="{% url 'manage_member_starting_points' group.id %}">
+                        <i class="bi bi-calendar-date"></i>
+                        Starting Points
+                    </a>
+                </div>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Desktop Sidebar Layout (visible on larger screens) -->
-    <div class="row group-sidebar-desktop">
-        <!-- Left Sidebar - Members Section -->
-        <div class="col-lg-3 mb-4">
-            {% include "bookclub/includes/groups/group_member_list.html" with members=members admins=admins is_admin=is_admin group=group %}
+    <div class="page-content">
+        <div class="main-column">
+            <div class="page-card">
+                <div class="page-card-header">
+                    <h2 class="page-card-title">
+                        <i class="bi bi-book"></i>
+                        Books
+                    </h2>
+                    <div class="header-actions">
+                        {% if group.is_book_proposals_enabled %}
+                        <a href="{% url 'group_proposals' group.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-lightbulb"></i>
+                            <span class="hide-mobile">Proposals</span>
+                        </a>
+                        {% endif %}
+                        {% if is_admin %}
+                        <a href="{% url 'search_books' group.id %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i>
+                            <span class="hide-mobile">Add Book</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    {% if books %}
+                        {% with active_books=books|dictsortreversed:"is_active" %}
 
-            <!-- Feature Settings (Admin only) -->
-            {% include "bookclub/includes/groups/group_feature_settings.html" with group=group is_admin=is_admin %}
+                        {% for book in active_books %}
+                            {% if book.is_active %}
+                            <div class="active-book-section">
+                                <div class="section-label">
+                                    <i class="bi bi-bookmark-fill"></i>
+                                    Currently Reading
+                                </div>
+
+                                <div class="book-display">
+                                    <div class="book-cover-column">
+                                        {% with prog=book_progress|get_item:book.id %}
+                                            {% if prog.progress.selected_edition and prog.progress.selected_edition.cover_image_url %}
+                                                <img src="{{ prog.progress.selected_edition.cover_image_url }}" alt="{{ book.title|split:":"|first|trim }}" class="book-cover">
+                                            {% elif book.cover_image_url %}
+                                                <img src="{{ book.cover_image_url }}" alt="{{ book.title|split:":"|first|trim }}" class="book-cover">
+                                            {% else %}
+                                            <div class="book-cover-placeholder">
+                                                <i class="bi bi-book"></i>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+
+                                    <div class="book-info-column">
+                                        <h3 class="book-title">{{ book.title|split:":"|first|trim }}</h3>
+                                        <p class="book-author">{{ book.author }}</p>
+
+                                        <div class="book-meta">
+                                            {% if book.is_collective_pick %}
+                                            <span class="meta-badge collective">Group Pick</span>
+                                            {% elif book.picked_by %}
+                                            <span class="meta-badge user">{{ book.picked_by.username }}</span>
+                                            {% endif %}
+                                        </div>
+
+                                        {% with prog=book_progress|get_item:book.id %}
+                                            {% if prog.progress %}
+                                            <div class="progress-section">
+                                                <span class="status-badge {{ prog.status_class }}">{{ prog.status }}</span>
+
+                                                {% if prog.progress.normalized_progress > 0 %}
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: {{ prog.progress.normalized_progress }}%"></div>
+                                                </div>
+                                                <span class="progress-text">
+                                                    {% if prog.progress.progress_type == 'page' %}
+                                                        Page {{ prog.progress.progress_value }}
+                                                    {% elif prog.progress.progress_type == 'audio' %}
+                                                        {{ prog.progress.progress_value }}
+                                                    {% else %}
+                                                        {{ prog.progress.progress_value }}%
+                                                    {% endif %}
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+
+                                        <div class="book-actions">
+                                            <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">
+                                                <i class="bi bi-book-half"></i>
+                                                View Book
+                                            </a>
+
+                                            {% if is_admin %}
+                                            <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-warning btn-sm">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    Deactivate
+                                                </button>
+                                            </form>
+
+                                            <div class="dropdown-wrapper">
+                                                <button type="button" class="btn btn-outline-primary btn-sm dropdown-trigger" data-dropdown="admin-{{ book.id }}" aria-expanded="false">
+                                                    <i class="bi bi-gear"></i>
+                                                </button>
+                                                <div class="dropdown-menu" id="admin-{{ book.id }}">
+                                                    <a href="{% url 'manage_promoted_editions' book.id %}" class="dropdown-item">
+                                                        <i class="bi bi-star"></i>
+                                                        Manage Editions
+                                                    </a>
+                                                    <button type="button" class="dropdown-item edit-attribution"
+                                                            data-book-id="{{ book.id }}"
+                                                            data-book-title="{{ book.title|split:":"|first|trim }}"
+                                                            data-picked-by="{% if book.picked_by %}{{ book.picked_by.id }}{% endif %}"
+                                                            data-collective="{{ book.is_collective_pick|yesno:'true,false' }}">
+                                                        <i class="bi bi-person-check"></i>
+                                                        Edit Attribution
+                                                    </button>
+                                                    <button type="button" class="dropdown-item refresh-book-action" data-book-id="{{ book.id }}">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                        Refresh from Hardcover
+                                                    </button>
+                                                    <button type="button" class="dropdown-item danger remove-book-action" data-book-id="{{ book.id }}" data-group-id="{{ group.id }}">
+                                                        <i class="bi bi-trash"></i>
+                                                        Remove Book
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if group.is_meetings_enabled %}
+                        <div class="meetings-section">
+                            <div class="meetings-header">
+                                <h3 class="section-title">
+                                    <i class="bi bi-calendar-event"></i>
+                                    Upcoming Meetings
+                                </h3>
+                                {% if is_admin %}
+                                <button type="button" class="btn btn-primary btn-sm" id="createMeetingBtn">
+                                    <i class="bi bi-plus-circle"></i>
+                                    <span class="hide-mobile">Create Meeting</span>
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            {% if meetings %}
+                            <div class="meetings-list">
+                                {% for meeting in meetings %}
+                                <div class="meeting-item">
+                                    <div class="meeting-info">
+                                        <a href="{% url 'meeting-detail' meeting.id %}" class="meeting-title">{{ meeting.display_title }}</a>
+                                        <div class="meeting-meta">
+                                            <span class="meeting-time">
+                                                <i class="bi bi-calendar"></i>
+                                                {{ meeting.start_time|date:"M d, Y H:i" }}
+                                            </span>
+                                            <span class="meeting-participants">
+                                                <i class="bi bi-people"></i>
+                                                {{ meeting.yes_count }} attending
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="meeting-actions">
+                                        {% if meeting.id in user_joined_meetings %}
+                                        <form method="post" action="{% url 'meeting-leave' meeting.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-x-circle"></i> Leave
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <form method="post" action="{% url 'meeting-join' meeting.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="bi bi-check-circle"></i> Join
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="meetings-empty">
+                                <p>No upcoming meetings.</p>
+                                {% if is_admin %}
+                                <button type="button" class="btn btn-outline-primary btn-sm create-meeting-btn">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Create First Meeting
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if books|length > 1 or not active_books.0.is_active %}
+                        <div class="previous-books-section">
+                            <details class="previous-books-details">
+                                <summary class="previous-books-summary">
+                                    <div class="previous-books-header">
+                                        <div class="previous-books-header-title">
+                                            <i class="bi bi-clock-history"></i>
+                                            Previous Books
+                                            <span class="previous-books-count">
+                                                {% for book in books %}{% if not book.is_active %}{% if forloop.last %}{{ forloop.counter }}{% endif %}{% endif %}{% endfor %}
+                                            </span>
+                                        </div>
+                                        {% if is_admin %}
+                                        <a href="{% url 'reorder_books' group.id %}" class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation();">
+                                            <i class="bi bi-arrows-move"></i>
+                                            <span class="hide-mobile">Reorder Books</span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </summary>
+
+                                <div class="books-list">
+                                    {% for book in books %}
+                                        {% if not book.is_active %}
+                                        <div class="book-list-item">
+                                            <div class="book-list-cover">
+                                                {% if book.cover_image_url %}
+                                                    <img src="{{ book.cover_image_url }}" alt="{{ book.title|split:":"|first|trim }}">
+                                                {% else %}
+                                                <div class="book-cover-placeholder small">
+                                                    <i class="bi bi-book"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="book-list-info">
+                                                <h4 class="book-list-title">{{ book.title|split:":"|first|trim }}</h4>
+                                                <p class="book-list-author">{{ book.author }}</p>
+                                                {% if book.is_collective_pick %}
+                                                <span class="meta-badge collective small">Group Pick</span>
+                                                {% elif book.picked_by %}
+                                                <span class="meta-badge user small">{{ book.picked_by.username }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="book-list-actions">
+                                                <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-primary btn-sm">
+                                                    View
+                                                </a>
+                                                {% if is_admin %}
+                                                <form method="post" action="{% url 'toggle_book_active' group.id book.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-success btn-sm">
+                                                        Activate
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        </div>
+                        {% endif %}
+
+                        {% if group.is_meetings_enabled and past_meetings %}
+                        <div class="previous-books-section">
+                            <details class="previous-books-details">
+                                <summary class="previous-books-summary">
+                                    <div class="previous-books-header">
+                                        <div class="previous-books-header-title">
+                                            <i class="bi bi-clock-history"></i>
+                                            Past Meetings
+                                            <span class="previous-books-count">{{ past_meetings|length }}</span>
+                                        </div>
+                                    </div>
+                                </summary>
+
+                                <div class="meetings-list" style="margin-top: var(--spacing-lg);">
+                                    {% for meeting in past_meetings %}
+                                    <div class="meeting-item past">
+                                        <div class="meeting-info">
+                                            <a href="{% url 'meeting-detail' meeting.id %}" class="meeting-title">{{ meeting.display_title }}</a>
+                                            <div class="meeting-meta">
+                                                <span class="meeting-time">
+                                                    <i class="bi bi-calendar"></i>
+                                                    {{ meeting.start_time|date:"M d, Y H:i" }}
+                                                </span>
+                                                <span class="meeting-participants">
+                                                    <i class="bi bi-people"></i>
+                                                    {{ meeting.yes_count }} attended
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="meeting-actions">
+                                            <a href="{% url 'meeting-detail' meeting.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        </div>
+                        {% endif %}
+
+                        {% endwith %}
+                    {% else %}
+                        <div class="page-empty">
+                            <i class="bi bi-book"></i>
+                            <h3>No books yet</h3>
+                            <p>Add a book to get started with your reading group.</p>
+                            {% if is_admin %}
+                            <a href="{% url 'search_books' group.id %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i>
+                                Add First Book
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <!-- Main Content - Books and Bets Sections -->
-        <div class="col-lg-9">
-            {% include "bookclub/includes/groups/group_books_content.html" with books=books group=group is_admin=is_admin book_progress=book_progress meetings=meetings user_joined_meetings=user_joined_meetings past_meetings=past_meetings members=members %}
+        <aside class="sidebar-column">
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3 class="settings-card-title">
+                        <i class="bi bi-people"></i>
+                        Members
+                    </h3>
+                    <span class="count-badge">{{ members.count }}</span>
+                </div>
+                <div class="settings-card-body">
+                    <div class="member-list">
+                        {% for member in members %}
+                        <div class="member-item">
+                            <span class="member-name">{{ member.username }}</span>
+                            {% if member in admins %}
+                            <span class="role-badge">Admin</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if is_admin %}
+                    <a href="{% url 'manage_group_members' group.id %}" class="btn btn-outline-primary btn-sm" style="margin-top: var(--spacing-md);">
+                        <i class="bi bi-gear"></i>
+                        Manage Members
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if is_admin and ENABLE_DOLLAR_BETS or is_admin and ENABLE_MEETINGS or is_admin and ENABLE_BOOK_PROPOSALS %}
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h3 class="settings-card-title">
+                        <i class="bi bi-sliders"></i>
+                        Group Features
+                    </h3>
+                </div>
+                <div class="settings-card-body">
+                    <form method="post" action="{% url 'update_group_settings' group.id %}" class="feature-form">
+                        {% csrf_token %}
+
+                        {% if ENABLE_DOLLAR_BETS %}
+                        <div class="form-group">
+                            <div class="form-check-group">
+                                <input type="checkbox" id="enableDollarBets" name="enable_dollar_bets" {% if group.enable_dollar_bets %}checked{% endif %}>
+                                <label for="enableDollarBets">
+                                    <span class="label-text">Dollar Bets</span>
+                                    <span class="label-hint">Members can place $1 bets on predictions</span>
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if ENABLE_MEETINGS %}
+                        <div class="form-group">
+                            <div class="form-check-group">
+                                <input type="checkbox" id="enableMeetings" name="enable_meetings" {% if group.enable_meetings %}checked{% endif %}>
+                                <label for="enableMeetings">
+                                    <span class="label-text">Meetings</span>
+                                    <span class="label-hint">Members can create and RSVP to meetings</span>
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if ENABLE_BOOK_PROPOSALS %}
+                        <div class="form-group">
+                            <div class="form-check-group">
+                                <input type="checkbox" id="enableBookProposals" name="enable_book_proposals" {% if group.enable_book_proposals %}checked{% endif %}>
+                                <label for="enableBookProposals">
+                                    <span class="label-text">Book Proposals</span>
+                                    <span class="label-hint">Members can propose books for review</span>
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-check-circle"></i>
+                            Save Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+
+{% if is_admin %}
+<div class="modal-overlay" id="attributionModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit Book Attribution</h2>
+            <button type="button" class="modal-close" id="attributionModalClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" action="{% url 'group_detail' group.id %}">
+            <div class="modal-body">
+                <input type="hidden" name="attribution" value="1">
+                <input type="hidden" name="book_id" id="attributionBookId">
+                {% csrf_token %}
+
+                <p class="modal-book-title">Editing: <strong id="attributionBookTitle"></strong></p>
+
+                <div class="form-group">
+                    <div class="form-check-group">
+                        <input type="checkbox" id="isCollectivePick" name="is_collective_pick">
+                        <label for="isCollectivePick">
+                            <span class="label-text">Group Pick</span>
+                            <span class="label-hint">This book was chosen collectively by the group</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="pickedBySection">
+                    <label for="pickedBy" class="form-label">Picked By</label>
+                    <select id="pickedBy" name="picked_by" class="form-input">
+                        <option value="">Select a member</option>
+                        {% for member in members %}
+                        <option value="{{ member.id }}">{{ member.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="attributionCancelButton">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="confirmationModal">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h2 class="modal-title">Confirm Action</h2>
+            <button type="button" class="modal-close" id="confirmationModalClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmationModalMessage">Are you sure you want to proceed with this action?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="confirmationModalCancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmationModalConfirm">
+                <i class="bi bi-check-circle"></i> Confirm
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Attribution Modal -->
-{% if is_admin %}
-{% include "bookclub/includes/groups/attribution_modal.html" with members=members %}
-{% endif %}
+<div class="modal-overlay" id="createMeetingModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="bi bi-calendar-event"></i>
+                Create Meeting
+            </h2>
+            <button type="button" class="modal-close" id="createMeetingModalClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form id="createMeetingForm" data-group-id="{{ group.id }}">
+            <div class="modal-body">
+                <div class="alert alert-danger" id="createMeetingError"></div>
 
-<!-- Confirmation Modal -->
-{% include "bookclub/includes/confirmation_modal.html" %}
+                <div class="form-group">
+                    <label for="meetingBook" class="form-label">Book (Optional)</label>
+                    <select id="meetingBook" name="book" class="form-input">
+                        <option value="">No specific book</option>
+                        {% for book in books %}
+                        <option value="{{ book.id }}">{{ book.title|split:":"|first|trim }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="meetingTitle" class="form-label">Custom Title (Optional)</label>
+                    <input type="text" class="form-input" id="meetingTitle" name="title" placeholder="e.g., Monthly Book Club">
+                    <div class="form-text">Leave blank to auto-generate from book title</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="meetingStartTime" class="form-label">Start Time</label>
+                    <input type="datetime-local" class="form-input" id="meetingStartTime" name="start_time" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="meetingEndTime" class="form-label">End Time (Optional)</label>
+                    <input type="datetime-local" class="form-input" id="meetingEndTime" name="end_time">
+                </div>
+
+                <div class="form-group">
+                    <label for="meetingPlace" class="form-label">Place (Optional)</label>
+                    <input type="text" class="form-input" id="meetingPlace" name="place" placeholder="e.g., Zoom, Library Room 2">
+                </div>
+
+                <div class="form-group">
+                    <label for="meetingDescription" class="form-label">Description (Optional)</label>
+                    <textarea class="form-textarea" id="meetingDescription" name="description" rows="3" placeholder="Meeting details..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                {% csrf_token %}
+                <button type="button" class="btn btn-secondary" id="createMeetingCancelButton">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Create Meeting
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
-{% block extra_js %}
-{% load static %}
-<script type="module" src="{% static 'bookclub/js/book-management.js' %}"></script>
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/group-detail.js' %}"></script>
 {% endblock %}

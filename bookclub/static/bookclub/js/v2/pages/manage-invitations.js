@@ -72,14 +72,78 @@ function copyInviteLink(link) {
         });
 }
 
+let currentPendingForm = null;
+
+const confirmationModal = document.getElementById('confirmationModal');
+const confirmationModalClose = document.getElementById('confirmationModalClose');
+const confirmationModalCancel = document.getElementById('confirmationModalCancel');
+const confirmationModalConfirm = document.getElementById('confirmationModalConfirm');
+const confirmationModalMessage = document.getElementById('confirmationModalMessage');
+
+function openModal(modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function closeConfirmationModal() {
+    closeModal(confirmationModal);
+    currentPendingForm = null;
+}
+
+if (confirmationModalClose) {
+    confirmationModalClose.addEventListener('click', closeConfirmationModal);
+}
+
+if (confirmationModalCancel) {
+    confirmationModalCancel.addEventListener('click', closeConfirmationModal);
+}
+
+if (confirmationModalConfirm) {
+    confirmationModalConfirm.addEventListener('click', () => {
+        if (currentPendingForm) {
+            currentPendingForm.submit();
+            currentPendingForm = null;
+        }
+        closeModal(confirmationModal);
+    });
+}
+
+if (confirmationModal) {
+    confirmationModal.addEventListener('click', (e) => {
+        if (e.target === confirmationModal) {
+            closeConfirmationModal();
+        }
+    });
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && confirmationModal && confirmationModal.classList.contains('active')) {
+        closeConfirmationModal();
+    }
+});
+
+function showConfirmation(message, form) {
+    if (confirmationModalMessage) {
+        confirmationModalMessage.textContent = message;
+    }
+    currentPendingForm = form;
+    if (confirmationModal) {
+        openModal(confirmationModal);
+    }
+}
+
 function initializeRevokeConfirmations() {
     const revokeForms = document.querySelectorAll('form[data-revoke-form]');
 
     revokeForms.forEach(form => {
         form.addEventListener('submit', (e) => {
-            if (!confirm('Are you sure you want to revoke this invitation? This action cannot be undone.')) {
-                e.preventDefault();
-            }
+            e.preventDefault();
+            showConfirmation('Are you sure you want to revoke this invitation? This action cannot be undone.', form);
         });
     });
 }

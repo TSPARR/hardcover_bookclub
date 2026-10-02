@@ -155,7 +155,7 @@
                                             </a>
                                             {% endif %}
                                             {% if bet.creator == request.user or is_admin %}
-                                            <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" class="delete-form" onsubmit="return confirm('Delete this bet?');">
+                                            <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" class="delete-form">
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                                     <i class="bi bi-x-circle"></i> Delete
@@ -280,7 +280,7 @@
                                 </a>
                                 {% endif %}
                                 {% if bet.creator == request.user or is_admin %}
-                                <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" class="delete-form" onsubmit="return confirm('Delete this bet?');">
+                                <form method="post" action="{% url 'delete_dollar_bet' bet.id %}" class="delete-form">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-x-circle"></i> Delete
@@ -323,6 +323,26 @@
                 {% endif %}
             </div>
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="confirmationModal">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h2 class="modal-title">Confirm Action</h2>
+            <button type="button" class="modal-close" id="confirmationModalClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmationModalMessage">Are you sure you want to proceed with this action?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="confirmationModalCancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmationModalConfirm">
+                <i class="bi bi-check-circle"></i> Confirm
+            </button>
         </div>
     </div>
 </div>

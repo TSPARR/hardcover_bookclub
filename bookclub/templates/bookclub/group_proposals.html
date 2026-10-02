@@ -1,131 +1,352 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
+{% load static %}
 
 {% block title %}Book Proposals - {{ group.name }}{% endblock %}
 
-{% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Book Proposals</li>
-                </ol>
-            </nav>
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/group-proposals.css' %}">
+{% endblock %}
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1><i class="bi bi-lightbulb me-2"></i>Book Proposals</h1>
-                {% if not is_admin %}
-                <a href="{% url 'search_books' group.id %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i>Propose a Book
-                </a>
+{% block content %}
+<div class="group-proposals-page">
+    <div class="group-proposals-header">
+        {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+        <h1 class="group-proposals-title">
+            <i class="bi bi-lightbulb"></i>
+            Book Proposals
+        </h1>
+        <p class="group-proposals-subtitle">{{ group.name }}</p>
+    </div>
+
+    {% if not is_admin %}
+    <div class="proposals-actions">
+        <a href="{% url 'search_books' group.id %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>Propose a Book
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="proposals-content">
+        <div class="proposals-section pending">
+            <div class="proposals-section-header">
+                <h2 class="proposals-section-title">
+                    <i class="bi bi-hourglass-split"></i>
+                    Pending Review
+                </h2>
+                <span class="count-badge">{{ pending_proposals.count }}</span>
+            </div>
+            <div class="proposals-section-body">
+                {% if pending_proposals %}
+                <div class="proposals-list">
+                    {% for proposal in pending_proposals %}
+                    <div class="proposal-card">
+                        <div class="proposal-card-header">
+                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by.username }}</span>
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                        <div class="proposal-card-content">
+                            <div class="proposal-card-cover">
+                                {% if proposal.cover_image_url %}
+                                <img src="{{ proposal.cover_image_url }}" alt="{{ proposal.title }}">
+                                {% else %}
+                                <div class="no-cover">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="proposal-card-body">
+                                <h3 class="proposal-card-title">{{ proposal.title }}</h3>
+                                <p class="proposal-card-author">{{ proposal.author }}</p>
+
+                                {% if proposal.description %}
+                                <p class="proposal-card-description">{{ proposal.description|truncatechars:150 }}</p>
+                                {% endif %}
+
+                                {% if proposal.proposal_note %}
+                                <div class="proposal-note">
+                                    <div class="proposal-note-title">
+                                        <i class="bi bi-chat-quote"></i>
+                                        Proposer's Note
+                                    </div>
+                                    <p class="proposal-note-text">{{ proposal.proposal_note|truncatechars:100 }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if proposal.pages or proposal.audio_duration_formatted %}
+                                <div class="proposal-card-badges">
+                                    {% if proposal.pages %}
+                                    <span class="info-badge">{{ proposal.pages }} pages</span>
+                                    {% endif %}
+                                    {% if proposal.audio_duration_formatted %}
+                                    <span class="info-badge">{{ proposal.audio_duration_formatted }} audio</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <div class="proposal-card-timestamp">
+                                    Proposed {{ proposal.created_at|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                        <div class="proposal-card-footer">
+                            <div class="proposal-card-actions">
+                                {% if is_admin %}
+                                <a href="{% url 'review_proposal' proposal.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Review
+                                </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-proposal-btn"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-proposal-title="{{ proposal.title }}"
+                                        data-proposal-author="{{ proposal.author }}"
+                                        data-proposal-cover="{% if proposal.cover_image_url %}{{ proposal.cover_image_url }}{% endif %}"
+                                        data-proposed-by="{{ proposal.proposed_by.username }}"
+                                        data-proposed-date="{{ proposal.created_at|date:"F j, Y" }}"
+                                        data-delete-url="{% url 'delete_proposal' proposal.id %}">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                                {% elif proposal.proposed_by == request.user %}
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-proposal-btn"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-proposal-title="{{ proposal.title }}"
+                                        data-proposal-author="{{ proposal.author }}"
+                                        data-proposal-cover="{% if proposal.cover_image_url %}{{ proposal.cover_image_url }}{% endif %}"
+                                        data-proposed-by="{{ proposal.proposed_by.username }}"
+                                        data-proposed-date="{{ proposal.created_at|date:"F j, Y" }}"
+                                        data-delete-url="{% url 'delete_proposal' proposal.id %}">
+                                    <i class="bi bi-trash"></i> Delete My Proposal
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="proposals-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>No pending proposals</p>
+                    {% if not is_admin %}
+                    <a href="{% url 'search_books' group.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle"></i>Propose a Book
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="proposals-section approved">
+            <div class="proposals-section-header">
+                <h2 class="proposals-section-title">
+                    <i class="bi bi-check-circle"></i>
+                    Approved
+                </h2>
+                <span class="count-badge">{{ approved_proposals.count }}</span>
+            </div>
+            <div class="proposals-section-body">
+                {% if approved_proposals %}
+                <div class="proposals-list">
+                    {% for proposal in approved_proposals %}
+                    <div class="proposal-card">
+                        <div class="proposal-card-header">
+                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by.username }}</span>
+                            <span class="status-badge approved">Approved</span>
+                        </div>
+                        <div class="proposal-card-content">
+                            <div class="proposal-card-cover">
+                                {% if proposal.cover_image_url %}
+                                <img src="{{ proposal.cover_image_url }}" alt="{{ proposal.title }}">
+                                {% else %}
+                                <div class="no-cover">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="proposal-card-body">
+                                <h3 class="proposal-card-title">{{ proposal.title }}</h3>
+                                <p class="proposal-card-author">{{ proposal.author }}</p>
+
+                                {% if proposal.description %}
+                                <p class="proposal-card-description">{{ proposal.description|truncatechars:150 }}</p>
+                                {% endif %}
+
+                                {% if proposal.proposal_note %}
+                                <div class="proposal-note">
+                                    <div class="proposal-note-title">
+                                        <i class="bi bi-chat-quote"></i>
+                                        Proposer's Note
+                                    </div>
+                                    <p class="proposal-note-text">{{ proposal.proposal_note|truncatechars:100 }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if proposal.pages or proposal.audio_duration_formatted %}
+                                <div class="proposal-card-badges">
+                                    {% if proposal.pages %}
+                                    <span class="info-badge">{{ proposal.pages }} pages</span>
+                                    {% endif %}
+                                    {% if proposal.audio_duration_formatted %}
+                                    <span class="info-badge">{{ proposal.audio_duration_formatted }} audio</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <div class="proposal-card-timestamp">
+                                    Proposed {{ proposal.created_at|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                        {% if proposal.created_book %}
+                        <div class="proposal-card-footer">
+                            <div class="proposal-card-actions">
+                                <a href="{% url 'book_detail' proposal.created_book.id %}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-book"></i> View Book
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="proposals-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>No approved proposals yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="proposals-section rejected">
+            <div class="proposals-section-header">
+                <h2 class="proposals-section-title">
+                    <i class="bi bi-x-circle"></i>
+                    Rejected
+                </h2>
+                <span class="count-badge">{{ rejected_proposals.count }}</span>
+            </div>
+            <div class="proposals-section-body">
+                {% if rejected_proposals %}
+                <div class="proposals-list">
+                    {% for proposal in rejected_proposals %}
+                    <div class="proposal-card">
+                        <div class="proposal-card-header">
+                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by.username }}</span>
+                            <span class="status-badge rejected">Rejected</span>
+                        </div>
+                        <div class="proposal-card-content">
+                            <div class="proposal-card-cover">
+                                {% if proposal.cover_image_url %}
+                                <img src="{{ proposal.cover_image_url }}" alt="{{ proposal.title }}">
+                                {% else %}
+                                <div class="no-cover">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="proposal-card-body">
+                                <h3 class="proposal-card-title">{{ proposal.title }}</h3>
+                                <p class="proposal-card-author">{{ proposal.author }}</p>
+
+                                {% if proposal.description %}
+                                <p class="proposal-card-description">{{ proposal.description|truncatechars:150 }}</p>
+                                {% endif %}
+
+                                {% if proposal.proposal_note %}
+                                <div class="proposal-note">
+                                    <div class="proposal-note-title">
+                                        <i class="bi bi-chat-quote"></i>
+                                        Proposer's Note
+                                    </div>
+                                    <p class="proposal-note-text">{{ proposal.proposal_note|truncatechars:100 }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if proposal.pages or proposal.audio_duration_formatted %}
+                                <div class="proposal-card-badges">
+                                    {% if proposal.pages %}
+                                    <span class="info-badge">{{ proposal.pages }} pages</span>
+                                    {% endif %}
+                                    {% if proposal.audio_duration_formatted %}
+                                    <span class="info-badge">{{ proposal.audio_duration_formatted }} audio</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <div class="proposal-card-timestamp">
+                                    Proposed {{ proposal.created_at|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                        {% if proposal.rejection_reason %}
+                        <div class="proposal-card-footer">
+                            <div class="proposal-rejection-reason">
+                                <strong>Reason:</strong> {{ proposal.rejection_reason|truncatechars:80 }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="proposals-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>No rejected proposals</p>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Pending Proposals Section -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning bg-opacity-10">
-                    <h3 class="h5 mb-0">
-                        <i class="bi bi-hourglass-split me-2"></i>Pending Review
-                        <span class="badge bg-warning text-dark">{{ pending_proposals.count }}</span>
-                    </h3>
+<div class="modal-overlay" id="deleteProposalModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="bi bi-trash"></i>
+                Delete Proposal
+            </h2>
+            <button type="button" class="modal-close" id="deleteModalClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <p><strong>Warning:</strong> This action cannot be undone.</p>
+            </div>
+
+            <p class="modal-confirm-text">Are you sure you want to delete the proposal for:</p>
+
+            <div class="modal-proposal-preview">
+                <div class="modal-proposal-cover" id="modalProposalCover">
+                    <div class="no-cover">
+                        <i class="bi bi-book"></i>
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% if pending_proposals %}
-                    <div class="row row-cols-1 g-4">
-                        {% for proposal in pending_proposals %}
-                        <div class="col">
-                            {% include "bookclub/includes/proposals/proposal_card.html" with proposal=proposal is_admin=is_admin %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-                        <p class="mt-2">No pending proposals</p>
-                        {% if not is_admin %}
-                        <a href="{% url 'search_books' group.id %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus-circle me-1"></i>Propose a Book
-                        </a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
+                <div class="modal-proposal-info">
+                    <h3 class="modal-proposal-title" id="modalProposalTitle"></h3>
+                    <p class="modal-proposal-author" id="modalProposalAuthor"></p>
+                    <p class="modal-proposal-meta" id="modalProposalMeta"></p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Approved Proposals Section -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success bg-opacity-10">
-                    <h3 class="h5 mb-0">
-                        <i class="bi bi-check-circle me-2"></i>Approved
-                        <span class="badge bg-success">{{ approved_proposals.count }}</span>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    {% if approved_proposals %}
-                    <div class="row row-cols-1 g-4">
-                        {% for proposal in approved_proposals %}
-                        <div class="col">
-                            {% include "bookclub/includes/proposals/proposal_card.html" with proposal=proposal is_admin=is_admin %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-                        <p class="mt-2">No approved proposals yet</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+            <form method="post" id="deleteProposalForm">
+                {% csrf_token %}
+            </form>
         </div>
-    </div>
-
-    <!-- Rejected Proposals Section -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger bg-opacity-10">
-                    <h3 class="h5 mb-0">
-                        <i class="bi bi-x-circle me-2"></i>Rejected
-                        <span class="badge bg-danger">{{ rejected_proposals.count }}</span>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    {% if rejected_proposals %}
-                    <div class="row row-cols-1 g-4">
-                        {% for proposal in rejected_proposals %}
-                        <div class="col">
-                            {% include "bookclub/includes/proposals/proposal_card.html" with proposal=proposal is_admin=is_admin %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-                        <p class="mt-2">No rejected proposals</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Back to Group
-            </a>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="deleteModalCancel">
+                <i class="bi bi-x-circle"></i> No, Go Back
+            </button>
+            <button type="button" class="btn btn-danger" id="deleteModalConfirm">
+                <i class="bi bi-trash"></i> Yes, Delete Proposal
+            </button>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/group-proposals.js' %}"></script>
 {% endblock %}

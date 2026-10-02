@@ -263,6 +263,11 @@ def group_detail(request, group_id):
         ).values_list("meeting_id", flat=True)
     )
 
+    breadcrumb_items = [
+        {"title": "Home", "url": "/"},
+        {"title": group.name, "url": ""},
+    ]
+
     return render(
         request,
         "bookclub/group_detail.html",
@@ -276,6 +281,7 @@ def group_detail(request, group_id):
             "meetings": meetings,
             "past_meetings": past_meetings,
             "user_joined_meetings": user_joined_ids,
+            "breadcrumb_items": breadcrumb_items,
         },
     )
 
@@ -587,9 +593,17 @@ def reorder_books_page(request, group_id):
     # Get all books ordered by display_order
     books = group.books.all().order_by("display_order")
 
+    # Breadcrumbs
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        {"title": "Reorder Books", "url": None},
+    ]
+
     context = {
         "group": group,
         "books": books,
+        "breadcrumb_items": breadcrumb_items,
     }
 
     return render(request, "bookclub/reorder_books.html", context)

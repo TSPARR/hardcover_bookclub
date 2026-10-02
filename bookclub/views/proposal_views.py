@@ -107,10 +107,18 @@ def propose_book(request, group_id, hardcover_id):
     else:
         form = BookProposalForm()
 
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        {"title": "Proposals", "url": reverse("group_proposals", args=[group.id])},
+        {"title": "Propose Book", "url": None},
+    ]
+
     context = {
         "group": group,
         "book": book_data,
         "form": form,
+        "breadcrumb_items": breadcrumb_items,
     }
     return render(request, "bookclub/propose_book.html", context)
 
@@ -139,12 +147,19 @@ def group_proposals(request, group_id):
     approved_proposals = group.book_proposals.filter(status="approved")
     rejected_proposals = group.book_proposals.filter(status="rejected")
 
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        {"title": "Book Proposals", "url": None},
+    ]
+
     context = {
         "group": group,
         "is_admin": is_admin,
         "pending_proposals": pending_proposals,
         "approved_proposals": approved_proposals,
         "rejected_proposals": rejected_proposals,
+        "breadcrumb_items": breadcrumb_items,
     }
     return render(request, "bookclub/group_proposals.html", context)
 
@@ -246,10 +261,18 @@ def review_proposal(request, proposal_id):
     else:
         form = ReviewProposalForm(group=group)
 
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        {"title": "Proposals", "url": reverse("group_proposals", args=[group.id])},
+        {"title": "Review", "url": None},
+    ]
+
     context = {
         "group": group,
         "proposal": proposal,
         "form": form,
+        "breadcrumb_items": breadcrumb_items,
     }
     return render(request, "bookclub/review_proposal.html", context)
 
@@ -258,11 +281,17 @@ def review_proposal(request, proposal_id):
 def delete_proposal(request, proposal_id):
     """
     Delete a proposal (proposer can delete their pending proposals, admins can delete any pending proposal)
+    Confirmation is handled via modal on the proposals list page
     """
+    if request.method != "POST":
+        return redirect(
+            "group_proposals",
+            group_id=get_object_or_404(BookProposal, id=proposal_id).group.id,
+        )
+
     proposal = get_object_or_404(BookProposal, id=proposal_id)
     group = proposal.group
 
-    # Check permissions: proposer can delete their own pending proposals, admins can delete any pending proposal
     is_admin = group.is_admin(request.user)
     is_proposer = proposal.proposed_by == request.user
 
@@ -270,19 +299,11 @@ def delete_proposal(request, proposal_id):
         messages.error(request, "You don't have permission to delete this proposal.")
         return redirect("group_proposals", group_id=group.id)
 
-    # Only pending proposals can be deleted
     if proposal.status != "pending":
         messages.error(request, "Only pending proposals can be deleted.")
         return redirect("group_proposals", group_id=group.id)
 
-    if request.method == "POST":
-        title = proposal.title
-        proposal.delete()
-        messages.success(request, f"Proposal for '{title}' has been deleted.")
-        return redirect("group_proposals", group_id=group.id)
-
-    context = {
-        "group": group,
-        "proposal": proposal,
-    }
-    return render(request, "bookclub/delete_proposal.html", context)
+    title = proposal.title
+    proposal.delete()
+    messages.success(request, f"Proposal for '{title}' has been deleted.")
+    return redirect("group_proposals", group_id=group.id)
