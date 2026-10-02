@@ -749,6 +749,12 @@ html.dark-mode .table-toggle-container {
     display: none;
 }
 
+@media (min-width: 768px) {
+    .mobile-toggle-container {
+        display: none !important;
+    }
+}
+
 @media (max-width: 991px) {
     .two-column-section {
         grid-template-columns: 1fr;
