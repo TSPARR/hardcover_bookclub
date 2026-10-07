@@ -3,7 +3,7 @@
     max-width: 1400px;
     margin: 0 auto;
     opacity: 0;
-    animation: fadeIn 0.6s ease forwards;
+    animation: fadeIn 0.6s var(--ease-out-expo) forwards;
 }
 
 @keyframes fadeIn {
@@ -38,7 +38,7 @@
 
 .book-cover-placeholder {
     aspect-ratio: 2/3;
-    background: rgba(107, 44, 44, 0.08);
+    background: var(--overlay-medium);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -48,7 +48,7 @@
 }
 
 .book-cover-placeholder i {
-    font-size: 3rem;
+    font-size: var(--text-5xl);
     margin-bottom: var(--spacing-sm);
 }
 
@@ -105,39 +105,8 @@ details[open] .progress-summary::before {
     gap: var(--spacing-sm);
 }
 
-.toggle-input {
-    width: 44px;
-    height: 24px;
-    appearance: none;
-    background: rgba(26, 21, 20, 0.12);
-    border-radius: 12px;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.toggle-input:checked {
-    background: var(--forest-green);
-}
-
-.toggle-input::before {
-    content: '';
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: white;
-    top: 3px;
-    left: 3px;
-    transition: transform 0.3s ease;
-}
-
-.toggle-input:checked::before {
-    transform: translateX(20px);
-}
-
 .toggle-label {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     color: var(--ink-black);
 }
 
@@ -148,15 +117,37 @@ details[open] .progress-summary::before {
 .progress-bar {
     width: 100%;
     height: 8px;
-    background: rgba(26, 21, 20, 0.08);
-    border-radius: 4px;
+    background: var(--overlay-medium);
+    border-radius: var(--radius-sm);
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--burgundy), var(--forest-green));
-    transition: width 0.4s ease;
+    background: var(--gradient-primary);
+    transition: width var(--transition-slow) var(--ease-out-expo);
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    animation: progressShine 2s infinite;
+}
+
+@keyframes progressShine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .progress-info {
@@ -166,7 +157,7 @@ details[open] .progress-summary::before {
 }
 
 .progress-value {
-    font-size: 0.9375rem;
+    font-size: var(--text-base);
     color: var(--ink-black);
 }
 
@@ -174,8 +165,9 @@ details[open] .progress-summary::before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.875rem;
-    color: rgba(26, 21, 20, 0.6);
+    font-size: var(--text-sm);
+    color: var(--ink-black);
+    opacity: 0.6;
 }
 
 .progress-actions {
@@ -192,9 +184,10 @@ details[open] .progress-summary::before {
 
 .edition-title {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: var(--text-base);
     color: var(--ink-black);
     margin-bottom: var(--spacing-md);
+    letter-spacing: var(--tracking-tight);
 }
 
 .edition-details {
@@ -206,12 +199,13 @@ details[open] .progress-summary::before {
 .detail-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
 }
 
 .detail-label {
     font-weight: 600;
-    color: rgba(26, 21, 20, 0.7);
+    color: var(--ink-black);
+    opacity: 0.7;
 }
 
 .detail-value {
@@ -227,7 +221,7 @@ details[open] .progress-summary::before {
 .book-tabs {
     display: flex;
     gap: var(--spacing-xs);
-    border-bottom: 2px solid rgba(26, 21, 20, 0.08);
+    border-bottom: 2px solid var(--overlay-medium);
 }
 
 .tab-button {
@@ -235,20 +229,23 @@ details[open] .progress-summary::before {
     background: none;
     border: none;
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: var(--text-base);
     font-weight: 600;
-    color: rgba(26, 21, 20, 0.5);
+    color: var(--ink-black);
+    opacity: 0.5;
     cursor: pointer;
     position: relative;
-    transition: color 0.3s ease;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    letter-spacing: var(--tracking-tight);
 }
 
 .tab-button:hover {
-    color: var(--ink-black);
+    opacity: 1;
 }
 
 .tab-button.active {
     color: var(--burgundy);
+    opacity: 1;
 }
 
 .tab-button.active::after {
@@ -258,7 +255,17 @@ details[open] .progress-summary::before {
     left: 0;
     right: 0;
     height: 2px;
-    background: var(--burgundy);
+    background: var(--gradient-primary);
+    animation: tabSlideIn 0.3s var(--ease-out-expo);
+}
+
+@keyframes tabSlideIn {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
 }
 
 .tab-content {
@@ -277,33 +284,32 @@ details[open] .progress-summary::before {
 
 .book-title {
     font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: var(--text-4xl);
     font-weight: 700;
     color: var(--ink-black);
     margin: 0;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
 }
 
 .book-subtitle {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
     font-weight: 400;
     font-style: italic;
-    color: rgba(26, 21, 20, 0.7);
+    color: var(--ink-black);
+    opacity: 0.7;
     margin: 0;
-}
-
-html.dark-mode .book-subtitle {
-    color: rgba(232, 228, 221, 0.8);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-snug);
 }
 
 .book-author {
-    font-size: 1.125rem;
-    color: rgba(26, 21, 20, 0.7);
+    font-size: var(--text-lg);
+    color: var(--ink-black);
+    opacity: 0.7;
     margin: 0;
-}
-
-html.dark-mode .book-author {
-    color: rgba(232, 228, 221, 0.8);
+    line-height: var(--leading-normal);
 }
 
 .book-rating {
@@ -314,15 +320,12 @@ html.dark-mode .book-author {
 
 .hardcover-sync-label {
     color: var(--forest-green);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
 }
 
 .rating-display-none {
-    color: rgba(26, 21, 20, 0.5);
-}
-
-html.dark-mode .rating-display-none {
-    color: rgba(232, 228, 221, 0.6);
+    color: var(--ink-black);
+    opacity: 0.5;
 }
 
 .rating-stars-interactive {
@@ -337,14 +340,16 @@ html.dark-mode .rating-display-none {
 }
 
 .rating-star {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
     color: var(--gold-accent);
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: all var(--transition-fast) var(--ease-out-expo);
+    filter: drop-shadow(0 0 0 transparent);
 }
 
 .rating-star:hover {
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(-5deg);
+    filter: drop-shadow(0 0 8px rgba(201, 169, 97, 0.5));
 }
 
 .external-links {
@@ -354,8 +359,8 @@ html.dark-mode .rating-display-none {
 }
 
 .book-description {
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
     color: var(--ink-black);
 }
 

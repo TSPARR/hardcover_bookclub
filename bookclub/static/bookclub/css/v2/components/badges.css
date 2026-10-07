@@ -5,16 +5,16 @@
     font-size: var(--text-xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
 }
 
 .badge-primary {
-    background: linear-gradient(135deg, var(--burgundy), var(--forest-green));
+    background: var(--gradient-primary);
     color: white;
 }
 
 .badge-secondary {
-    background: rgba(26, 21, 20, 0.12);
+    background: var(--overlay-medium);
     color: var(--ink-black);
 }
 
@@ -46,7 +46,7 @@
     font-size: var(--text-sm);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
 }
 
 .status-badge.finished {
@@ -60,7 +60,7 @@
 }
 
 .status-badge.not-started {
-    background: rgba(26, 21, 20, 0.12);
+    background: var(--overlay-medium);
     color: var(--ink-black);
 }
 
@@ -70,14 +70,14 @@
 }
 
 .group-badge {
-    background: linear-gradient(135deg, var(--burgundy), var(--forest-green));
+    background: var(--gradient-primary);
     color: white;
     padding: 0.375rem var(--spacing-md);
     border-radius: var(--radius-subtle);
     font-size: var(--text-xs);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
     white-space: nowrap;
 }
 
@@ -145,7 +145,7 @@ html.dark-mode .count-badge {
     font-size: var(--text-xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
     align-self: flex-start;
 }
 
@@ -156,11 +156,11 @@ html.dark-mode .count-badge {
     font-size: var(--text-xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
 }
 
 .bet-type-badge.multi-party {
-    background: linear-gradient(135deg, var(--burgundy), var(--forest-green));
+    background: var(--gradient-primary);
     color: white;
 }
 
@@ -173,7 +173,7 @@ html.dark-mode .count-badge {
     font-size: var(--text-xs);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
     transition: all var(--transition-fast) ease;
 }
 
@@ -183,7 +183,7 @@ html.dark-mode .count-badge {
 }
 
 .notification-status-badge.badge-disabled {
-    background: rgba(26, 21, 20, 0.1);
+    background: var(--overlay-medium);
     color: var(--ink-black);
     opacity: 0.7;
 }

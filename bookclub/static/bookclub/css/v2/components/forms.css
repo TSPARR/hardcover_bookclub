@@ -8,7 +8,7 @@
     font-weight: 500;
     color: var(--ink-black);
     font-size: var(--text-sm);
-    letter-spacing: 0.03em;
+    letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
 }
 
@@ -18,7 +18,7 @@
 .form-textarea {
     width: 100%;
     padding: 0.875rem var(--spacing-md);
-    border: 2px solid rgba(26, 21, 20, 0.12);
+    border: 2px solid var(--overlay-medium);
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: var(--radius-subtle);
     font-family: var(--font-body);
@@ -31,7 +31,6 @@ html.dark-mode .form-input,
 html.dark-mode .form-control,
 html.dark-mode .form-select,
 html.dark-mode .form-textarea {
-    border-color: rgba(232, 228, 221, 0.12);
     background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -123,7 +122,7 @@ html.dark-mode .form-text {
     margin-right: var(--spacing-sm);
     margin-top: 2px;
     flex-shrink: 0;
-    border: 2px solid rgba(26, 21, 20, 0.2);
+    border: 2px solid var(--overlay-heavy);
     border-radius: var(--radius-subtle);
     cursor: pointer;
     transition: all var(--transition-fast) ease;
@@ -154,11 +153,11 @@ html.dark-mode .form-text {
     width: 44px;
     height: 24px;
     appearance: none;
-    background: rgba(26, 21, 20, 0.12);
+    background: var(--overlay-medium);
     border-radius: 12px;
     position: relative;
     cursor: pointer;
-    transition: background var(--transition-normal) ease;
+    transition: background var(--transition-normal) var(--ease-out-expo);
 }
 
 .toggle-input:checked {
@@ -174,15 +173,12 @@ html.dark-mode .form-text {
     background: white;
     top: 3px;
     left: 3px;
-    transition: transform var(--transition-normal) ease;
+    transition: transform var(--transition-normal) var(--ease-out-expo);
+    box-shadow: 0 1px 3px var(--shadow-soft);
 }
 
 .toggle-input:checked::before {
     transform: translateX(20px);
-}
-
-html.dark-mode .toggle-input {
-    background: rgba(232, 228, 221, 0.2);
 }
 
 .form-actions {

@@ -41,7 +41,7 @@ input, textarea, select {
 }
 
 .navbar {
-    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    background: var(--gradient-primary);
     box-shadow: 0 2px 8px var(--shadow-soft);
     position: relative;
     z-index: 1000;
@@ -165,7 +165,7 @@ input, textarea, select {
         top: 100%;
         left: 0;
         right: 0;
-        background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+        background: var(--gradient-primary);
         box-shadow: 0 4px 12px var(--shadow-medium);
         padding: var(--spacing-md);
         transform: translateY(-100%);

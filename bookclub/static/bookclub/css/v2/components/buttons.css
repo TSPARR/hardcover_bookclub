@@ -4,7 +4,7 @@
     font-family: var(--font-body);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-wider);
     font-size: var(--text-sm);
     cursor: pointer;
     transition: all var(--transition-normal) var(--ease-out-expo);
@@ -18,7 +18,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
+    background: var(--gradient-primary);
     color: white;
     position: relative;
     overflow: hidden;
@@ -48,20 +48,12 @@
 .btn-secondary {
     background: transparent;
     color: var(--ink-black);
-    border: 2px solid rgba(26, 21, 20, 0.2);
-}
-
-html.dark-mode .btn-secondary {
-    border-color: rgba(232, 228, 221, 0.2);
+    border: 2px solid var(--overlay-heavy);
 }
 
 .btn-secondary:hover {
-    background: rgba(26, 21, 20, 0.05);
+    background: var(--overlay-light);
     transform: translateY(-1px);
-}
-
-html.dark-mode .btn-secondary:hover {
-    background: rgba(232, 228, 221, 0.05);
 }
 
 .btn-outline-primary {
@@ -80,20 +72,12 @@ html.dark-mode .btn-secondary:hover {
 .btn-outline-secondary {
     background: transparent;
     color: var(--ink-black);
-    border: 1.5px solid rgba(26, 21, 20, 0.2);
-}
-
-html.dark-mode .btn-outline-secondary {
-    border-color: rgba(232, 228, 221, 0.2);
+    border: 1.5px solid var(--overlay-heavy);
 }
 
 .btn-outline-secondary:hover {
-    background: rgba(26, 21, 20, 0.08);
+    background: var(--overlay-medium);
     transform: translateY(-1px);
-}
-
-html.dark-mode .btn-outline-secondary:hover {
-    background: rgba(232, 228, 221, 0.08);
 }
 
 .btn-outline-success {
@@ -172,6 +156,19 @@ html.dark-mode .btn-outline-secondary:hover {
     background: linear-gradient(135deg, var(--forest-green) 0%, #1a3329 100%);
     color: white;
     border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-kavita::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.5s;
 }
 
 .btn-kavita:hover {
@@ -179,10 +176,27 @@ html.dark-mode .btn-outline-secondary:hover {
     box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
+.btn-kavita:hover::before {
+    left: 100%;
+}
+
 .btn-plex {
-    background: linear-gradient(135deg, var(--gold-accent) 0%, #a88440 100%);
+    background: var(--gradient-accent);
     color: var(--ink-black);
     border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-plex::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
 .btn-plex:hover {
@@ -190,16 +204,37 @@ html.dark-mode .btn-outline-secondary:hover {
     box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
+.btn-plex:hover::before {
+    left: 100%;
+}
+
 .btn-warning {
     background: linear-gradient(135deg, var(--gold-accent) 0%, #d97706 100%);
     color: white;
     border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-warning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.5s;
 }
 
 .btn-warning:hover {
     background: linear-gradient(135deg, #d97706 0%, var(--burgundy) 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.btn-warning:hover::before {
+    left: 100%;
 }
 
 html.dark-mode .btn-outline-primary,
