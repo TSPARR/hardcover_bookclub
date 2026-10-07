@@ -1,4 +1,4 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 {% load bookclub_extras %}
 
@@ -13,59 +13,86 @@
 <meta name="plex-edition-audio-seconds" content="{{ plex_promoted_edition.audio_seconds|default:'' }}">
 {% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/set-manual-progress.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <!-- Book Header Section - Using existing include -->
-    {% include 'bookclub/includes/progress/header.html' %}
-    
-    <div class="row">
-        <!-- Left Column - Book Cover and Info -->
-        <div class="col-md-3 mb-4">
-            <!-- Book Cover -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-body text-center p-3">
-                    {% if user_progress.edition and user_progress.edition.cover_image_url %}
-                    <img src="{{ user_progress.edition.cover_image_url }}" class="img-fluid rounded" alt="{{ book.title|split:":"|first|trim }}">
-                    {% elif book.cover_image_url %}
-                    <img src="{{ book.cover_image_url }}" class="img-fluid rounded" alt="{{ book.title|split:":"|first|trim }}">
-                    {% else %}
-                    <div class="bg-light d-flex justify-content-center align-items-center rounded" style="min-height: 200px;">
-                        <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
-                    </div>
-                    {% endif %}
-                </div>
+<div class="manual-progress-page">
+    {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-graph-up"></i>
+                Update Reading Progress
+            </h1>
+            <h2 class="book-title">{{ book.title|split:":"|first|trim }}</h2>
+            <p class="book-author">By {{ book.author }}</p>
+
+            {% if user_progress.hardcover_started_at or user_progress.hardcover_finished_at %}
+            <div class="status-badges">
+                {% if user_progress.hardcover_started_at %}
+                <span class="status-badge in-progress">
+                    <i class="bi bi-calendar-check"></i>
+                    Started: {{ user_progress.hardcover_started_at|date:"F j, Y" }}
+                </span>
+                {% endif %}
+
+                {% if user_progress.hardcover_finished_at %}
+                <span class="status-badge finished">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Finished: {{ user_progress.hardcover_finished_at|date:"F j, Y" }}
+                </span>
+                {% endif %}
             </div>
-            
-            <!-- Current Progress Card -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-bookmark me-2"></i>Current Progress</h5>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="progress-layout">
+        <aside class="progress-sidebar">
+            <div class="cover-card">
+                {% if user_progress.edition and user_progress.edition.cover_image_url %}
+                <img src="{{ user_progress.edition.cover_image_url }}" class="book-cover" alt="{{ book.title|split:":"|first|trim }}">
+                {% elif book.cover_image_url %}
+                <img src="{{ book.cover_image_url }}" class="book-cover" alt="{{ book.title|split:":"|first|trim }}">
+                {% else %}
+                <div class="book-cover-placeholder">
+                    <i class="bi bi-book"></i>
+                    <p>No cover available</p>
                 </div>
-                <div class="card-body">
+                {% endif %}
+            </div>
+
+            <div class="current-progress-card">
+                <h3 class="card-title">
+                    <i class="bi bi-bookmark"></i>
+                    Current Progress
+                </h3>
+                <div class="card-content">
                     {% if user_progress %}
-                    <div class="mb-3">
-                        <div class="small text-muted mb-1">Progress</div>
-                        <div class="progress mb-2" style="height: 10px;">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ user_progress.normalized_progress|default:0 }}%;" 
-                                 aria-valuenow="{{ user_progress.normalized_progress|default:0 }}" 
-                                 aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-display">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ user_progress.normalized_progress|default:0 }}%;"></div>
+                            </div>
                         </div>
-                        <div class="small text-center">{{ user_progress.normalized_progress|default:0|floatformat:1 }}% complete</div>
+                        <div class="progress-percentage">{{ user_progress.normalized_progress|default:0|floatformat:1 }}% complete</div>
                     </div>
-                    
-                    <div class="mb-0">
-                        <div class="small text-muted mb-1">Current Position</div>
-                        <p class="mb-0 fw-bold">
+
+                    <div class="progress-detail">
+                        <div class="detail-label">Current Position</div>
+                        <p class="detail-value">
                             {% if user_progress.progress_type == 'page' %}
-                            Page {{ user_progress.progress_value }} of 
+                            Page {{ user_progress.progress_value }} of
                             {% if user_progress.edition and user_progress.edition.pages %}
                             {{ user_progress.edition.pages }}
                             {% else %}
                             {{ book.pages|default:'unknown' }}
                             {% endif %}
                             {% elif user_progress.progress_type == 'audio' %}
-                            {{ user_progress.progress_value }} of 
+                            {{ user_progress.progress_value }} of
                             {% if user_progress.edition and user_progress.edition.audio_duration_formatted %}
                             {{ user_progress.edition.audio_duration_formatted }}
                             {% else %}
@@ -77,38 +104,114 @@
                         </p>
                     </div>
                     {% else %}
-                    <p class="text-muted">No progress recorded yet.</p>
+                    <p class="no-progress">No progress recorded yet.</p>
                     {% endif %}
                 </div>
             </div>
-        </div>
-        
-        <!-- Right Column - Edition Info and Update Form -->
-        <div class="col-md-9">
-            <!-- Edition Info - Using existing include -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-book me-2"></i>Edition Information</h5>
-                </div>
-                <div class="card-body p-0">
-                    {% include 'bookclub/includes/progress/edition_info.html' %}
+        </aside>
+
+        <main class="progress-main">
+            <div class="edition-info-card">
+                <h3 class="card-title">
+                    <i class="bi bi-book"></i>
+                    Edition Information
+                </h3>
+                <div class="card-content">
+                    {% if user_progress.edition %}
+                    <div class="edition-alert">
+                        <div class="alert-content">
+                            <p class="edition-name">
+                                Tracking edition: <strong>{{ user_progress.edition.title|split:":"|first|trim }}</strong>
+                                ({{ user_progress.edition.reading_format }})
+                            </p>
+
+                            {% if user_progress.edition.pages %}
+                            <p class="edition-meta">Pages: {{ user_progress.edition.pages }}</p>
+                            {% endif %}
+
+                            {% if user_progress.edition.audio_seconds %}
+                            <p class="edition-meta">Duration: {{ user_progress.edition.audio_duration_formatted }}</p>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil"></i> Change Edition
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="edition-alert warning">
+                        <div class="alert-content">
+                            <p class="edition-name">No specific edition selected. Using general book information.</p>
+
+                            {% if book.pages %}
+                            <p class="edition-meta">Pages: {{ book.pages }}</p>
+                            {% endif %}
+
+                            {% if book.audio_seconds %}
+                            <p class="edition-meta">Audio Duration: {{ book.audio_seconds }} seconds</p>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Select an Edition
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            
-            <!-- Update Form -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Update Progress</h5>
-                </div>
-                <div class="card-body">
-                    {% include 'bookclub/includes/progress/update_form.html' %}
+
+            <div class="update-form-card">
+                <h3 class="card-title">
+                    <i class="bi bi-pencil-square"></i>
+                    Update Progress
+                </h3>
+                <div class="card-content">
+                    <form method="post" action="{% url 'set_manual_progress' book.id %}" id="progressForm">
+                        {% csrf_token %}
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="progress_type" class="form-label">Progress Type</label>
+                                <select class="form-input" id="progress_type" name="progress_type">
+                                    <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+                                    <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+                                    <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="progress_value" class="form-label">Progress Value</label>
+                                <input type="text" class="form-input" id="progress_value" name="progress_value"
+                                    value="{{ user_progress.progress_value }}" required>
+                                <div class="form-text progress-help" id="percent-help">
+                                    Enter a percentage (e.g., "75" for 75%)
+                                </div>
+                                <div class="form-text progress-help" id="page-help" style="display: none;">
+                                    Enter a page number (e.g., "150")
+                                </div>
+                                <div class="form-text progress-help" id="audio-help" style="display: none;">
+                                    Enter time in format: "2h 30m" or "1:30:00"
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Update Progress
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}
 
-{% block extra_js %}
-<script type="module" src="{% static 'bookclub/js/manual-progress.js' %}"></script>
-{% endblock extra_js %}
+{% block page_js %}
+<script type="module" src="{% static 'bookclub/js/v2/pages/set-manual-progress.js' %}"></script>
+{% endblock %}

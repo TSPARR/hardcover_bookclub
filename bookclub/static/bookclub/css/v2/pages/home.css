@@ -281,53 +281,6 @@
     border: 1px solid rgba(107, 44, 44, 0.15);
 }
 
-.btn {
-    padding: 0.5rem var(--spacing-md);
-    border-radius: var(--radius-subtle);
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all var(--transition-normal) var(--ease-out-expo);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    border: none;
-}
-
-.btn-sm {
-    padding: 0.375rem var(--spacing-sm);
-    font-size: 0.8125rem;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
-    color: white;
-    border: none;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-medium);
-}
-
-.btn-outline-primary {
-    background: transparent;
-    color: var(--burgundy);
-    border: 1.5px solid var(--burgundy);
-}
-
-.btn-outline-primary:hover {
-    background: var(--burgundy);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px var(--shadow-soft);
-}
-
 .empty-state {
     padding: var(--spacing-3xl) var(--spacing-xl);
     text-align: center;

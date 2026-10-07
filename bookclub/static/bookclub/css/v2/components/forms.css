@@ -1,0 +1,194 @@
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--ink-black);
+    font-size: var(--text-sm);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.form-input,
+.form-control,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.875rem var(--spacing-md);
+    border: 2px solid rgba(26, 21, 20, 0.12);
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-subtle);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--ink-black);
+    transition: all var(--transition-normal) var(--ease-out-expo);
+}
+
+html.dark-mode .form-input,
+html.dark-mode .form-control,
+html.dark-mode .form-select,
+html.dark-mode .form-textarea {
+    border-color: rgba(232, 228, 221, 0.12);
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.form-input:focus,
+.form-control:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+    transform: translateY(-1px);
+}
+
+html.dark-mode .form-input:focus,
+html.dark-mode .form-control:focus,
+html.dark-mode .form-select:focus,
+html.dark-mode .form-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(212, 183, 118, 0.15);
+}
+
+.form-input::placeholder,
+.form-control::placeholder,
+.form-textarea::placeholder {
+    color: var(--ink-black);
+    opacity: 0.4;
+}
+
+html.dark-mode .form-input::placeholder,
+html.dark-mode .form-control::placeholder,
+html.dark-mode .form-textarea::placeholder {
+    color: rgba(232, 228, 221, 0.5);
+}
+
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a1514' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-md) center;
+    background-size: 16px;
+    padding-right: calc(var(--spacing-md) * 3);
+}
+
+html.dark-mode .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e8e4dd' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-text {
+    font-size: var(--text-xs);
+    color: rgba(26, 21, 20, 0.6);
+    margin-top: var(--spacing-xs);
+    display: block;
+}
+
+html.dark-mode .form-text {
+    color: rgba(232, 228, 221, 0.7);
+}
+
+.form-hint {
+    font-size: var(--text-sm);
+    color: var(--ink-black);
+    opacity: 0.6;
+    line-height: var(--leading-normal);
+    margin-top: var(--spacing-sm);
+    display: block;
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--burgundy);
+    margin-top: var(--spacing-xs);
+}
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-right: var(--spacing-sm);
+    margin-top: 2px;
+    flex-shrink: 0;
+    border: 2px solid rgba(26, 21, 20, 0.2);
+    border-radius: var(--radius-subtle);
+    cursor: pointer;
+    transition: all var(--transition-fast) ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--burgundy);
+    border-color: var(--burgundy);
+}
+
+.form-check-input:focus {
+    outline: none;
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2);
+}
+
+.form-check-input[type="radio"] {
+    border-radius: var(--radius-round);
+}
+
+.form-check-label {
+    cursor: pointer;
+    color: var(--ink-black);
+    font-size: var(--text-base);
+}
+
+.toggle-input {
+    width: 44px;
+    height: 24px;
+    appearance: none;
+    background: rgba(26, 21, 20, 0.12);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background var(--transition-normal) ease;
+}
+
+.toggle-input:checked {
+    background: var(--forest-green);
+}
+
+.toggle-input::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-round);
+    background: white;
+    top: 3px;
+    left: 3px;
+    transition: transform var(--transition-normal) ease;
+}
+
+.toggle-input:checked::before {
+    transform: translateX(20px);
+}
+
+html.dark-mode .toggle-input {
+    background: rgba(232, 228, 221, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: var(--spacing-lg);
+}

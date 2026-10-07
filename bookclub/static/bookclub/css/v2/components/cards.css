@@ -1,0 +1,60 @@
+.card {
+    background: var(--paper-cream);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+    overflow: hidden;
+}
+
+html.dark-mode .card {
+    background: #2a2420;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background: linear-gradient(135deg, rgba(107, 44, 44, 0.05) 0%, rgba(45, 74, 62, 0.05) 100%);
+    border-bottom: 1px solid rgba(26, 21, 20, 0.08);
+}
+
+html.dark-mode .card-header {
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom-color: rgba(232, 228, 221, 0.15);
+}
+
+.card-header-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--ink-black);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 700;
+}
+
+.card-header-title i {
+    color: var(--burgundy);
+}
+
+.card-body {
+    padding: var(--spacing-xl);
+}
+
+.card-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(26, 21, 20, 0.03);
+    border-top: 1px solid rgba(26, 21, 20, 0.08);
+}
+
+html.dark-mode .card-footer {
+    background: rgba(0, 0, 0, 0.2);
+    border-top-color: rgba(232, 228, 221, 0.15);
+}
+
+.card-compact .card-body {
+    padding: var(--spacing-lg);
+}
+
+.card-compact .card-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+}

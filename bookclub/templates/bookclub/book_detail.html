@@ -1,7 +1,9 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 {% load bookclub_extras %}
+
 {% block title %}{{ book.title }}{% endblock %}
+
 {% block extrahead %}
 <meta name="book-pages" content="{{ book_pages|default:'' }}">
 <meta name="book-audio-seconds" content="{{ book_audio_seconds|default:'' }}">
@@ -10,70 +12,1037 @@
 <meta name="kavita-edition-pages" content="{{ kavita_promoted_edition.pages|default:'' }}">
 <meta name="plex-edition-audio-seconds" content="{{ plex_promoted_edition.audio_seconds|default:'' }}">
 {% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/book-detail.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Left Sidebar -->
-        <div class="col-md-3">
-            {% include "bookclub/includes/book_detail/book_cover_section.html" %}
-            {% include "bookclub/includes/book_detail/book_progress_accordion.html" %}
-        </div>
+<div class="book-detail-page">
+    {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
 
-        <!-- Main Content -->
-        <div class="col-md-9">
-            <!-- Tabbed Navigation -->
-            {% include "bookclub/includes/book_detail/book_tabs_nav.html" %}
-
-            <!-- Tab Content -->
-            <div class="tab-content" id="bookDetailTabsContent">
-                <!-- Book Details Tab -->
-                <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
-                    {% include "bookclub/includes/book_detail/book_header_section.html" %}
-                    {% include "bookclub/includes/book_detail/group_member_progress.html" %}
-                </div>
-                
-                <!-- Discussion Tab -->
-                <div class="tab-pane fade" id="discussion" role="tabpanel" aria-labelledby="discussion-tab">
-                    {% include "bookclub/includes/book_detail/discussion_section.html" %}
-                </div>
-                
-                <!-- Dollar Bets Tab (only if enabled) -->
-                {% if has_dollar_bets_enabled %}
-                <div class="tab-pane fade" id="bets" role="tabpanel" aria-labelledby="bets-tab">
-                    {% include "bookclub/includes/book_detail/dollar_bets_section.html" %}
-                </div>
+    <div class="book-detail-layout">
+        <aside class="book-sidebar">
+            <div class="book-cover-container">
+                {% if user_progress.edition and user_progress.edition.cover_image_url %}
+                    <img src="{{ user_progress.edition.cover_image_url }}" class="book-cover" alt="{{ book.title|split:":"|first|trim }}">
+                {% elif book.cover_image_url %}
+                    <img src="{{ book.cover_image_url }}" class="book-cover" alt="{{ book.title|split:":"|first|trim }}">
+                {% else %}
+                    <div class="book-cover-placeholder">
+                        <i class="bi bi-book"></i>
+                        <p>No cover available</p>
+                    </div>
                 {% endif %}
             </div>
+
+            <div class="book-progress-card">
+                <details class="progress-details" open>
+                    <summary class="progress-summary">
+                        <i class="bi bi-graph-up"></i>
+                        Your Progress
+                    </summary>
+                    <div class="progress-content">
+                        <div class="auto-sync-toggle">
+                            <input type="checkbox" id="autoSyncToggle" class="toggle-input">
+                            <label for="autoSyncToggle" class="toggle-label">Auto-sync</label>
+                        </div>
+
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" data-progress="{{ user_progress.normalized_progress|floatformat:2 }}">
+                                <div class="progress-fill" style="width: {{ user_progress.normalized_progress }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-info">
+                            <div class="progress-value">
+                                {% if user_progress.progress_type == 'page' %}
+                                Page {{ user_progress.progress_value }}
+                                {% elif user_progress.progress_type == 'audio' %}
+                                Audio: {{ user_progress.progress_value }}
+                                {% else %}
+                                {{ user_progress.progress_value }}% complete
+                                {% endif %}
+                            </div>
+
+                            <button class="btn btn-outline-primary btn-sm" id="updateProgressBtn">
+                                Quick Update
+                            </button>
+                        </div>
+
+                        {% if user_progress.hardcover_finished_at %}
+                        <div class="status-badge finished">Finished</div>
+                        {% elif user_progress.hardcover_started_at %}
+                        <div class="status-badge in-progress">In Progress</div>
+                        {% endif %}
+
+                        <div class="sync-info">
+                            <small>Last sync: <span id="lastSyncTime">Never</span></small>
+                            <button id="clearSyncButton" class="btn-link">
+                                <small>Clear</small>
+                            </button>
+                        </div>
+
+                        <div class="progress-actions">
+                            <button class="btn btn-outline-primary btn-sm" id="syncHardcoverProgress">
+                                <i class="bi bi-arrow-clockwise"></i>
+                                Sync with Hardcover
+                            </button>
+                            <a href="{% url 'set_manual_progress' book.id %}" class="btn btn-outline-secondary btn-sm">
+                                Advanced Options
+                            </a>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            {% if kavita_promoted_edition or plex_promoted_edition %}
+            <div class="book-progress-card">
+                <details class="progress-details" open>
+                    <summary class="progress-summary">
+                        <i class="bi bi-bookmark"></i>
+                        Quick Edition Selection
+                    </summary>
+                    <div class="progress-content">
+                        {% if kavita_promoted_edition and book.kavita_url %}
+                        <form method="post" action="{% url 'quick_select_edition' book.id %}" class="edition-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="edition_id" value="{{ kavita_promoted_edition.id }}">
+                            <input type="hidden" name="source" value="kavita">
+                            <button type="submit" class="btn btn-kavita">
+                                <i class="bi bi-book"></i> I'm reading on Kavita
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if plex_promoted_edition and book.plex_url %}
+                        <form method="post" action="{% url 'quick_select_edition' book.id %}" class="edition-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="edition_id" value="{{ plex_promoted_edition.id }}">
+                            <input type="hidden" name="source" value="plex">
+                            <button type="submit" class="btn btn-plex">
+                                <i class="bi bi-headphones"></i> I'm listening on Plex
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </details>
+            </div>
+            {% endif %}
+
+            {% if user_progress.edition %}
+            <div class="book-progress-card">
+                <details class="progress-details">
+                    <summary class="progress-summary">
+                        <i class="bi bi-info-circle"></i>
+                        Edition Info
+                    </summary>
+                    <div class="progress-content">
+                        <h4 class="edition-title">{{ user_progress.edition.title|split:":"|first|trim }}</h4>
+
+                        <div class="edition-details">
+                            {% if user_progress.edition.reading_format %}
+                            <div class="detail-row">
+                                <span class="detail-label">Format:</span>
+                                <span class="detail-value">{{ user_progress.edition.reading_format|title }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if user_progress.edition.pages %}
+                            <div class="detail-row">
+                                <span class="detail-label">Pages:</span>
+                                <span class="detail-value">{{ user_progress.edition.pages }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if user_progress.edition.audio_seconds %}
+                            <div class="detail-row">
+                                <span class="detail-label">Duration:</span>
+                                <span class="detail-value">{{ user_progress.edition.audio_duration_formatted }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if user_progress.edition.publisher %}
+                                {% if 'name' in user_progress.edition.publisher %}
+                                <div class="detail-row">
+                                    <span class="detail-label">Publisher:</span>
+                                    <span class="detail-value">{{ user_progress.edition.publisher.name }}</span>
+                                </div>
+                                {% else %}
+                                <div class="detail-row">
+                                    <span class="detail-label">Publisher:</span>
+                                    <span class="detail-value">{{ user_progress.edition.publisher }}</span>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary btn-sm" style="margin-top: var(--spacing-md);">
+                            Select Different Edition
+                        </a>
+                    </div>
+                </details>
+            </div>
+            {% else %}
+            <a href="{% url 'select_edition' book.id %}" class="btn btn-outline-primary">
+                <i class="bi bi-bookmark-plus"></i>
+                Select Edition
+            </a>
+            {% endif %}
+        </aside>
+
+        <main class="book-main-content">
+            <div class="book-tabs">
+                <button class="tab-button active" data-tab="details">Book Details</button>
+                <button class="tab-button" data-tab="discussion">Discussion</button>
+                {% if has_dollar_bets_enabled %}
+                <button class="tab-button" data-tab="bets">
+                    Dollar Bets
+                    {% if open_bets_count > 0 %}
+                        <span class="tab-badge">{{ open_bets_count }}</span>
+                    {% endif %}
+                </button>
+                {% endif %}
+            </div>
+
+            <div class="tab-content active" data-tab-content="details">
+                <div class="book-header">
+                    {% with title_parts=book.title|split:":" %}
+                        <h1 class="book-title">{{ title_parts.0|trim }}</h1>
+                        {% if title_parts|length > 1 %}
+                            <h2 class="book-subtitle">{{ title_parts.1|trim }}</h2>
+                        {% endif %}
+                    {% endwith %}
+                    <h3 class="book-author">{{ book.author }}</h3>
+
+                    <div class="book-rating">
+                        {% if user_progress.effective_rating %}
+                            {% include "bookclub/includes/star_rating_v2.html" with rating=user_progress.effective_rating %}
+
+                            {% if user_progress.hardcover_rating %}
+                            <small class="hardcover-sync-label">
+                                <i class="bi bi-link"></i> Synced from Hardcover
+                            </small>
+                            {% endif %}
+                        {% else %}
+                            <div class="rating-display-none">
+                                <small>No rating</small>
+                            </div>
+                        {% endif %}
+
+                        {% if not user_progress.hardcover_rating %}
+                        <div class="rating-controls" {% if user_progress.hardcover_read_id %}data-hardcover-read-id="{{ user_progress.hardcover_read_id }}"{% endif %}>
+                            <div class="rating-stars-interactive">
+                                <div id="ratingStars" class="interactive-stars" data-local-rating="{{ user_progress.local_rating|default:'0' }}">
+                                    {% for i in "12345" %}
+                                    <i class="bi bi-star rating-star" data-rating="{{ forloop.counter }}"></i>
+                                    {% endfor %}
+                                </div>
+                                <button class="btn btn-outline-secondary btn-sm" id="clearRating">Clear</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if book.url or book.kavita_url or book.plex_url %}
+                    <div class="external-links">
+                        {% if book.url %}
+                        <a href="{{ book.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> View on Hardcover
+                        </a>
+                        {% endif %}
+
+                        {% if book.kavita_url %}
+                        <a href="{{ book.kavita_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> View on Kavita
+                        </a>
+                        {% endif %}
+
+                        {% if book.plex_url %}
+                        <a href="{{ book.plex_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> View on Plex
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="book-description">
+                        {{ book.description|linebreaks_p }}
+                    </div>
+                </div>
+
+                {% with group_members=book.group.members.all %}
+                <div class="group-progress-card">
+                    <details class="group-progress-details">
+                        <summary class="group-progress-summary">
+                            <div class="summary-content">
+                                <h3>Group Members' Progress</h3>
+                                <span class="count-badge">{{ group_members.count }}</span>
+                            </div>
+                            <i class="bi bi-chevron-down chevron-icon"></i>
+                        </summary>
+                        <div class="group-progress-content">
+                            <div class="members-progress-list">
+                                {% for member in group_members %}
+                                    {% with member_progress=user_progress_dict|get_item:member.id %}
+                                    <div class="member-progress-item">
+                                        <div class="member-name">{{ member.username }}</div>
+                                        <div class="member-progress-bar">
+                                            {% if member_progress %}
+                                                <div class="progress-bar" data-progress="{{ member_progress.normalized_progress|floatformat:2 }}">
+                                                    <div class="progress-fill" style="width: {{ member_progress.normalized_progress }}%;"></div>
+                                                </div>
+                                            {% else %}
+                                                <div class="progress-bar" data-progress="0">
+                                                    <div class="progress-fill" style="width: 0%;"></div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="member-status">
+                                            {% if member_progress %}
+                                                {% if member_progress.normalized_progress == 0 %}
+                                                    <span class="status-badge not-started">Not Started</span>
+                                                {% elif member_progress.normalized_progress >= 100 %}
+                                                    <span class="status-badge finished">Finished</span>
+                                                {% else %}
+                                                    <span class="status-badge in-progress">In Progress</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="status-badge not-started">Not Started</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </details>
+                </div>
+                {% endwith %}
+            </div>
+
+            <div class="tab-content" data-tab-content="discussion">
+                <div class="discussion-section" data-is-active-book="{{ is_active_book|yesno:'True,False' }}">
+                    <div class="discussion-header">
+                        <h3>Discussion</h3>
+
+                        <div class="discussion-controls">
+                            <div class="spoiler-toggle">
+                                <input type="checkbox" id="showSpoilersToggle" class="toggle-input" checked>
+                                <label for="showSpoilersToggle" class="toggle-label">
+                                    Show all comments
+                                </label>
+                            </div>
+
+                            <div class="sort-dropdown">
+                                <button class="btn btn-outline-secondary btn-sm sort-trigger" id="sortTrigger">
+                                    Sort by:
+                                    {% if current_sort == 'date_desc' %}Newest First
+                                    {% elif current_sort == 'date_asc' %}Oldest First
+                                    {% elif current_sort == 'progress_desc' %}Most Progress First
+                                    {% elif current_sort == 'progress_asc' %}Least Progress First
+                                    {% endif %}
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                                <div class="sort-menu" id="sortMenu">
+                                    <a class="sort-option {% if current_sort == 'date_desc' %}active{% endif %}"
+                                        href="?sort=date_desc&tab=discussion" data-sort-option="date_desc">Newest First</a>
+                                    <a class="sort-option {% if current_sort == 'date_asc' %}active{% endif %}"
+                                        href="?sort=date_asc&tab=discussion" data-sort-option="date_asc">Oldest First</a>
+                                    <div class="sort-divider"></div>
+                                    <a class="sort-option {% if current_sort == 'progress_desc' %}active{% endif %}"
+                                        href="?sort=progress_desc&tab=discussion" data-sort-option="progress_desc">Most Progress First</a>
+                                    <a class="sort-option {% if current_sort == 'progress_asc' %}active{% endif %}"
+                                        href="?sort=progress_asc&tab=discussion" data-sort-option="progress_asc">Least Progress First</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="discussion-body">
+                        {% if is_active_book %}
+                            <form method="post" id="commentForm" class="comment-form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    {{ form.text.label_tag }}
+                                    {{ form.text }}
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="comment_progress_type" class="form-label">Progress Type</label>
+                                        <select class="form-input" id="comment_progress_type" name="progress_type">
+                                            <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
+                                                Page Number
+                                            </option>
+                                            <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
+                                                Audio Timestamp
+                                            </option>
+                                            <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
+                                                Percentage
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="comment_progress_value" class="form-label">Progress Value</label>
+                                        <input type="text" class="form-input" id="comment_progress_value"
+                                               name="progress_value" value="{{ user_progress.progress_value }}">
+                                        <div class="form-text" id="commentProgressHelp">
+                                            {% if user_progress.progress_type == 'page' %}
+                                                Enter the page number you're commenting about.
+                                            {% elif user_progress.progress_type == 'audio' %}
+                                                Enter the timestamp (e.g., "2h 30m").
+                                            {% else %}
+                                                Enter a percentage (e.g., "75").
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="tab" value="discussion">
+
+                                <button type="submit" class="btn btn-primary">Post Comment</button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                This book is not currently active. Comments are in read-only mode.
+                            </div>
+                        {% endif %}
+
+                        <div class="comments-list">
+                            {% for comment in comments %}
+                                {% with comment_progress_value=comment.normalized_progress|default:0 %}
+                                <div class="comment-card {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}spoiler-comment{% endif %} {% if not is_active_book %}read-only{% endif %}"
+                                    data-progress="{{ comment_progress_value }}" data-comment-id="{{ comment.id }}" id="comment-{{ comment.id }}">
+                                    <div class="comment-header">
+                                        <div class="comment-user-info">
+                                            <span class="comment-user">{{ comment.user.username }}</span>
+                                            {% if comment.user == user and is_active_book %}
+                                            <div class="comment-actions-dropdown">
+                                                <button class="btn btn-outline-secondary btn-sm dropdown-trigger" aria-label="Comment actions">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="{% url 'edit_comment' comment.id %}">Edit</a>
+                                                    <button type="button" class="dropdown-item danger delete-comment-btn"
+                                                        data-comment-id="{{ comment.id }}"
+                                                        data-comment-user="{{ comment.user.username }}"
+                                                        data-comment-date="{{ comment.created_at|date:"F j, Y, g:i a" }}"
+                                                        data-comment-progress="{% if comment.progress_type == 'page' %}Page {{ comment.progress_value }}{% elif comment.progress_type == 'audio' %}Audio: {{ comment.progress_value }}{% else %}{{ comment.progress_value }}% complete{% endif %}"
+                                                        data-comment-text="{{ comment.text }}"
+                                                        data-delete-url="{% url 'delete_comment' comment.id %}">
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <span class="comment-date">{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
+                                    </div>
+                                    <div class="comment-body">
+                                        <p class="comment-progress-info">
+                                            {% if comment.progress_type == 'page' %}
+                                            Page {{ comment.progress_value }} ({{ comment.normalized_progress|floatformat:1 }}%)
+                                            {% elif comment.progress_type == 'audio' %}
+                                            Audio: {{ comment.progress_value }} ({{ comment.normalized_progress|floatformat:1 }}%)
+                                            {% else %}
+                                            {{ comment.progress_value }}% complete
+                                            {% endif %}
+
+                                            {% if comment.hardcover_finished_at %}
+                                            <span class="status-badge finished">Finished</span>
+                                            {% elif comment.hardcover_started_at %}
+                                            <span class="status-badge in-progress">In Progress</span>
+                                            {% endif %}
+
+                                            {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}
+                                            <span class="status-badge spoiler">Ahead of your progress</span>
+                                            {% endif %}
+                                        </p>
+
+                                        {% if comment_progress_value > user_progress.normalized_progress and comment.user != user %}
+                                        <div class="spoiler-warning">
+                                            <i class="bi bi-exclamation-triangle"></i> This comment is from further in the book than you've read.
+                                            <button class="btn btn-outline-secondary btn-sm show-spoiler-btn">Show Anyway</button>
+                                        </div>
+                                        <div class="spoiler-content" style="display: none;">
+                                            <div class="comment-text">{{ comment.text|markdown }}</div>
+
+                                            <div class="comment-reactions">
+                                                <div class="existing-reactions">
+                                                    {% for reaction_type, count in comment.get_reactions_summary.items %}
+                                                    {% with users=comment.get_users_for_reaction|get_item:reaction_type %}
+                                                    <button class="reaction-btn {% if user in users %}active{% endif %} {% if not is_active_book %}disabled{% endif %}"
+                                                        data-comment-id="{{ comment.id }}"
+                                                        data-reaction="{{ reaction_type }}"
+                                                        title="Reacted by: {{ users|map:'username'|join:', ' }}"
+                                                        {% if not is_active_book %}disabled{% endif %}>
+                                                        {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                                                    </button>
+                                                    {% endwith %}
+                                                    {% endfor %}
+                                                </div>
+
+                                                {% if is_active_book %}
+                                                <div class="add-reaction">
+                                                    <button class="btn btn-outline-secondary btn-sm add-reaction-btn" data-comment-id="{{ comment.id }}">
+                                                        Add Reaction
+                                                    </button>
+                                                    <div class="reaction-panel" style="display: none;">
+                                                        {% for reaction_code, reaction_name in reaction_choices %}
+                                                        <button class="reaction-option" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                                                            {{ reaction_code }}
+                                                        </button>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="comment-text">{{ comment.text|markdown }}</div>
+
+                                        <div class="comment-reactions">
+                                            <div class="existing-reactions">
+                                                {% for reaction_type, count in comment.get_reactions_summary.items %}
+                                                <button class="reaction-btn {% if user in comment.get_users_for_reaction|get_item:reaction_type %}active{% endif %} {% if not is_active_book %}disabled{% endif %}"
+                                                    data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_type }}"
+                                                    {% if not is_active_book %}disabled{% endif %}>
+                                                    {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                                                </button>
+                                                {% endfor %}
+                                            </div>
+
+                                            {% if is_active_book %}
+                                            <div class="add-reaction">
+                                                <button class="btn btn-outline-secondary btn-sm add-reaction-btn" data-comment-id="{{ comment.id }}">
+                                                    Add Reaction
+                                                </button>
+                                                <div class="reaction-panel" style="display: none;">
+                                                    {% for reaction_code, reaction_name in reaction_choices %}
+                                                    <button class="reaction-option" data-comment-id="{{ comment.id }}" data-reaction="{{ reaction_code }}">
+                                                        {{ reaction_code }}
+                                                    </button>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="comment-footer">
+                                        {% if is_active_book %}
+                                        <a href="{% url 'reply_to_comment' comment.id %}" class="btn btn-outline-primary btn-sm">Reply</a>
+                                        {% else %}
+                                        <span class="text-muted">Comments are in read-only mode</span>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if comment.get_replies %}
+                                    <div class="replies-container">
+                                        {% for reply in comment.get_replies %}
+                                        <div class="reply-card {% if not is_active_book %}read-only{% endif %}" id="comment-{{ reply.id }}">
+                                            <div class="comment-header">
+                                                <div class="comment-user-info">
+                                                    <span class="comment-user">{{ reply.user.username }}</span>
+                                                    {% if reply.user == user and is_active_book %}
+                                                    <div class="comment-actions-dropdown">
+                                                        <button class="btn btn-outline-secondary btn-sm dropdown-trigger" aria-label="Reply actions">
+                                                            <i class="bi bi-three-dots"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item" href="{% url 'edit_comment' reply.id %}">Edit</a>
+                                                            <button type="button" class="dropdown-item danger delete-comment-btn"
+                                                                data-comment-id="{{ reply.id }}"
+                                                                data-comment-user="{{ reply.user.username }}"
+                                                                data-comment-date="{{ reply.created_at|date:"F j, Y, g:i a" }}"
+                                                                data-comment-progress="{% if reply.progress_type == 'page' %}Page {{ reply.progress_value }}{% elif reply.progress_type == 'audio' %}Audio: {{ reply.progress_value }}{% else %}{{ reply.progress_value }}% complete{% endif %}"
+                                                                data-comment-text="{{ reply.text }}"
+                                                                data-delete-url="{% url 'delete_comment' reply.id %}">
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                <span class="comment-date">{{ reply.created_at|date:"F j, Y, g:i a" }}</span>
+                                            </div>
+                                            <div class="comment-body">
+                                                {% if comment_progress_value > user_progress.normalized_progress and reply.user != user %}
+                                                <div class="spoiler-warning">
+                                                    <i class="bi bi-exclamation-triangle"></i> This reply is to a comment from further in the book than you've read.
+                                                    <button class="btn btn-outline-secondary btn-sm show-spoiler-btn">Show Anyway</button>
+                                                </div>
+                                                <div class="spoiler-content" style="display: none;">
+                                                    <div class="comment-text">{{ reply.text|markdown }}</div>
+
+                                                    <div class="comment-reactions">
+                                                        <div class="existing-reactions">
+                                                            {% for reaction_type, count in reply.get_reactions_summary.items %}
+                                                            <button class="reaction-btn {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %} {% if not is_active_book %}disabled{% endif %}"
+                                                                data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}"
+                                                                {% if not is_active_book %}disabled{% endif %}>
+                                                                {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                                                            </button>
+                                                            {% endfor %}
+                                                        </div>
+
+                                                        {% if is_active_book %}
+                                                        <div class="add-reaction">
+                                                            <button class="btn btn-outline-secondary btn-sm add-reaction-btn" data-comment-id="{{ reply.id }}">
+                                                                Add Reaction
+                                                            </button>
+                                                            <div class="reaction-panel" style="display: none;">
+                                                                {% for reaction_code, reaction_name in reaction_choices %}
+                                                                <button class="reaction-option" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                                                    {{ reaction_code }}
+                                                                </button>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% else %}
+                                                <div class="comment-text">{{ reply.text|markdown }}</div>
+
+                                                <div class="comment-reactions">
+                                                    <div class="existing-reactions">
+                                                        {% for reaction_type, count in reply.get_reactions_summary.items %}
+                                                        <button class="reaction-btn {% if user in reply.get_users_for_reaction|get_item:reaction_type %}active{% endif %} {% if not is_active_book %}disabled{% endif %}"
+                                                            data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_type }}"
+                                                            {% if not is_active_book %}disabled{% endif %}>
+                                                            {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
+                                                        </button>
+                                                        {% endfor %}
+                                                    </div>
+
+                                                    {% if is_active_book %}
+                                                    <div class="add-reaction">
+                                                        <button class="btn btn-outline-secondary btn-sm add-reaction-btn" data-comment-id="{{ reply.id }}">
+                                                            Add Reaction
+                                                        </button>
+                                                        <div class="reaction-panel" style="display: none;">
+                                                            {% for reaction_code, reaction_name in reaction_choices %}
+                                                            <button class="reaction-option" data-comment-id="{{ reply.id }}" data-reaction="{{ reaction_code }}">
+                                                                {{ reaction_code }}
+                                                            </button>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endwith %}
+                            {% empty %}
+                                <p class="empty-message">No comments yet. {% if is_active_book %}Be the first to start the discussion!{% endif %}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if has_dollar_bets_enabled %}
+            <div class="tab-content" data-tab-content="bets">
+                <div class="dollar-bets-section">
+                    <div class="dollar-bets-header">
+                        <div class="header-content">
+                            <h3><i class="bi bi-currency-dollar"></i> Place Your Bets</h3>
+                            <p class="subtitle">Predict what will happen in the book and bet a dollar with other members!</p>
+                            {% if not book.is_active and not is_admin %}
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> Regular members can only create bets for the active book.
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="header-actions">
+                            {% if is_admin %}
+                                <a href="{% url 'admin_create_dollar_bet' book.id %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-shield"></i> Admin: Create Bet
+                                </a>
+                            {% endif %}
+                            {% if book.is_active or is_admin %}
+                                <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Create New Bet
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="dollar-bets-body">
+                        {% with open_bets=book.dollar_bets.all|filter_by_status:'open' %}
+                            {% if open_bets %}
+                                <div class="bets-section">
+                                    <h4 class="section-title"><i class="bi bi-unlock"></i> Open Bets</h4>
+                                    <div class="bets-list">
+                                        {% for bet in open_bets %}
+                                            <div class="bet-card open-bet" data-spoiler-level="{{ bet.spoiler_level }}">
+                                                {% if bet.bet_type == 'multi_party' %}
+                                                    <div class="bet-content">
+                                                        <div class="bet-header">
+                                                            <span class="bet-type-badge multi-party">Multi-Party</span>
+                                                            <small class="bet-time">{{ bet.created_at|timesince }} ago</small>
+                                                        </div>
+                                                        <h5 class="bet-question">{{ bet.question }}</h5>
+                                                        <p class="bet-meta">
+                                                            <strong>Participants:</strong> {{ bet.participant_count }}
+                                                            {% if bet.max_participants %}/ {{ bet.max_participants }}{% endif %} |
+                                                            <strong>Pot:</strong> ${{ bet.total_pot }}
+                                                        </p>
+                                                        <div class="predictions-preview">
+                                                            {% for p in bet.participants.all|slice:":3" %}
+                                                            <div class="prediction-item">
+                                                                <strong>{{ p.user.username }}:</strong> "{{ p.prediction|truncatewords:8 }}"
+                                                            </div>
+                                                            {% endfor %}
+                                                            {% if bet.participant_count > 3 %}
+                                                            <small class="more-participants">+ {{ bet.participant_count|add:"-3" }} more...</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="bet-actions">
+                                                        {% if bet.can_accept_participants %}
+                                                            <a href="{% url 'join_dollar_bet' bet.id %}" class="btn btn-primary btn-sm">
+                                                                <i class="bi bi-plus-circle"></i> Join
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if is_admin %}
+                                                            <a href="{% url 'close_betting' bet.id %}" class="btn btn-outline-warning btn-sm">
+                                                                <i class="bi bi-lock"></i> Close
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if bet.creator == request.user or is_admin %}
+                                                            <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-trash"></i> Delete
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="bet-content">
+                                                        <div class="bet-header">
+                                                            <h5 class="bet-description">{{ bet.description }}</h5>
+                                                            <small class="bet-time">{{ bet.created_at|timesince }} ago</small>
+                                                        </div>
+                                                        <p class="bet-proposer">Proposed by: <strong>{{ bet.proposer.username }}</strong></p>
+                                                    </div>
+                                                    <div class="bet-actions">
+                                                        {% if request.user != bet.proposer %}
+                                                            <a href="{% url 'accept_dollar_bet' bet.id %}" class="btn btn-primary btn-sm">
+                                                                <i class="bi bi-check-circle"></i> Accept Bet
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-trash"></i> Delete
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if is_admin and request.user != bet.proposer %}
+                                                            <a href="{% url 'delete_dollar_bet' bet.id %}" class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-trash"></i> Delete
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        {% with active_bets=book.dollar_bets.all|filter_by_multiple_statuses:'accepted,active' %}
+                            {% if active_bets %}
+                                <div class="bets-section">
+                                    <h4 class="section-title"><i class="bi bi-hourglass-split"></i> Active Bets</h4>
+                                    <div class="bets-list">
+                                        {% for bet in active_bets %}
+                                            <div class="bet-card active-bet" data-spoiler-level="{{ bet.spoiler_level }}">
+                                                {% if bet.bet_type == 'multi_party' %}
+                                                    <div class="bet-content">
+                                                        <div class="bet-header">
+                                                            <span class="bet-type-badge multi-party">Multi-Party</span>
+                                                            <span class="status-badge in-progress">Active</span>
+                                                        </div>
+                                                        <h5 class="bet-question">{{ bet.question }}</h5>
+                                                        <p class="bet-meta">
+                                                            <strong>Participants:</strong> {{ bet.participant_count }} |
+                                                            <strong>Pot:</strong> ${{ bet.total_pot }}
+                                                        </p>
+                                                        <div class="predictions-preview">
+                                                            {% for p in bet.participants.all %}
+                                                            <div class="prediction-item">
+                                                                <strong>{{ p.user.username }}:</strong> "{{ p.prediction|truncatewords:8 }}"
+                                                            </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                    {% if is_admin %}
+                                                        <div class="bet-actions">
+                                                            <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-primary btn-sm">
+                                                                <i class="bi bi-flag"></i> Resolve
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <div class="bet-content">
+                                                        <div class="bet-header">
+                                                            <h5 class="bet-description">{{ bet.description }}</h5>
+                                                            <span class="status-badge in-progress">In Progress</span>
+                                                        </div>
+                                                        <p class="bet-participants">Between <strong>{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+
+                                                        {% if bet.counter_description %}
+                                                        <div class="counter-bet">
+                                                            <span class="counter-badge">Counter-Bet</span>
+                                                            <p><strong>{{ bet.accepter.username }}</strong> counters: "{{ bet.counter_description }}"</p>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% if is_admin %}
+                                                        <div class="bet-actions">
+                                                            <a href="{% url 'resolve_dollar_bet' bet.id %}" class="btn btn-primary btn-sm">
+                                                                <i class="bi bi-flag"></i> Resolve Bet
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        {% with resolved_bets=book.dollar_bets.all|filter_by_multiple_statuses:'won,lost,inconclusive,resolved_winner,resolved_inconclusive'|slice:":5" %}
+                            {% if resolved_bets %}
+                                <div class="bets-section">
+                                    <h4 class="section-title"><i class="bi bi-flag-fill"></i> Resolved Bets (Recent)</h4>
+                                    <div class="bets-list">
+                                        {% for bet in resolved_bets %}
+                                            <div class="bet-card resolved-bet {% if bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}inconclusive{% endif %}" data-spoiler-level="{{ bet.spoiler_level }}">
+                                                {% if bet.bet_type == 'multi_party' %}
+                                                    <div class="bet-content">
+                                                        <div class="bet-header">
+                                                            <span class="bet-type-badge multi-party">Multi-Party</span>
+                                                            {% if bet.status == 'resolved_winner' %}
+                                                                {% if bet.winner_count > 1 %}
+                                                                    <span class="status-badge finished">{{ bet.winner_count }} Winners (Split Pot)</span>
+                                                                {% else %}
+                                                                    <span class="status-badge finished">Winner: {{ bet.winners.0.username }}</span>
+                                                                {% endif %}
+                                                            {% else %}
+                                                                <span class="status-badge not-started">Inconclusive</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <h5 class="bet-question">{{ bet.question }}</h5>
+                                                        {% if bet.status == 'resolved_winner' %}
+                                                            {% for p in bet.participants.all %}
+                                                                {% if p.is_winner %}
+                                                                    <p class="winner-info">
+                                                                        <i class="bi bi-trophy-fill"></i>
+                                                                        <strong>{{ p.user.username }}</strong> won ${{ bet.net_gain_per_winner }}: "{{ p.prediction|truncatewords:10 }}"
+                                                                    </p>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                        <small class="resolved-time">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="bet-content">
+                                                        <div class="bet-header">
+                                                            <h5 class="bet-description">{{ bet.description }}</h5>
+                                                            {% if bet.status == 'won' or bet.status == 'resolved_winner' %}
+                                                                <span class="status-badge finished">Winner: {{ bet.winner.username }}</span>
+                                                            {% elif bet.status == 'lost' %}
+                                                                <span class="status-badge finished">Winner: {{ bet.winner.username }}</span>
+                                                            {% elif bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}
+                                                                <span class="status-badge not-started">Inconclusive</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <p class="bet-participants">Between <strong>{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+
+                                                        {% if bet.counter_description %}
+                                                        <div class="counter-bet">
+                                                            <span class="counter-badge">Counter-Bet</span>
+                                                            <p><strong>{{ bet.accepter.username }}</strong> countered: "{{ bet.counter_description }}"</p>
+                                                        </div>
+                                                        {% endif %}
+
+                                                        <small class="resolved-time">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    {% if book.dollar_bets.all|filter_by_multiple_statuses:'won,lost,inconclusive,resolved_winner,resolved_inconclusive'|length > 5 %}
+                                    <div class="view-all-container">
+                                        <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-list"></i> View All Bets
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        {% with all_bets=book.dollar_bets.all %}
+                            {% if not all_bets %}
+                                <div class="empty-bets">
+                                    <div class="empty-icon">
+                                        <i class="bi bi-currency-dollar"></i>
+                                    </div>
+                                    <h4>No bets yet!</h4>
+                                    <p>Be the first to create a dollar bet for this book.</p>
+                                    {% if book.is_active or is_admin %}
+                                    <a href="{% url 'create_dollar_bet' book.id %}" class="btn btn-primary">
+                                        Create Your First Bet
+                                    </a>
+                                    {% elif not is_admin %}
+                                    <p class="text-muted">Regular members can only create bets for the active book.</p>
+                                    {% endif %}
+                                </div>
+                            {% elif all_bets|length > 3 %}
+                                <div class="view-all-container">
+                                    <a href="{% url 'dollar_bets_list' book.id %}" class="btn btn-outline-primary">
+                                        <i class="bi bi-list"></i> View All {{ all_bets|length }} Bets
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<div class="modal-overlay" id="progressUpdateModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Update Your Reading Progress</h2>
+            <button type="button" class="modal-close" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form id="progressUpdateForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="progressType" class="form-label">Progress Type</label>
+                    <select class="form-input" id="progressType">
+                        <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
+                            Page Number
+                        </option>
+                        <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
+                            Audio Timestamp
+                        </option>
+                        <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
+                            Percentage
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="progressValue" class="form-label">Progress Value</label>
+                    <input type="text" class="form-input" id="progressValue"
+                           value="{{ user_progress.progress_value }}">
+                    <div class="form-text" id="progressHelp">
+                        {% if user_progress.progress_type == 'page' %}
+                            Enter the page number you're currently on.
+                        {% elif user_progress.progress_type == 'audio' %}
+                            Enter the timestamp (e.g., "2h 30m").
+                        {% else %}
+                            Enter a percentage (e.g., "75").
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProgressBtn">Save Progress</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="hardcoverSyncModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Sync Progress from Hardcover</h2>
+            <button type="button" class="modal-close" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="hardcoverSyncModalBody">
+            <p>Fetching your reading progress from Hardcover...</p>
+            <div class="loading-spinner">
+                <i class="bi bi-arrow-repeat"></i>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="applyProgressBtn" disabled>Apply Progress</button>
         </div>
     </div>
 </div>
 
-<!-- Progress Update Modal, Hardcover Sync Modal, and other existing modals -->
-{% include "bookclub/includes/book_detail/progress_update_modal.html" %}
-{% include "bookclub/includes/book_detail/hardcover_sync_modal.html" %}
+<div class="modal-overlay" id="deleteCommentModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title danger">
+                <i class="bi bi-trash"></i>
+                Delete Comment
+            </h2>
+            <button type="button" class="modal-close" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                    <strong>Warning:</strong> This action cannot be undone. Are you sure you want to delete this comment?
+                </div>
+            </div>
 
-<!-- Hidden fields for JavaScript -->
+            <div class="comment-preview-card">
+                <div class="comment-header">
+                    <span class="comment-user" id="deleteModalCommentUser"></span>
+                    <span class="comment-date" id="deleteModalCommentDate"></span>
+                </div>
+                <div class="comment-body">
+                    <p class="comment-progress-info" id="deleteModalCommentProgress"></p>
+                    <p class="comment-text" id="deleteModalCommentText"></p>
+                </div>
+            </div>
+
+            <form method="post" id="deleteCommentForm">
+                {% csrf_token %}
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-cancel">
+                <i class="bi bi-x-circle"></i> Cancel
+            </button>
+            <button type="button" class="btn btn-outline-danger" id="deleteCommentConfirm">
+                <i class="bi bi-trash"></i> Delete Comment
+            </button>
+        </div>
+    </div>
+</div>
+
 <input type="hidden" id="book-id" value="{{ book.id }}">
 <input type="hidden" id="hardcover-id" value="{{ book.hardcover_id }}">
 <input type="hidden" id="current-username" value="{{ user.username }}">
 {% endblock %}
 
-{% block extra_js %}
-<script type="module" src="{% static 'bookclub/js/book-detail/main.js' %}"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Check for tab parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-    
-    if (tabParam) {
-      // Try to activate the tab
-      const tab = document.getElementById(`${tabParam}-tab`);
-      if (tab) {
-        const tabTrigger = new bootstrap.Tab(tab);
-        tabTrigger.show();
-      }
-    }
-  });
-</script>
+{% block page_js %}
+<script type="module" src="{% static 'bookclub/js/v2/pages/book-detail.js' %}"></script>
 {% endblock %}

@@ -1,74 +1,77 @@
-{% extends 'bookclub/base.html' %}
+{% extends 'bookclub/base_v2.html' %}
 {% load static %}
 {% load bookclub_extras %}
 
 {% block title %}Edit Comment - {{ book.title|split:":"|first|trim }}{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'bookclub/css/v2/pages/comment-actions.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
-            <div class="mb-4">
-                <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Back to Book
-                </a>
-            </div>
-            
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h2 class="h4 mb-1"><i class="bi bi-pencil-square me-2"></i>Edit Comment</h2>
-                    <p class="text-muted mb-0 small">Book: {{ book.title|split:":"|first|trim }}</p>
+<div class="comment-actions-page">
+    {% include "bookclub/includes/breadcrumbs_v2.html" with items=breadcrumb_items %}
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="bi bi-pencil-square"></i>
+                Edit Comment
+            </h1>
+            <p class="page-subtitle">{{ book.title|split:":"|first|trim }}</p>
+        </div>
+
+        <div class="page-content">
+            <form method="post" class="comment-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    {{ form.text.label_tag }}
+                    {{ form.text }}
+                    {% if form.text.errors %}
+                    <div class="form-error">
+                        {{ form.text.errors }}
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            {{ form.text.label_tag }}
-                            {{ form.text }}
-                            {% if form.text.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.text.errors }}
-                            </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="comment_progress_type" class="form-label">Progress Type</label>
+                        <select class="form-input" id="comment_progress_type" name="progress_type">
+                            <option value="page" {% if comment.progress_type == 'page' %}selected{% endif %}>Page Number</option>
+                            <option value="audio" {% if comment.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
+                            <option value="percent" {% if comment.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment_progress_value" class="form-label">Progress Value</label>
+                        <input type="text" class="form-input" id="comment_progress_value" name="progress_value"
+                            value="{{ comment.progress_value }}">
+                        <div class="form-text" id="commentProgressHelp">
+                            {% if comment.progress_type == 'page' %}
+                            Enter the page number you're commenting about.
+                            {% elif comment.progress_type == 'audio' %}
+                            Enter the timestamp (e.g., "2h 30m").
+                            {% else %}
+                            Enter a percentage (e.g., "75").
                             {% endif %}
                         </div>
-                        
-                        <!-- Progress fields -->
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3 mb-md-0">
-                                <label for="progress_type" class="form-label">Progress Type</label>
-                                <select class="form-select" id="comment_progress_type" name="progress_type">
-                                    <option value="page" {% if comment.progress_type == 'page' %}selected{% endif %}>Page Number</option>
-                                    <option value="audio" {% if comment.progress_type == 'audio' %}selected{% endif %}>Audio Timestamp</option>
-                                    <option value="percent" {% if comment.progress_type == 'percent' %}selected{% endif %}>Percentage</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="progress_value" class="form-label">Progress Value</label>
-                                <input type="text" class="form-control" id="comment_progress_value" name="progress_value" 
-                                    value="{{ comment.progress_value }}">
-                                <div class="form-text" id="commentProgressHelp">
-                                    {% if comment.progress_type == 'page' %}
-                                    Enter the page number you're commenting about.
-                                    {% elif comment.progress_type == 'audio' %}
-                                    Enter the timestamp (e.g., "2h 30m").
-                                    {% else %}
-                                    Enter a percentage (e.g., "75").
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-1"></i> Save Changes
-                            </button>
-                            <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary">Cancel</a>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'book_detail' book.id %}?tab=discussion#comment-{{ comment.id }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'bookclub/js/v2/pages/comment-actions.js' %}"></script>
 {% endblock %}

@@ -272,6 +272,20 @@ def book_detail(request, book_id):
         hasattr(group, "is_dollar_bets_enabled") and group.is_dollar_bets_enabled
     )
 
+    # Calculate open bets count for tab badge
+    open_bets_count = 0
+    if has_dollar_bets_enabled:
+        open_bets_count = book.dollar_bets.filter(status="open").count()
+
+    # Prepare breadcrumb items
+    from django.urls import reverse
+
+    breadcrumb_items = [
+        {"title": "Home", "url": reverse("home")},
+        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        {"title": book.title.split(":")[0].strip(), "url": None},
+    ]
+
     # Prepare the context with all required data
     context = {
         "book": book,
@@ -291,6 +305,8 @@ def book_detail(request, book_id):
         "edition_audio_seconds": edition_audio_seconds,
         "autoSyncEnabled": auto_sync_enabled,
         "has_dollar_bets_enabled": has_dollar_bets_enabled,
+        "open_bets_count": open_bets_count,
+        "breadcrumb_items": breadcrumb_items,
     }
 
     return render(request, "bookclub/book_detail.html", context)
@@ -991,23 +1007,26 @@ def edit_comment(request, comment_id):
 
 @login_required
 def delete_comment(request, comment_id):
-    """Delete a comment"""
+    """
+    Delete a comment
+    Confirmation is handled via modal on the book detail page
+    """
+    if request.method != "POST":
+        comment = get_object_or_404(Comment, id=comment_id)
+        return redirect(
+            f"{reverse('book_detail', args=[comment.book.id])}?tab=discussion#comment-{comment.id}"
+        )
+
     comment = get_object_or_404(Comment, id=comment_id)
     book = comment.book
 
-    # Ensure user can only delete their own comments
     if comment.user != request.user:
         messages.error(request, "You can only delete your own comments.")
-        return redirect("book_detail", book_id=book.id)
-
-    if request.method == "POST":
-        comment.delete()
-        messages.success(request, "Your comment has been deleted.")
         return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
-    return render(
-        request, "bookclub/delete_comment.html", {"comment": comment, "book": book}
-    )
+    comment.delete()
+    messages.success(request, "Your comment has been deleted.")
+    return redirect(f"{reverse('book_detail', args=[book.id])}?tab=discussion")
 
 
 @login_required
