@@ -1,5 +1,5 @@
 .manage-members-page {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     min-height: calc(100vh - 80px);
     padding: var(--spacing-2xl) var(--spacing-lg);

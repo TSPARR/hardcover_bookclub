@@ -1,5 +1,6 @@
 .form-group {
     margin-bottom: var(--spacing-lg);
+    position: relative;
 }
 
 .form-label {
@@ -10,6 +11,12 @@
     font-size: var(--text-sm);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+}
+
+.form-group:focus-within .form-label {
+    color: var(--gold-accent);
+    transform: translateX(2px);
 }
 
 .form-input,
@@ -25,6 +32,14 @@
     font-size: var(--text-base);
     color: var(--ink-black);
     transition: all var(--transition-normal) var(--ease-out-expo);
+    position: relative;
+}
+
+.form-input:hover:not(:focus),
+.form-control:hover:not(:focus),
+.form-select:hover:not(:focus),
+.form-textarea:hover:not(:focus) {
+    border-color: var(--overlay-heavy);
 }
 
 html.dark-mode .form-input,
@@ -40,15 +55,40 @@ html.dark-mode .form-textarea {
 .form-textarea:focus {
     outline: none;
     border-color: var(--gold-accent);
-    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
-    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1), 0 4px 12px var(--shadow-soft);
+    transform: translateY(-2px);
+    animation: inputFocusPulse 0.4s var(--ease-out-expo);
+}
+
+@keyframes inputFocusPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(201, 169, 97, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(201, 169, 97, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1), 0 4px 12px var(--shadow-soft);
+    }
 }
 
 html.dark-mode .form-input:focus,
 html.dark-mode .form-control:focus,
 html.dark-mode .form-select:focus,
 html.dark-mode .form-textarea:focus {
-    box-shadow: 0 0 0 3px rgba(212, 183, 118, 0.15);
+    box-shadow: 0 0 0 3px rgba(212, 183, 118, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes inputFocusPulseDark {
+    0% {
+        box-shadow: 0 0 0 0 rgba(212, 183, 118, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(212, 183, 118, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 3px rgba(212, 183, 118, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
 }
 
 .form-input::placeholder,
@@ -137,6 +177,7 @@ html.dark-mode .form-text {
     outline: none;
     border-color: var(--gold-accent);
     box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2);
+    transform: scale(1.05);
 }
 
 .form-check-input[type="radio"] {

@@ -5,6 +5,32 @@
     border-left: 3px solid;
     font-size: var(--text-base);
     line-height: var(--leading-relaxed);
+    position: relative;
+    overflow: hidden;
+    animation: alertSlideIn 0.4s var(--ease-out-expo);
+}
+
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+    opacity: 0.3;
 }
 
 .alert-danger {
@@ -75,7 +101,7 @@ html.dark-mode .spoiler-warning {
 }
 
 .messages-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: var(--spacing-md) auto;
     padding: 0 var(--spacing-md);
 }
@@ -89,30 +115,6 @@ html.dark-mode .spoiler-warning {
     border-radius: var(--radius-subtle);
     font-size: var(--text-base);
     animation: slideDown 0.4s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-        max-height: 100px;
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-10px);
-        max-height: 0;
-    }
 }
 
 .message-success {
@@ -159,3 +161,46 @@ html.dark-mode .spoiler-warning {
 .message-close:hover {
     opacity: 1;
 }
+
+html.dark-mode .alert-danger {
+    background: linear-gradient(135deg, rgba(168, 88, 88, 0.15) 0%, rgba(168, 88, 88, 0.08) 100%);
+    border-color: var(--burgundy);
+    color: var(--burgundy);
+}
+
+html.dark-mode .alert-success {
+    background: linear-gradient(135deg, rgba(74, 107, 90, 0.15) 0%, rgba(74, 107, 90, 0.08) 100%);
+    border-color: var(--forest-green);
+    color: var(--forest-green);
+}
+
+html.dark-mode .alert-warning {
+    background: linear-gradient(135deg, rgba(212, 183, 118, 0.15) 0%, rgba(212, 183, 118, 0.08) 100%);
+    border-color: var(--gold-accent);
+    color: var(--gold-accent);
+}
+
+html.dark-mode .message-success {
+    background: rgba(74, 107, 90, 0.12);
+    color: var(--forest-green);
+    border-left-color: var(--forest-green);
+}
+
+html.dark-mode .message-error {
+    background: rgba(168, 88, 88, 0.12);
+    color: var(--burgundy);
+    border-left-color: var(--burgundy);
+}
+
+html.dark-mode .message-warning {
+    background: rgba(212, 183, 118, 0.12);
+    color: var(--gold-accent);
+    border-left-color: var(--gold-accent);
+}
+
+html.dark-mode .message-info {
+    background: rgba(74, 107, 90, 0.12);
+    color: var(--forest-green);
+    border-left-color: var(--forest-green);
+}
+

@@ -1,6 +1,6 @@
 .create-group-page {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-xl) var(--spacing-md);
     min-height: calc(100vh - 200px);

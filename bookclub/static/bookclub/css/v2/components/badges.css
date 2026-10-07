@@ -52,16 +52,59 @@
 .status-badge.finished {
     background: var(--forest-green);
     color: white;
+    position: relative;
+    padding-left: var(--spacing-lg);
+}
+
+.status-badge.finished::before {
+    content: '✓';
+    position: absolute;
+    left: var(--spacing-xs);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 700;
 }
 
 .status-badge.in-progress {
     background: var(--gold-accent);
     color: var(--ink-black);
+    position: relative;
+    padding-left: var(--spacing-lg);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+.status-badge.in-progress::before {
+    content: '📖';
+    position: absolute;
+    left: var(--spacing-xs);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+}
+
+@keyframes statusPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(201, 169, 97, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(201, 169, 97, 0);
+    }
 }
 
 .status-badge.not-started {
     background: var(--overlay-medium);
     color: var(--ink-black);
+    position: relative;
+    padding-left: var(--spacing-lg);
+}
+
+.status-badge.not-started::before {
+    content: '○';
+    position: absolute;
+    left: var(--spacing-xs);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 700;
 }
 
 .status-badge.spoiler {

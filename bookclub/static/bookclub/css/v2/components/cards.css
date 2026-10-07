@@ -3,6 +3,39 @@
     border-radius: var(--radius-sm);
     box-shadow: 0 2px 12px var(--shadow-soft);
     overflow: hidden;
+    position: relative;
+    transition: all var(--transition-normal) var(--ease-out-expo);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(26, 21, 20, 0.008) 2px, rgba(26, 21, 20, 0.008) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(26, 21, 20, 0.008) 2px, rgba(26, 21, 20, 0.008) 4px);
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.card.hover-lift-card {
+    transition: all var(--transition-normal) var(--ease-out-expo);
+    cursor: pointer;
+}
+
+.card.hover-lift-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px var(--shadow-medium), 0 0 0 1px var(--gold-accent);
+}
+
+.card.hover-lift-card:hover::before {
+    opacity: 0.8;
 }
 
 html.dark-mode .card {
@@ -10,10 +43,44 @@ html.dark-mode .card {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
+html.dark-mode .card::before {
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(232, 228, 221, 0.008) 2px, rgba(232, 228, 221, 0.008) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(232, 228, 221, 0.008) 2px, rgba(232, 228, 221, 0.008) 4px);
+}
+
+html.dark-mode .card.hover-lift-card:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--gold-accent);
+}
+
 .card-header {
     padding: var(--spacing-lg) var(--spacing-xl);
     background: var(--gradient-overlay);
     border-bottom: 1px solid var(--overlay-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    opacity: 0.3;
+}
+
+.card-header::after {
+    content: '❦';
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-md);
+    color: var(--gold-accent);
+    opacity: 0.15;
+    font-size: var(--text-3xl);
+    pointer-events: none;
 }
 
 .card-header-title {

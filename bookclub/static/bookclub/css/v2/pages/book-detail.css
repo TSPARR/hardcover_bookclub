@@ -530,6 +530,8 @@ details[open] .chevron-icon {
     padding: var(--spacing-lg);
     border-radius: var(--radius-sm);
     box-shadow: 0 2px 12px var(--shadow-soft);
+    position: relative;
+    z-index: 1;
 }
 
 .form-row {
@@ -549,11 +551,25 @@ details[open] .chevron-icon {
     background: var(--paper-cream);
     border-radius: var(--radius-sm);
     box-shadow: 0 2px 12px var(--shadow-soft);
+    overflow: visible;
+    position: relative;
+    z-index: 10;
+}
+
+.comment-card > .comment-header,
+.comment-card > .comment-footer,
+.reply-card > .comment-header,
+.reply-card > .comment-footer {
     overflow: hidden;
 }
 
+.comment-card > .comment-body,
+.reply-card > .comment-body {
+    overflow: visible;
+}
+
 .reply-card {
-    margin-left: var(--spacing-2xl);
+    margin-left: 0;
 }
 
 .comment-header {
@@ -714,7 +730,7 @@ details[open] .chevron-icon {
     padding: var(--spacing-sm);
     display: flex;
     gap: var(--spacing-xs);
-    z-index: 10;
+    z-index: 100;
 }
 
 .reaction-option {
@@ -737,11 +753,19 @@ details[open] .chevron-icon {
     border-top: 1px solid rgba(26, 21, 20, 0.08);
 }
 
+.comment-card:has(.replies-container) .comment-footer {
+    border-bottom: none;
+    padding-bottom: var(--spacing-sm);
+}
+
 .replies-container {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    background: rgba(26, 21, 20, 0.02);
+    border-radius: var(--radius-sm);
 }
 
 .empty-message {
@@ -1168,8 +1192,12 @@ html.dark-mode .modal-body .comment-preview-card .comment-header {
         margin: 0 auto;
     }
 
+    .replies-container {
+        padding: var(--spacing-md);
+    }
+
     .reply-card {
-        margin-left: var(--spacing-lg);
+        margin-left: 0;
     }
 }
 
@@ -1210,8 +1238,12 @@ html.dark-mode .modal-body .comment-preview-card .comment-header {
         width: 100%;
     }
 
+    .replies-container {
+        padding: var(--spacing-sm);
+    }
+
     .reply-card {
-        margin-left: var(--spacing-sm);
+        margin-left: 0;
     }
 
     .tab-button {
@@ -1495,4 +1527,8 @@ html.dark-mode .empty-bets p {
 
 html.dark-mode .comment-user {
     color: var(--ink-black);
+}
+
+html.dark-mode .replies-container {
+    background: rgba(0, 0, 0, 0.3);
 }

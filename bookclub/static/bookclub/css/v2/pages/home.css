@@ -1,5 +1,5 @@
 .home-page {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-2xl) var(--spacing-xl);
 }
@@ -37,15 +37,6 @@
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
     transform: translateX(-100%);
     animation: shimmer 3s infinite;
-}
-
-@keyframes shimmer {
-    0%, 100% {
-        transform: translateX(-100%);
-    }
-    50% {
-        transform: translateX(100%);
-    }
 }
 
 .section-title {
@@ -120,17 +111,6 @@
 .reading-item:nth-child(5) { animation-delay: 0.25s; }
 .reading-item:nth-child(n+6) { animation-delay: 0.3s; }
 
-@keyframes slideInFromLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
 .reading-item:last-child {
     border-bottom: none;
 }
@@ -169,12 +149,13 @@
     width: 100%;
     height: auto;
     border-radius: var(--radius-subtle);
-    box-shadow: 0 2px 8px var(--shadow-soft);
-    transition: transform var(--transition-normal) var(--ease-out-expo);
+    box-shadow: 0 2px 8px var(--shadow-soft), 0 0 0 1px rgba(201, 169, 97, 0.1);
+    transition: all var(--transition-normal) var(--ease-out-expo);
 }
 
 .reading-item:hover .book-cover {
-    transform: scale(1.05);
+    transform: scale(1.05) rotate(-1deg);
+    box-shadow: 0 8px 20px var(--shadow-medium), 0 0 0 1px var(--gold-accent);
 }
 
 .book-placeholder {
@@ -235,6 +216,14 @@
     text-transform: uppercase;
     letter-spacing: var(--tracking-wider);
     white-space: nowrap;
+    box-shadow: 0 2px 6px var(--shadow-soft);
+    transition: all var(--transition-fast) ease;
+}
+
+.reading-item:hover .group-badge,
+.group-item:hover .group-badge {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--shadow-medium);
 }
 
 .progress-section {
@@ -266,6 +255,7 @@
     border-radius: var(--radius-sm);
     overflow: hidden;
     position: relative;
+    box-shadow: inset 0 1px 3px var(--shadow-soft);
 }
 
 .progress-bar-fill {
@@ -283,18 +273,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transform: translateX(-100%);
-    animation: progressShine 2s infinite;
-}
-
-@keyframes progressShine {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
+    animation: progressShine 2.5s infinite;
 }
 
 .book-actions {
@@ -418,6 +399,16 @@
     color: var(--burgundy);
     opacity: 0.3;
     margin-bottom: var(--spacing-lg);
+    animation: emptyStateFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyStateFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 .empty-state h3 {
@@ -434,17 +425,6 @@
     opacity: 0.7;
     margin: 0 0 var(--spacing-xl) 0;
     line-height: var(--leading-relaxed);
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 @media (max-width: 991px) {
