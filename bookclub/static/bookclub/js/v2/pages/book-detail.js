@@ -280,6 +280,351 @@ function initDeleteCommentModal() {
     }
 }
 
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+}
+
+function initCommentForm() {
+    const commentForm = document.getElementById('commentForm');
+    if (!commentForm) return;
+
+    const submitButton = commentForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+
+    commentForm.addEventListener('submit', (e) => {
+        if (submitButton.disabled) {
+            e.preventDefault();
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.classList.add('submitting');
+        submitButton.innerHTML = '<span class="btn-spinner"></span><span>Posting...</span>';
+        commentForm.classList.add('form-submitting');
+    });
+
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted || performance.navigation.type === 2) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('submitting');
+            submitButton.innerHTML = originalButtonText;
+            commentForm.classList.remove('form-submitting');
+        }
+    });
+}
+
+function initProgressTracking() {
+    const bookId = document.getElementById('book-id')?.value;
+    const saveProgressBtn = document.getElementById('saveProgressBtn');
+    const progressModal = document.getElementById('progressUpdateModal');
+
+    if (!bookId || !saveProgressBtn) return;
+
+    saveProgressBtn.addEventListener('click', () => {
+        const progressType = document.getElementById('progressType')?.value;
+        const progressValue = document.getElementById('progressValue')?.value;
+
+        if (!progressValue) {
+            alert('Please enter a progress value');
+            return;
+        }
+
+        saveProgressBtn.disabled = true;
+        saveProgressBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Saving...';
+
+        fetch(`/books/${bookId}/update-progress/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                progress_type: progressType,
+                progress_value: progressValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error updating progress: ' + (data.error || 'Unknown error'));
+                saveProgressBtn.disabled = false;
+                saveProgressBtn.innerHTML = 'Save Progress';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating progress. Please try again.');
+            saveProgressBtn.disabled = false;
+            saveProgressBtn.innerHTML = 'Save Progress';
+        });
+    });
+}
+
+function initRatingStars() {
+    const bookId = document.getElementById('book-id')?.value;
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const clearRatingBtn = document.getElementById('clearRating');
+    const interactiveStarsContainer = document.getElementById('ratingStars');
+
+    if (!bookId || !ratingStars.length || !interactiveStarsContainer) return;
+
+    const currentRating = parseFloat(interactiveStarsContainer.dataset.localRating) || 0;
+    updateStarsDisplay(ratingStars, currentRating);
+
+    ratingStars.forEach(star => {
+        star.addEventListener('mousemove', (e) => {
+            const rect = star.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const isHalfStar = mouseX < rect.width / 2;
+            const fullRating = parseInt(star.dataset.rating);
+            const hoverRating = isHalfStar ? fullRating - 0.5 : fullRating;
+
+            highlightStarsWithHalf(ratingStars, hoverRating);
+
+            ratingStars.forEach(s => s.classList.remove('half-target'));
+            if (isHalfStar) {
+                star.classList.add('half-target');
+            }
+        });
+
+        star.addEventListener('click', (e) => {
+            const rect = star.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const fullRating = parseInt(star.dataset.rating);
+            const isHalfStar = mouseX < rect.width / 2;
+            const newRating = isHalfStar ? fullRating - 0.5 : fullRating;
+
+            saveRating(bookId, newRating, ratingStars, interactiveStarsContainer);
+        });
+    });
+
+    interactiveStarsContainer.addEventListener('mouseleave', () => {
+        const currentRating = parseFloat(interactiveStarsContainer.dataset.localRating) || 0;
+        highlightStarsWithHalf(ratingStars, currentRating);
+        ratingStars.forEach(s => s.classList.remove('half-target'));
+    });
+
+    if (clearRatingBtn) {
+        clearRatingBtn.addEventListener('click', () => {
+            saveRating(bookId, null, ratingStars, interactiveStarsContainer);
+        });
+    }
+}
+
+function highlightStarsWithHalf(stars, rating) {
+    stars.forEach(star => {
+        const starRating = parseInt(star.dataset.rating);
+        star.classList.remove('bi-star-fill', 'bi-star-half', 'bi-star');
+
+        if (starRating <= Math.floor(rating)) {
+            star.classList.add('bi-star-fill');
+        } else if (starRating === Math.ceil(rating) && rating % 1 !== 0) {
+            star.classList.add('bi-star-half');
+        } else {
+            star.classList.add('bi-star');
+        }
+    });
+}
+
+function updateStarsDisplay(stars, rating) {
+    highlightStarsWithHalf(stars, rating);
+}
+
+function saveRating(bookId, rating, stars, container) {
+    fetch(`/books/${bookId}/update-rating/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ rating: rating })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            container.dataset.localRating = data.rating || "0";
+            updateStarsDisplay(stars, parseFloat(data.rating || 0));
+        } else {
+            console.error('Error saving rating:', data.error);
+            alert(`Error saving rating: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving rating. Please try again.');
+    });
+}
+
+function initHardcoverSync() {
+    const bookId = document.getElementById('book-id')?.value;
+    const hardcoverId = document.getElementById('hardcover-id')?.value;
+    const syncButton = document.getElementById('syncHardcoverProgress');
+    const hardcoverModal = document.getElementById('hardcoverSyncModal');
+    const modalBody = document.getElementById('hardcoverSyncModalBody');
+    const applyButton = document.getElementById('applyProgressBtn');
+
+    if (!bookId || !hardcoverId || !syncButton || !hardcoverModal || !modalBody) return;
+
+    let selectedProgress = null;
+
+    syncButton.addEventListener('click', () => {
+        selectedProgress = null;
+        applyButton.disabled = true;
+
+        modalBody.innerHTML = `
+            <p>Fetching your reading progress from Hardcover...</p>
+            <div class="loading-spinner">
+                <i class="bi bi-arrow-repeat"></i>
+            </div>
+        `;
+
+        hardcoverModal.classList.add('active');
+
+        fetch(`/api/hardcover-progress/${hardcoverId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    modalBody.innerHTML = `<div class="alert alert-warning">${data.error}</div>`;
+                    return;
+                }
+
+                if (!data.progress || data.progress.length === 0) {
+                    modalBody.innerHTML = '<div class="alert alert-info">No reading progress found for this book on Hardcover.</div>';
+                    return;
+                }
+
+                displayProgressOptions(data.progress, modalBody, applyButton, (progress) => {
+                    selectedProgress = progress;
+                });
+            })
+            .catch(error => {
+                modalBody.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            });
+    });
+
+    applyButton.addEventListener('click', () => {
+        if (!selectedProgress) return;
+
+        let progressType, progressValue;
+
+        if (selectedProgress.reading_format === 'audio') {
+            progressType = 'audio';
+            if (selectedProgress.current_position) {
+                const hours = Math.floor(selectedProgress.current_position / 3600);
+                const minutes = Math.floor((selectedProgress.current_position % 3600) / 60);
+                progressValue = `${hours}h ${minutes}m`;
+            } else {
+                progressValue = parseFloat(selectedProgress.progress || 0).toFixed(2) + '%';
+            }
+        } else {
+            if (selectedProgress.current_page) {
+                progressType = 'page';
+                progressValue = selectedProgress.current_page;
+            } else {
+                progressType = 'percent';
+                progressValue = parseFloat(selectedProgress.progress || 0).toFixed(2);
+            }
+        }
+
+        const hardcoverData = {
+            started_at: selectedProgress.started_at,
+            finished_at: selectedProgress.finished_at,
+            progress: parseFloat(selectedProgress.progress || 0).toFixed(2),
+            current_page: selectedProgress.current_page,
+            current_position: selectedProgress.current_position,
+            reading_format: selectedProgress.reading_format,
+            edition_id: selectedProgress.edition?.id,
+            rating: selectedProgress.rating,
+            user_book_id: selectedProgress.read_id
+        };
+
+        applyButton.disabled = true;
+        applyButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Applying...';
+
+        fetch(`/books/${bookId}/update-progress/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                progress_type: progressType,
+                progress_value: progressValue,
+                hardcover_data: hardcoverData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error updating progress: ' + (data.error || 'Unknown error'));
+                applyButton.disabled = false;
+                applyButton.innerHTML = 'Apply Progress';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating progress. Please try again.');
+            applyButton.disabled = false;
+            applyButton.innerHTML = 'Apply Progress';
+        });
+    });
+}
+
+function displayProgressOptions(progressData, modalBody, applyButton, onSelect) {
+    let html = '<p>Select progress to import:</p><div class="progress-option-container">';
+
+    progressData.forEach((item, index) => {
+        const status = item.finished_at ? 'Finished' : (item.started_at ? 'In Progress' : 'Not started');
+        const format = item.reading_format === 'audio' ? 'Audiobook' : 'Book';
+        const progress = item.progress || 0;
+        const formattedProgress = parseFloat(progress).toFixed(2);
+
+        let details = '';
+        if (item.reading_format === 'audio' && item.current_position) {
+            const hours = Math.floor(item.current_position / 3600);
+            const minutes = Math.floor((item.current_position % 3600) / 60);
+            details = `${hours}h ${minutes}m`;
+        } else if (item.current_page) {
+            details = `Page ${item.current_page}`;
+        } else {
+            details = `${formattedProgress}% complete`;
+        }
+
+        html += `
+            <div class="progress-option" data-index="${index}">
+                <div class="progress-option-header">
+                    <div>
+                        <h5>${format}</h5>
+                        <div class="progress-details">${details}</div>
+                    </div>
+                    <span class="badge ${item.finished_at ? 'badge-success' : 'badge-primary'}">${status}</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${progress}%"></div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    modalBody.innerHTML = html;
+
+    document.querySelectorAll('.progress-option').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.progress-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            item.classList.add('selected');
+            onSelect(progressData[parseInt(item.dataset.index)]);
+            applyButton.disabled = false;
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initModals();
@@ -290,6 +635,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initProgressTypeHelp();
     initDetailsAnimations();
     initDeleteCommentModal();
+    initCommentForm();
+    initProgressTracking();
+    initRatingStars();
+    initHardcoverSync();
 
     document.querySelectorAll('.comment-card, .reply-card').forEach((card, index) => {
         card.style.opacity = '0';
