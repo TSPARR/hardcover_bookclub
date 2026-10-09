@@ -1577,3 +1577,23 @@ html.dark-mode .replies-container {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(0.995); }
 }
+
+.form-input.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+}
+
+.alert-danger {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+    font-size: 0.9rem;
+}
+
+html.dark-mode .alert-danger {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+    color: #ff6b7a;
+}
