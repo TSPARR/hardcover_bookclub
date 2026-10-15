@@ -6,12 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const winnerSection = document.getElementById('winnerSelectionSection');
     const isMultiParty = winnerCheckboxes.length > 0;
 
+    const initialResolution = document.querySelector('input[name="resolution"]:checked');
+    if (initialResolution && initialResolution.value !== 'winner') {
+        const winnerRadios = document.querySelectorAll('input[name="winner"]');
+        winnerRadios.forEach(radio => radio.required = false);
+    }
+
     resolutionRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'winner') {
                 winnerSection.style.display = 'block';
+                const winnerRadios = document.querySelectorAll('input[name="winner"]');
+                winnerRadios.forEach(radio => radio.required = true);
             } else {
                 winnerSection.style.display = 'none';
+                const winnerRadios = document.querySelectorAll('input[name="winner"]');
+                winnerRadios.forEach(radio => radio.required = false);
                 if (validationError) {
                     validationError.classList.remove('active');
                 }
