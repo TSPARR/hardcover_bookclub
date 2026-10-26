@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.9.1
+- Bump cryptography from 50.0.1 to 50.0.2
+- Bump markdown from 3.10.3 to 3.11
+- Bump plexapi from 4.18.2 to 4.18.3
+- Bump python-dotenv from 1.2.3 to 1.2.4
+- Bump charset-normalizer from 3.5.1 to 3.5.2
+- Bump djangorestframework from 3.18.1 to 3.18.2
+- Bump certifi from 2026.7.22 to 2026.10.19
+
 ## Release 0.9.0
 - Bump python-dotenv from 1.2.2 to 1.2.3
 - Bump idna from 3.18 to 3.19
