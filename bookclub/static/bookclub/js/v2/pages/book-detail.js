@@ -609,22 +609,22 @@ function initProgressTracking() {
                 progress_value: progressValue
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert('Error updating progress: ' + (data.error || 'Unknown error'));
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error updating progress: ' + (data.error || 'Unknown error'));
+                    saveProgressBtn.disabled = false;
+                    saveProgressBtn.innerHTML = 'Save Progress';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating progress. Please try again.');
                 saveProgressBtn.disabled = false;
                 saveProgressBtn.innerHTML = 'Save Progress';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error updating progress. Please try again.');
-            saveProgressBtn.disabled = false;
-            saveProgressBtn.innerHTML = 'Save Progress';
-        });
+            });
     });
 }
 
@@ -707,20 +707,20 @@ function saveRating(bookId, rating, stars, container) {
         },
         body: JSON.stringify({ rating: rating })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            container.dataset.localRating = data.rating || "0";
-            updateStarsDisplay(stars, parseFloat(data.rating || 0));
-        } else {
-            console.error('Error saving rating:', data.error);
-            alert(`Error saving rating: ${data.error}`);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error saving rating. Please try again.');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                container.dataset.localRating = data.rating || "0";
+                updateStarsDisplay(stars, parseFloat(data.rating || 0));
+            } else {
+                console.error('Error saving rating:', data.error);
+                alert(`Error saving rating: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error saving rating. Please try again.');
+        });
 }
 
 function initHardcoverSync() {
@@ -893,49 +893,49 @@ function applyProgressData(bookId, progressData, lastSyncTimeEl) {
             hardcover_data: hardcoverData
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Storage.updateLastSyncTime(bookId);
-            if (lastSyncTimeEl) {
-                lastSyncTimeEl.textContent = new Date().toLocaleString();
-            }
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Storage.updateLastSyncTime(bookId);
+                if (lastSyncTimeEl) {
+                    lastSyncTimeEl.textContent = new Date().toLocaleString();
+                }
 
-            if (progressData.rating) {
-                fetch(`/books/${bookId}/update-rating/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken()
-                    },
-                    body: JSON.stringify({
-                        rating: progressData.rating,
-                        hardcover_read_id: progressData.read_id
+                if (progressData.rating) {
+                    fetch(`/books/${bookId}/update-rating/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        body: JSON.stringify({
+                            rating: progressData.rating,
+                            hardcover_read_id: progressData.read_id
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(ratingData => {
-                    if (ratingData.success) {
-                        const ratingStars = document.querySelectorAll('.rating-star');
-                        const interactiveStarsContainer = document.getElementById('ratingStars');
-                        if (ratingStars.length && interactiveStarsContainer) {
-                            interactiveStarsContainer.dataset.localRating = progressData.rating.toString();
-                            updateStarsDisplay(ratingStars, parseFloat(progressData.rating));
-                        }
-                    }
+                        .then(response => response.json())
+                        .then(ratingData => {
+                            if (ratingData.success) {
+                                const ratingStars = document.querySelectorAll('.rating-star');
+                                const interactiveStarsContainer = document.getElementById('ratingStars');
+                                if (ratingStars.length && interactiveStarsContainer) {
+                                    interactiveStarsContainer.dataset.localRating = progressData.rating.toString();
+                                    updateStarsDisplay(ratingStars, parseFloat(progressData.rating));
+                                }
+                            }
+                            window.location.reload();
+                        })
+                        .catch(() => {
+                            window.location.reload();
+                        });
+                } else {
                     window.location.reload();
-                })
-                .catch(() => {
-                    window.location.reload();
-                });
-            } else {
-                window.location.reload();
+                }
             }
-        }
-    })
-    .catch(error => {
-        console.error('Error applying progress:', error);
-    });
+        })
+        .catch(error => {
+            console.error('Error applying progress:', error);
+        });
 }
 
 function displayProgressOptions(progressData, modalBody, applyButton, onSelect) {
@@ -1006,17 +1006,45 @@ function initSortPreference() {
         });
     });
 
-    const url = new URL(window.location.href);
-    const tabParam = url.searchParams.get('tab');
-    const sortParam = url.searchParams.get('sort');
+    // Function to apply saved sort preference
+    function applySavedSort() {
+        const url = new URL(window.location.href);
+        const tabParam = url.searchParams.get('tab');
+        const sortParam = url.searchParams.get('sort');
 
-    if (tabParam === 'discussion' && !sortParam) {
-        const savedSort = localStorage.getItem(`book_sort_option_${bookId}`);
-        if (savedSort) {
-            url.searchParams.set('sort', savedSort);
-            url.searchParams.set('tab', 'discussion');
-            window.location.href = url.toString();
+        if (tabParam === 'discussion' && !sortParam) {
+            const savedSort = localStorage.getItem(`book_sort_option_${bookId}`);
+            if (savedSort) {
+                url.searchParams.set('sort', savedSort);
+                url.searchParams.set('tab', 'discussion');
+                window.location.href = url.toString();
+            }
         }
+    }
+
+    // Apply on page load if already on discussion tab
+    applySavedSort();
+
+    // Apply when discussion tab is clicked
+    const discussionTabButton = document.querySelector('[data-tab="discussion"]');
+    if (discussionTabButton) {
+        discussionTabButton.addEventListener('click', () => {
+            // Small delay to let the tab switch happen first
+            setTimeout(() => {
+                const url = new URL(window.location.href);
+                const sortParam = url.searchParams.get('sort');
+
+                // Only apply if we don't already have a sort parameter
+                if (!sortParam) {
+                    const savedSort = localStorage.getItem(`book_sort_option_${bookId}`);
+                    if (savedSort) {
+                        url.searchParams.set('sort', savedSort);
+                        url.searchParams.set('tab', 'discussion');
+                        window.location.href = url.toString();
+                    }
+                }
+            }, 50);
+        });
     }
 }
 
