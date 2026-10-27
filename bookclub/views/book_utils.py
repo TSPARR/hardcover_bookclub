@@ -72,8 +72,9 @@ def _get_progress_value_for_sorting(comment):
             if comment.book.pages:
                 return (page / comment.book.pages) * 100
 
-            # If no book pages, just return the raw page number
-            return float(page)
+            # If no book pages available, we can't calculate a meaningful percentage
+            # This should rarely happen now that we require edition selection for page progress
+            return 0.0
         except (ValueError, AttributeError, TypeError):
             return 0.0
 

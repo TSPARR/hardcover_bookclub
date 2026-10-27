@@ -372,13 +372,15 @@
                                     <div class="form-group">
                                         <label for="comment_progress_type" class="form-label">Progress Type</label>
                                         <select class="form-input" id="comment_progress_type" name="progress_type">
-                                            <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}>
-                                                Page Number
+                                            <option value="page" {% if user_progress.progress_type == 'page' %}selected{% endif %}
+                                                {% if not edition_pages and not book_pages %}disabled{% endif %}>
+                                                Page Number{% if not edition_pages and not book_pages %} (select edition first){% endif %}
                                             </option>
-                                            <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}>
-                                                Audio Timestamp
+                                            <option value="audio" {% if user_progress.progress_type == 'audio' %}selected{% endif %}
+                                                {% if not edition_audio_seconds and not book_audio_seconds %}disabled{% endif %}>
+                                                Audio Timestamp{% if not edition_audio_seconds and not book_audio_seconds %} (select edition first){% endif %}
                                             </option>
-                                            <option value="percent" {% if user_progress.progress_type == 'percent' %}selected{% endif %}>
+                                            <option value="percent" {% if user_progress.progress_type == 'percent' or not edition_pages and not book_pages and not edition_audio_seconds and not book_audio_seconds %}selected{% endif %}>
                                                 Percentage
                                             </option>
                                         </select>

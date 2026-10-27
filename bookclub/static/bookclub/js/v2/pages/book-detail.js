@@ -80,7 +80,7 @@ function initModals() {
 
 function initDropdowns() {
     document.addEventListener('click', (e) => {
-        const trigger = e.target.closest('.dropdown-trigger');
+        const trigger = e.target.closest('.dropdown-trigger, .sort-trigger');
 
         if (trigger) {
             e.preventDefault();
@@ -498,6 +498,23 @@ function initCommentForm() {
         removeCommentValidationError();
 
         if (commentProgressType && commentProgressValue && commentProgressValue.value.trim()) {
+            // Check if user is trying to use page/audio without edition data
+            const progressType = commentProgressType.value;
+            const hasPages = ProgressValidator._getMaxPages({});
+            const hasAudioSeconds = ProgressValidator._getMaxAudioSeconds({});
+
+            if (progressType === 'page' && !hasPages) {
+                e.preventDefault();
+                showCommentValidationError('Cannot use page numbers without edition data. Please select an edition or use percentage.');
+                return;
+            }
+
+            if (progressType === 'audio' && !hasAudioSeconds) {
+                e.preventDefault();
+                showCommentValidationError('Cannot use audio timestamps without edition data. Please select an edition or use percentage.');
+                return;
+            }
+
             const validation = ProgressValidator.validate(
                 commentProgressType.value,
                 commentProgressValue.value,

@@ -147,6 +147,62 @@ def book_detail(request, book_id):
                 # Get book data for validation
                 book_data = {"book": book, "edition": user_progress.edition}
 
+                # Check if user is trying to use page/audio without edition data
+                if progress_type == "page":
+                    has_page_data = (user_progress.edition and user_progress.edition.pages) or book.pages
+                    if not has_page_data:
+                        messages.error(
+                            request,
+                            "Cannot use page numbers without edition data. Please select an edition or use percentage instead."
+                        )
+                        return render(
+                            request,
+                            "bookclub/book_detail.html",
+                            {
+                                "book": book,
+                                "comments": comments,
+                                "form": form,
+                                "current_sort": sort_by,
+                                "user_progress": user_progress,
+                                "reaction_choices": reaction_choices,
+                                "kavita_promoted_edition": kavita_promoted_edition,
+                                "plex_promoted_edition": plex_promoted_edition,
+                                "is_admin": group.is_admin(request.user),
+                                "book_pages": book_pages,
+                                "book_audio_seconds": book_audio_seconds,
+                                "edition_pages": edition_pages,
+                                "edition_audio_seconds": edition_audio_seconds,
+                                "is_active_book": book.is_active,
+                            },
+                        )
+                elif progress_type == "audio":
+                    has_audio_data = (user_progress.edition and user_progress.edition.audio_seconds) or book.audio_seconds
+                    if not has_audio_data:
+                        messages.error(
+                            request,
+                            "Cannot use audio timestamps without edition data. Please select an edition or use percentage instead."
+                        )
+                        return render(
+                            request,
+                            "bookclub/book_detail.html",
+                            {
+                                "book": book,
+                                "comments": comments,
+                                "form": form,
+                                "current_sort": sort_by,
+                                "user_progress": user_progress,
+                                "reaction_choices": reaction_choices,
+                                "kavita_promoted_edition": kavita_promoted_edition,
+                                "plex_promoted_edition": plex_promoted_edition,
+                                "is_admin": group.is_admin(request.user),
+                                "book_pages": book_pages,
+                                "book_audio_seconds": book_audio_seconds,
+                                "edition_pages": edition_pages,
+                                "edition_audio_seconds": edition_audio_seconds,
+                                "is_active_book": book.is_active,
+                            },
+                        )
+
                 # Validate progress value
                 is_valid, result, seconds = ProgressValidator.validate(
                     progress_type, progress_value, book_data
