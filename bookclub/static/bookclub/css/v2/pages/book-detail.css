@@ -243,6 +243,7 @@ details[open] .progress-summary::before {
     from {
         transform: scaleX(0);
     }
+
     to {
         transform: scaleX(1);
     }
@@ -536,15 +537,15 @@ details[open] .chevron-icon {
     z-index: 10;
 }
 
-.comment-card > .comment-header,
-.comment-card > .comment-footer,
-.reply-card > .comment-header,
-.reply-card > .comment-footer {
+.comment-card>.comment-header,
+.comment-card>.comment-footer,
+.reply-card>.comment-header,
+.reply-card>.comment-footer {
     overflow: hidden;
 }
 
-.comment-card > .comment-body,
-.reply-card > .comment-body {
+.comment-card>.comment-body,
+.reply-card>.comment-body {
     overflow: visible;
 }
 
@@ -1145,6 +1146,7 @@ html.dark-mode .modal-body .comment-preview-card .comment-header {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -1525,7 +1527,9 @@ html.dark-mode .replies-container {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .btn.submitting {
@@ -1538,12 +1542,6 @@ html.dark-mode .replies-container {
 .form-submitting {
     opacity: 0.7;
     pointer-events: none;
-    animation: formPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes formPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(0.995); }
 }
 
 .form-input.is-invalid {
