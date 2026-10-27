@@ -746,6 +746,11 @@ function initHardcoverSync() {
         const autoSyncEnabled = Storage.get(`auto_sync_${bookId}`, false);
         autoSyncToggle.checked = autoSyncEnabled;
 
+        // Trigger auto-sync on page load if enabled
+        if (autoSyncEnabled) {
+            fetchAndApplyProgressAutomatically(bookId, hardcoverId, lastSyncTimeEl);
+        }
+
         autoSyncToggle.addEventListener('change', () => {
             const enabled = autoSyncToggle.checked;
             Storage.save(`auto_sync_${bookId}`, enabled);
