@@ -64,9 +64,11 @@ html.dark-mode .form-textarea {
     0% {
         box-shadow: 0 0 0 0 rgba(201, 169, 97, 0.4);
     }
+
     50% {
         box-shadow: 0 0 0 8px rgba(201, 169, 97, 0);
     }
+
     100% {
         box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1), 0 4px 12px var(--shadow-soft);
     }
@@ -76,18 +78,21 @@ html.dark-mode .form-input:focus,
 html.dark-mode .form-control:focus,
 html.dark-mode .form-select:focus,
 html.dark-mode .form-textarea:focus {
-    box-shadow: 0 0 0 3px rgba(212, 183, 118, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.15), 0 4px 12px rgba(0, 0, 0, 0.5), var(--shadow-glow);
+    animation: inputFocusPulseDark 0.4s var(--ease-out-expo);
 }
 
 @keyframes inputFocusPulseDark {
     0% {
-        box-shadow: 0 0 0 0 rgba(212, 183, 118, 0.4);
+        box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.4);
     }
+
     50% {
-        box-shadow: 0 0 0 8px rgba(212, 183, 118, 0);
+        box-shadow: 0 0 0 8px rgba(255, 214, 10, 0);
     }
+
     100% {
-        box-shadow: 0 0 0 3px rgba(212, 183, 118, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.15), 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 }
 
@@ -101,7 +106,7 @@ html.dark-mode .form-textarea:focus {
 html.dark-mode .form-input::placeholder,
 html.dark-mode .form-control::placeholder,
 html.dark-mode .form-textarea::placeholder {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 .form-select {
@@ -115,7 +120,7 @@ html.dark-mode .form-textarea::placeholder {
 }
 
 html.dark-mode .form-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e8e4dd' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23c5cdd9' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
 }
 
 .form-textarea {
@@ -131,7 +136,7 @@ html.dark-mode .form-select {
 }
 
 html.dark-mode .form-text {
-    color: rgba(232, 228, 221, 0.7);
+    color: rgba(197, 205, 217, 0.7);
 }
 
 .form-hint {

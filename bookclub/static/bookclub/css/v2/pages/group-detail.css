@@ -12,6 +12,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -32,6 +33,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -198,6 +200,7 @@
         opacity: 0;
         transform: translateX(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -218,6 +221,7 @@
         opacity: 0;
         transform: translateX(20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -940,13 +944,13 @@
 
 html.dark-mode .page-card,
 html.dark-mode .settings-card {
-    background: #2a2623;
+    background: #131a23;
 }
 
 html.dark-mode .page-card-header,
 html.dark-mode .settings-card-header {
-    background: linear-gradient(135deg, rgba(168, 88, 88, 0.06) 0%, rgba(74, 107, 90, 0.06) 100%);
-    border-bottom-color: rgba(232, 228, 221, 0.06);
+    background: linear-gradient(135deg, rgba(107, 158, 255, 0.06) 0%, rgba(77, 184, 214, 0.06) 100%);
+    border-bottom-color: rgba(197, 205, 217, 0.06);
 }
 
 html.dark-mode .page-title,
@@ -965,11 +969,11 @@ html.dark-mode .book-author,
 html.dark-mode .book-list-author,
 html.dark-mode .progress-text,
 html.dark-mode .label-hint {
-    color: rgba(232, 228, 221, 0.7);
+    color: rgba(197, 205, 217, 0.7);
 }
 
 html.dark-mode .info-badge {
-    background: rgba(232, 228, 221, 0.1);
+    background: rgba(197, 205, 217, 0.1);
     color: var(--ink-black);
 }
 
@@ -992,24 +996,24 @@ html.dark-mode .count-badge {
 }
 
 html.dark-mode .book-list-item {
-    background: rgba(232, 228, 221, 0.03);
+    background: rgba(197, 205, 217, 0.03);
 }
 
 html.dark-mode .book-list-item:hover {
-    background: rgba(232, 228, 221, 0.06);
+    background: rgba(197, 205, 217, 0.06);
 }
 
 html.dark-mode .member-item {
-    border-bottom-color: rgba(232, 228, 221, 0.04);
+    border-bottom-color: rgba(197, 205, 217, 0.04);
 }
 
 html.dark-mode .form-group {
-    border-bottom-color: rgba(232, 228, 221, 0.04);
+    border-bottom-color: rgba(197, 205, 217, 0.04);
 }
 
 html.dark-mode .dropdown-menu {
-    background: #2a2623;
-    border-color: rgba(232, 228, 221, 0.08);
+    background: #131a23;
+    border-color: rgba(197, 205, 217, 0.08);
 }
 
 html.dark-mode .dropdown-item {
@@ -1017,7 +1021,7 @@ html.dark-mode .dropdown-item {
 }
 
 html.dark-mode .dropdown-item:hover {
-    background: rgba(168, 88, 88, 0.1);
+    background: rgba(107, 158, 255, 0.1);
 }
 
 html.dark-mode .dropdown-item.danger {
@@ -1025,32 +1029,32 @@ html.dark-mode .dropdown-item.danger {
 }
 
 html.dark-mode .active-book-section {
-    border-bottom-color: rgba(232, 228, 221, 0.06);
+    border-bottom-color: rgba(197, 205, 217, 0.06);
 }
 
 html.dark-mode .book-cover-placeholder {
-    background: rgba(232, 228, 221, 0.06);
-    color: rgba(232, 228, 221, 0.2);
+    background: rgba(197, 205, 217, 0.06);
+    color: rgba(197, 205, 217, 0.2);
 }
 
 html.dark-mode .progress-bar {
-    background: rgba(232, 228, 221, 0.1);
+    background: rgba(197, 205, 217, 0.1);
 }
 
 html.dark-mode .page-empty {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 html.dark-mode .page-empty i {
-    color: rgba(232, 228, 221, 0.2);
+    color: rgba(197, 205, 217, 0.2);
 }
 
 html.dark-mode .page-empty h3 {
-    color: rgba(232, 228, 221, 0.6);
+    color: rgba(197, 205, 217, 0.6);
 }
 
 html.dark-mode .previous-books-section {
-    border-top-color: rgba(232, 228, 221, 0.06);
+    border-top-color: rgba(197, 205, 217, 0.06);
 }
 
 html.dark-mode .previous-books-header-title {
@@ -1063,22 +1067,26 @@ html.dark-mode .previous-books-count {
 }
 
 html.dark-mode .badge-status-not-started {
-    background: rgba(232, 228, 221, 0.1);
-    color: rgba(232, 228, 221, 0.7);
+    background: rgba(197, 205, 217, 0.1);
+    color: rgba(197, 205, 217, 0.7);
 }
 
 html.dark-mode .badge-status-reading {
-    background: rgba(212, 183, 118, 0.2);
-    color: var(--gold-accent);
+    background: rgba(255, 214, 10, 0.25);
+    color: #ffea00;
 }
 
 html.dark-mode .badge-status-finished {
-    background: rgba(74, 107, 90, 0.2);
-    color: var(--forest-green);
+    background: rgba(77, 184, 214, 0.25);
+    color: #66e0f5;
 }
 
 html.dark-mode .meta-badge.user {
     color: #1a1514;
+}
+
+html.dark-mode .role-badge {
+    color: #0a0d11;
 }
 
 html.dark-mode .btn-outline-primary {
@@ -1094,12 +1102,12 @@ html.dark-mode .btn-outline-primary:hover {
 
 html.dark-mode .btn-outline-secondary {
     color: var(--ink-black);
-    border-color: rgba(232, 228, 221, 0.3);
+    border-color: rgba(197, 205, 217, 0.3);
 }
 
 html.dark-mode .btn-outline-secondary:hover {
-    background: rgba(232, 228, 221, 0.1);
-    border-color: rgba(232, 228, 221, 0.4);
+    background: rgba(197, 205, 217, 0.1);
+    border-color: rgba(197, 205, 217, 0.4);
 }
 
 html.dark-mode .btn-outline-success {
@@ -1137,7 +1145,7 @@ html.dark-mode .dropdown-trigger:focus-visible {
 
 html.dark-mode .dropdown-item:focus-visible {
     outline-color: var(--gold-accent);
-    background: rgba(168, 88, 88, 0.1);
+    background: rgba(107, 158, 255, 0.1);
 }
 
 html.dark-mode .previous-books-summary:focus-visible {
@@ -1149,11 +1157,11 @@ html.dark-mode .previous-books-summary:focus-visible .previous-books-header {
 }
 
 html.dark-mode .meeting-item {
-    background: rgba(232, 228, 221, 0.03);
+    background: rgba(197, 205, 217, 0.03);
 }
 
 html.dark-mode .meeting-item:hover {
-    background: rgba(232, 228, 221, 0.06);
+    background: rgba(197, 205, 217, 0.06);
 }
 
 html.dark-mode .meeting-title {
@@ -1165,15 +1173,15 @@ html.dark-mode .meeting-title:hover {
 }
 
 html.dark-mode .meeting-meta {
-    color: rgba(232, 228, 221, 0.6);
+    color: rgba(197, 205, 217, 0.6);
 }
 
 html.dark-mode .meetings-empty {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 html.dark-mode .meetings-section {
-    border-top-color: rgba(232, 228, 221, 0.06);
+    border-top-color: rgba(197, 205, 217, 0.06);
 }
 
 .modal-overlay {
@@ -1222,7 +1230,7 @@ html.dark-mode .modal-overlay {
 }
 
 html.dark-mode .modal {
-    background: #2a2623;
+    background: #131a23;
 }
 
 .modal-header {
@@ -1234,7 +1242,7 @@ html.dark-mode .modal {
 }
 
 html.dark-mode .modal-header {
-    border-bottom-color: rgba(232, 228, 221, 0.08);
+    border-bottom-color: rgba(197, 205, 217, 0.08);
 }
 
 .modal-title {
@@ -1265,7 +1273,7 @@ html.dark-mode .modal-header {
 }
 
 html.dark-mode .modal-close:hover {
-    background: rgba(232, 228, 221, 0.08);
+    background: rgba(197, 205, 217, 0.08);
 }
 
 .modal-body {
@@ -1291,7 +1299,7 @@ html.dark-mode .modal-close:hover {
 }
 
 html.dark-mode .modal-footer {
-    border-top-color: rgba(232, 228, 221, 0.08);
+    border-top-color: rgba(197, 205, 217, 0.08);
 }
 
 .modal-footer .btn {
@@ -1312,7 +1320,7 @@ html.dark-mode .modal-footer {
 }
 
 html.dark-mode .form-input {
-    border-color: rgba(232, 228, 221, 0.12);
+    border-color: rgba(197, 205, 217, 0.12);
     background: rgba(0, 0, 0, 0.2);
 }
 
@@ -1344,7 +1352,7 @@ html.dark-mode .form-input {
 }
 
 html.dark-mode .alert-danger {
-    background: rgba(168, 88, 88, 0.15);
+    background: rgba(107, 158, 255, 0.15);
     color: var(--burgundy);
 }
 

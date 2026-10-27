@@ -19,7 +19,7 @@
     z-index: 0;
 }
 
-.card > * {
+.card>* {
     position: relative;
     z-index: 1;
 }
@@ -39,18 +39,21 @@
 }
 
 html.dark-mode .card {
-    background: #2a2420;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(145deg, #131a23 0%, #0f1419 100%);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 1px rgba(107, 158, 255, 0.3);
+    border: 1px solid rgba(107, 158, 255, 0.1);
 }
 
 html.dark-mode .card::before {
     background-image:
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(232, 228, 221, 0.008) 2px, rgba(232, 228, 221, 0.008) 4px),
-        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(232, 228, 221, 0.008) 2px, rgba(232, 228, 221, 0.008) 4px);
+        radial-gradient(circle at 20% 50%, rgba(107, 158, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(77, 184, 214, 0.02) 0%, transparent 50%);
+    opacity: 1;
 }
 
 html.dark-mode .card.hover-lift-card:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--gold-accent);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--gold-accent), var(--shadow-glow);
+    border-color: rgba(107, 158, 255, 0.4);
 }
 
 .card-header {

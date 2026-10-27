@@ -127,9 +127,21 @@
 }
 
 html.dark-mode .member-badge {
-    background: rgba(168, 88, 88, 0.2);
+    background: rgba(107, 158, 255, 0.2);
     color: var(--burgundy);
-    border-color: rgba(168, 88, 88, 0.25);
+    border-color: rgba(107, 158, 255, 0.25);
+}
+
+html.dark-mode .badge-warning {
+    color: #0a0d11;
+}
+
+html.dark-mode .status-badge.in-progress {
+    color: #0a0d11;
+}
+
+html.dark-mode .tab-badge {
+    color: #0a0d11;
 }
 
 .active-badge {
@@ -155,7 +167,7 @@ html.dark-mode .member-badge {
 }
 
 html.dark-mode .count-badge {
-    background: rgba(168, 88, 88, 0.3);
+    background: rgba(107, 158, 255, 0.3);
     color: var(--burgundy);
 }
 

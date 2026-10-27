@@ -786,7 +786,7 @@ details[open] .chevron-icon {
 }
 
 html.dark-mode .dollar-bets-header .subtitle {
-    color: rgba(232, 228, 221, 0.8);
+    color: rgba(197, 205, 217, 0.8);
 }
 
 .dollar-bets-header .header-actions {
@@ -1091,7 +1091,7 @@ html.dark-mode .modal-body .comment-preview-card {
 
 html.dark-mode .modal-body .comment-preview-card .comment-header {
     background: rgba(0, 0, 0, 0.2);
-    border-bottom-color: rgba(232, 228, 221, 0.08);
+    border-bottom-color: rgba(197, 205, 217, 0.08);
 }
 
 .modal-body .comment-preview-card .comment-body {
@@ -1279,13 +1279,13 @@ html.dark-mode .reply-card,
 html.dark-mode .comment-form,
 html.dark-mode .modal,
 html.dark-mode .bet-card {
-    background: #2a2420;
+    background: #131a23;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 html.dark-mode .progress-bar,
 html.dark-mode .toggle-input {
-    background: rgba(232, 228, 221, 0.2);
+    background: rgba(197, 205, 217, 0.2);
 }
 
 html.dark-mode .comment-header,
@@ -1293,30 +1293,30 @@ html.dark-mode .comment-footer,
 html.dark-mode .modal-header,
 html.dark-mode .modal-footer {
     background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(232, 228, 221, 0.15);
+    border-color: rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .form-input,
 html.dark-mode .form-textarea,
 html.dark-mode .form-select {
     background: rgba(0, 0, 0, 0.5);
-    border-color: rgba(232, 228, 221, 0.25);
+    border-color: rgba(197, 205, 217, 0.25);
     color: var(--ink-black);
 }
 
 html.dark-mode .form-input::placeholder,
 html.dark-mode .form-textarea::placeholder {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 html.dark-mode .reaction-btn {
     background: rgba(0, 0, 0, 0.3);
-    border-color: rgba(232, 228, 221, 0.25);
+    border-color: rgba(197, 205, 217, 0.25);
     color: var(--ink-black);
 }
 
 html.dark-mode .reaction-btn:hover:not(.disabled) {
-    background: rgba(168, 88, 88, 0.3);
+    background: rgba(107, 158, 255, 0.3);
     border-color: var(--burgundy);
     color: var(--ink-black);
 }
@@ -1326,34 +1326,34 @@ html.dark-mode .reaction-btn.active {
 }
 
 html.dark-mode .book-cover-placeholder {
-    background: rgba(168, 88, 88, 0.2);
+    background: rgba(107, 158, 255, 0.2);
 }
 
 html.dark-mode .count-badge {
-    background: rgba(168, 88, 88, 0.3);
+    background: rgba(107, 158, 255, 0.3);
     color: var(--burgundy);
 }
 
 html.dark-mode .predictions-preview {
     background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(232, 228, 221, 0.1);
+    border: 1px solid rgba(197, 205, 217, 0.1);
 }
 
 html.dark-mode .counter-bet {
-    background: rgba(74, 107, 90, 0.2);
+    background: rgba(77, 184, 214, 0.2);
     border-left-color: var(--forest-green);
 }
 
 html.dark-mode .section-title {
-    border-color: rgba(232, 228, 221, 0.15);
+    border-color: rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .book-tabs {
-    border-bottom-color: rgba(232, 228, 221, 0.15);
+    border-bottom-color: rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .tab-button {
-    color: rgba(232, 228, 221, 0.6);
+    color: rgba(197, 205, 217, 0.6);
 }
 
 html.dark-mode .tab-button:hover {
@@ -1361,81 +1361,81 @@ html.dark-mode .tab-button:hover {
 }
 
 html.dark-mode .text-muted {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 html.dark-mode .detail-label {
-    color: rgba(232, 228, 221, 0.7);
+    color: rgba(197, 205, 217, 0.7);
 }
 
 html.dark-mode .sync-info {
-    color: rgba(232, 228, 221, 0.6);
+    color: rgba(197, 205, 217, 0.6);
 }
 
 html.dark-mode .comment-date,
 html.dark-mode .bet-time,
 html.dark-mode .resolved-time,
 html.dark-mode .more-participants {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 html.dark-mode .comment-progress-info {
-    color: rgba(232, 228, 221, 0.7);
+    color: rgba(197, 205, 217, 0.7);
 }
 
 html.dark-mode .dropdown-menu,
 html.dark-mode .sort-menu {
-    background: #2a2420;
+    background: #131a23;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(232, 228, 221, 0.15);
+    border: 1px solid rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .dropdown-item:hover,
 html.dark-mode .sort-option:hover {
-    background: rgba(168, 88, 88, 0.2);
+    background: rgba(107, 158, 255, 0.2);
 }
 
 html.dark-mode .sort-option.active {
-    background: rgba(168, 88, 88, 0.3);
+    background: rgba(107, 158, 255, 0.3);
 }
 
 html.dark-mode .sort-divider {
-    background: rgba(232, 228, 221, 0.15);
+    background: rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .reaction-panel {
-    background: #2a2420;
+    background: #131a23;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(232, 228, 221, 0.15);
+    border: 1px solid rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .reaction-option {
     background: rgba(0, 0, 0, 0.3);
-    border-color: rgba(232, 228, 221, 0.25);
+    border-color: rgba(197, 205, 217, 0.25);
 }
 
 html.dark-mode .reaction-option:hover {
-    background: rgba(232, 228, 221, 0.1);
+    background: rgba(197, 205, 217, 0.1);
 }
 
 html.dark-mode .spoiler-warning {
-    background: rgba(212, 183, 118, 0.15);
+    background: rgba(255, 214, 10, 0.15);
     border-color: var(--gold-accent);
 }
 
 html.dark-mode .alert-info {
-    background: rgba(74, 107, 90, 0.15);
+    background: rgba(77, 184, 214, 0.15);
     border-left-color: var(--forest-green);
 }
 
 html.dark-mode .empty-message {
-    color: rgba(232, 228, 221, 0.5);
+    color: rgba(197, 205, 217, 0.5);
 }
 
 html.dark-mode .bet-meta,
 html.dark-mode .bet-proposer,
 html.dark-mode .bet-participants {
-    color: rgba(232, 228, 221, 0.7);
+    color: rgba(197, 205, 217, 0.7);
 }
 
 html.dark-mode .bet-description {
@@ -1443,7 +1443,7 @@ html.dark-mode .bet-description {
 }
 
 html.dark-mode .member-progress-item {
-    border-bottom: 1px solid rgba(232, 228, 221, 0.1);
+    border-bottom: 1px solid rgba(197, 205, 217, 0.1);
 }
 
 html.dark-mode .modal-overlay {
@@ -1451,7 +1451,7 @@ html.dark-mode .modal-overlay {
 }
 
 html.dark-mode .modal-footer {
-    border-top-color: rgba(232, 228, 221, 0.15);
+    border-top-color: rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .btn-outline-primary,
@@ -1491,20 +1491,20 @@ html.dark-mode .book-cover-container {
 }
 
 html.dark-mode .bet-card {
-    border: 1px solid rgba(232, 228, 221, 0.1);
+    border: 1px solid rgba(197, 205, 217, 0.1);
 }
 
 html.dark-mode .bet-card:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    border-color: rgba(232, 228, 221, 0.15);
+    border-color: rgba(197, 205, 217, 0.15);
 }
 
 html.dark-mode .empty-bets .empty-icon {
-    color: rgba(232, 228, 221, 0.2);
+    color: rgba(197, 205, 217, 0.2);
 }
 
 html.dark-mode .empty-bets p {
-    color: rgba(232, 228, 221, 0.6);
+    color: rgba(197, 205, 217, 0.6);
 }
 
 html.dark-mode .comment-user {

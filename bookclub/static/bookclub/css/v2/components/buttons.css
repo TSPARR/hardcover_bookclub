@@ -373,5 +373,13 @@ html.dark-mode .btn-outline-warning {
 
 html.dark-mode .btn-outline-warning:hover {
     background: var(--gold-accent);
-    color: var(--ink-black);
+    color: #0a0d11;
+}
+
+html.dark-mode .btn-plex {
+    color: #0a0d11;
+}
+
+html.dark-mode .btn-warning {
+    color: #0a0d11;
 }
