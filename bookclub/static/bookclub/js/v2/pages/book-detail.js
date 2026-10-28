@@ -746,9 +746,15 @@ function initHardcoverSync() {
         const autoSyncEnabled = Storage.get(`auto_sync_${bookId}`, false);
         autoSyncToggle.checked = autoSyncEnabled;
 
-        // Trigger auto-sync on page load if enabled
+        // Trigger auto-sync on page load if enabled and enough time has passed
         if (autoSyncEnabled) {
-            fetchAndApplyProgressAutomatically(bookId, hardcoverId, lastSyncTimeEl);
+            const lastSyncTimestamp = Storage.get(`last_sync_${bookId}`);
+            const autoSyncInterval = 24 * 60 * 60 * 1000; // 24 hours
+            const shouldSync = !lastSyncTimestamp || (Date.now() - parseInt(lastSyncTimestamp)) > autoSyncInterval;
+
+            if (shouldSync) {
+                fetchAndApplyProgressAutomatically(bookId, hardcoverId, lastSyncTimeEl);
+            }
         }
 
         autoSyncToggle.addEventListener('change', () => {
@@ -845,14 +851,14 @@ function fetchAndApplyProgressAutomatically(bookId, hardcoverId, lastSyncTimeEl)
                 mostRecentProgress = data.progress[0];
             }
 
-            applyProgressData(bookId, mostRecentProgress, lastSyncTimeEl);
+            applyProgressData(bookId, mostRecentProgress, lastSyncTimeEl, true);
         })
         .catch(error => {
             console.error('Auto-sync error:', error);
         });
 }
 
-function applyProgressData(bookId, progressData, lastSyncTimeEl) {
+function applyProgressData(bookId, progressData, lastSyncTimeEl, isAutoSync = false) {
     let progressType, progressValue;
 
     if (progressData.reading_format === 'audio') {
@@ -906,6 +912,9 @@ function applyProgressData(bookId, progressData, lastSyncTimeEl) {
                     lastSyncTimeEl.textContent = new Date().toLocaleString();
                 }
 
+                // Only reload if edition was updated or if this is a manual sync
+                const shouldReload = !isAutoSync || data.reload;
+
                 if (progressData.rating) {
                     fetch(`/books/${bookId}/update-rating/`, {
                         method: 'POST',
@@ -928,13 +937,19 @@ function applyProgressData(bookId, progressData, lastSyncTimeEl) {
                                     updateStarsDisplay(ratingStars, parseFloat(progressData.rating));
                                 }
                             }
-                            window.location.reload();
+                            if (shouldReload) {
+                                window.location.reload();
+                            }
                         })
                         .catch(() => {
-                            window.location.reload();
+                            if (shouldReload) {
+                                window.location.reload();
+                            }
                         });
                 } else {
-                    window.location.reload();
+                    if (shouldReload) {
+                        window.location.reload();
+                    }
                 }
             }
         })
