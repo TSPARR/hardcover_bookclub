@@ -137,7 +137,8 @@ html.dark-mode .badge-warning {
 }
 
 html.dark-mode .status-badge.in-progress {
-    color: #0a0d11;
+    background: var(--burgundy);
+    color: white;
 }
 
 html.dark-mode .tab-badge {

@@ -373,7 +373,8 @@ html.dark-mode .book-author {
 }
 
 html.dark-mode .status-badge.in-progress {
-    background: rgba(212, 183, 118, 0.2);
+    background: var(--burgundy);
+    color: white;
 }
 
 html.dark-mode .status-badge.finished {
