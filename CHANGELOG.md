@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 0.9.2
+- Bump djangorestframework from 3.18.2 to 3.18.3
+- Bump markdown from 3.11 to 3.11.2
+- Bump pycparser from 3.0 to 3.12
+- Bump asgiref from 3.12.1 to 3.13.0
+- Bump certifi from 2026.10.19 to 2026.10.23
+
 ## Release 0.9.1
 - Bump cryptography from 50.0.1 to 50.0.2
 - Bump markdown from 3.10.3 to 3.11
