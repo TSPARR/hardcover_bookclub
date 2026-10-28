@@ -374,7 +374,7 @@ html.dark-mode .book-author {
 
 html.dark-mode .status-badge.in-progress {
     background: var(--burgundy);
-    color: white;
+    color: var(--paper-cream-dark);
 }
 
 html.dark-mode .status-badge.finished {
