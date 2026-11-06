@@ -1,5 +1,6 @@
 {% extends 'bookclub/base_v2.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Confirm Add Book - {{ group.name }}{% endblock %}
 
@@ -73,7 +74,7 @@
                         <select class="form-select" id="id_picked_by" name="picked_by">
                             <option value="">-- Not attributed --</option>
                             {% for member in members %}
-                            <option value="{{ member.id }}">{{ member.username }}</option>
+                            <option value="{{ member.id }}">{{ member|club_name:group }}</option>
                             {% endfor %}
                         </select>
                         <div class="form-hint">Select the member who suggested or picked this book.</div>

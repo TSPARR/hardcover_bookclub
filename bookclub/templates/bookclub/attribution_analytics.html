@@ -173,7 +173,7 @@
                             <tbody>
                                 {% for stat in dollar_bet_stats %}
                                 <tr>
-                                    <td>{{ stat.user.username }}</td>
+                                    <td>{{ stat.user|club_name:group }}</td>
                                     <td>{{ stat.won }}</td>
                                     <td>{{ stat.lost }}</td>
                                     <td>{{ stat.total }}</td>
@@ -189,7 +189,7 @@
                     {% for stat in dollar_bet_stats %}
                     <div class="betting-mobile-card">
                         <div class="mobile-card-header">
-                            <div class="mobile-card-title">{{ stat.user.username }}</div>
+                            <div class="mobile-card-title">{{ stat.user|club_name:group }}</div>
                             <div class="mobile-card-value {% if stat.net > 0 %}text-success{% elif stat.net < 0 %}text-danger{% endif %}">
                                 ${{ stat.net|floatformat:2 }}
                             </div>
@@ -224,15 +224,15 @@
                         </div>
                         <div class="stats-item">
                             <span class="stats-item-label">Biggest Winner:</span>
-                            <span class="stats-item-value">{{ dollar_bet_summary.biggest_winner.user.username }} (${{ dollar_bet_summary.biggest_winner.net|floatformat:2 }})</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.biggest_winner.user|club_name:group }} (${{ dollar_bet_summary.biggest_winner.net|floatformat:2 }})</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-item-label">Biggest Loser:</span>
-                            <span class="stats-item-value">{{ dollar_bet_summary.biggest_loser.user.username }} (${{ dollar_bet_summary.biggest_loser.net|floatformat:2 }})</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.biggest_loser.user|club_name:group }} (${{ dollar_bet_summary.biggest_loser.net|floatformat:2 }})</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-item-label">Most Bets Placed:</span>
-                            <span class="stats-item-value">{{ dollar_bet_summary.most_active.user.username }} ({{ dollar_bet_summary.most_active.total }})</span>
+                            <span class="stats-item-value">{{ dollar_bet_summary.most_active.user|club_name:group }} ({{ dollar_bet_summary.most_active.total }})</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-item-label">Most Profitable Rivalry:</span>
@@ -282,10 +282,10 @@
                         {% if dollar_rivalries %}
                             {% for rivalry in dollar_rivalries %}
                                 <tr>
-                                    <td>{{ rivalry.user.username }}</td>
+                                    <td>{{ rivalry.user|club_name:group }}</td>
                                     <td>
                                         {% if rivalry.nemesis %}
-                                            {{ rivalry.nemesis.username }}
+                                            {{ rivalry.nemesis|club_name:group }}
                                         {% else %}
                                             <span class="text-muted">None</span>
                                         {% endif %}
@@ -299,7 +299,7 @@
                                     </td>
                                     <td>
                                         {% if rivalry.cash_cow %}
-                                            {{ rivalry.cash_cow.username }}
+                                            {{ rivalry.cash_cow|club_name:group }}
                                         {% else %}
                                             <span class="text-muted">None</span>
                                         {% endif %}
@@ -329,14 +329,14 @@
                 {% for rivalry in dollar_rivalries %}
                 <div class="rivalry-mobile-card">
                     <div class="mobile-card-header">
-                        <div class="mobile-card-title">{{ rivalry.user.username }}</div>
+                        <div class="mobile-card-title">{{ rivalry.user|club_name:group }}</div>
                     </div>
                     <div class="mobile-card-details">
                         <div class="detail-row">
                             <span class="detail-label">Nemesis:</span>
                             <span class="detail-value">
                                 {% if rivalry.nemesis %}
-                                    {{ rivalry.nemesis.username }}
+                                    {{ rivalry.nemesis|club_name:group }}
                                 {% else %}
                                     <span class="text-muted">None</span>
                                 {% endif %}
@@ -356,7 +356,7 @@
                             <span class="detail-label">Cash Cow:</span>
                             <span class="detail-value">
                                 {% if rivalry.cash_cow %}
-                                    {{ rivalry.cash_cow.username }}
+                                    {{ rivalry.cash_cow|club_name:group }}
                                 {% else %}
                                     <span class="text-muted">None</span>
                                 {% endif %}
@@ -424,7 +424,7 @@
                             {% for stat in member_stats %}
                             <tr>
                                 <td>
-                                    {{ stat.user.username }}
+                                    {{ stat.user|club_name:group }}
                                     {% if stat.is_admin %}
                                     <span class="badge badge-success">Admin</span>
                                     {% endif %}
@@ -468,7 +468,7 @@
                             {% for metric in fairness_metrics %}
                                 <tr class="fairness-row-{{ metric.status }}">
                                     <td>
-                                        {{ metric.user.username }}
+                                        {{ metric.user|club_name:group }}
                                         {% if metric.is_admin %}
                                         <span class="badge badge-success">Admin</span>
                                         {% endif %}
@@ -492,7 +492,7 @@
                 <div class="fairness-mobile-card">
                     <div class="mobile-card-header">
                         <div class="mobile-card-title">
-                            {{ metric.user.username }}
+                            {{ metric.user|club_name:group }}
                             {% if metric.is_admin %}
                             <span class="badge badge-success">Admin</span>
                             {% endif %}
@@ -529,7 +529,7 @@
                 </h2>
                 {% if next_picker %}
                 <span class="next-picker-badge">
-                    <i class="bi bi-person-check"></i> Next Suggested: <strong>{{ next_picker.username }}</strong>
+                    <i class="bi bi-person-check"></i> Next Suggested: <strong>{{ next_picker|club_name:group }}</strong>
                 </span>
                 {% endif %}
             </div>
@@ -561,7 +561,7 @@
                                 <td>
                                     {% for picker_id in rotation.picks %}
                                     <span class="badge {% if rotation.is_clean %}badge-success{% else %}badge-secondary{% endif %}">
-                                        {{ picker_id|get_username_from_id }}
+                                        {{ picker_id|get_username_from_id:group }}
                                     </span>
                                     {% endfor %}
                                 </td>
@@ -583,7 +583,7 @@
                         <strong>Cycle {{ forloop.counter }} common pairs:</strong>
                         {% for pair in rotation.sub_patterns.pairs %}
                         <span class="badge badge-info">
-                            {{ pair.0|get_username_from_id }} → {{ pair.1|get_username_from_id }}
+                            {{ pair.0|get_username_from_id:group }} → {{ pair.1|get_username_from_id:group }}
                         </span>
                         {% endfor %}
                     </div>
@@ -596,7 +596,7 @@
                 <h5>Members Who Haven't Picked Books</h5>
                 <ul>
                     {% for member_id in rotation_analysis.non_participating %}
-                    <li>{{ member_id|get_username_from_id }}</li>
+                    <li>{{ member_id|get_username_from_id:group }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -647,7 +647,7 @@
                                 {% if picker_id == "collective" %}
                                 <span class="badge badge-info">Group Pick</span>
                                 {% elif picker_id %}
-                                {{ picker_id|get_username_from_id }}
+                                {{ picker_id|get_username_from_id:group }}
                                 {% else %}
                                 <span class="badge badge-light">Unattributed</span>
                                 {% endif %}
@@ -683,7 +683,7 @@
                                         {% for user_id, user_rating in rating_data.user_ratings.items %}
                                         <div class="member-rating-item">
                                             <div class="rating-header">
-                                                <span class="member-name">{{ user_id|get_username_from_id }}</span>
+                                                <span class="member-name">{{ user_id|get_username_from_id:group }}</span>
                                                 <div class="member-rating">
                                                     {% include "bookclub/includes/star_rating_v2.html" with rating=user_rating.value small=True %}
                                                 </div>
@@ -728,7 +728,7 @@
                             {% if picker_id == "collective" %}
                                 <span class="badge badge-info">Group Pick</span>
                             {% elif picker_id %}
-                                {{ picker_id|get_username_from_id }}
+                                {{ picker_id|get_username_from_id:group }}
                             {% else %}
                                 <span class="badge badge-light">Unattributed</span>
                             {% endif %}
@@ -767,7 +767,7 @@
                         {% for user_id, user_rating in rating_data.user_ratings.items %}
                         <div class="member-rating-item">
                             <div class="rating-header">
-                                <span class="member-name">{{ user_id|get_username_from_id }}</span>
+                                <span class="member-name">{{ user_id|get_username_from_id:group }}</span>
                                 <div class="member-rating">
                                     {% include "bookclub/includes/star_rating_v2.html" with rating=user_rating.value small=True %}
                                 </div>
@@ -862,7 +862,7 @@
                                                                 {% if book_tuple.0 == "collective" %}
                                                                 <span class="badge badge-info">Group Pick</span>
                                                                 {% elif book_tuple.0 %}
-                                                                {{ book_tuple.0|get_username_from_id }}
+                                                                {{ book_tuple.0|get_username_from_id:group }}
                                                                 {% else %}
                                                                 <span class="badge badge-light">Unattributed</span>
                                                                 {% endif %}
@@ -930,7 +930,7 @@
                             <tbody>
                                 {% for stat in member_rating_stats %}
                                     <tr>
-                                        <td>{{ stat.user.username }}</td>
+                                        <td>{{ stat.user|club_name:group }}</td>
                                         <td>{{ stat.count }}</td>
                                         <td>
                                             {% include "bookclub/includes/star_rating_v2.html" with rating=stat.avg_rating|floatformat:2 small=True %}
@@ -952,7 +952,7 @@
                     {% for stat in member_rating_stats %}
                     <div class="rating-patterns-mobile-card">
                         <div class="mobile-card-header">
-                            <div class="mobile-card-title">{{ stat.user.username }}</div>
+                            <div class="mobile-card-title">{{ stat.user|club_name:group }}</div>
                         </div>
                         <div class="mobile-card-details">
                             <div class="detail-row">

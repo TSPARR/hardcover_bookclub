@@ -129,7 +129,7 @@
                                             {% if book.is_collective_pick %}
                                             <span class="meta-badge collective">Group Pick</span>
                                             {% elif book.picked_by %}
-                                            <span class="meta-badge user">{{ book.picked_by.username }}</span>
+                                            <span class="meta-badge user">{{ book.picked_by|club_name:group }}</span>
                                             {% endif %}
                                         </div>
 
@@ -312,7 +312,7 @@
                                                 {% if book.is_collective_pick %}
                                                 <span class="meta-badge collective small">Group Pick</span>
                                                 {% elif book.picked_by %}
-                                                <span class="meta-badge user small">{{ book.picked_by.username }}</span>
+                                                <span class="meta-badge user small">{{ book.picked_by|club_name:group }}</span>
                                                 {% endif %}
                                             </div>
                                             <div class="book-list-actions">
@@ -408,7 +408,7 @@
                     <div class="member-list">
                         {% for member in members %}
                         <div class="member-item">
-                            <span class="member-name">{{ member.username }}</span>
+                            <span class="member-name">{{ member|club_name:group }}</span>
                             {% if member in admins %}
                             <span class="role-badge">Admin</span>
                             {% endif %}
@@ -424,7 +424,7 @@
                 </div>
             </div>
 
-            {% if is_admin and ENABLE_DOLLAR_BETS or is_admin and ENABLE_MEETINGS or is_admin and ENABLE_BOOK_PROPOSALS %}
+            {% if is_admin %}
             <div class="settings-card">
                 <div class="settings-card-header">
                     <h3 class="settings-card-title">
@@ -472,6 +472,16 @@
                         </div>
                         {% endif %}
 
+                        <div class="form-group">
+                            <div class="form-check-group">
+                                <input type="checkbox" id="enableDisplayNames" name="enable_display_names" {% if group.enable_display_names %}checked{% endif %}>
+                                <label for="enableDisplayNames">
+                                    <span class="label-text">Display Names</span>
+                                    <span class="label-hint">Show custom display names with usernames in parentheses</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-sm">
                             <i class="bi bi-check-circle"></i>
                             Save Settings
@@ -516,7 +526,7 @@
                     <select id="pickedBy" name="picked_by" class="form-input">
                         <option value="">Select a member</option>
                         {% for member in members %}
-                        <option value="{{ member.id }}">{{ member.username }}</option>
+                        <option value="{{ member.id }}">{{ member|club_name:group }}</option>
                         {% endfor %}
                     </select>
                 </div>

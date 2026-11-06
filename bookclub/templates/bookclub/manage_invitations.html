@@ -1,5 +1,6 @@
 {% extends 'bookclub/base_v2.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Manage Invitations - {{ group.name }}{% endblock %}
 
@@ -88,7 +89,7 @@
                                         <span class="status-badge active">Active</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ invitation.created_by.username }}</td>
+                                <td>{{ invitation.created_by|club_name:group }}</td>
                                 <td>{{ invitation.email|default:"-" }}</td>
                                 <td>
                                     {% if invitation.is_valid %}
@@ -145,7 +146,7 @@
 
                     <div class="mobile-info-group">
                         <div class="mobile-info-label">Created By</div>
-                        <div class="mobile-info-value">{{ invitation.created_by.username }}</div>
+                        <div class="mobile-info-value">{{ invitation.created_by|club_name:group }}</div>
                     </div>
 
                     <div class="mobile-info-group">

@@ -33,6 +33,10 @@ class BookGroup(models.Model):
         default=False,
         help_text="Allow members to propose books for group consideration",
     )
+    enable_display_names = models.BooleanField(
+        default=True,
+        help_text="Show member display names alongside their usernames in this group",
+    )
 
     def __str__(self):
         return self.name
@@ -297,9 +301,12 @@ class Comment(models.Model):
         reaction_types = self.reactions.values_list("reaction", flat=True).distinct()
         result = {}
         for reaction in reaction_types:
-            result[reaction] = self.reactions.filter(reaction=reaction).values_list(
-                "user", flat=True
-            )
+            result[reaction] = [
+                item.user
+                for item in self.reactions.filter(reaction=reaction).select_related(
+                    "user", "user__profile"
+                )
+            ]
         return result
 
 
@@ -578,6 +585,11 @@ class GroupInvitation(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    display_name = models.CharField(
+        max_length=80,
+        blank=True,
+        help_text="Name shown to other members. Falls back to the username when blank.",
+    )
     hardcover_api_key = encrypt(models.TextField(blank=True, null=True))
     can_create_groups = models.BooleanField(default=False)
     enable_notifications = models.BooleanField(default=False)
@@ -597,6 +609,14 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s profile"
+
+    @property
+    def display_name_or_username(self):
+        """Return the member-facing label, retaining the login username for clarity."""
+        display_name = self.display_name.strip()
+        if display_name:
+            return f"{display_name} ({self.user.username})"
+        return self.user.username
 
     def get_notification_preference(self, notification_type):
         """Get a specific notification preference"""
@@ -672,6 +692,18 @@ class UserProfile(models.Model):
 
         # Unknown preference type, fallback to default
         return reverse("home")
+
+
+def get_user_display_name(user, group=None):
+    """Return the member label allowed by the selected group's settings."""
+    if not user:
+        return ""
+    if group is not None and not group.enable_display_names:
+        return user.username
+    try:
+        return user.profile.display_name_or_username
+    except (AttributeError, UserProfile.DoesNotExist):
+        return user.username
 
 
 @receiver(post_save, sender=User)

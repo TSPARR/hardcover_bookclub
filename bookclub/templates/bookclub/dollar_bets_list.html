@@ -88,17 +88,17 @@
                                     </div>
                                     <div class="detail-participants">
                                         {% for p in bet.participants.all|slice:":3" %}
-                                        {{ p.user.username }}{% if not forloop.last %}, {% endif %}
+                                        {{ p.user|club_name:group }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                         {% if bet.participant_count > 3 %}...{% endif %}
                                     </div>
                                     {% else %}
                                     <div class="detail-item">
-                                        <strong>Proposer:</strong> {{ bet.proposer.username }}
+                                        <strong>Proposer:</strong> {{ bet.proposer|club_name:group }}
                                     </div>
                                     <div class="detail-item">
                                         {% if bet.accepter %}
-                                        <strong>Accepter:</strong> {{ bet.accepter.username }}
+                                        <strong>Accepter:</strong> {{ bet.accepter|club_name:group }}
                                         {% else %}
                                         <em>Waiting for accepter</em>
                                         {% endif %}
@@ -127,15 +127,15 @@
                                             {% if bet.winner_count > 1 %}
                                             {{ bet.winner_count }} winners (split pot)
                                             {% elif bet.winner_count == 1 %}
-                                            Winner: {{ bet.winners.0.username }}
+                                            Winner: {{ bet.winners.0|club_name:group }}
                                             {% endif %}
                                         {% else %}
-                                        Winner: {{ bet.winner.username }}
+                                        Winner: {{ bet.winner|club_name:group }}
                                         {% endif %}
                                     </div>
                                     {% elif bet.status == 'lost' %}
                                     <span class="badge badge-status-resolved">Resolved</span>
-                                    <div class="status-detail">Winner: {{ bet.winner.username }}</div>
+                                    <div class="status-detail">Winner: {{ bet.winner|club_name:group }}</div>
                                     {% elif bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}
                                     <span class="badge badge-status-inconclusive">Inconclusive</span>
                                     {% endif %}
@@ -214,20 +214,20 @@
                         </div>
                         <div class="detail-participants-mobile">
                             {% for p in bet.participants.all|slice:":3" %}
-                            {{ p.user.username }}{% if not forloop.last %}, {% endif %}
+                            {{ p.user|club_name:group }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                             {% if bet.participant_count > 3 %}...{% endif %}
                         </div>
                         {% else %}
                         <div class="detail-row">
                             <span class="detail-label">Proposer:</span>
-                            <span class="detail-value">{{ bet.proposer.username }}</span>
+                            <span class="detail-value">{{ bet.proposer|club_name:group }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Accepter:</span>
                             <span class="detail-value">
                                 {% if bet.accepter %}
-                                {{ bet.accepter.username }}
+                                {{ bet.accepter|club_name:group }}
                                 {% else %}
                                 <em>Waiting...</em>
                                 {% endif %}

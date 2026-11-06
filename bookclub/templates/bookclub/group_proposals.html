@@ -1,5 +1,6 @@
 {% extends 'bookclub/base_v2.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Book Proposals - {{ group.name }}{% endblock %}
 
@@ -41,7 +42,7 @@
                     {% for proposal in pending_proposals %}
                     <div class="proposal-card">
                         <div class="proposal-card-header">
-                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by.username }}</span>
+                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by|club_name:group }}</span>
                             <span class="status-badge pending">Pending</span>
                         </div>
                         <div class="proposal-card-content">
@@ -99,7 +100,7 @@
                                         data-proposal-title="{{ proposal.title }}"
                                         data-proposal-author="{{ proposal.author }}"
                                         data-proposal-cover="{% if proposal.cover_image_url %}{{ proposal.cover_image_url }}{% endif %}"
-                                        data-proposed-by="{{ proposal.proposed_by.username }}"
+                                        data-proposed-by="{{ proposal.proposed_by|club_name:group }}"
                                         data-proposed-date="{{ proposal.created_at|date:"F j, Y" }}"
                                         data-delete-url="{% url 'delete_proposal' proposal.id %}">
                                     <i class="bi bi-trash"></i> Delete
@@ -110,7 +111,7 @@
                                         data-proposal-title="{{ proposal.title }}"
                                         data-proposal-author="{{ proposal.author }}"
                                         data-proposal-cover="{% if proposal.cover_image_url %}{{ proposal.cover_image_url }}{% endif %}"
-                                        data-proposed-by="{{ proposal.proposed_by.username }}"
+                                        data-proposed-by="{{ proposal.proposed_by|club_name:group }}"
                                         data-proposed-date="{{ proposal.created_at|date:"F j, Y" }}"
                                         data-delete-url="{% url 'delete_proposal' proposal.id %}">
                                     <i class="bi bi-trash"></i> Delete My Proposal
@@ -149,7 +150,7 @@
                     {% for proposal in approved_proposals %}
                     <div class="proposal-card">
                         <div class="proposal-card-header">
-                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by.username }}</span>
+                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by|club_name:group }}</span>
                             <span class="status-badge approved">Approved</span>
                         </div>
                         <div class="proposal-card-content">
@@ -231,7 +232,7 @@
                     {% for proposal in rejected_proposals %}
                     <div class="proposal-card">
                         <div class="proposal-card-header">
-                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by.username }}</span>
+                            <span class="proposal-card-meta">Proposed by {{ proposal.proposed_by|club_name:group }}</span>
                             <span class="status-badge rejected">Rejected</span>
                         </div>
                         <div class="proposal-card-content">

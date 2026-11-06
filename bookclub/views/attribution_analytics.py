@@ -18,6 +18,7 @@ from ..models import (
     DollarBet,
     MemberStartingPoint,
     UserBookProgress,
+    get_user_display_name,
 )
 
 logger = logging.getLogger(__name__)
@@ -158,7 +159,9 @@ def attribution_analytics(request, group_id):
         )
 
     # Sort by count (descending) and then by username
-    member_stats.sort(key=lambda x: (-x["count"], x["user"].username))
+    member_stats.sort(
+        key=lambda x: (-x["count"], get_user_display_name(x["user"], group).lower())
+    )
 
     # Analyze rotation pattern
     rotation_analysis = analyze_rotation(book_sequence, members, group)
@@ -981,8 +984,10 @@ def calculate_dollar_bet_stats(group):
                 if cash_cow_gain > most_profitable_amount:
                     most_profitable_amount = cash_cow_gain
                     summary["most_profitable_rivalry"] = {
-                        "winner": user.username,
-                        "loser": user_stats[opponent_id]["user"].username,
+                        "winner": get_user_display_name(user, group),
+                        "loser": get_user_display_name(
+                            user_stats[opponent_id]["user"], group
+                        ),
                         "amount": cash_cow_gain,
                     }
 

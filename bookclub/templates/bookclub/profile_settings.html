@@ -19,6 +19,35 @@
     </div>
 
     <div class="profile-settings-content">
+        <div class="settings-card identity-settings-card">
+            <div class="settings-card-header">
+                <h2 class="settings-card-title">
+                    <i class="bi bi-person-badge"></i>
+                    Display Name
+                </h2>
+            </div>
+            <div class="settings-card-body">
+                <p class="settings-help-text">
+                    <i class="bi bi-info-circle"></i> This name will be shown to other members alongside your username.
+                </p>
+                <form method="post" class="identity-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="{{ display_name_form.display_name.id_for_label }}" class="form-label">Display Name</label>
+                        {{ display_name_form.display_name }}
+                        {% if display_name_form.display_name.errors %}
+                        <div class="form-error">{{ display_name_form.display_name.errors }}</div>
+                        {% endif %}
+                        <div class="form-hint">{{ display_name_form.display_name.help_text }} Current username: {{ user.username }}</div>
+                    </div>
+
+                    <button type="submit" name="save_display_name" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save Display Name
+                    </button>
+                </form>
+            </div>
+        </div>
+
         <div class="settings-card password-settings-card">
             <div class="settings-card-header">
                 <h2 class="settings-card-title">

@@ -24,7 +24,7 @@
         <div class="page-content">
             <div class="comment-preview-card">
                 <div class="comment-preview-header">
-                    <span class="comment-user">{{ parent_comment.user.username }}</span>
+                    <span class="comment-user">{{ parent_comment.user|club_name:book.group }}</span>
                     <span class="comment-date">{{ parent_comment.created_at|date:"F j, Y, g:i a" }}</span>
                 </div>
                 <div class="comment-preview-body">

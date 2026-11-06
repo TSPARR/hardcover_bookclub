@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
 from ..forms import (
+    DisplayNameForm,
     HomePagePreferenceForm,
     NotificationPreferencesForm,
     ProfileSettingsForm,
@@ -33,6 +34,18 @@ VAPID_PUBLIC_KEY = getattr(settings, "VAPID_PUBLIC_KEY", "")
 @login_required
 def profile_settings(request):
     password_changed = False
+    display_name_form = DisplayNameForm(instance=request.user.profile)
+
+    if request.method == "POST" and "save_display_name" in request.POST:
+        display_name_form = DisplayNameForm(
+            request.POST, instance=request.user.profile
+        )
+        if display_name_form.is_valid():
+            display_name_form.save()
+            messages.success(request, "Your display name has been updated.")
+        else:
+            messages.error(request, "Please enter a valid display name.")
+        return redirect("profile_settings")
 
     if request.method == "POST":
         form = ProfileSettingsForm(request.POST, instance=request.user.profile)
@@ -222,6 +235,7 @@ def profile_settings(request):
 
     context = {
         "form": form,
+        "display_name_form": display_name_form,
         "notification_form": notification_form,
         "home_page_form": home_page_form,
         "password_form": password_form,
