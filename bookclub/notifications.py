@@ -19,6 +19,9 @@ NOTIFICATION_TYPES = {
     "bet_accepted": "Bet Accepted",
     "bet_added_to": "Added to Bet",
     "bet_resolved": "Bet Resolved",
+    "new_book_proposal": "New Book Proposals",
+    "proposal_approved": "Proposal Approved",
+    "proposal_rejected": "Proposal Rejected",
 }
 
 

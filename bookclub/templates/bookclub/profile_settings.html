@@ -55,6 +55,15 @@
                             <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
                                 value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
                             {% endif %}
+
+                            {% if ENABLE_BOOK_PROPOSALS and user_has_book_proposal_groups %}
+                            <input type="hidden" name="{{ notification_form.notify_new_book_proposal.html_name }}"
+                                value="{% if notification_form.notify_new_book_proposal.value %}on{% endif %}">
+                            <input type="hidden" name="{{ notification_form.notify_proposal_approved.html_name }}"
+                                value="{% if notification_form.notify_proposal_approved.value %}on{% endif %}">
+                            <input type="hidden" name="{{ notification_form.notify_proposal_rejected.html_name }}"
+                                value="{% if notification_form.notify_proposal_rejected.value %}on{% endif %}">
+                            {% endif %}
                         {% endif %}
 
                         {% if password_form.errors %}
@@ -144,6 +153,15 @@
                         <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
                             value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
                         {% endif %}
+
+                        {% if ENABLE_BOOK_PROPOSALS and user_has_book_proposal_groups %}
+                        <input type="hidden" name="{{ notification_form.notify_new_book_proposal.html_name }}"
+                            value="{% if notification_form.notify_new_book_proposal.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_proposal_approved.html_name }}"
+                            value="{% if notification_form.notify_proposal_approved.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_proposal_rejected.html_name }}"
+                            value="{% if notification_form.notify_proposal_rejected.value %}on{% endif %}">
+                        {% endif %}
                     {% endif %}
 
                     <div class="form-group">
@@ -213,6 +231,15 @@
                             value="{% if notification_form.notify_bet_added_to.value %}on{% endif %}">
                         <input type="hidden" name="{{ notification_form.notify_bet_resolved.html_name }}"
                             value="{% if notification_form.notify_bet_resolved.value %}on{% endif %}">
+                        {% endif %}
+
+                        {% if ENABLE_BOOK_PROPOSALS and user_has_book_proposal_groups %}
+                        <input type="hidden" name="{{ notification_form.notify_new_book_proposal.html_name }}"
+                            value="{% if notification_form.notify_new_book_proposal.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_proposal_approved.html_name }}"
+                            value="{% if notification_form.notify_proposal_approved.value %}on{% endif %}">
+                        <input type="hidden" name="{{ notification_form.notify_proposal_rejected.html_name }}"
+                            value="{% if notification_form.notify_proposal_rejected.value %}on{% endif %}">
                         {% endif %}
                     {% endif %}
 
@@ -322,6 +349,42 @@
                                 {{ notification_form.notify_bet_resolved.label }}
                             </label>
                             <div class="form-hint">{{ notification_form.notify_bet_resolved.help_text }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if ENABLE_BOOK_PROPOSALS and user_has_book_proposal_groups %}
+                        <div class="notification-section-title">Book Proposal Notifications</div>
+
+                        {% if user_is_admin_of_book_proposal_groups %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_book_proposal.id_for_label }}"
+                                name="{{ notification_form.notify_new_book_proposal.html_name }}"
+                                {% if notification_form.notify_new_book_proposal.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_new_book_proposal.id_for_label }}">
+                                {{ notification_form.notify_new_book_proposal.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_new_book_proposal.help_text }}</div>
+                        </div>
+                        {% endif %}
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_proposal_approved.id_for_label }}"
+                                name="{{ notification_form.notify_proposal_approved.html_name }}"
+                                {% if notification_form.notify_proposal_approved.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_proposal_approved.id_for_label }}">
+                                {{ notification_form.notify_proposal_approved.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_proposal_approved.help_text }}</div>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_proposal_rejected.id_for_label }}"
+                                name="{{ notification_form.notify_proposal_rejected.html_name }}"
+                                {% if notification_form.notify_proposal_rejected.value %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ notification_form.notify_proposal_rejected.id_for_label }}">
+                                {{ notification_form.notify_proposal_rejected.label }}
+                            </label>
+                            <div class="form-hint">{{ notification_form.notify_proposal_rejected.help_text }}</div>
                         </div>
                         {% endif %}
                     </div>

@@ -149,11 +149,13 @@ def book_detail(request, book_id):
 
                 # Check if user is trying to use page/audio without edition data
                 if progress_type == "page":
-                    has_page_data = (user_progress.edition and user_progress.edition.pages) or book.pages
+                    has_page_data = (
+                        user_progress.edition and user_progress.edition.pages
+                    ) or book.pages
                     if not has_page_data:
                         messages.error(
                             request,
-                            "Cannot use page numbers without edition data. Please select an edition or use percentage instead."
+                            "Cannot use page numbers without edition data. Please select an edition or use percentage instead.",
                         )
                         return render(
                             request,
@@ -176,11 +178,13 @@ def book_detail(request, book_id):
                             },
                         )
                 elif progress_type == "audio":
-                    has_audio_data = (user_progress.edition and user_progress.edition.audio_seconds) or book.audio_seconds
+                    has_audio_data = (
+                        user_progress.edition and user_progress.edition.audio_seconds
+                    ) or book.audio_seconds
                     if not has_audio_data:
                         messages.error(
                             request,
-                            "Cannot use audio timestamps without edition data. Please select an edition or use percentage instead."
+                            "Cannot use audio timestamps without edition data. Please select an edition or use percentage instead.",
                         )
                         return render(
                             request,

@@ -184,6 +184,15 @@ def profile_settings(request):
         initial_data["notify_bet_accepted"] = preferences.get("bet_accepted", False)
         initial_data["notify_bet_added_to"] = preferences.get("bet_added_to", False)
         initial_data["notify_bet_resolved"] = preferences.get("bet_resolved", False)
+        initial_data["notify_new_book_proposal"] = preferences.get(
+            "new_book_proposal", False
+        )
+        initial_data["notify_proposal_approved"] = preferences.get(
+            "proposal_approved", False
+        )
+        initial_data["notify_proposal_rejected"] = preferences.get(
+            "proposal_rejected", False
+        )
 
         notification_form = NotificationPreferencesForm(
             initial=initial_data, user=request.user, push_enabled=is_push_enabled()
@@ -203,17 +212,24 @@ def profile_settings(request):
             user=request.user,
         )
 
-    # Check if the user is a member of any groups with dollar bets enabled
     user_has_dollar_bet_groups = False
-
-    # Only check group membership if the feature is globally enabled
     if settings.ENABLE_DOLLAR_BETS:
-        # Get all groups the user is a member of
         user_groups = BookGroup.objects.filter(members=request.user)
         for group in user_groups:
             if group.is_dollar_bets_enabled():
                 user_has_dollar_bet_groups = True
                 break
+
+    user_has_book_proposal_groups = False
+    user_is_admin_of_book_proposal_groups = False
+    if settings.ENABLE_BOOK_PROPOSALS:
+        user_groups = BookGroup.objects.filter(members=request.user)
+        for group in user_groups:
+            if group.is_book_proposals_enabled():
+                user_has_book_proposal_groups = True
+                if group.is_admin(request.user):
+                    user_is_admin_of_book_proposal_groups = True
+                    break
 
     breadcrumb_items = [
         {"title": "Home", "url": "/"},
@@ -227,6 +243,8 @@ def profile_settings(request):
         "password_form": password_form,
         "push_notifications_enabled": is_push_enabled(),
         "user_has_dollar_bet_groups": user_has_dollar_bet_groups,
+        "user_has_book_proposal_groups": user_has_book_proposal_groups,
+        "user_is_admin_of_book_proposal_groups": user_is_admin_of_book_proposal_groups,
         "breadcrumb_items": breadcrumb_items,
     }
 

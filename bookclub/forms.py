@@ -250,6 +250,24 @@ class NotificationPreferencesForm(forms.Form):
         help_text="Get notified when a bet you're involved in is resolved",
     )
 
+    notify_new_book_proposal = forms.BooleanField(
+        required=False,
+        label="New Book Proposals",
+        help_text="Get notified when members propose new books (admins only)",
+    )
+
+    notify_proposal_approved = forms.BooleanField(
+        required=False,
+        label="Proposal Approved",
+        help_text="Get notified when your book proposal is approved",
+    )
+
+    notify_proposal_rejected = forms.BooleanField(
+        required=False,
+        label="Proposal Rejected",
+        help_text="Get notified when your book proposal is rejected",
+    )
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         # Get push_enabled from the view instead of directly from settings
@@ -288,6 +306,15 @@ class NotificationPreferencesForm(forms.Form):
                 "bet_accepted": self.cleaned_data.get("notify_bet_accepted", False),
                 "bet_added_to": self.cleaned_data.get("notify_bet_added_to", False),
                 "bet_resolved": self.cleaned_data.get("notify_bet_resolved", False),
+                "new_book_proposal": self.cleaned_data.get(
+                    "notify_new_book_proposal", False
+                ),
+                "proposal_approved": self.cleaned_data.get(
+                    "notify_proposal_approved", False
+                ),
+                "proposal_rejected": self.cleaned_data.get(
+                    "notify_proposal_rejected", False
+                ),
             }
         )
 
