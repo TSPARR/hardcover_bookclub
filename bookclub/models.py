@@ -193,6 +193,38 @@ class BookProposal(models.Model):
         self.rejection_reason = reason
         self.save()
 
+    def get_vote_counts(self):
+        """Get thumbs up and down counts for this proposal"""
+        votes = self.votes.all()
+        return {
+            "thumbs_up": votes.filter(is_upvote=True).count(),
+            "thumbs_down": votes.filter(is_upvote=False).count(),
+        }
+
+    def get_user_vote(self, user):
+        """Get user's vote on this proposal (True/False/None)"""
+        try:
+            vote = self.votes.get(user=user)
+            return vote.is_upvote
+        except ProposalVote.DoesNotExist:
+            return None
+
+
+class ProposalVote(models.Model):
+    proposal = models.ForeignKey(
+        BookProposal, on_delete=models.CASCADE, related_name="votes"
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_upvote = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("proposal", "user")
+
+    def __str__(self):
+        vote_type = "👍" if self.is_upvote else "👎"
+        return f"{self.user.username} {vote_type} {self.proposal.title}"
+
 
 class BookEdition(models.Model):
     """Stores information about a specific edition of a book"""

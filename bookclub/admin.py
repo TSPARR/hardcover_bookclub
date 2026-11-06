@@ -13,6 +13,7 @@ from .models import (
     Meeting,
     MeetingAttendance,
     MemberStartingPoint,
+    ProposalVote,
     UserBookProgress,
     UserProfile,
 )
@@ -163,6 +164,14 @@ class BookProposalAdmin(admin.ModelAdmin):
     search_fields = ["title", "author", "proposed_by__username", "group__name"]
     raw_id_fields = ["group", "proposed_by", "reviewed_by", "created_book"]
     readonly_fields = ["created_at", "updated_at", "reviewed_at"]
+
+
+class ProposalVoteAdmin(admin.ModelAdmin):
+    list_display = ["proposal", "user", "is_upvote", "created_at"]
+    list_filter = ["is_upvote", "created_at"]
+    search_fields = ["proposal__title", "user__username"]
+    raw_id_fields = ["proposal", "user"]
+    readonly_fields = ["created_at"]
 
 
 class CommentAdmin(admin.ModelAdmin):
@@ -407,6 +416,12 @@ try:
 except admin.sites.NotRegistered:
     pass
 admin.site.register(BookProposal, BookProposalAdmin)
+
+try:
+    admin.site.unregister(ProposalVote)
+except admin.sites.NotRegistered:
+    pass
+admin.site.register(ProposalVote, ProposalVoteAdmin)
 
 try:
     admin.site.unregister(Comment)

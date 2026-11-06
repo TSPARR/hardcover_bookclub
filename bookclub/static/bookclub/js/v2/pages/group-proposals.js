@@ -96,3 +96,65 @@ deleteButtons.forEach(button => {
         }
     });
 });
+
+const voteButtons = document.querySelectorAll('.vote-btn');
+
+voteButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+        const proposalId = button.getAttribute('data-proposal-id');
+        const voteType = button.getAttribute('data-vote-type');
+        const voteUrl = `/proposals/${proposalId}/vote/`;
+
+        button.disabled = true;
+
+        try {
+            const response = await fetch(voteUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCsrfToken(),
+                },
+                body: `vote_type=${voteType}`,
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                const card = button.closest('.proposal-card');
+                const upButton = card.querySelector('.vote-up');
+                const downButton = card.querySelector('.vote-down');
+
+                upButton.querySelector('.vote-count').textContent = data.thumbs_up;
+                downButton.querySelector('.vote-count').textContent = data.thumbs_down;
+
+                upButton.classList.remove('active');
+                downButton.classList.remove('active');
+
+                if (data.user_vote === true) {
+                    upButton.classList.add('active');
+                } else if (data.user_vote === false) {
+                    downButton.classList.add('active');
+                }
+            }
+        } catch (error) {
+            console.error('Error voting:', error);
+        } finally {
+            button.disabled = false;
+        }
+    });
+});
+
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return value;
+        }
+    }
+    return '';
+}

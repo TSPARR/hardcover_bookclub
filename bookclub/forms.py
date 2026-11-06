@@ -253,7 +253,7 @@ class NotificationPreferencesForm(forms.Form):
     notify_new_book_proposal = forms.BooleanField(
         required=False,
         label="New Book Proposals",
-        help_text="Get notified when members propose new books (admins only)",
+        help_text="Get notified when members propose new books",
     )
 
     notify_proposal_approved = forms.BooleanField(

@@ -78,6 +78,7 @@ from bookclub.views.proposal_views import (
     group_proposals,
     propose_book,
     review_proposal,
+    vote_proposal,
 )
 
 
@@ -241,6 +242,11 @@ urlpatterns = [
         "proposals/<int:proposal_id>/delete/",
         delete_proposal,
         name="delete_proposal",
+    ),
+    path(
+        "proposals/<int:proposal_id>/vote/",
+        vote_proposal,
+        name="vote_proposal",
     ),
     path("comments/<int:comment_id>/edit/", edit_comment, name="edit_comment"),
     path("comments/<int:comment_id>/delete/", delete_comment, name="delete_comment"),

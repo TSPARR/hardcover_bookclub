@@ -7,13 +7,15 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from ..forms import BookProposalForm, ReviewProposalForm
 from ..hardcover_api import HardcoverAPI
-from ..models import Book, BookGroup, BookProposal, User
+from ..models import Book, BookGroup, BookProposal, ProposalVote, User
 from ..notifications import send_push_notification
 
 logger = logging.getLogger(__name__)
@@ -91,17 +93,16 @@ def propose_book(request, group_id, hardcover_id):
                 f"Your proposal for '{book_data.get('title')}' has been submitted for admin review.",
             )
 
-            # Notify all admins
-            admins = group.admins.all()
             proposal_url = reverse("group_proposals", kwargs={"group_id": group.id})
-            for admin in admins:
-                send_push_notification(
-                    user=admin,
-                    title=f"New Book Proposal in {group.name}",
-                    body=f"{request.user.first_name} proposed '{book_data.get('title')}'",
-                    url=proposal_url,
-                    notification_type="new_book_proposal",
-                )
+            for member in group.members.all():
+                if member != request.user:
+                    send_push_notification(
+                        user=member,
+                        title=f"New Book Proposal in {group.name}",
+                        body=f"{request.user.first_name} proposed '{book_data.get('title')}'",
+                        url=proposal_url,
+                        notification_type="new_book_proposal",
+                    )
 
             return redirect("group_proposals", group_id=group.id)
     else:
@@ -142,10 +143,15 @@ def group_proposals(request, group_id):
 
     is_admin = group.is_admin(request.user)
 
-    # Get all proposals for the group, organized by status
     pending_proposals = group.book_proposals.filter(status="pending")
     approved_proposals = group.book_proposals.filter(status="approved")
     rejected_proposals = group.book_proposals.filter(status="rejected")
+
+    for proposal in (
+        list(pending_proposals) + list(approved_proposals) + list(rejected_proposals)
+    ):
+        proposal.vote_counts = proposal.get_vote_counts()
+        proposal.user_vote = proposal.get_user_vote(request.user)
 
     breadcrumb_items = [
         {"title": "Home", "url": reverse("home")},
@@ -307,3 +313,56 @@ def delete_proposal(request, proposal_id):
     proposal.delete()
     messages.success(request, f"Proposal for '{title}' has been deleted.")
     return redirect("group_proposals", group_id=group.id)
+
+
+@require_POST
+@login_required
+def vote_proposal(request, proposal_id):
+    """
+    Toggle user's vote on a proposal (thumbs up or down)
+    """
+    proposal = get_object_or_404(BookProposal, id=proposal_id)
+    group = proposal.group
+
+    if not group.is_member(request.user):
+        return JsonResponse({"error": "You must be a member to vote"}, status=403)
+
+    if not group.is_book_proposals_enabled():
+        return JsonResponse({"error": "Book proposals are not enabled"}, status=403)
+
+    vote_type = request.POST.get("vote_type")
+    if vote_type not in ["up", "down"]:
+        return JsonResponse({"error": "Invalid vote type"}, status=400)
+
+    is_upvote = vote_type == "up"
+
+    existing_vote = ProposalVote.objects.filter(
+        proposal=proposal, user=request.user
+    ).first()
+
+    if existing_vote:
+        if existing_vote.is_upvote == is_upvote:
+            existing_vote.delete()
+            action = "removed"
+        else:
+            existing_vote.is_upvote = is_upvote
+            existing_vote.save()
+            action = "changed"
+    else:
+        ProposalVote.objects.create(
+            proposal=proposal, user=request.user, is_upvote=is_upvote
+        )
+        action = "added"
+
+    vote_counts = proposal.get_vote_counts()
+    user_vote = proposal.get_user_vote(request.user)
+
+    return JsonResponse(
+        {
+            "success": True,
+            "action": action,
+            "thumbs_up": vote_counts["thumbs_up"],
+            "thumbs_down": vote_counts["thumbs_down"],
+            "user_vote": user_vote,
+        }
+    )

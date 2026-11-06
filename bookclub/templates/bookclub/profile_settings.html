@@ -355,7 +355,6 @@
                         {% if ENABLE_BOOK_PROPOSALS and user_has_book_proposal_groups %}
                         <div class="notification-section-title">Book Proposal Notifications</div>
 
-                        {% if user_is_admin_of_book_proposal_groups %}
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_new_book_proposal.id_for_label }}"
                                 name="{{ notification_form.notify_new_book_proposal.html_name }}"
@@ -365,7 +364,6 @@
                             </label>
                             <div class="form-hint">{{ notification_form.notify_new_book_proposal.help_text }}</div>
                         </div>
-                        {% endif %}
 
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="{{ notification_form.notify_proposal_approved.id_for_label }}"

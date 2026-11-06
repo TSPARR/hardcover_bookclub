@@ -117,6 +117,20 @@
                                 </button>
                                 {% endif %}
                             </div>
+                            <div class="proposal-voting">
+                                <button type="button" class="vote-btn vote-up {% if proposal.user_vote == True %}active{% endif %}"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-vote-type="up">
+                                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                                    <span class="vote-count">{{ proposal.vote_counts.thumbs_up }}</span>
+                                </button>
+                                <button type="button" class="vote-btn vote-down {% if proposal.user_vote == False %}active{% endif %}"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-vote-type="down">
+                                    <i class="bi bi-hand-thumbs-down-fill"></i>
+                                    <span class="vote-count">{{ proposal.vote_counts.thumbs_down }}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
@@ -196,15 +210,29 @@
                                 </div>
                             </div>
                         </div>
-                        {% if proposal.created_book %}
                         <div class="proposal-card-footer">
+                            {% if proposal.created_book %}
                             <div class="proposal-card-actions">
                                 <a href="{% url 'book_detail' proposal.created_book.id %}" class="btn btn-success btn-sm">
                                     <i class="bi bi-book"></i> View Book
                                 </a>
                             </div>
+                            {% endif %}
+                            <div class="proposal-voting">
+                                <button type="button" class="vote-btn vote-up {% if proposal.user_vote == True %}active{% endif %}"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-vote-type="up">
+                                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                                    <span class="vote-count">{{ proposal.vote_counts.thumbs_up }}</span>
+                                </button>
+                                <button type="button" class="vote-btn vote-down {% if proposal.user_vote == False %}active{% endif %}"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-vote-type="down">
+                                    <i class="bi bi-hand-thumbs-down-fill"></i>
+                                    <span class="vote-count">{{ proposal.vote_counts.thumbs_down }}</span>
+                                </button>
+                            </div>
                         </div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -278,13 +306,27 @@
                                 </div>
                             </div>
                         </div>
-                        {% if proposal.rejection_reason %}
                         <div class="proposal-card-footer">
+                            {% if proposal.rejection_reason %}
                             <div class="proposal-rejection-reason">
                                 <strong>Reason:</strong> {{ proposal.rejection_reason|truncatechars:80 }}
                             </div>
+                            {% endif %}
+                            <div class="proposal-voting">
+                                <button type="button" class="vote-btn vote-up {% if proposal.user_vote == True %}active{% endif %}"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-vote-type="up">
+                                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                                    <span class="vote-count">{{ proposal.vote_counts.thumbs_up }}</span>
+                                </button>
+                                <button type="button" class="vote-btn vote-down {% if proposal.user_vote == False %}active{% endif %}"
+                                        data-proposal-id="{{ proposal.id }}"
+                                        data-vote-type="down">
+                                    <i class="bi bi-hand-thumbs-down-fill"></i>
+                                    <span class="vote-count">{{ proposal.vote_counts.thumbs_down }}</span>
+                                </button>
+                            </div>
                         </div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
