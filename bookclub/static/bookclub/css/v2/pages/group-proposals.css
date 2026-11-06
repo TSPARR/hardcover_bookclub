@@ -561,6 +561,21 @@ html.dark-mode .btn-secondary:hover {
     .proposal-card-actions .btn {
         width: 100%;
     }
+
+    .proposal-voting {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vote-btn {
+        padding: 0.625rem 1rem;
+        font-size: 1rem;
+        flex: 1;
+    }
+
+    .vote-btn i {
+        font-size: 1.25rem;
+    }
 }
 
 @media (max-width: 480px) {
