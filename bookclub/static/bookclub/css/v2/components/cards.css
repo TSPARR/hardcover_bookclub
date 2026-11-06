@@ -75,17 +75,6 @@ html.dark-mode .card.hover-lift-card:hover {
     opacity: 0.3;
 }
 
-.card-header::after {
-    content: '❦';
-    position: absolute;
-    top: var(--spacing-sm);
-    right: var(--spacing-md);
-    color: var(--gold-accent);
-    opacity: 0.15;
-    font-size: var(--text-3xl);
-    pointer-events: none;
-}
-
 .card-header-title {
     font-family: var(--font-display);
     font-size: var(--text-xl);
