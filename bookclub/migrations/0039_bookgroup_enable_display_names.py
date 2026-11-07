@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("bookclub", "0037_userprofile_display_name"),
+        ("bookclub", "0038_userprofile_display_name"),
     ]
 
     operations = [

@@ -37,9 +37,7 @@ def profile_settings(request):
     display_name_form = DisplayNameForm(instance=request.user.profile)
 
     if request.method == "POST" and "save_display_name" in request.POST:
-        display_name_form = DisplayNameForm(
-            request.POST, instance=request.user.profile
-        )
+        display_name_form = DisplayNameForm(request.POST, instance=request.user.profile)
         if display_name_form.is_valid():
             display_name_form.save()
             messages.success(request, "Your display name has been updated.")

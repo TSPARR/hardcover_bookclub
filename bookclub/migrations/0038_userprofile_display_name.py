@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("bookclub", "0036_sync_is_winner_field"),
+        ("bookclub", "0037_proposalvote"),
     ]
 
     operations = [

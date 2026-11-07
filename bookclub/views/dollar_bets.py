@@ -567,7 +567,9 @@ def resolve_dollar_bet(request, bet_id):
                     participant = bet.participants.filter(user=winner).first()
                     if not participant:
                         return JsonResponse(
-                            {"error": f"{get_user_display_name(winner, group)} is not a participant"},
+                            {
+                                "error": f"{get_user_display_name(winner, group)} is not a participant"
+                            },
                             status=400,
                         )
                     winner_users.append((winner, participant))
@@ -615,7 +617,10 @@ def resolve_dollar_bet(request, bet_id):
                         # Loser notification
                         if len(winner_users) > 1:
                             winner_names = ", ".join(
-                                [get_user_display_name(w[0], group) for w in winner_users]
+                                [
+                                    get_user_display_name(w[0], group)
+                                    for w in winner_users
+                                ]
                             )
                             body_text = f"{winner_names} won (${net_gain_per_winner:.2f} each) with correct predictions!"
                         else:
@@ -674,14 +679,16 @@ def resolve_dollar_bet(request, bet_id):
                 winner_title = random.choice(WINNER_PHRASES)
                 winner_body_template = random.choice(WINNER_BODY_PHRASES)
                 winner_body = winner_body_template.format(
-                    loser=get_user_display_name(loser, group), description=truncated_prediction
+                    loser=get_user_display_name(loser, group),
+                    description=truncated_prediction,
                 )
 
                 # Select random fun phrases for loser
                 loser_title = random.choice(LOSER_PHRASES)
                 loser_body_template = random.choice(LOSER_BODY_PHRASES)
                 loser_body = loser_body_template.format(
-                    winner=get_user_display_name(winner, group), description=truncated_prediction
+                    winner=get_user_display_name(winner, group),
+                    description=truncated_prediction,
                 )
 
                 # Notify the winner

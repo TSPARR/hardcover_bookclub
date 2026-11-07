@@ -69,9 +69,7 @@ class DisplayNameTests(TestCase):
         group.members.add(self.user)
         group.admins.add(self.user)
 
-        self.client.post(
-            reverse("update_group_settings", args=[group.id]), secure=True
-        )
+        self.client.post(reverse("update_group_settings", args=[group.id]), secure=True)
         group.refresh_from_db()
         self.assertFalse(group.enable_display_names)
 
