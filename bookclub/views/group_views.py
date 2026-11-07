@@ -22,6 +22,7 @@ from ..models import (
     MemberStartingPoint,
     User,
     UserBookProgress,
+    get_user_display_name,
 )
 
 logger = logging.getLogger(__name__)
@@ -343,7 +344,8 @@ def manage_group_members(request, group_id):
             if group.is_admin(user_to_modify):
                 group.admins.remove(user_to_modify)
             messages.success(
-                request, f"{user_to_modify.username} has been removed from the group."
+                request,
+                f"{get_user_display_name(user_to_modify, group)} has been removed from the group.",
             )
 
         elif action == "make_admin":
@@ -351,12 +353,13 @@ def manage_group_members(request, group_id):
             if group.is_member(user_to_modify):
                 group.admins.add(user_to_modify)
                 messages.success(
-                    request, f"{user_to_modify.username} is now an admin of this group."
+                    request,
+                    f"{get_user_display_name(user_to_modify, group)} is now an admin of this group.",
                 )
             else:
                 messages.error(
                     request,
-                    f"{user_to_modify.username} must be a member of the group first.",
+                    f"{get_user_display_name(user_to_modify, group)} must be a member of the group first.",
                 )
 
         elif action == "remove_admin":
@@ -364,7 +367,7 @@ def manage_group_members(request, group_id):
             group.admins.remove(user_to_modify)
             messages.success(
                 request,
-                f"{user_to_modify.username} is no longer an admin of this group.",
+                f"{get_user_display_name(user_to_modify, group)} is no longer an admin of this group.",
             )
 
         return redirect("manage_group_members", group_id=group.id)
@@ -409,7 +412,8 @@ def add_group_member(request, group_id):
         # Add user to the group
         group.members.add(user_to_add)
         messages.success(
-            request, f"{user_to_add.username} has been added to the group."
+            request,
+            f"{get_user_display_name(user_to_add, group)} has been added to the group.",
         )
 
         return redirect("manage_group_members", group_id=group.id)
@@ -519,7 +523,7 @@ def manage_member_starting_points(request, group_id):
 
             messages.success(
                 request,
-                f"Starting point for {member.username} has been set to '{book.title}'.",
+                f"Starting point for {get_user_display_name(member, group)} has been set to '{book.title}'.",
             )
 
         return redirect("manage_member_starting_points", group_id=group.id)
@@ -569,6 +573,9 @@ def update_group_settings(request, group_id):
         if settings.ENABLE_BOOK_PROPOSALS:
             group.enable_book_proposals = "enable_book_proposals" in request.POST
             changed_fields.append("enable_book_proposals")
+
+        group.enable_display_names = "enable_display_names" in request.POST
+        changed_fields.append("enable_display_names")
 
         if changed_fields:
             group.save(update_fields=changed_fields)

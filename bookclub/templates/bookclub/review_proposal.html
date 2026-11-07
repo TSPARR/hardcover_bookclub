@@ -1,5 +1,6 @@
 {% extends 'bookclub/base_v2.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Review Proposal - {{ proposal.title }}{% endblock %}
 
@@ -75,7 +76,7 @@
                 <div class="card-body">
                     <div class="proposal-details">
                         <span class="detail-label">Proposed by:</span>
-                        <span class="detail-value">{{ proposal.proposed_by.username }}</span>
+                        <span class="detail-value">{{ proposal.proposed_by|club_name:group }}</span>
 
                         <span class="detail-label">Proposed on:</span>
                         <span class="detail-value">{{ proposal.created_at|date:"F j, Y g:i A" }}</span>

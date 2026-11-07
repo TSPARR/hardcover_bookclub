@@ -7,7 +7,27 @@ from django import template
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 
+from ..models import get_user_display_name
+
 register = template.Library()
+
+
+@register.filter
+def display_name(user):
+    """Return a user's optional display name, falling back to their username."""
+    return get_user_display_name(user)
+
+
+@register.filter
+def club_name(user, group):
+    """Return the member label allowed by a group's display-name setting."""
+    return get_user_display_name(user, group)
+
+
+@register.filter
+def map_club_names(users, group):
+    """Return member labels for a collection of users within one group."""
+    return [get_user_display_name(user, group) for user in (users or [])]
 
 
 @register.filter
@@ -44,11 +64,11 @@ def floor(value):
 
 
 @register.filter
-def get_username_from_id(user_id):
-    """Convert a user ID to a username."""
+def get_username_from_id(user_id, group=None):
+    """Convert a user ID to its member-facing display name."""
     try:
         user = User.objects.get(id=user_id)
-        return user.username
+        return get_user_display_name(user, group)
     except User.DoesNotExist:
         return "Unknown User"
     except (ValueError, TypeError):

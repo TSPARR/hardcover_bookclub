@@ -65,7 +65,7 @@
                             {% if book.is_collective_pick %}
                             <span class="badge-collective">Group Pick</span>
                             {% elif book.picked_by %}
-                            <span class="badge-user">{{ book.picked_by.username }}</span>
+                            <span class="badge-user">{{ book.picked_by|club_name:group }}</span>
                             {% endif %}
                         </div>
                     </div>

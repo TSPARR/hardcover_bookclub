@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from ..models import Comment, CommentReaction
+from ..models import Comment, CommentReaction, get_user_display_name
 from .book_utils import _get_progress_value_for_sorting, get_redirect_url_with_params
 
 logger = logging.getLogger(__name__)
@@ -107,7 +107,10 @@ def handle_comment_reaction(request, comment_id):
             if user_reactions.exists():
                 reactions_data[reaction_code] = {
                     "count": user_reactions.count(),
-                    "users": [r.user.username for r in user_reactions],
+                    "users": [
+                        get_user_display_name(r.user, comment.book.group)
+                        for r in user_reactions
+                    ],
                     "current_user_reacted": any(
                         r.user.id == request.user.id for r in user_reactions
                     ),
@@ -291,7 +294,10 @@ def get_comment_reaction_users(request, comment_id):
             if user_reactions.exists():
                 reactions_data[reaction_code] = {
                     "count": user_reactions.count(),
-                    "users": [r.user.username for r in user_reactions],
+                    "users": [
+                        get_user_display_name(r.user, comment.book.group)
+                        for r in user_reactions
+                    ],
                     "current_user_reacted": any(
                         r.user.id == request.user.id for r in user_reactions
                     ),

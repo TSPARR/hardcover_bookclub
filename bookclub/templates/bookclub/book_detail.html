@@ -286,7 +286,7 @@
                                 {% for member in group_members %}
                                     {% with member_progress=user_progress_dict|get_item:member.id %}
                                     <div class="member-progress-item">
-                                        <div class="member-name">{{ member.username }}</div>
+                                        <div class="member-name">{{ member|club_name:book.group }}</div>
                                         <div class="member-progress-bar">
                                             {% if member_progress %}
                                                 <div class="progress-bar" data-progress="{{ member_progress.normalized_progress|floatformat:2 }}">
@@ -419,7 +419,7 @@
                                     data-progress="{{ comment_progress_value }}" data-comment-id="{{ comment.id }}" id="comment-{{ comment.id }}">
                                     <div class="comment-header">
                                         <div class="comment-user-info">
-                                            <span class="comment-user">{{ comment.user.username }}</span>
+                                            <span class="comment-user">{{ comment.user|club_name:book.group }}</span>
                                             {% if comment.user == user and is_active_book %}
                                             <div class="comment-actions-dropdown">
                                                 <button class="btn btn-outline-secondary btn-sm dropdown-trigger" aria-label="Comment actions">
@@ -429,7 +429,7 @@
                                                     <a class="dropdown-item" href="{% url 'edit_comment' comment.id %}">Edit</a>
                                                     <button type="button" class="dropdown-item danger delete-comment-btn"
                                                         data-comment-id="{{ comment.id }}"
-                                                        data-comment-user="{{ comment.user.username }}"
+                                                        data-comment-user="{{ comment.user|club_name:book.group }}"
                                                         data-comment-date="{{ comment.created_at|date:"F j, Y, g:i a" }}"
                                                         data-comment-progress="{% if comment.progress_type == 'page' %}Page {{ comment.progress_value }}{% elif comment.progress_type == 'audio' %}Audio: {{ comment.progress_value }}{% else %}{{ comment.progress_value }}% complete{% endif %}"
                                                         data-comment-text="{{ comment.text }}"
@@ -478,7 +478,7 @@
                                                     <button class="reaction-btn {% if user in users %}active{% endif %} {% if not is_active_book %}disabled{% endif %}"
                                                         data-comment-id="{{ comment.id }}"
                                                         data-reaction="{{ reaction_type }}"
-                                                        title="Reacted by: {{ users|map:'username'|join:', ' }}"
+                                                        title="Reacted by: {{ users|map_club_names:book.group|join:', ' }}"
                                                         {% if not is_active_book %}disabled{% endif %}>
                                                         {{ reaction_type }} <span class="reaction-count">{{ count }}</span>
                                                     </button>
@@ -548,7 +548,7 @@
                                         <div class="reply-card {% if not is_active_book %}read-only{% endif %}" id="comment-{{ reply.id }}">
                                             <div class="comment-header">
                                                 <div class="comment-user-info">
-                                                    <span class="comment-user">{{ reply.user.username }}</span>
+                                                    <span class="comment-user">{{ reply.user|club_name:book.group }}</span>
                                                     {% if reply.user == user and is_active_book %}
                                                     <div class="comment-actions-dropdown">
                                                         <button class="btn btn-outline-secondary btn-sm dropdown-trigger" aria-label="Reply actions">
@@ -558,7 +558,7 @@
                                                             <a class="dropdown-item" href="{% url 'edit_comment' reply.id %}">Edit</a>
                                                             <button type="button" class="dropdown-item danger delete-comment-btn"
                                                                 data-comment-id="{{ reply.id }}"
-                                                                data-comment-user="{{ reply.user.username }}"
+                                                                data-comment-user="{{ reply.user|club_name:book.group }}"
                                                                 data-comment-date="{{ reply.created_at|date:"F j, Y, g:i a" }}"
                                                                 data-comment-progress="{% if reply.progress_type == 'page' %}Page {{ reply.progress_value }}{% elif reply.progress_type == 'audio' %}Audio: {{ reply.progress_value }}{% else %}{{ reply.progress_value }}% complete{% endif %}"
                                                                 data-comment-text="{{ reply.text }}"
@@ -702,7 +702,7 @@
                                                         <div class="predictions-preview">
                                                             {% for p in bet.participants.all|slice:":3" %}
                                                             <div class="prediction-item">
-                                                                <strong>{{ p.user.username }}:</strong> "{{ p.prediction|truncatewords:8 }}"
+                                                                <strong>{{ p.user|club_name:book.group }}:</strong> "{{ p.prediction|truncatewords:8 }}"
                                                             </div>
                                                             {% endfor %}
                                                             {% if bet.participant_count > 3 %}
@@ -733,7 +733,7 @@
                                                             <h5 class="bet-description">{{ bet.description }}</h5>
                                                             <small class="bet-time">{{ bet.created_at|timesince }} ago</small>
                                                         </div>
-                                                        <p class="bet-proposer">Proposed by: <strong>{{ bet.proposer.username }}</strong></p>
+                                                        <p class="bet-proposer">Proposed by: <strong>{{ bet.proposer|club_name:book.group }}</strong></p>
                                                     </div>
                                                     <div class="bet-actions">
                                                         {% if request.user != bet.proposer %}
@@ -780,7 +780,7 @@
                                                         <div class="predictions-preview">
                                                             {% for p in bet.participants.all %}
                                                             <div class="prediction-item">
-                                                                <strong>{{ p.user.username }}:</strong> "{{ p.prediction|truncatewords:8 }}"
+                                                                <strong>{{ p.user|club_name:book.group }}:</strong> "{{ p.prediction|truncatewords:8 }}"
                                                             </div>
                                                             {% endfor %}
                                                         </div>
@@ -798,12 +798,12 @@
                                                             <h5 class="bet-description">{{ bet.description }}</h5>
                                                             <span class="status-badge in-progress">In Progress</span>
                                                         </div>
-                                                        <p class="bet-participants">Between <strong>{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+                                                        <p class="bet-participants">Between <strong>{{ bet.proposer|club_name:book.group }}</strong> and <strong>{{ bet.accepter|club_name:book.group }}</strong></p>
 
                                                         {% if bet.counter_description %}
                                                         <div class="counter-bet">
                                                             <span class="counter-badge">Counter-Bet</span>
-                                                            <p><strong>{{ bet.accepter.username }}</strong> counters: "{{ bet.counter_description }}"</p>
+                                                            <p><strong>{{ bet.accepter|club_name:book.group }}</strong> counters: "{{ bet.counter_description }}"</p>
                                                         </div>
                                                         {% endif %}
                                                     </div>
@@ -837,7 +837,7 @@
                                                                 {% if bet.winner_count > 1 %}
                                                                     <span class="status-badge finished">{{ bet.winner_count }} Winners (Split Pot)</span>
                                                                 {% else %}
-                                                                    <span class="status-badge finished">Winner: {{ bet.winners.0.username }}</span>
+                                                                    <span class="status-badge finished">Winner: {{ bet.winners.0|club_name:book.group }}</span>
                                                                 {% endif %}
                                                             {% else %}
                                                                 <span class="status-badge not-started">Inconclusive</span>
@@ -849,35 +849,35 @@
                                                                 {% if p.is_winner %}
                                                                     <p class="winner-info">
                                                                         <i class="bi bi-trophy-fill"></i>
-                                                                        <strong>{{ p.user.username }}</strong> won ${{ bet.net_gain_per_winner }}: "{{ p.prediction|truncatewords:10 }}"
+                                                                        <strong>{{ p.user|club_name:book.group }}</strong> won ${{ bet.net_gain_per_winner }}: "{{ p.prediction|truncatewords:10 }}"
                                                                     </p>
                                                                 {% endif %}
                                                             {% endfor %}
                                                         {% endif %}
-                                                        <small class="resolved-time">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
+                                                        <small class="resolved-time">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by|club_name:book.group }}</small>
                                                     </div>
                                                 {% else %}
                                                     <div class="bet-content">
                                                         <div class="bet-header">
                                                             <h5 class="bet-description">{{ bet.description }}</h5>
                                                             {% if bet.status == 'won' or bet.status == 'resolved_winner' %}
-                                                                <span class="status-badge finished">Winner: {{ bet.winner.username }}</span>
+                                                                <span class="status-badge finished">Winner: {{ bet.winner|club_name:book.group }}</span>
                                                             {% elif bet.status == 'lost' %}
-                                                                <span class="status-badge finished">Winner: {{ bet.winner.username }}</span>
+                                                                <span class="status-badge finished">Winner: {{ bet.winner|club_name:book.group }}</span>
                                                             {% elif bet.status == 'inconclusive' or bet.status == 'resolved_inconclusive' %}
                                                                 <span class="status-badge not-started">Inconclusive</span>
                                                             {% endif %}
                                                         </div>
-                                                        <p class="bet-participants">Between <strong>{{ bet.proposer.username }}</strong> and <strong>{{ bet.accepter.username }}</strong></p>
+                                                        <p class="bet-participants">Between <strong>{{ bet.proposer|club_name:book.group }}</strong> and <strong>{{ bet.accepter|club_name:book.group }}</strong></p>
 
                                                         {% if bet.counter_description %}
                                                         <div class="counter-bet">
                                                             <span class="counter-badge">Counter-Bet</span>
-                                                            <p><strong>{{ bet.accepter.username }}</strong> countered: "{{ bet.counter_description }}"</p>
+                                                            <p><strong>{{ bet.accepter|club_name:book.group }}</strong> countered: "{{ bet.counter_description }}"</p>
                                                         </div>
                                                         {% endif %}
 
-                                                        <small class="resolved-time">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by.username }}</small>
+                                                        <small class="resolved-time">Resolved {{ bet.resolved_at|timesince }} ago by {{ bet.resolved_by|club_name:book.group }}</small>
                                                     </div>
                                                 {% endif %}
                                             </div>

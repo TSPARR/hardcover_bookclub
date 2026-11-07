@@ -25,7 +25,7 @@
             Original Bet
         </div>
         <div class="original-bet-content">
-            <span class="original-bet-proposer">{{ bet.proposer.username }}</span>
+            <span class="original-bet-proposer">{{ bet.proposer|club_name:book.group }}</span>
             <span>bets:</span>
             <p class="original-bet-text">"{{ bet.description }}"</p>
         </div>

@@ -21,9 +21,9 @@ from .views.book_utils import _get_progress_value_for_sorting
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "can_create_groups", "enable_notifications")
+    list_display = ("user", "display_name", "can_create_groups", "enable_notifications")
     list_filter = ("can_create_groups", "enable_notifications")
-    search_fields = ("user__username",)
+    search_fields = ("user__username", "display_name")
     actions = ["grant_group_creation", "revoke_group_creation"]
 
     def grant_group_creation(self, request, queryset):
@@ -51,6 +51,7 @@ class BookGroupAdmin(admin.ModelAdmin):
         "enable_dollar_bets",
         "enable_meetings",
         "enable_book_proposals",
+        "enable_display_names",
         "member_count",
         "book_count",
     )
@@ -59,6 +60,7 @@ class BookGroupAdmin(admin.ModelAdmin):
         "enable_dollar_bets",
         "enable_meetings",
         "enable_book_proposals",
+        "enable_display_names",
         "created_at",
     )
     search_fields = ("name", "description")

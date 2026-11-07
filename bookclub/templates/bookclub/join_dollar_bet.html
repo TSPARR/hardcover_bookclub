@@ -52,7 +52,7 @@
                 {% for participant in existing_participants %}
                 <div class="prediction-item">
                     <div class="prediction-content">
-                        <div class="prediction-user">{{ participant.user.username }}</div>
+                        <div class="prediction-user">{{ participant.user|club_name:group }}</div>
                         <p class="prediction-text">"{{ participant.prediction }}"</p>
                     </div>
                     <div class="prediction-date">{{ participant.joined_at|date:"M d, Y g:i A" }}</div>

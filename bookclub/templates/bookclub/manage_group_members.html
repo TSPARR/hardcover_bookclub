@@ -1,5 +1,6 @@
 {% extends 'bookclub/base_v2.html' %}
 {% load static %}
+{% load bookclub_extras %}
 
 {% block title %}Manage {{ group.name }} Members{% endblock %}
 
@@ -43,7 +44,7 @@
                                 <tbody>
                                     {% for member in members %}
                                     <tr>
-                                        <td>{{ member.username }}</td>
+                                        <td>{{ member|club_name:group }}</td>
                                         <td>
                                             {% if member in admins %}
                                             <span class="role-badge admin">Admin</span>
@@ -60,7 +61,7 @@
                                                 {% if member in admins %}
                                                 <button type="submit" name="action" value="remove_admin"
                                                     class="btn btn-sm btn-outline-warning confirm-action"
-                                                    data-confirm="Are you sure you want to remove admin privileges from {{ member.username }}?">
+                                                    data-confirm="Are you sure you want to remove admin privileges from {{ member|club_name:group }}?">
                                                     <i class="bi bi-shield-minus"></i> Remove Admin
                                                 </button>
                                                 {% else %}
@@ -72,7 +73,7 @@
 
                                                 <button type="submit" name="action" value="remove"
                                                     class="btn btn-sm btn-outline-danger confirm-action"
-                                                    data-confirm="Are you sure you want to remove {{ member.username }} from this group? This action cannot be undone.">
+                                                    data-confirm="Are you sure you want to remove {{ member|club_name:group }} from this group? This action cannot be undone.">
                                                     <i class="bi bi-person-dash"></i> Remove
                                                 </button>
                                             </form>
@@ -89,7 +90,7 @@
                         {% for member in members %}
                         <div class="member-mobile-card">
                             <div class="mobile-card-header">
-                                <span class="member-name">{{ member.username }}</span>
+                                <span class="member-name">{{ member|club_name:group }}</span>
                                 {% if member in admins %}
                                 <span class="role-badge admin">Admin</span>
                                 {% else %}
@@ -106,7 +107,7 @@
                                     {% if member in admins %}
                                     <button type="submit" name="action" value="remove_admin"
                                         class="btn btn-sm btn-outline-warning confirm-action"
-                                        data-confirm="Are you sure you want to remove admin privileges from {{ member.username }}?">
+                                        data-confirm="Are you sure you want to remove admin privileges from {{ member|club_name:group }}?">
                                         <i class="bi bi-shield-minus"></i> Remove Admin
                                     </button>
                                     {% else %}
@@ -118,7 +119,7 @@
 
                                     <button type="submit" name="action" value="remove"
                                         class="btn btn-sm btn-outline-danger confirm-action"
-                                        data-confirm="Are you sure you want to remove {{ member.username }} from this group? This action cannot be undone.">
+                                        data-confirm="Are you sure you want to remove {{ member|club_name:group }} from this group? This action cannot be undone.">
                                         <i class="bi bi-person-dash"></i> Remove
                                     </button>
                                 </form>
@@ -157,7 +158,7 @@
                             <select name="user_id" class="form-select" required>
                                 <option value="">Choose a user to add...</option>
                                 {% for user in available_users %}
-                                <option value="{{ user.id }}">{{ user.username }}</option>
+                                <option value="{{ user.id }}">{{ user|club_name:group }}</option>
                                 {% endfor %}
                             </select>
                             <button class="btn btn-primary" type="submit">

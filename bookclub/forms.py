@@ -110,6 +110,27 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 
+class DisplayNameForm(forms.ModelForm):
+    display_name = forms.CharField(
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-input",
+                "placeholder": "How your name appears to club members",
+            }
+        ),
+        help_text="Leave blank to use your username.",
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = ["display_name"]
+
+    def clean_display_name(self):
+        return self.cleaned_data.get("display_name", "").strip()
+
+
 class ProfileSettingsForm(forms.ModelForm):
     hardcover_api_key = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 3, "class": "form-textarea"}),

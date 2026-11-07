@@ -42,7 +42,7 @@
                         <select class="form-select" id="proposer" name="proposer">
                             <option value="" selected disabled>Select proposer</option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.username }}</option>
+                                <option value="{{ member.id }}">{{ member|club_name:group }}</option>
                             {% endfor %}
                         </select>
                         <div class="form-hint">The member who proposes the bet</div>
@@ -53,7 +53,7 @@
                         <select class="form-select" id="accepter" name="accepter">
                             <option value="" selected disabled>Select accepter</option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.username }}</option>
+                                <option value="{{ member.id }}">{{ member|club_name:group }}</option>
                             {% endfor %}
                         </select>
                         <div class="form-hint">The member who accepts the bet</div>

@@ -31,7 +31,7 @@
 
             <div class="comment-preview-card">
                 <div class="comment-preview-header">
-                    <span class="comment-user">{{ comment.user.username }}</span>
+                    <span class="comment-user">{{ comment.user|club_name:book.group }}</span>
                     <span class="comment-date">{{ comment.created_at|date:"F j, Y, g:i a" }}</span>
                 </div>
                 <div class="comment-preview-body">

@@ -7,7 +7,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 
-from ..models import BetParticipant, Book, BookGroup, DollarBet, User
+from ..models import (
+    BetParticipant,
+    Book,
+    BookGroup,
+    DollarBet,
+    User,
+    get_user_display_name,
+)
 from ..notifications import send_push_notification
 
 
@@ -154,7 +161,7 @@ def create_dollar_bet(request, book_id):
                     send_push_notification(
                         user=member,
                         title=f"New Multi-Party Bet in {group.name}",
-                        body=f"{request.user.username} created: \"{question[:50]}{'...' if len(question) > 50 else ''}\"",
+                        body=f"{get_user_display_name(request.user, group)} created: \"{question[:50]}{'...' if len(question) > 50 else ''}\"",
                         url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
                         icon=book.cover_image_url if book.cover_image_url else None,
                         notification_type="new_dollar_bets",
@@ -184,7 +191,7 @@ def create_dollar_bet(request, book_id):
                     send_push_notification(
                         user=member,
                         title=f"New Dollar Bet in {group.name}",
-                        body=f"{request.user.username} proposed: \"{description[:50]}{'...' if len(description) > 50 else ''}\"",
+                        body=f"{get_user_display_name(request.user, group)} proposed: \"{description[:50]}{'...' if len(description) > 50 else ''}\"",
                         url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
                         icon=book.cover_image_url if book.cover_image_url else None,
                         notification_type="new_dollar_bets",
@@ -273,7 +280,7 @@ def join_dollar_bet(request, bet_id):
                 send_push_notification(
                     user=user,
                     title="Someone Joined Your Bet!",
-                    body=f"{request.user.username} joined: \"{prediction[:50]}{'...' if len(prediction) > 50 else ''}\"",
+                    body=f"{get_user_display_name(request.user, group)} joined: \"{prediction[:50]}{'...' if len(prediction) > 50 else ''}\"",
                     url=request.build_absolute_uri(f"/books/{book.id}/?tab=bets"),
                     icon=book.cover_image_url if book.cover_image_url else None,
                     notification_type="bet_participant_joined",
@@ -384,9 +391,9 @@ def accept_dollar_bet(request, bet_id):
         # Prepare notification message based on whether a counter-bet was provided
         notification_body = ""
         if counter_description:
-            notification_body = f"{request.user.username} accepted your bet with a counter: \"{counter_description[:50]}{'...' if len(counter_description) > 50 else ''}\""
+            notification_body = f"{get_user_display_name(request.user, group)} accepted your bet with a counter: \"{counter_description[:50]}{'...' if len(counter_description) > 50 else ''}\""
         else:
-            notification_body = f"{request.user.username} accepted your bet: \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\""
+            notification_body = f"{get_user_display_name(request.user, group)} accepted your bet: \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\""
 
         # Notify the proposer that their bet was accepted
         send_push_notification(
@@ -514,7 +521,7 @@ def resolve_dollar_bet(request, bet_id):
 
             # Get notification message
             if bet.bet_type == "multi_party":
-                notification_message = f"The bet \"{bet.question[:50]}{'...' if len(bet.question) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
+                notification_message = f"The bet \"{bet.question[:50]}{'...' if len(bet.question) > 50 else ''}\" was ruled inconclusive by {get_user_display_name(request.user, group)}."
                 # Notify all participants
                 for participant in bet.participants.all():
                     send_push_notification(
@@ -528,9 +535,9 @@ def resolve_dollar_bet(request, bet_id):
             else:
                 # Two-party bet
                 if bet.counter_description:
-                    notification_message = f"Neither prediction ('{bet.description[:30]}...' nor '{bet.counter_description[:30]}...') was correct. The bet was ruled inconclusive by {request.user.username}."
+                    notification_message = f"Neither prediction ('{bet.description[:30]}...' nor '{bet.counter_description[:30]}...') was correct. The bet was ruled inconclusive by {get_user_display_name(request.user, group)}."
                 else:
-                    notification_message = f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {request.user.username}."
+                    notification_message = f"The bet about \"{bet.description[:50]}{'...' if len(bet.description) > 50 else ''}\" was ruled inconclusive by {get_user_display_name(request.user, group)}."
 
                 # Notify both participants
                 for participant in [bet.proposer, bet.accepter]:
@@ -560,7 +567,7 @@ def resolve_dollar_bet(request, bet_id):
                     participant = bet.participants.filter(user=winner).first()
                     if not participant:
                         return JsonResponse(
-                            {"error": f"{winner.username} is not a participant"},
+                            {"error": f"{get_user_display_name(winner, group)} is not a participant"},
                             status=400,
                         )
                     winner_users.append((winner, participant))
@@ -608,11 +615,11 @@ def resolve_dollar_bet(request, bet_id):
                         # Loser notification
                         if len(winner_users) > 1:
                             winner_names = ", ".join(
-                                [w[0].username for w in winner_users]
+                                [get_user_display_name(w[0], group) for w in winner_users]
                             )
                             body_text = f"{winner_names} won (${net_gain_per_winner:.2f} each) with correct predictions!"
                         else:
-                            body_text = f"{winner_users[0][0].username} won ${net_gain_per_winner:.2f} with the correct prediction!"
+                            body_text = f"{get_user_display_name(winner_users[0][0], group)} won ${net_gain_per_winner:.2f} with the correct prediction!"
 
                         send_push_notification(
                             user=p.user,
@@ -667,14 +674,14 @@ def resolve_dollar_bet(request, bet_id):
                 winner_title = random.choice(WINNER_PHRASES)
                 winner_body_template = random.choice(WINNER_BODY_PHRASES)
                 winner_body = winner_body_template.format(
-                    loser=loser.username, description=truncated_prediction
+                    loser=get_user_display_name(loser, group), description=truncated_prediction
                 )
 
                 # Select random fun phrases for loser
                 loser_title = random.choice(LOSER_PHRASES)
                 loser_body_template = random.choice(LOSER_BODY_PHRASES)
                 loser_body = loser_body_template.format(
-                    winner=winner.username, description=truncated_prediction
+                    winner=get_user_display_name(winner, group), description=truncated_prediction
                 )
 
                 # Notify the winner

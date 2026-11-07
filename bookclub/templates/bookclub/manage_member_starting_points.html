@@ -47,7 +47,7 @@
                     <tbody>
                         {% for member in members %}
                         <tr>
-                            <td>{{ member.username }}</td>
+                            <td>{{ member|club_name:group }}</td>
                             <td>
                                 {% if member.id in starting_points_dict %}
                                     <span class="book-title">{{ starting_points_dict|get_item:member.id|get_attr:"starting_book"|get_attr:"title"|split:":"|first|trim }}</span>
@@ -65,7 +65,7 @@
                             <td class="actions-cell">
                                 <button class="btn btn-sm btn-outline-primary edit-btn"
                                         data-member-id="{{ member.id }}"
-                                        data-member-name="{{ member.username }}">
+                                        data-member-name="{{ member|club_name:group }}">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </button>
                             </td>
@@ -78,7 +78,7 @@
             {% for member in members %}
             <div class="member-mobile-card">
                 <div class="mobile-card-header">
-                    <span class="member-name">{{ member.username }}</span>
+                    <span class="member-name">{{ member|club_name:group }}</span>
                 </div>
 
                 <div class="mobile-info-group">
@@ -106,7 +106,7 @@
                 <div class="mobile-card-actions">
                     <button class="btn btn-sm btn-outline-primary edit-btn"
                             data-member-id="{{ member.id }}"
-                            data-member-name="{{ member.username }}">
+                            data-member-name="{{ member|club_name:group }}">
                         <i class="bi bi-pencil-square"></i> Edit
                     </button>
                 </div>

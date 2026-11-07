@@ -94,19 +94,19 @@
               {% for member in group.members.all %}
                 {% if member in yes_attendees %}
                   <span class="member-label member-label-success">
-                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-text">{{ member|club_name:group }}</span>
                     <span class="label-divider"></span>
                     <i class="bi bi-check-circle label-icon"></i>
                   </span>
                 {% elif member in no_attendees %}
                   <span class="member-label member-label-danger">
-                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-text">{{ member|club_name:group }}</span>
                     <span class="label-divider"></span>
                     <i class="bi bi-x-circle label-icon"></i>
                   </span>
                 {% else %}
                   <span class="member-label member-label-secondary">
-                    <span class="label-text">{{ member.username }}</span>
+                    <span class="label-text">{{ member|club_name:group }}</span>
                     <span class="label-divider"></span>
                     <i class="bi bi-clock label-icon"></i>
                   </span>

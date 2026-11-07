@@ -50,10 +50,10 @@
         </div>
         {% else %}
         <h2 class="bet-details-title">Bet Details</h2>
-        <p class="bet-question"><strong>{{ bet.proposer.username }}'s Prediction:</strong> {{ bet.description }}</p>
+        <p class="bet-question"><strong>{{ bet.proposer|club_name:group }}'s Prediction:</strong> {{ bet.description }}</p>
 
         {% if bet.counter_description %}
-        <p class="bet-question"><strong>{{ bet.accepter.username }}'s Counter-Prediction:</strong> {{ bet.counter_description }}</p>
+        <p class="bet-question"><strong>{{ bet.accepter|club_name:group }}'s Counter-Prediction:</strong> {{ bet.counter_description }}</p>
         {% endif %}
 
         <div class="bet-divider"></div>
@@ -61,11 +61,11 @@
         <div class="bet-meta-grid">
             <div class="bet-meta-item">
                 <div class="bet-meta-label">Proposed by</div>
-                <div class="bet-meta-value">{{ bet.proposer.username }}</div>
+                <div class="bet-meta-value">{{ bet.proposer|club_name:group }}</div>
             </div>
             <div class="bet-meta-item">
                 <div class="bet-meta-label">Accepted by</div>
-                <div class="bet-meta-value">{{ bet.accepter.username }}</div>
+                <div class="bet-meta-value">{{ bet.accepter|club_name:group }}</div>
             </div>
             <div class="bet-meta-item">
                 <div class="bet-meta-label">Spoiler Level</div>
@@ -113,7 +113,7 @@
                                 <input class="form-check-input winner-checkbox" type="checkbox" name="winners"
                                     id="participant_{{ participant.id }}" value="{{ participant.user.id }}">
                                 <label class="form-check-label" for="participant_{{ participant.id }}">
-                                    <span class="winner-user">{{ participant.user.username }}</span>
+                                    <span class="winner-user">{{ participant.user|club_name:group }}</span>
                                     <span class="winner-prediction">"{{ participant.prediction }}"</span>
                                     <span class="winner-date">Joined: {{ participant.joined_at|date:"M d, Y g:i A" }}</span>
                                 </label>
@@ -130,7 +130,7 @@
                                 <input class="form-check-input" type="radio" name="winner"
                                     id="proposer" value="{{ bet.proposer.id }}" required>
                                 <label class="form-check-label" for="proposer">
-                                    <span class="winner-user">{{ bet.proposer.username }}</span>
+                                    <span class="winner-user">{{ bet.proposer|club_name:group }}</span>
                                     <span class="winner-prediction">prediction was correct: "{{ bet.description }}"</span>
                                 </label>
                             </div>
@@ -141,7 +141,7 @@
                                 <input class="form-check-input" type="radio" name="winner"
                                     id="accepter" value="{{ bet.accepter.id }}">
                                 <label class="form-check-label" for="accepter">
-                                    <span class="winner-user">{{ bet.accepter.username }}</span>
+                                    <span class="winner-user">{{ bet.accepter|club_name:group }}</span>
                                     <span class="winner-prediction">
                                         {% if bet.counter_description %}
                                             counter-prediction was correct: "{{ bet.counter_description }}"
