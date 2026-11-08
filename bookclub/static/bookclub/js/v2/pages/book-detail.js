@@ -612,7 +612,10 @@ function initProgressTracking() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.reload();
+                    // Small delay to let the server process the update
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
                 } else {
                     alert('Error updating progress: ' + (data.error || 'Unknown error'));
                     saveProgressBtn.disabled = false;
@@ -912,8 +915,8 @@ function applyProgressData(bookId, progressData, lastSyncTimeEl, isAutoSync = fa
                     lastSyncTimeEl.textContent = new Date().toLocaleString();
                 }
 
-                // Only reload if edition was updated or if this is a manual sync
-                const shouldReload = !isAutoSync || data.reload;
+                // Always reload to ensure UI updates (progress bars, spoiler warnings, etc.)
+                const shouldReload = true;
 
                 if (progressData.rating) {
                     fetch(`/books/${bookId}/update-rating/`, {
@@ -937,19 +940,22 @@ function applyProgressData(bookId, progressData, lastSyncTimeEl, isAutoSync = fa
                                     updateStarsDisplay(ratingStars, parseFloat(progressData.rating));
                                 }
                             }
-                            if (shouldReload) {
+                            // Small delay to let the server process the edition update
+                            setTimeout(() => {
                                 window.location.reload();
-                            }
+                            }, 500);
                         })
                         .catch(() => {
-                            if (shouldReload) {
+                            // Small delay to let the server process the edition update
+                            setTimeout(() => {
                                 window.location.reload();
-                            }
+                            }, 500);
                         });
                 } else {
-                    if (shouldReload) {
+                    // Small delay to let the server process the edition update
+                    setTimeout(() => {
                         window.location.reload();
-                    }
+                    }, 500);
                 }
             }
         })
