@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_GET, require_POST
 
 from bookclub.models import Book, BookGroup, Meeting, MeetingAttendance
+from bookclub.utils.formatters import format_ordinal
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ def next_meeting_info(request):
 
     # Access: require membership OR meeting management permission
     can_manage = (
-        _is_group_admin(request.user, group)
+        group.is_admin(request.user)
         or _has_meeting_perm(request.user, "add_meeting")
         or _has_meeting_perm(request.user, "change_meeting")
         or _has_meeting_perm(request.user, "delete_meeting")
@@ -73,7 +74,7 @@ def next_meeting_info(request):
 
     last = qs.aggregate(m=Max("meeting_number"))
     next_n = (last.get("m") or 0) + 1
-    suggested = f"{base_title} {ordinal(next_n)} Meeting"
+    suggested = f"{base_title} {format_ordinal(next_n)} Meeting"
 
     return JsonResponse(
         {
@@ -81,15 +82,6 @@ def next_meeting_info(request):
             "suggested_title": suggested,
         }
     )
-
-
-def ordinal(n: int) -> str:
-    # Simple ordinal helper; mirrors common English rules.
-    if 10 <= n % 100 <= 20:
-        suffix = "th"
-    else:
-        suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-    return f"{n}{suffix}"
 
 
 def _make_aware(dt):
@@ -110,10 +102,6 @@ def _is_past(dt) -> bool:
     aware_dt = _make_aware(dt)
     now = timezone.now()
     return aware_dt <= now
-
-
-def _is_group_admin(user, group: BookGroup) -> bool:
-    return bool(group.admins.filter(pk=user.pk).exists())
 
 
 def _has_meeting_perm(user, codename: str) -> bool:
@@ -159,8 +147,7 @@ def create_meeting(request):
 
     # Require either group admin or Django 'add_meeting' permission
     if not (
-        _is_group_admin(request.user, group)
-        or _has_meeting_perm(request.user, "add_meeting")
+        group.is_admin(request.user) or _has_meeting_perm(request.user, "add_meeting")
     ):
         return JsonResponse(
             {"error": "Forbidden: admin or add_meeting permission required."},
@@ -267,7 +254,7 @@ def update_meeting(request, meeting_id: int):
         return _meetings_disabled_response()
     # Require either group admin or Django 'change_meeting' permission
     if not (
-        _is_group_admin(request.user, group)
+        group.is_admin(request.user)
         or _has_meeting_perm(request.user, "change_meeting")
     ):
         return JsonResponse(
@@ -355,7 +342,7 @@ def delete_meeting(request, meeting_id: int):
     if not meeting.group.is_meetings_enabled():
         return _meetings_disabled_response()
     if not (
-        _is_group_admin(request.user, meeting.group)
+        meeting.group.is_admin(request.user)
         or _has_meeting_perm(request.user, "delete_meeting")
     ):
         return JsonResponse(
@@ -389,7 +376,7 @@ def meeting_detail(request, meeting_id: int):
         return _meetings_disabled_response()
     # Visibility: allow either membership OR Django Meeting model permissions
     can_manage = (
-        _is_group_admin(request.user, group)
+        group.is_admin(request.user)
         or _has_meeting_perm(request.user, "add_meeting")
         or _has_meeting_perm(request.user, "change_meeting")
         or _has_meeting_perm(request.user, "delete_meeting")

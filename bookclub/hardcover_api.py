@@ -4,6 +4,8 @@ from datetime import datetime
 
 import requests
 
+from .utils.formatters import format_audio_duration, get_reading_format_name
+
 logger = logging.getLogger(__name__)
 
 
@@ -268,9 +270,7 @@ class HardcoverAPI:
                 reading_format_id = read["edition"]["reading_format_id"]
 
                 # Determine reading format
-                reading_format = "book"
-                if reading_format_id == 2:
-                    reading_format = "audio"
+                reading_format = get_reading_format_name(reading_format_id)
 
                 # Set current page/position based on reading format and completion status
                 current_page = read["progress_pages"]
@@ -363,14 +363,7 @@ class HardcoverAPI:
 
                 # Map reading_format_id to human-readable name
                 format_id = edition.get("reading_format_id")
-                if format_id == 1:
-                    edition["reading_format"] = "physical"
-                elif format_id == 2:
-                    edition["reading_format"] = "audio"
-                elif format_id == 4:
-                    edition["reading_format"] = "ebook"
-                else:
-                    edition["reading_format"] = "unknown"
+                edition["reading_format"] = get_reading_format_name(format_id)
 
                 # Format publication date if present
                 if edition.get("release_date"):
@@ -386,9 +379,9 @@ class HardcoverAPI:
 
                 # Format audio duration if present
                 if edition.get("audio_seconds"):
-                    hours = edition["audio_seconds"] // 3600
-                    minutes = (edition["audio_seconds"] % 3600) // 60
-                    edition["audio_duration_formatted"] = f"{hours}h {minutes}m"
+                    edition["audio_duration_formatted"] = format_audio_duration(
+                        edition["audio_seconds"]
+                    )
 
             return editions
         else:

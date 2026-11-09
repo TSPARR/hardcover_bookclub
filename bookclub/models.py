@@ -13,6 +13,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django_cryptography.fields import encrypt
 
+from .utils.formatters import format_audio_duration, format_ordinal
+
 
 class BookGroup(models.Model):
     name = models.CharField(max_length=200)
@@ -181,11 +183,7 @@ class BookProposal(models.Model):
     @property
     def audio_duration_formatted(self):
         """Return a human-readable audio duration"""
-        if not self.audio_seconds:
-            return None
-        hours = self.audio_seconds // 3600
-        minutes = (self.audio_seconds % 3600) // 60
-        return f"{hours}h {minutes}m"
+        return format_audio_duration(self.audio_seconds)
 
     def approve(self, admin_user):
         """Approve proposal and mark as approved"""
@@ -271,26 +269,18 @@ class BookEdition(models.Model):
 
     def save(self, *args, **kwargs):
         # Ensure only one edition is marked as promoted for each service per book
-        if self.is_kavita_promoted:
-            BookEdition.objects.filter(book=self.book, is_kavita_promoted=True).exclude(
-                id=self.id
-            ).update(is_kavita_promoted=False)
-
-        if self.is_plex_promoted:
-            BookEdition.objects.filter(book=self.book, is_plex_promoted=True).exclude(
-                id=self.id
-            ).update(is_plex_promoted=False)
+        for field_name in ["is_kavita_promoted", "is_plex_promoted"]:
+            if getattr(self, field_name):
+                BookEdition.objects.filter(
+                    book=self.book, **{field_name: True}
+                ).exclude(id=self.id).update(**{field_name: False})
 
         super().save(*args, **kwargs)
 
     @property
     def audio_duration_formatted(self):
         """Return a human-readable audio duration"""
-        if not self.audio_seconds:
-            return None
-        hours = self.audio_seconds // 3600
-        minutes = (self.audio_seconds % 3600) // 60
-        return f"{hours}h {minutes}m"
+        return format_audio_duration(self.audio_seconds)
 
 
 class Comment(models.Model):
@@ -1129,11 +1119,7 @@ class Meeting(models.Model):
 
     @staticmethod
     def _ordinal(n: int) -> str:
-        if 10 <= n % 100 <= 20:
-            suffix = "th"
-        else:
-            suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-        return f"{n}{suffix}"
+        return format_ordinal(n)
 
     def __str__(self):
         return f"{self.display_title} ({self.start_time:%Y-%m-%d %H:%M})"
