@@ -16,6 +16,7 @@ from ..models import (
     get_user_display_name,
 )
 from ..notifications import send_push_notification
+from ..utils.breadcrumbs import breadcrumb_book, breadcrumb_group, breadcrumb_home
 
 
 @login_required
@@ -36,12 +37,9 @@ def dollar_bets_list(request, book_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": "#", "title": "Dollar Bets"},
     ]
 
@@ -81,12 +79,9 @@ def create_dollar_bet(request, book_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
         {"url": "#", "title": "Create Bet"},
     ]
@@ -241,12 +236,9 @@ def join_dollar_bet(request, bet_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
         {"url": "#", "title": "Join Bet"},
     ]
@@ -372,12 +364,9 @@ def accept_dollar_bet(request, bet_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
         {"url": "#", "title": "Accept Bet"},
     ]
@@ -499,12 +488,9 @@ def resolve_dollar_bet(request, bet_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
         {"url": "#", "title": "Resolve Bet"},
     ]
@@ -795,12 +781,9 @@ def admin_create_dollar_bet(request, book_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": reverse("dollar_bets_list", args=[book.id]), "title": "Dollar Bets"},
         {"url": "#", "title": "Admin Create Bet"},
     ]

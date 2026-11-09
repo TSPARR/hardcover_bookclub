@@ -17,6 +17,7 @@ from ..forms import BookProposalForm, ReviewProposalForm
 from ..hardcover_api import HardcoverAPI
 from ..models import Book, BookGroup, BookProposal, ProposalVote, User
 from ..notifications import send_push_notification
+from ..utils.breadcrumbs import breadcrumb_group, breadcrumb_home
 
 logger = logging.getLogger(__name__)
 
@@ -109,8 +110,8 @@ def propose_book(request, group_id, hardcover_id):
         form = BookProposalForm()
 
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Proposals", "url": reverse("group_proposals", args=[group.id])},
         {"title": "Propose Book", "url": None},
     ]
@@ -154,8 +155,8 @@ def group_proposals(request, group_id):
         proposal.user_vote = proposal.get_user_vote(request.user)
 
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Book Proposals", "url": None},
     ]
 
@@ -268,8 +269,8 @@ def review_proposal(request, proposal_id):
         form = ReviewProposalForm(group=group)
 
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Proposals", "url": reverse("group_proposals", args=[group.id])},
         {"title": "Review", "url": None},
     ]

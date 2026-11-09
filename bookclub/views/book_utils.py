@@ -13,6 +13,17 @@ from ..models import BookEdition
 logger = logging.getLogger(__name__)
 
 
+def _get_edition_for_progress(obj):
+    """Get BookEdition for a progress object (Comment or UserBookProgress).
+
+    Returns None if object doesn't have edition ID or edition not found.
+    """
+    if not hasattr(obj, "hardcover_edition_id") or not obj.hardcover_edition_id:
+        return None
+
+    return BookEdition.objects.get_by_hardcover_id(obj.hardcover_edition_id)
+
+
 def _get_progress_value_for_sorting(comment):
     """
     Helper function to convert different progress types to comparable values
@@ -24,17 +35,9 @@ def _get_progress_value_for_sorting(comment):
 
     # Next, try hardcover_current_page if available
     if comment.hardcover_current_page:
-        # First check if we have an associated edition with pages
-        if hasattr(comment, "hardcover_edition_id") and comment.hardcover_edition_id:
-            # Try to find the edition
-            from ..models import BookEdition
-
-            edition = BookEdition.objects.filter(
-                hardcover_edition_id=comment.hardcover_edition_id
-            ).first()
-
-            if edition and edition.pages:
-                return (comment.hardcover_current_page / edition.pages) * 100
+        edition = _get_edition_for_progress(comment)
+        if edition and edition.pages:
+            return (comment.hardcover_current_page / edition.pages) * 100
 
         # Fall back to book pages
         if comment.book.pages:
@@ -53,20 +56,9 @@ def _get_progress_value_for_sorting(comment):
         try:
             page = int(comment.progress_value)
 
-            # First check if we have an associated edition with pages
-            if (
-                hasattr(comment, "hardcover_edition_id")
-                and comment.hardcover_edition_id
-            ):
-                # Try to find the edition
-                from ..models import BookEdition
-
-                edition = BookEdition.objects.filter(
-                    hardcover_edition_id=comment.hardcover_edition_id
-                ).first()
-
-                if edition and edition.pages:
-                    return (page / edition.pages) * 100
+            edition = _get_edition_for_progress(comment)
+            if edition and edition.pages:
+                return (page / edition.pages) * 100
 
             # Fall back to book pages
             if comment.book.pages:
@@ -82,22 +74,11 @@ def _get_progress_value_for_sorting(comment):
     elif comment.progress_type == "audio":
         # Use hardcover_current_position if available
         if comment.hardcover_current_position:
-            # First check if we have an associated edition with audio seconds
-            if (
-                hasattr(comment, "hardcover_edition_id")
-                and comment.hardcover_edition_id
-            ):
-                # Try to find the edition
-                from ..models import BookEdition
-
-                edition = BookEdition.objects.filter(
-                    hardcover_edition_id=comment.hardcover_edition_id
-                ).first()
-
-                if edition and edition.audio_seconds:
-                    return (
-                        comment.hardcover_current_position / edition.audio_seconds
-                    ) * 100
+            edition = _get_edition_for_progress(comment)
+            if edition and edition.audio_seconds:
+                return (
+                    comment.hardcover_current_position / edition.audio_seconds
+                ) * 100
 
             # Fall back to book audio seconds
             if comment.book.audio_seconds:
@@ -111,20 +92,9 @@ def _get_progress_value_for_sorting(comment):
         try:
             total_seconds = parse_audio_progress(comment.progress_value)
             if total_seconds:
-                # First check if we have an edition with audio seconds
-                if (
-                    hasattr(comment, "hardcover_edition_id")
-                    and comment.hardcover_edition_id
-                ):
-                    # Try to find the edition
-                    from ..models import BookEdition
-
-                    edition = BookEdition.objects.filter(
-                        hardcover_edition_id=comment.hardcover_edition_id
-                    ).first()
-
-                    if edition and edition.audio_seconds:
-                        return (total_seconds / edition.audio_seconds) * 100
+                edition = _get_edition_for_progress(comment)
+                if edition and edition.audio_seconds:
+                    return (total_seconds / edition.audio_seconds) * 100
 
                 # Fall back to book audio seconds
                 if comment.book.audio_seconds:

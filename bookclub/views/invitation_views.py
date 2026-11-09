@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.html import escape
 
 from ..models import BookGroup, GroupInvitation
+from ..utils.breadcrumbs import breadcrumb_group, breadcrumb_home
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +35,8 @@ def manage_invitations(request, group_id):
 
     # Build breadcrumbs
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {
-            "url": reverse("group_detail", kwargs={"group_id": group.id}),
-            "title": group.name,
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"url": "", "title": "Manage Invitations"},
     ]
 
@@ -108,11 +106,8 @@ def create_invitation(request, group_id):
 
     # Build breadcrumbs
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {
-            "url": reverse("group_detail", kwargs={"group_id": group.id}),
-            "title": group.name,
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {
             "url": reverse("manage_invitations", kwargs={"group_id": group.id}),
             "title": "Manage Invitations",

@@ -101,6 +101,11 @@ class Book(models.Model):
     def __str__(self):
         return f"{self.title} by {self.author}"
 
+    @property
+    def short_title(self):
+        """Return title before first colon, or full title if no colon."""
+        return self.title.split(":")[0].strip()
+
     def set_active(self):
         """Set this book as the active book for its group and deactivate others"""
         # Start a transaction to ensure consistency
@@ -230,8 +235,18 @@ class ProposalVote(models.Model):
         return f"{self.user.username} {vote_type} {self.proposal.title}"
 
 
+class BookEditionManager(models.Manager):
+    def get_by_hardcover_id(self, hardcover_id):
+        """Get edition by Hardcover API ID, returns None if not found."""
+        if not hardcover_id:
+            return None
+        return self.filter(hardcover_edition_id=hardcover_id).first()
+
+
 class BookEdition(models.Model):
     """Stores information about a specific edition of a book"""
+
+    objects = BookEditionManager()
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="editions")
     hardcover_edition_id = models.CharField(max_length=50, unique=True)

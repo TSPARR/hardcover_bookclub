@@ -24,6 +24,7 @@ from ..models import (
     UserBookProgress,
     get_user_display_name,
 )
+from ..utils.breadcrumbs import breadcrumb_group, breadcrumb_home
 
 logger = logging.getLogger(__name__)
 
@@ -265,8 +266,8 @@ def group_detail(request, group_id):
     )
 
     breadcrumb_items = [
-        {"title": "Home", "url": "/"},
-        {"title": group.name, "url": ""},
+        breadcrumb_home(),
+        breadcrumb_group(group, include_link=False),
     ]
 
     return render(
@@ -309,7 +310,7 @@ def create_group(request):
         form = GroupForm()
 
     breadcrumb_items = [
-        {"title": "Home", "url": "/"},
+        breadcrumb_home(),
         {"title": "Create New Group", "url": ""},
     ]
 
@@ -378,8 +379,8 @@ def manage_group_members(request, group_id):
     )
 
     breadcrumb_items = [
-        {"title": "Home", "url": "/"},
-        {"title": group.name, "url": f"/groups/{group.id}/"},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Manage Members", "url": ""},
     ]
 
@@ -529,8 +530,8 @@ def manage_member_starting_points(request, group_id):
         return redirect("manage_member_starting_points", group_id=group.id)
 
     breadcrumb_items = [
-        {"title": "Home", "url": "/"},
-        {"title": group.name, "url": f"/groups/{group.id}/"},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Manage Member Starting Points", "url": ""},
     ]
 
@@ -602,8 +603,8 @@ def reorder_books_page(request, group_id):
 
     # Breadcrumbs
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Reorder Books", "url": None},
     ]
 

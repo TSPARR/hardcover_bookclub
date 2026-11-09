@@ -29,6 +29,7 @@ from ..models import (
 )
 from ..notifications import send_push_notification
 from ..plex_api import update_plex_info_for_book
+from ..utils.breadcrumbs import breadcrumb_book, breadcrumb_group, breadcrumb_home
 from ..utils.storage import is_auto_sync_enabled
 from .book_utils import (
     _get_progress_value_for_sorting,
@@ -338,12 +339,10 @@ def book_detail(request, book_id):
         open_bets_count = book.dollar_bets.filter(status="open").count()
 
     # Prepare breadcrumb items
-    from django.urls import reverse
-
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
-        {"title": book.title.split(":")[0].strip(), "url": None},
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book),
     ]
 
     # Prepare the context with all required data
@@ -505,8 +504,8 @@ def search_books(request, group_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"url": "#", "title": "Search Books"},
     ]
 
@@ -624,8 +623,8 @@ def add_book_to_group(request, group_id, hardcover_id):
     members = group.members.all()
 
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": group.name, "url": reverse("group_detail", args=[group.id])},
+        breadcrumb_home(),
+        breadcrumb_group(group),
         {"title": "Search Books", "url": reverse("search_books", args=[group.id])},
         {"title": "Confirm Add Book", "url": ""},
     ]
@@ -702,11 +701,9 @@ def select_edition(request, book_id):
     current_edition = user_progress.edition
 
     # Prepare breadcrumbs
-    book_title = book.title.split(":")[0].strip() if ":" in book.title else book.title
-
     breadcrumb_items = [
-        {"title": "Home", "url": reverse("home")},
-        {"title": book_title, "url": reverse("book_detail", args=[book.id])},
+        breadcrumb_home(),
+        breadcrumb_book(book, include_link=True),
         {"title": "Select Edition", "url": ""},
     ]
 
@@ -1116,12 +1113,9 @@ def manage_promoted_editions(request, book_id):
 
     # Create breadcrumb items
     breadcrumb_items = [
-        {"url": reverse("home"), "title": "Home"},
-        {"url": reverse("group_detail", args=[group.id]), "title": group.name},
-        {
-            "url": reverse("book_detail", args=[book.id]),
-            "title": book.title.split(":")[0].strip(),
-        },
+        breadcrumb_home(),
+        breadcrumb_group(group),
+        breadcrumb_book(book, include_link=True),
         {"url": "#", "title": "Manage Editions"},
     ]
 
