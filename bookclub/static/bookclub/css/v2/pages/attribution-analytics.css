@@ -392,6 +392,10 @@ html.dark-mode .analytics-table tbody tr:hover {
     color: var(--ink-black);
 }
 
+html.dark-mode .badge-warning {
+    color: var(--paper-cream-dark);
+}
+
 .badge-light {
     background: rgba(26, 21, 20, 0.1);
     color: var(--ink-black);
@@ -429,6 +433,10 @@ html.dark-mode .badge-secondary {
 .badge-over {
     background: var(--gold-accent);
     color: var(--ink-black);
+}
+
+html.dark-mode .badge-over {
+    color: var(--paper-cream-dark);
 }
 
 .badge-under {
