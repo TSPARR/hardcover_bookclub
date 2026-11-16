@@ -162,7 +162,7 @@
 }
 
 html.dark-mode .next-picker-badge {
-    color: var(--ink-black);
+    color: var(--paper-cream-dark);
     background: rgba(0, 0, 0, 0.3);
 }
 
@@ -407,7 +407,7 @@ html.dark-mode .analytics-table tbody tr:hover {
 }
 
 html.dark-mode .badge-success {
-    color: var(--ink-black);
+    color: var(--paper-cream-dark);
 }
 
 .badge-info {
@@ -416,7 +416,7 @@ html.dark-mode .badge-success {
 }
 
 html.dark-mode .badge-info {
-    color: var(--ink-black);
+    color: var(--paper-cream-dark);
 }
 
 .badge-warning {
@@ -477,7 +477,7 @@ html.dark-mode .badge-over {
 }
 
 html.dark-mode .badge-under {
-    color: var(--ink-black);
+    color: var(--paper-cream-dark);
 }
 
 .badge-fair {
@@ -486,7 +486,7 @@ html.dark-mode .badge-under {
 }
 
 html.dark-mode .badge-fair {
-    color: var(--ink-black);
+    color: var(--paper-cream-dark);
 }
 
 .alert {
