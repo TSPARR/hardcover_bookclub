@@ -200,8 +200,8 @@ def attribution_analytics(request, group_id):
     # Sort by absolute deviation to highlight most significant disparities
     fairness_metrics.sort(key=lambda x: abs(x["deviation"]), reverse=True)
 
-    # Get next in rotation based on previous picks
-    next_picker = suggest_next_picker(book_sequence, members, group)
+    # Get next in rotation based on previous picks and detected pattern
+    next_picker = suggest_next_picker(book_sequence, members, group, rotation_analysis)
 
     # Calculate overall group rating statistics
     all_ratings = []
@@ -623,13 +623,11 @@ def detect_sub_patterns(sequence):
     return {"pairs": pairs, "triplets": triplets}
 
 
-def suggest_next_picker(book_sequence, members, group):
-    """Suggest who should pick next based on fairness principles."""
-    # If no books or members, can't suggest
+def suggest_next_picker(book_sequence, members, group, rotation_analysis=None):
+    """Suggest who should pick next based on detected rotation pattern or fairness."""
     if not book_sequence or not members:
         return None
 
-    # Get the most recent picker to avoid suggesting them again
     most_recent_picker_id = None
     for item in reversed(book_sequence):
         picker_id = item[0]
@@ -637,36 +635,71 @@ def suggest_next_picker(book_sequence, members, group):
             most_recent_picker_id = picker_id
             break
 
-    # Get all picker IDs (excluding group picks)
+    member_dict = {member.id: member for member in members}
+
+    if (
+        rotation_analysis
+        and rotation_analysis.get("has_pattern")
+        and rotation_analysis.get("rotations")
+    ):
+        recent_rotation = rotation_analysis["rotations"][-1]
+        rotation_picks = recent_rotation["picks"]
+
+        if most_recent_picker_id in rotation_picks:
+            current_index = (
+                len(rotation_picks)
+                - 1
+                - rotation_picks[::-1].index(most_recent_picker_id)
+            )
+
+            if len(rotation_analysis["rotations"]) >= 2:
+                next_picker_candidates = defaultdict(int)
+
+                for rotation in rotation_analysis["rotations"]:
+                    picks = rotation["picks"]
+                    for i, picker_id in enumerate(picks):
+                        if picker_id == most_recent_picker_id and i + 1 < len(picks):
+                            next_picker_candidates[picks[i + 1]] += 1
+
+                if next_picker_candidates:
+                    candidates = sorted(
+                        next_picker_candidates.items(), key=lambda x: x[1], reverse=True
+                    )
+
+                    for candidate_id, _ in candidates:
+                        if candidate_id in member_dict:
+                            return member_dict[candidate_id]
+
+            if current_index + 1 < len(rotation_picks):
+                next_in_rotation = rotation_picks[current_index + 1]
+                if next_in_rotation in member_dict:
+                    return member_dict[next_in_rotation]
+
+            for picker_id in rotation_picks:
+                if picker_id != most_recent_picker_id and picker_id in member_dict:
+                    return member_dict[picker_id]
+
     picker_ids = [
         item[0]
         for item in book_sequence
         if item[0] is not None and item[0] != "collective"
     ]
 
-    # If no individual picks yet, suggest a random admin
     if not picker_ids:
         admins = group.admins.all()
         if admins:
             return admins.first()
         return members.first()
 
-    # Count picks per member
     pick_counts = defaultdict(int)
     for picker_id in picker_ids:
         pick_counts[picker_id] += 1
 
-    # Map member IDs to user objects
-    member_dict = {member.id: member for member in members}
-
-    # Find members who have never picked
     never_picked = [member.id for member in members if member.id not in pick_counts]
 
-    # Prioritize members who have never picked (and aren't the most recent picker)
     if never_picked:
         return member_dict.get(never_picked[0])
 
-    # Find members who have picked the least
     min_picks = min(pick_counts.values()) if pick_counts else 0
     least_picked = [
         member_id
@@ -674,20 +707,15 @@ def suggest_next_picker(book_sequence, members, group):
         if count == min_picks and member_id != most_recent_picker_id
     ]
 
-    # If we have members with the lowest pick count (excluding most recent picker)
     if least_picked:
-        # Find which of these members picked least recently
         for item in reversed(book_sequence):
             picker_id = item[0]
             if picker_id in least_picked:
-                # Return a different member with the same minimum count
                 for alt_id in least_picked:
                     if alt_id != picker_id:
                         return member_dict.get(alt_id)
-                # If only one member with min count, return them
                 return member_dict.get(least_picked[0])
 
-    # If all minimum-count members include the most recent picker, look for next tier
     next_min_picks = min(
         [
             count
@@ -706,12 +734,10 @@ def suggest_next_picker(book_sequence, members, group):
         if next_tier_pickers:
             return member_dict.get(next_tier_pickers[0])
 
-    # Default to first member who isn't the most recent picker
     for member in members:
         if member.id != most_recent_picker_id:
             return member
 
-    # Ultimate fallback - first member
     return members.first()
 
 
