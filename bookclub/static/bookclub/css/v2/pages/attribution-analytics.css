@@ -54,10 +54,21 @@
     animation: fadeInUp 0.6s var(--ease-out-expo) backwards;
 }
 
-.stat-card:nth-child(1) { animation-delay: 0.1s; }
-.stat-card:nth-child(2) { animation-delay: 0.15s; }
-.stat-card:nth-child(3) { animation-delay: 0.2s; }
-.stat-card:nth-child(4) { animation-delay: 0.25s; }
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 0.25s;
+}
 
 .stat-card:hover {
     transform: translateY(-2px);
@@ -91,9 +102,17 @@
     animation: fadeInUp 0.6s var(--ease-out-expo) backwards;
 }
 
-.analytics-card:nth-child(2) { animation-delay: 0.1s; }
-.analytics-card:nth-child(3) { animation-delay: 0.15s; }
-.analytics-card:nth-child(4) { animation-delay: 0.2s; }
+.analytics-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.analytics-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.analytics-card:nth-child(4) {
+    animation-delay: 0.2s;
+}
 
 .card-header {
     background: linear-gradient(135deg, var(--burgundy) 0%, var(--forest-green) 100%);
@@ -140,6 +159,11 @@
     align-items: center;
     gap: var(--spacing-xs);
     backdrop-filter: blur(10px);
+}
+
+html.dark-mode .next-picker-badge {
+    color: var(--ink-black);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .rating-summary-grid {
@@ -382,9 +406,17 @@ html.dark-mode .analytics-table tbody tr:hover {
     color: white;
 }
 
+html.dark-mode .badge-success {
+    color: var(--ink-black);
+}
+
 .badge-info {
     background: linear-gradient(135deg, #2d4a3e 0%, #4a6b5a 100%);
     color: white;
+}
+
+html.dark-mode .badge-info {
+    color: var(--ink-black);
 }
 
 .badge-warning {
@@ -444,9 +476,17 @@ html.dark-mode .badge-over {
     color: white;
 }
 
+html.dark-mode .badge-under {
+    color: var(--ink-black);
+}
+
 .badge-fair {
     background: var(--burgundy);
     color: white;
+}
+
+html.dark-mode .badge-fair {
+    color: var(--ink-black);
 }
 
 .alert {
@@ -707,6 +747,7 @@ html.dark-mode .table-toggle-container {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -717,6 +758,7 @@ html.dark-mode .table-toggle-container {
         opacity: 0;
         transform: translateY(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -728,6 +770,7 @@ html.dark-mode .table-toggle-container {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -739,6 +782,7 @@ html.dark-mode .table-toggle-container {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
