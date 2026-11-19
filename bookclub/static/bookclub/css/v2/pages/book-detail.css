@@ -537,13 +537,13 @@ details[open] .chevron-icon {
     z-index: 10;
 }
 
-.comment-card>.comment-header,
 .comment-card>.comment-footer,
-.reply-card>.comment-header,
 .reply-card>.comment-footer {
     overflow: hidden;
 }
 
+.comment-card>.comment-header,
+.reply-card>.comment-header,
 .comment-card>.comment-body,
 .reply-card>.comment-body {
     overflow: visible;
