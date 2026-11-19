@@ -428,6 +428,9 @@ const ProgressValidator = {
             return bookData.edition.pages;
         }
 
+        const editionPages = parseInt(document.querySelector('meta[name="edition-pages"]')?.content);
+        if (editionPages) return editionPages;
+
         const kavitaPages = parseInt(document.querySelector('meta[name="kavita-edition-pages"]')?.content);
         if (kavitaPages) return kavitaPages;
 
@@ -441,6 +444,9 @@ const ProgressValidator = {
         if (bookData.edition && bookData.edition.audio_seconds) {
             return bookData.edition.audio_seconds;
         }
+
+        const editionAudioSeconds = parseInt(document.querySelector('meta[name="edition-audio-seconds"]')?.content);
+        if (editionAudioSeconds) return editionAudioSeconds;
 
         const plexAudioSeconds = parseInt(document.querySelector('meta[name="plex-edition-audio-seconds"]')?.content);
         if (plexAudioSeconds) return plexAudioSeconds;
