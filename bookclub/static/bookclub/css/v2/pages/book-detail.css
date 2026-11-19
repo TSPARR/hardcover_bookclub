@@ -590,7 +590,7 @@ details[open] .chevron-icon {
     border-radius: var(--radius-sm);
     box-shadow: 0 4px 16px var(--shadow-medium);
     min-width: 120px;
-    z-index: 10;
+    z-index: 100;
 }
 
 .comment-actions-dropdown .dropdown-menu.active {
